@@ -106,13 +106,7 @@
       margin-right: 0px;
     }
 
-    i {
-      margin-left: 15px;
-    }
-
-    svg {
-      margin-left: 18px;
-    }
+    
 
     .submenu-title-noDropdown {
       padding: 0 !important;
@@ -120,8 +114,8 @@
 
       .el-tooltip {
         padding: 0 !important;
-        .svg-icon {
-          margin-left: 20px;
+        svg{
+          margin-left: 18px;
         }
       }
     }
@@ -131,8 +125,8 @@
 
       &>.el-submenu__title {
         padding: 0 !important;
-        .svg-icon {
-          margin-left: 20px;
+        svg {
+          margin-left: 18px;
         }
 
         .el-submenu__icon-arrow {

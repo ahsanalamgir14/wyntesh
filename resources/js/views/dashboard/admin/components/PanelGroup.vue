@@ -146,6 +146,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 .panel-group {
   margin-top: 18px;
 
@@ -162,22 +163,6 @@ export default {
     color: #666;
     background: #fff;
     box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
-
-    .icon-people {
-      color: #40c9c6;
-    }
-
-    .icon-message {
-      color: #36a3f7;
-    }
-
-    .icon-money {
-      color: #f4516c;
-    }
-
-    .icon-shopping {
-      color: #34bfa3
-    }
 
     .card-panel-icon-wrapper {
       float: left;
@@ -196,45 +181,60 @@ export default {
       height: 35px;
       width: 45px;
     }
+    @media (min-width:550px) {
+      .card-panel-description {
+        float: right;
+        font-weight: bold;
+        margin-top: 15px;
+        margin-right: 10px;
+        width: 90%;
 
-    .card-panel-description {
-      float: right;
-      font-weight: bold;
-      margin-top: 15px;
-      margin-right: 10px;
-      width: 90%;
+        .card-panel-text {
+          line-height: 25px;
+          color: rgba(0, 0, 0, 0.45);
+          font-size: 14px;
+          display: block;
+          margin-top: 5px;
+        }
 
-      .card-panel-text {
-        line-height: 25px;
-        color: rgba(0, 0, 0, 0.45);
-        font-size: 14px;
-        display: block;
-        margin-top: 5px;
-      }
-
-      .card-panel-num {
-        font-size: 25px;
-        float:right;
-        display: block;
+        .card-panel-num {
+          font-size: 25px;
+          float:right;
+          display: block;
+        }
       }
     }
   }
 }
 
 @media (max-width:550px) {
-  .card-panel-description {
-    display: none;
+  .card-panel{
+    .card-panel-description {
+        font-weight: bold;
+          margin: 5px auto !important;
+          float: none !important;
+          text-align: center;
+        .card-panel-text {
+          line-height: 20px;
+          color: rgba(0, 0, 0, 0.45);
+          font-size: 10px;
+        }
+
+        .card-panel-num {
+          display: block;
+          font-size: 20px;
+        
+        }
+      }
   }
 
   .card-panel-icon-wrapper {
     float: none !important;
-    width: 100%;
-    height: 100%;
     margin: 0 !important;
 
-    .svg-icon {
+    svg {
       display: block;
-      margin: 14px auto !important;
+      margin: 5px auto !important;
       float: none !important;
     }
   }

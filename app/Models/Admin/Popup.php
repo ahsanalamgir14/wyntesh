@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Validator;
 
-class News extends Model {
+class Popup extends Model {
 
 
-	protected $table = 'newses';
+	protected $table = 'popups';
 	public $timestamps = true;
 
 	//use SoftDeletes;
@@ -19,16 +19,14 @@ class News extends Model {
 	public static function validator(Request $request)
     {
         return Validator::make($request->all(), [
-            'title' => 'required|max:2048',
-            'date' => 'required'
+            'title' => 'required|max:2048'
         ]);
     }
 
     public static function updateValidator(Request $request)
     {
         return Validator::make($request->all(), [
-            'title' => 'required|max:2048',
-            'date' => 'required'
+            'title' => 'required|max:2048'
         ]);
     }
 

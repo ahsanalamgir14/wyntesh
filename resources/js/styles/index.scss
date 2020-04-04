@@ -251,7 +251,9 @@ aside {
     color: #bfcbd9;
   }
 
- 
+ .el-date-editor.el-input, .el-date-editor.el-input__inner {
+    width: 220px;
+}
 
 hr {
     border: none;
@@ -259,3 +261,4 @@ hr {
     color: #ccc;
     height: 1px;
 }
+

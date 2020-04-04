@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Validator;
 
-class News extends Model {
+class Achiever extends Model {
 
 
-	protected $table = 'newses';
+	protected $table = 'achievers';
 	public $timestamps = true;
 
 	//use SoftDeletes;

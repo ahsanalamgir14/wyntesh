@@ -273,9 +273,15 @@ export const asyncRoutes = [
     children: [
       {
         path: 'news-and-updates',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/newses/index'),
         name: 'News & Updates',
         meta: { title: 'News & Updates', icon: 'fas fa-newspaper', color:'color:#48C9B0', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'achievers',
+        component: () => import('@/views/admin/achievers/index'),
+        name: 'Achievers',
+        meta: { title: 'Achievers', icon: 'fas fa-award', color:'color:#48C9B0', affix: true, roles: ['admin'] }
       },
       {
         path: 'downloads',
@@ -290,10 +296,10 @@ export const asyncRoutes = [
         meta: { title: 'Gallery', icon: 'fas fa-photo-video', color:'color:#A569BD', affix: true, roles: ['admin'] }
       },
       {
-        path: 'banners',
-        component: () => import('@/views/admin/users/index'),
-        name: 'Banners',
-        meta: { title: 'Banners', icon: 'fas fa-image', color:'color:#3498DB', affix: true, roles: ['admin'] }
+        path: 'popups',
+        component: () => import('@/views/admin/popups/index'),
+        name: 'Popups',
+        meta: { title: 'Popups', icon: 'fas fa-image', color:'color:#3498DB', affix: true, roles: ['admin'] }
       },
       {
         path: 'sliders',

@@ -6,52 +6,155 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\News;
-use App\Models\User\User;
 use Storage;
-use JWTAuth;
 
 class NewsesController extends Controller
 {    
 
-   
+    //  get Newses
+    public function getNewses(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
 
-    public function saveNews(Request $request){
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search){
+            $Newses = News::orderBy('id',$sort)->paginate($limit);    
+        }else{
+            $Newses=News::select();
+
+            $Newses=$Newses->orWhere('title','like','%'.$search.'%');
+            $Newses=$Newses->orderBy('id',$sort)->paginate($limit);
+        }
+   
+       $response = array('status' => true,'message'=>"Newses retrieved.",'data'=>$Newses);
+            return response()->json($response, 200);
+    }
+  
+
+    public function createNews(Request $request){
         $validate=News::validator($request);
-        
         if($validate->fails()){
             $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
             return response()->json($response, 400);
         }
 
-        $News=News::latest('id')->where('tag_id',$request->tag_id)->first();
+        $is_visible=0;
 
-        if(!$News){
-            $News=new News;    
+        if($request->is_visible == 'true'){
+            $is_visible=1;
         }
-        
+
+        $News=new News;
         $News->title=$request->title;
+        $News->subtitle=$request->subtitle;
         $News->description=$request->description;
-        $News->tag_id=$request->tag_id;
+        $News->date=$request->date;
+        $News->is_visible=$is_visible;
         $News->save();
 
-        $response = array('status' => true,'message'=>'News saved successfully.','data'=>$News);
+        if($request->hasFile('image')){
+            $file = $request->file('image');
+            $str=rand(); 
+            $randomID = md5($str);
+            $filename=$randomID.'-'.$News->id.".".$file->getClientOriginalExtension();          
+            $project_directory=env('DO_STORE_PATH');
+
+            $store=Storage::disk('spaces')->put($project_directory.'/news/'.$filename, file_get_contents($file->getRealPath()), 'public');
+            
+            $url=Storage::disk('spaces')->url($project_directory.'/news/'.$filename);
+            
+            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+            $News->image=$cdn_url;
+            $News->save();
+        }
+       
+        $response = array('status' => true,'message'=>'News created successfully.','data'=>$News);
         return response()->json($response, 200);
     }
 
-    public function getNews($tag_id){
-        $News=News::latest('id')->where('tag_id',$tag_id)->first();
+    public function updateNews(Request $request){        
+        
+        $validate=News::updateValidator($request);
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
 
-        $response = array('status' => true,'message'=>'News retrieved successfully','data'=>$News);
+        $is_visible=0;
+
+        if($request->is_visible=='true'){
+            $is_visible=1;
+        }
+
+        $News=News::find($request->id);
+        $News->title=$request->title;
+        $News->subtitle=$request->subtitle;
+        $News->description=$request->description;
+        $News->date=$request->date;
+        $News->is_visible=$is_visible;
+        $News->save();
+
+        if($request->hasFile('image')){
+            $file = $request->file('image');
+            $str=rand(); 
+            $randomID = md5($str);
+            $filename=$randomID.'-'.$News->id.".".$file->getClientOriginalExtension();          
+            $project_directory=env('DO_STORE_PATH');
+
+            $store=Storage::disk('spaces')->put($project_directory.'/news/'.$filename, file_get_contents($file->getRealPath()), 'public');
+            
+            $url=Storage::disk('spaces')->url($project_directory.'/news/'.$filename);
+            
+            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+            $News->image=$cdn_url;
+            $News->save();
+        }
+
+        $response = array('status' => true,'message'=>'News updated successfully.','data'=>$News);
         return response()->json($response, 200);
     }
 
-    public function getMyNews(){
-        $user_id=JWTAuth::user()->id;
-        $User=User::find($user_id);
-        $News=News::latest('id')->where('tag_id',$User->tag_id)->first();
+    public function getNews($id){
+        $News= News::find($id);  
+        if($News){
+            $response = array('status' => true,'message'=>"News retrieved.",'data'=>$News);
+            return response()->json($response, 200);
+        }else{
+            $meta = array('status' => false,'message'=>'News not found.');
+            $messages = array('data' => array(),'meta'=>$meta);
+            return response()->json($messages, 404);
+        }
+    }
 
-        $response = array('status' => true,'message'=>'News retrieved successfully','data'=>$News);
-        return response()->json($response, 200);
+    public function deleteNews($id){
+        $News= News::find($id);         
+        
+         if($News){
+            $News->delete(); 
+            $response = array('status' => true,'message'=>'News successfully deleted.');             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'News not found','data' => array());
+            return response()->json($response, 404);
+        }
     }
 
 }

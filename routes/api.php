@@ -84,6 +84,24 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('subscribers', 'SubscribersController@index');
     Route::delete('subscriber/{id}/delete', 'SubscribersController@destroy');
 
+    Route::post('news','NewsesController@createNews');
+    Route::post('news/update', 'NewsesController@updateNews');
+    Route::get('newses', 'NewsesController@getNewses');
+    Route::get('news/{id}', 'NewsesController@getNews');
+    Route::delete('news/{id}/delete', 'NewsesController@deleteNews');
+
+    Route::post('achiever','AchieversController@createAchiever');
+    Route::post('achiever/update', 'AchieversController@updateAchiever');
+    Route::get('achievers', 'AchieversController@getAchievers');
+    Route::get('achiever/{id}', 'AchieversController@getAchiever');
+    Route::delete('achiever/{id}/delete', 'AchieversController@deleteAchiever');
+
+    Route::post('popup','PopupsController@createPopup');
+    Route::post('popup/update', 'PopupsController@updatePopup');
+    Route::get('popups', 'PopupsController@getPopups');
+    Route::get('popup/{id}', 'PopupsController@getPopup');
+    Route::delete('popup/{id}/delete', 'PopupsController@deletePopup');
+
     Route::get('packages', 'PackagesController@index');
     Route::get('packages/all', 'PackagesController@all');
     Route::post('packages', 'PackagesController@store');
