@@ -57,21 +57,17 @@
       </el-table-column>
       <el-table-column label="Actions" align="center" width="230" class-name="small-padding">
         <template slot-scope="{row}">
-
           <el-button
             type="primary"
-            icon="el-icon-edit"
-            circle
             :loading="buttonLoading"
-            @click="handleEdit(row)"
-          ></el-button>
+            size="mini"
+            @click=""
+          ><i class="fas fa-edit"></i></el-button>
           <el-button
-            type="danger"
-            icon="el-icon-delete"
-            circle
-            :loading="buttonLoading"
-            @click="handleDelete(row)"
-          ></el-button>
+              size="mini"
+              type="success"
+              @click=""
+          ><i class="fas fa-eye"></i></el-button>
         </template>
       </el-table-column>
       <el-table-column label="Name" min-width="150px">
@@ -79,14 +75,14 @@
           <span>{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Default Period" min-width="150px">
-        <template slot-scope="{row}">
-          <span >{{ row.default_period }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="Final Price" min-width="150px">
         <template slot-scope="{row}">
           <span >{{ row.final_price }}</span>
+        </template>
+      </el-table-column>      
+      <el-table-column label="Capping" min-width="150px">
+        <template slot-scope="{row}">
+          <span >{{ row.capping }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Created At" width="150px" align="center">
@@ -106,15 +102,11 @@
     <el-dialog title="Package Details" width="80%" top="2vh" :visible.sync="dialogPackageVisible">
       <el-tabs type="border-card">
         <el-tab-pane label="Details">
-          <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style=" margin-left:50px;">
+          <el-form ref="dataForm" :rules="rules" :model="temp"  >
             <el-row :gutter="20">
-              <el-col :span="12">
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
                 <el-form-item label="Name" prop="name">
                   <el-input v-model="temp.name" />
-                </el-form-item>
-
-                <el-form-item label="Default Period" prop="default_period">
-                  <el-input type="number" min=1 v-model="temp.default_period" />
                 </el-form-item>
 
                 <el-form-item label="Price" prop="price">
@@ -139,13 +131,13 @@
                   </el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
 
               </el-col>
             </el-row>
           </el-form>
         </el-tab-pane>
-        <el-tab-pane label="Courses">
+        <!-- <el-tab-pane label="Courses">
           <el-row style=" height:350px; overflow: auto;">
             <el-checkbox-group v-model="temp.courses" >
               <el-col :span="8" v-for="course in courseList"  :key="course.id">
@@ -153,7 +145,7 @@
               </el-col>
             </el-checkbox-group>
           </el-row>
-        </el-tab-pane>
+        </el-tab-pane> -->
       </el-tabs>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogPackageVisible = false">
@@ -174,9 +166,6 @@ import {
   updatePackage,
   deletePackage,
 } from "@/api/packages";
-import {
-  fetchList as getCourses
-} from "@/api/courses";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
@@ -200,9 +189,28 @@ export default {
   data() {
     return {
       tableKey: 0,
-      list: null,
-      total: 0,
-      listLoading: true,
+      list: [
+        {
+          id:1,
+          name:'Silver',
+          final_price:'1000',
+          capping:'10000'
+        },
+        {
+          id:2,
+          name:'Platinum',
+          final_price:'2000',
+          capping:'20000'
+        },
+        {
+          id:3,
+          name:'Gold',
+          final_price:'3000',
+          capping:'30000'
+        },
+      ],
+      total: 3,
+      listLoading: false,
       listQuery: {
         page: 1,
         limit: 5,
@@ -263,7 +271,7 @@ export default {
     };
   },
   created() {
-    this.getList();
+    //this.getList();
   },
   methods: {
     getList() {

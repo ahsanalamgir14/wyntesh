@@ -262,3 +262,14 @@ hr {
     height: 1px;
 }
 
+.el-table--medium td, .el-table--medium th {
+    padding: 5px 0;
+}
+
+.el-form-item {
+    margin-bottom: 6px;
+}
+
+.el-form-item--medium .el-form-item__content, .el-form-item--medium .el-form-item__label {
+    line-height: 30px;
+}

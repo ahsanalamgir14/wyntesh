@@ -136,9 +136,9 @@
     <el-dialog title="User Details" width="80%" top="2vh" :visible.sync="dialogUserVisible">
       <el-tabs type="border-card">
         <el-tab-pane label="Details">
-          <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style="">
+          <el-form ref="dataForm" :rules="rules" :model="temp" style="">
             <el-row :gutter="20">
-              <el-col :span="12">
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
                 <el-form-item label="Name" prop="name">
                   <el-input v-model="temp.name" />
                 </el-form-item>
@@ -155,7 +155,7 @@
                   <el-input type="password" v-model="temp.password" />
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
                 
                 <el-form-item label="Contact" prop="contact">
                   <el-input v-model="temp.contact" />

@@ -133,19 +133,19 @@ export const asyncRoutes = [
     children: [
       {
         path: 'pending',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/kycs/pending'),
         name: 'Pending',
         meta: { title: 'Pending', icon: 'fas fa-thumbtack', color:'color:#1A9672', affix: true, roles: ['admin'] }
       },
       {
         path: 'approved',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/kycs/approved'),
         name: 'Approved',
         meta: { title: 'Approved', icon: 'far fa-thumbs-up', color:'color:#1CA8B6', affix: true, roles: ['admin'] }
       },
       {
         path: 'rejected',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/kycs/rejected'),
         name: 'Rejected',
         meta: { title: 'Rejected', icon: 'far fa-thumbs-down', color:'color:#1CA8B6', affix: true, roles: ['admin'] }
       }
@@ -160,7 +160,7 @@ export const asyncRoutes = [
     children: [
       {
         path: 'manage',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/packages/index'),
         name: 'Packages',
         meta: { title: 'Packages', icon: 'fas fa-box', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
       }
@@ -175,7 +175,7 @@ export const asyncRoutes = [
     children: [
       {
         path: 'manage',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/genealogy/index'),
         name: 'Genealogy',
         meta: { title: 'Genealogy', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
       }
@@ -195,13 +195,13 @@ export const asyncRoutes = [
     children: [
       {
         path: 'all',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/pins/all'),
         name: 'Generate PINs',
         meta: { title: 'Generate PINs', icon: 'fas fa-tag', color:'color:#35BED1', affix: true, roles: ['admin'] }
       },
       {
         path: 'pin-requests',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/pins/pin-requests'),
         name: 'PIN Requests',
         meta: { title: 'PIN Requests', icon: 'fas fa-tag', color:'color:#40BF27', affix: true, roles: ['admin'] }
       }
@@ -221,24 +221,24 @@ export const asyncRoutes = [
     children: [
       {
         path: 'generate',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/payouts/generate'),
         name: 'Generate PINs',
         meta: { title: 'Generate Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
       },
-      {
-        path: 'all',
-        component: () => import('@/views/admin/users/index'),
-        name: 'PIN Requests',
-        meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
-      }
+      // {
+      //   path: 'all',
+      //   component: () => import('@/views/admin/users/index'),
+      //   name: 'PIN Requests',
+      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
+      // }
     ]
   },
   {
     path: '/wallet',
     component: Layout,
-    name: 'Payouts',
+    name: 'Wallet',
     meta: {
-      title: 'Payouts',
+      title: 'Wallet',
       icon: 'fas fa-wallet',
       roles: ['admin'],
       color:'color:#DC7633'
@@ -247,13 +247,13 @@ export const asyncRoutes = [
     children: [
       {
         path: 'transactions',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/wallet/transactions'),
         name: 'Transactions',
         meta: { title: 'Transactions', icon: 'far fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
       },
       {
         path: 'all',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/wallet/all-transactions'),
         name: 'PIN Requests',
         meta: { title: 'All Payouts', icon: 'fas fa-hand-holding-usd', color:'color:#C39BD3', affix: true, roles: ['admin'] }
       }
