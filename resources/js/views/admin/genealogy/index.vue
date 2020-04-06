@@ -438,13 +438,13 @@ export default {
     position: absolute;
     top: 0;
     right: 50%;
-    border-top: 3px solid #ccc;
+    border-top: 3px solid #3498DB;
     width: 50%;
     height: 20px;
 }
 .tree li::after{
     right: auto; left: 50%;
-    border-left: 1px solid #ccc;
+    border-left: 1px solid #3498DB;
 }
 
 /*We need to remove left-right connectors from elements without
@@ -463,7 +463,7 @@ right connector from last child*/
 }
 /*Adding back the vertical connector to the last nodes*/
 .tree li:last-child::before{
-    border-right: 1px solid #ccc;
+    border-right: 1px solid #3498DB;
     border-radius: 0 5px 0 0;
     -webkit-border-radius: 0 5px 0 0;
     -moz-border-radius: 0 5px 0 0;
@@ -478,12 +478,12 @@ right connector from last child*/
 .tree ul ul::before{
     content: '';
     position: absolute; top: -6px; left: 50%;
-    border-left: 1px solid #ccc;
-    width: 0; height: 27px;
+    border-left: 1px solid #3498DB;
+    width: 0; height: 23px;
 }
 
 .tree li a{
-    /*border: 1px solid #ccc;*/
+    /*border: 1px solid #3498DB;*/
     padding: 5px 10px;
     text-decoration: none;
     color: #666;
@@ -509,7 +509,7 @@ right connector from last child*/
 .tree li a:hover+ul li::before,
 .tree li a:hover+ul::before,
 .tree li a:hover+ul ul::before{
-    border-color:  #94a0b4;
+    border-color:  #3498DB;
 }
 .align-center {
   width: 50%;
