@@ -41,7 +41,6 @@ mix
     'vuex',
     'vue-router',
     'vue-i18n',
-    'element-ui',
     'echarts',
     'highlight.js',
     'sortablejs',
