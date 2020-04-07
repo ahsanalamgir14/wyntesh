@@ -65,16 +65,12 @@
           <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Subtitle" width="150px" >
+      <el-table-column label="Visibility" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <span>{{ row.subtitle }}</span>
-        </template>
-      </el-table-column>  
-      <el-table-column label="Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.date }}</span>
+          <el-tag :type="row.is_visible | statusFilter">{{ row.is_visible?'Visible':'Invisible' }}</el-tag>
         </template>
       </el-table-column>
+
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -90,47 +86,38 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px" :visible.sync="dialogNewsVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp"  style="">
-        <el-row :gutter="20">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogDownloadVisible">
+      <el-form ref="dataForm" :rules="rules" :model="temp" style="">
+        <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
             <el-form-item label="Title" prop="title">
               <el-input v-model="temp.title" />
             </el-form-item>
 
-            <el-form-item label="Subtitle" prop="subtitle">
-              <el-input v-model="temp.subtitle" />
+             <el-form-item label="Download Type" prop="registration">
+                <el-select v-model="temp.download_type" style="width:100%" placeholder="Download Type">
+                  <el-option value='url' label="URL"></el-option>
+                  <el-option value='upload' label="Upload"></el-option>
+                </el-select>
+              </el-form-item>
+
+            <el-form-item v-if="temp.download_type=='url' ||(temp.url && dialogStatus=='edit') " label="URL" prop="URL">
+               <el-input v-model="temp.url" />
             </el-form-item>
 
-            <el-form-item label="Description" prop="description">
-              <tinymce menubar="" v-model="temp.description" :imageUploadButton="false"  :height="150" />
-            </el-form-item>
-
-            <el-form-item label="Date" prop="date">
-              </br>
-              <el-date-picker
-                v-model="temp.date"
-                type="date"
-                format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd"
-                placeholder="End Date">
-              </el-date-picker>
-            </el-form-item>
-
-             <el-form-item label="News Visibility" prop="is_visible">
-              </br>
-              <el-switch
-                v-model="temp.is_visible"
-                active-text="Visible"
-                inactive-text="Not visible">
-              </el-switch>
+            <el-form-item label="Download Visible?" prop="is_visible">
+              <el-select v-model="temp.is_visible" style="width:100%" placeholder="Download Visible?">
+                <el-option value=1 label="Yes"></el-option>
+                <el-option value=0 label="No"></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
-            <div class="img-upload">
-              <el-form-item  prop="image" label="Image">
+            <div class="img-upload" v-if="temp.download_type=='upload'">
+              <el-form-item  prop="file">
+                <label for="file" >File</label>
                 <el-upload
-                  class="avatar-uploader skeleton"
+                  class="avatar-uploader"
                   action="#"
                    ref="upload"
                   :show-file-list="true"
@@ -140,18 +127,18 @@
                   :limit="3"
                   :file-list="fileList"
                   :on-exceed="handleExceed"
-                  accept="image/png, image/jpeg">
-                  <img v-if="temp.image" :src="temp.image" class="avatar">
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                  >
+                  <!-- <img v-if="temp.file" :src="temp.image" class="avatar"> -->
+                  <i class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
-                <p>Click on image to select.</p>
+                <p>Click to upload file.</p>
               </el-form-item>
             </div>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogNewsVisible = false">
+        <el-button @click="dialogDownloadVisible = false">
           Cancel
         </el-button>
         <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
@@ -165,17 +152,16 @@
 <script>
 import {
   fetchList,
-  fetchNews,
-  deleteNews,
-  createNews,
-  updateNews
-} from "@/api/newses";
+  fetchDownload,
+  deleteDownload,
+  createDownload,
+  updateDownload
+} from "@/api/downloads";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
-import Tinymce from '@/components/Tinymce'
-
 import axios from "axios";
+import Tinymce from '@/components/Tinymce'
 
 export default {
   name: "ComplexTable",
@@ -202,11 +188,8 @@ export default {
         page: 1,
         limit: 5,
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        image:undefined,
-        is_visible: 0,
+        url:undefined,
+        is_visible: "1",
         sort: "+id"
       },
       fileList:[],
@@ -217,22 +200,19 @@ export default {
       ],
       temp: {
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        is_visible: "1",
+        download_type:'upload',
+        url:undefined
       },
 
-      dialogNewsVisible:false,
+      dialogDownloadVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }],
-        date: [{  required: true, message: 'Date is required', trigger: 'blur' }]
+        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -285,20 +265,20 @@ export default {
     },
     resetTemp() {
       this.temp = {
+        id: undefined,
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        is_visible: "1",
+        download_type:'upload',
+        url:undefined
       };
       this.file=undefined
       this.fileList=[];
     },
     handleCreate() {
+      this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogNewsVisible = true;
+      this.dialogDownloadVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
@@ -316,11 +296,11 @@ export default {
             }
           }
 
-          form.append('image', this.file);
+          form.append('file', this.file);
 
-          createNews(form).then((data) => {
+          createDownload(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogNewsVisible = false;
+            this.dialogDownloadVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -337,14 +317,16 @@ export default {
     handleEdit(row) {
       this.fileList=[];
       this.file=undefined;
+      row.download_type='url';
       this.temp = Object.assign({}, row); // copy obj
       if(row.is_visible==1){
-        this.temp.is_visible=true
+        this.temp.is_visible="1"
       }else{
-        this.temp.is_visible=false
+        this.temp.is_visible="0"
       }
+
       this.dialogStatus = "update";
-      this.dialogNewsVisible = true;
+      this.dialogDownloadVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
@@ -362,10 +344,10 @@ export default {
             }
           }
 
-          form.append('image', this.file);
+          form.append('file', this.file);
 
           
-          updateNews(form).then((data) => {
+          updateDownload(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -373,7 +355,7 @@ export default {
                 break;
               }
             }
-            this.dialogNewsVisible = false;
+            this.dialogDownloadVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -388,8 +370,8 @@ export default {
       this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteNews(row.id).then((data) => {
-            this.dialogNewsVisible = false;
+        deleteDownload(row.id).then((data) => {
+            this.dialogDownloadVisible = false;
             this.$notify({
                 title: "Success",
                 message: data.message,
@@ -413,7 +395,6 @@ export default {
 </script>
 
 <style scoped>
-
 .el-drawer__body {
   padding: 20px;
 }

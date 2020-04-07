@@ -76,9 +76,9 @@ class PopupsController extends Controller
             $filename=$randomID.'-'.$Popup->id.".".$file->getClientOriginalExtension();          
             $project_directory=env('DO_STORE_PATH');
 
-            $store=Storage::disk('spaces')->put($project_directory.'/Popup/'.$filename, file_get_contents($file->getRealPath()), 'public');
+            $store=Storage::disk('spaces')->put($project_directory.'/popup/'.$filename, file_get_contents($file->getRealPath()), 'public');
             
-            $url=Storage::disk('spaces')->url($project_directory.'/Popup/'.$filename);
+            $url=Storage::disk('spaces')->url($project_directory.'/popup/'.$filename);
             
             $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
 
@@ -120,9 +120,9 @@ class PopupsController extends Controller
             $filename=$randomID.'-'.$Popup->id.".".$file->getClientOriginalExtension();          
             $project_directory=env('DO_STORE_PATH');
 
-            $store=Storage::disk('spaces')->put($project_directory.'/Popup/'.$filename, file_get_contents($file->getRealPath()), 'public');
+            $store=Storage::disk('spaces')->put($project_directory.'/popup/'.$filename, file_get_contents($file->getRealPath()), 'public');
             
-            $url=Storage::disk('spaces')->url($project_directory.'/Popup/'.$filename);
+            $url=Storage::disk('spaces')->url($project_directory.'/popup/'.$filename);
             
             $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
 

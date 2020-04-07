@@ -14,9 +14,24 @@ export function getSettings() {
   })
 }
 
+export function getAdminSettings() {
+  return request({
+    url: '/admin/settings',
+    method: 'get'
+  })
+}
+
 export function saveSettings(data) {
   return request({
     url: '/sadmin/settings',
+    method: 'post',
+    data
+  })
+}
+
+export function saveCompanySettings(data) {
+  return request({
+    url: '/admin/settings',
     method: 'post',
     data
   })

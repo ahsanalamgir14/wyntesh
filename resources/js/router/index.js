@@ -264,7 +264,7 @@ export const asyncRoutes = [
     component: Layout,
     name: 'Manage Site',
     meta: {
-      title: 'Manage Site',
+      title: 'Manage',
       icon: 'fas fa-globe',
       roles: ['admin'],
       color:'color:#dd6161'
@@ -275,7 +275,7 @@ export const asyncRoutes = [
         path: 'news-and-updates',
         component: () => import('@/views/admin/newses/index'),
         name: 'News & Updates',
-        meta: { title: 'News & Updates', icon: 'fas fa-newspaper', color:'color:#48C9B0', affix: true, roles: ['admin'] }
+        meta: { title: 'News', icon: 'fas fa-newspaper', color:'color:#48C9B0', affix: true, roles: ['admin'] }
       },
       {
         path: 'achievers',
@@ -285,13 +285,13 @@ export const asyncRoutes = [
       },
       {
         path: 'downloads',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/downloads/index'),
         name: 'Downloads',
         meta: { title: 'Downloads', icon: 'fas fa-download', color:'color:#EC7063', affix: true, roles: ['admin'] }
       },
       {
         path: 'gallery',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/gallery/index'),
         name: 'Gallery',
         meta: { title: 'Gallery', icon: 'fas fa-photo-video', color:'color:#A569BD', affix: true, roles: ['admin'] }
       },
@@ -303,32 +303,33 @@ export const asyncRoutes = [
       },
       {
         path: 'sliders',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/sliders/index'),
         name: 'Sliders',
         meta: { title: 'Sliders', icon: 'fas fa-images', color:'color:#16A085', affix: true, roles: ['admin'] }
       },
       {
         path: 'testimonials',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/testimonials/index'),
         name: 'Testimonials',
         meta: { title: 'Testimonials', icon: 'fas fa-user-friends', color:'color:#27AE60', affix: true, roles: ['admin'] }
       },
       {
-        path: 'company-details',
-        component: () => import('@/views/admin/users/index'),
-        name: 'Company Details',
-        meta: { title: 'Company Details', icon: 'fas fa-building', color:'color:#F1C40F', affix: true, roles: ['admin'] }
-      },
-      {
         path: 'bank-partners',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/bank-partners/index'),
         name: 'Bank Partners',
         meta: { title: 'Bank Partners', icon: 'fas fa-university', color:'color:#196F3D', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'company-details',
+        component: () => import('@/views/admin/settings/company-details'),
+        name: 'Company Details',
+        meta: { title: 'Company Details', icon: 'fas fa-building', color:'color:#F1C40F', affix: true, roles: ['admin'] }
       },
       {
         path: 'settings',
         component: () => import('@/views/admin/users/index'),
         name: 'Settings',
+        hidden:true,
         meta: { title: 'Settings', icon: 'fas fa-user-cog', color:'color:#ECF0F1', affix: true, roles: ['admin'] }
       }
     ]
@@ -347,13 +348,13 @@ export const asyncRoutes = [
     children: [
       {
         path: 'inquiries',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/inquiries/index'),
         name: 'Inquiries',
         meta: { title: 'Inquiries', icon: 'fas fa-phone-square-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
       },
       {
         path: 'tickets',
-        component: () => import('@/views/admin/users/index'),
+        component: () => import('@/views/admin/inquiries/index'),
         name: 'Tickets',
         meta: { title: 'Tickets', icon: 'fas fa-envelope-open-text', color:'color:#C39BD3', affix: true, roles: ['admin'] }
       }

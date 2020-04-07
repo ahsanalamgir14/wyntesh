@@ -4,14 +4,14 @@
       <el-tabs type="border-card">
         <el-tab-pane label="Company Details">          
           <el-row :gutter="20">
-            <el-col :span="8">
+            <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
               <el-form-item label="Company Name" prop="company_name">
                 <el-input v-model="temp.company_name" />
               </el-form-item>
               <el-form-item label="About" prop="company_about">
                 <el-input v-model="temp.company_about" />
               </el-form-item>
-              <el-form-item label="Website prop="website">
+              <el-form-item label="Website" prop="website">
                 <el-input v-model="temp.website" />
               </el-form-item>
               <el-form-item label="Tag Line" prop="tag_line">
@@ -19,7 +19,7 @@
               </el-form-item>
               
             </el-col>
-            <el-col :span="8">
+            <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
               <el-form-item label="Contact Email" prop="contact_email">
                 <el-input v-model="temp.contact_email" />
               </el-form-item>
@@ -27,14 +27,14 @@
                 <el-input v-model="temp.support_email" />
               </el-form-item>                
               <el-form-item label="Contact Phone" prop="contact_email">
-                <el-input v-model="temp.contact_email" />
+                <el-input v-model="temp.contact_phone" />
               </el-form-item>
               <el-form-item label="Support Phone" prop="support_phone">
                 <el-input v-model="temp.support_phone" />
               </el-form-item>
               
             </el-col>
-            <el-col :span="8">
+            <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
               <el-form-item label="Address" prop="address">
                 <el-input v-model="temp.address" />
               </el-form-item>                
@@ -64,7 +64,7 @@
         </el-tab-pane>
         <el-tab-pane label="Social Media">
           <el-row :gutter="20">
-            <el-col :span="8">
+            <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
               <el-form-item label="Facebook" prop="facebook_link">
                 <el-input v-model="temp.facebook_link" />
               </el-form-item>
@@ -74,9 +74,6 @@
               <el-form-item label="Instagram" prop="instagram_link">
                 <el-input v-model="temp.instagram_link" />
               </el-form-item>
-              <el-form-item label="Google Plus" prop="gplus_link">
-                <el-input v-model="temp.gplus_link" />
-              </el-form-item> 
               <el-form-item label="Twitter" prop="twitter_link">
                 <el-input v-model="temp.twitter_link" />
               </el-form-item>
@@ -183,9 +180,6 @@ export default {
         youtube_link: [
           { required: true, message: "Youtube link is required.", trigger: "blur" }
         ],
-        gplus_link: [
-          { required: true, message: "G+ Link is required.", trigger: "blur" }
-        ],
         twitter_link: [
           { required: true, message: "Twitter is required.", trigger: "blur" }
         ],
@@ -199,7 +193,7 @@ export default {
     };
   },
   created() {
-    getSettings().then(response => {
+    getAdminSettings().then(response => {
       this.temp = response.data;
     });
   },
@@ -207,11 +201,11 @@ export default {
     handleSaveSettings() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          saveSettings(this.temp).then((response) => {
+          saveCompanySettings(this.temp).then((response) => {
             this.temp=response.data;
             this.$notify({
               title: "Success",
-              message: data.message,
+              message: response.message,
               type: "success",
               duration: 2000
             });

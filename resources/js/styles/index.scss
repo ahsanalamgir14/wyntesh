@@ -193,6 +193,12 @@ aside {
   z-index: 1000 !important;
 }
 
+.el-upload-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    width: 180px;
+}
 
 .avatar-uploader .el-upload {
     border: 1px dashed #d9d9d9;

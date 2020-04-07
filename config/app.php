@@ -181,6 +181,7 @@ return [
         RobinCSamuel\LaravelMsg91\LaravelMsg91ServiceProvider::class,
         \Fruitcake\Cors\CorsServiceProvider::class,
         App\Providers\MailConfigServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
 
 
 
@@ -240,6 +241,7 @@ return [
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'LaravelMsg91' => RobinCSamuel\LaravelMsg91\Facades\LaravelMsg91::class,
+        'Image' => Intervention\Image\Facades\Image::class,
 
     ],
 

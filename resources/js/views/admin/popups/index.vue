@@ -18,18 +18,9 @@
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
-        type="primary"
-        icon="el-icon-edit"
+        type="success"
         @click="handleCreate"
-      >Add</el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >Export</el-button>
+      ><i class="fas fa-plus"></i> Add</el-button>
     </div>
 
     <el-table
@@ -58,35 +49,33 @@
         <template slot-scope="{row}">
           <el-button
             type="primary"
-            icon="el-icon-s-claim"
             :loading="buttonLoading"
             size="mini"
             @click="handleEdit(row)"
-          >Edit</el-button>
+          ><i class="fas fa-edit"></i></el-button>
           <el-button
-              v-if="row.status!='deleted'"
               size="mini"
               type="danger"
               @click="deleteData(row)"
-          >Delete</el-button>
+          ><i class="fas fa-trash"></i></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Title" min-width="150px">
+      <el-table-column label="Title" min-width="350px">
         <template slot-scope="{row}">
           <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Subtitle" width="150px" align="right">
+      <el-table-column label="Subtitle" width="170px" align="left">
         <template slot-scope="{row}">
           <span>{{ row.subtitle }}</span>
         </template>
       </el-table-column>  
-      <el-table-column label="From time" width="150px" align="right">
+      <el-table-column label="From time" width="170px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.from_time }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="To time" width="150px" align="right">
+      <el-table-column label="To time" width="170px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.to_time }}</span>
         </template>
@@ -106,7 +95,7 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="85%" top="30px"  :visible.sync="dialogPopupVisible">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogPopupVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" style="">
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
@@ -123,6 +112,7 @@
             </el-form-item>
 
             <el-form-item label="From Time" prop="from_time">
+              </br>
               <el-date-picker
                 v-model="temp.from_time"
                 type="datetime"
@@ -134,6 +124,7 @@
             </el-form-item>
 
             <el-form-item label="To Time" prop="to_time">
+              </br>
               <el-date-picker
                 v-model="temp.to_time"
                 type="datetime"
@@ -144,6 +135,7 @@
             </el-form-item>
 
              <el-form-item label="Popup Visibility" prop="is_visible">
+              </br>
               <el-switch
                 v-model="temp.is_visible"
                 active-text="Visible"
@@ -162,6 +154,7 @@
                   :show-file-list="true"
                   :auto-upload="false"
                   :on-change="handleChange"
+                  :on-remove="handleRemove"
                   :limit="3"
                   :file-list="fileList"
                   :on-exceed="handleExceed"
@@ -273,6 +266,10 @@ export default {
         fl.shift()  
       }      
       this.file=f.raw      
+    },
+    handleRemove(file, fileList) {
+       this.file=undefined;
+       this.fileList=[];
     },
     handleExceed(files, fileList) {
       this.$message.warning(`You can not select more than one file, please remove first.`);
@@ -423,45 +420,6 @@ export default {
             const index = this.list.indexOf(row);
             this.list.splice(index, 1);
         });
-    },
-    handleDownload() {
-      this.downloadLoading = true;
-      import("@/vendor/Export2Excel").then(excel => {
-        const tHeader = [
-          "ID",
-          "Title",
-          "Subtitle",
-          "From time",
-          "To time",
-          "Created at"
-        ];
-        const filterVal = [
-          "id",
-          "title",
-          "subtitle",
-          "from_time",
-          "to_time",
-          "created_at"
-        ];
-        const data = this.formatJson(filterVal, this.list);
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: "Popups"
-        });
-        this.downloadLoading = false;
-      });
-    },
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v =>
-        filterVal.map(j => {
-          if (j === "timestamp") {
-            return parseTime(v[j]);
-          } else {
-            return v[j];
-          }
-        })
-      );
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;

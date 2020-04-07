@@ -69,6 +69,8 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 {   
  
     Route::get('stats', 'SettingsController@stats');
+    Route::post('settings','SettingsController@updateCompanyDetails');
+    Route::get('settings','SettingsController@getAdminSettings');
 
     Route::get('users', 'UserAndRoleController@getUsers');
     Route::post('user','UserAndRoleController@createUser');
@@ -99,7 +101,6 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('popup','PopupsController@createPopup');
     Route::post('popup/update', 'PopupsController@updatePopup');
     Route::get('popups', 'PopupsController@getPopups');
-    Route::get('popup/{id}', 'PopupsController@getPopup');
     Route::delete('popup/{id}/delete', 'PopupsController@deletePopup');
 
     Route::get('packages', 'PackagesController@index');
@@ -107,6 +108,32 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('packages', 'PackagesController@store');
     Route::post('package/{id}/update','PackagesController@update');
     Route::delete('package/{id}/delete', 'PackagesController@destroy');
+
+    Route::post('download','DownloadsController@createDownload');
+    Route::post('download/update', 'DownloadsController@updateDownload');
+    Route::get('downloads', 'DownloadsController@getDownloads');
+    Route::delete('download/{id}/delete', 'DownloadsController@deleteDownload');
+
+    Route::post('gallery','GalleryController@createGallery');
+    Route::post('gallery/update', 'GalleryController@updateGallery');
+    Route::get('gallery', 'GalleryController@getGallery');
+    Route::delete('gallery/{id}/delete', 'GalleryController@deleteGallery');
+
+    Route::post('slider','SlidersController@createSlider');
+    Route::post('slider/update', 'SlidersController@updateSlider');
+    Route::get('sliders', 'SlidersController@getSliders');
+    Route::delete('slider/{id}/delete', 'SlidersController@deleteSlider');
+
+    Route::post('testimonial','TestimonialsController@createTestimonial');
+    Route::post('testimonial/update', 'TestimonialsController@updateTestimonial');
+    Route::get('testimonials', 'TestimonialsController@getTestimonials');
+    Route::delete('testimonial/{id}/delete', 'TestimonialsController@deleteTestimonial');
+
+    Route::post('bank-partner','BankPartnersController@createBankPartner');
+    Route::post('bank-partner/update', 'BankPartnersController@updateBankPartner');
+    Route::get('bank-partners', 'BankPartnersController@getBankPartners');
+    Route::delete('bank-partner/{id}/delete', 'BankPartnersController@deleteBankPartner');
+
 
 });
 

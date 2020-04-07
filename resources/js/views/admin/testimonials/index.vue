@@ -18,9 +18,10 @@
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
-        type="success"
+        type="primary"
+        icon="el-icon-edit"
         @click="handleCreate"
-      ><i class="fas fa-plus"></i> Add</el-button>
+      >Add</el-button>
     </div>
 
     <el-table
@@ -45,7 +46,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="200" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="150" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button
             type="primary"
@@ -60,21 +61,22 @@
           ><i class="fas fa-trash"></i></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Title" min-width="150px">
+      <el-table-column label="Name" min-width="150px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
+          <span  >{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Subtitle" width="150px" >
+      <el-table-column label="Description" min-width="270px">
         <template slot-scope="{row}">
-          <span>{{ row.subtitle }}</span>
-        </template>
-      </el-table-column>  
-      <el-table-column label="Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.date }}</span>
+          <span  >{{ row.description }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Image" min-width="150px">
+        <template slot-scope="{row}">
+          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
+        </template>
+      </el-table-column>
+
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -90,47 +92,28 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px" :visible.sync="dialogNewsVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp"  style="">
-        <el-row :gutter="20">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogTestimonialVisible">
+      <el-form ref="dataForm" :rules="rules" :model="temp" style="">
+        <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
-            <el-form-item label="Title" prop="title">
-              <el-input v-model="temp.title" />
+            <el-form-item label="Name" prop="name">
+              <el-input v-model="temp.name" />
             </el-form-item>
-
-            <el-form-item label="Subtitle" prop="subtitle">
-              <el-input v-model="temp.subtitle" />
-            </el-form-item>
-
             <el-form-item label="Description" prop="description">
-              <tinymce menubar="" v-model="temp.description" :imageUploadButton="false"  :height="150" />
-            </el-form-item>
-
-            <el-form-item label="Date" prop="date">
-              </br>
-              <el-date-picker
-                v-model="temp.date"
-                type="date"
-                format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd"
-                placeholder="End Date">
-              </el-date-picker>
-            </el-form-item>
-
-             <el-form-item label="News Visibility" prop="is_visible">
-              </br>
-              <el-switch
-                v-model="temp.is_visible"
-                active-text="Visible"
-                inactive-text="Not visible">
-              </el-switch>
+              <el-input
+                type="textarea"
+                :rows="3"
+                placeholder="Description"
+                v-model="temp.description">
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
             <div class="img-upload">
-              <el-form-item  prop="image" label="Image">
+              <el-form-item  prop="image">
+                <label for="Image">Image</label>
                 <el-upload
-                  class="avatar-uploader skeleton"
+                  class="avatar-uploader"
                   action="#"
                    ref="upload"
                   :show-file-list="true"
@@ -144,14 +127,14 @@
                   <img v-if="temp.image" :src="temp.image" class="avatar">
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
-                <p>Click on image to select.</p>
+                <p>Click to upload image.</p>
               </el-form-item>
             </div>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogNewsVisible = false">
+        <el-button @click="dialogTestimonialVisible = false">
           Cancel
         </el-button>
         <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
@@ -165,17 +148,16 @@
 <script>
 import {
   fetchList,
-  fetchNews,
-  deleteNews,
-  createNews,
-  updateNews
-} from "@/api/newses";
+  fetchTestimonial,
+  deleteTestimonial,
+  createTestimonial,
+  updateTestimonial
+} from "@/api/testimonials";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
-import Tinymce from '@/components/Tinymce'
-
 import axios from "axios";
+import Tinymce from '@/components/Tinymce'
 
 export default {
   name: "ComplexTable",
@@ -201,12 +183,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        image:undefined,
-        is_visible: 0,
+        search:undefined,
         sort: "+id"
       },
       fileList:[],
@@ -216,23 +193,21 @@ export default {
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
-        title: undefined,
-        subtitle: undefined,
+        id:undefined,
+        name: undefined,
         description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        image:undefined,
       },
 
-      dialogNewsVisible:false,
+      dialogTestimonialVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }],
-        date: [{  required: true, message: 'Date is required', trigger: 'blur' }]
+         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+         description: [{ required: true, message: 'Description is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -285,20 +260,19 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        title: undefined,
-        subtitle: undefined,
+        id:undefined,      
+        name: undefined,
         description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        image:undefined,
       };
       this.file=undefined
       this.fileList=[];
     },
     handleCreate() {
+      this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogNewsVisible = true;
+      this.dialogTestimonialVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
@@ -316,11 +290,13 @@ export default {
             }
           }
 
-          form.append('image', this.file);
+          if(this.fileList){
+            form.append('file', this.file);
+          } 
 
-          createNews(form).then((data) => {
+          createTestimonial(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogNewsVisible = false;
+            this.dialogTestimonialVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -338,19 +314,16 @@ export default {
       this.fileList=[];
       this.file=undefined;
       this.temp = Object.assign({}, row); // copy obj
-      if(row.is_visible==1){
-        this.temp.is_visible=true
-      }else{
-        this.temp.is_visible=false
-      }
+
       this.dialogStatus = "update";
-      this.dialogNewsVisible = true;
+      this.dialogTestimonialVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     updateData() {
-      this.buttonLoading=true;
+      this.buttonLoading=false;
+      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
           var form = new FormData();
@@ -362,10 +335,11 @@ export default {
             }
           }
 
-          form.append('image', this.file);
-
-          
-          updateNews(form).then((data) => {
+          if(this.fileList){
+            form.append('file', this.file);
+          }          
+   
+          updateTestimonial(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -373,7 +347,7 @@ export default {
                 break;
               }
             }
-            this.dialogNewsVisible = false;
+            this.dialogTestimonialVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -388,8 +362,8 @@ export default {
       this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteNews(row.id).then((data) => {
-            this.dialogNewsVisible = false;
+        deleteTestimonial(row.id).then((data) => {
+            this.dialogTestimonialVisible = false;
             this.$notify({
                 title: "Success",
                 message: data.message,
@@ -413,7 +387,6 @@ export default {
 </script>
 
 <style scoped>
-
 .el-drawer__body {
   padding: 20px;
 }

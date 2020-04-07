@@ -25,15 +25,15 @@ class MailConfigServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $settings= DB::table('settings')->get()->pluck('value', 'key')->toArray();
-        $mail=Config::get('mail');
-        if(isset($settings['mailgun_domain'])){
-             $services=Config::get('services');       
-            $mail['from'] =array('address' => $settings['mail_from'], 'name' => $settings['mail_from_name']);
-            $services['mailgun'] =array('domain' => $settings['mailgun_domain'], 'secret' => $settings['mailgun_secret']);
-            Config::set('mail', $mail);
-            Config::set('services', $services);
-        }
+        // $settings= DB::table('settings')->get()->pluck('value', 'key')->toArray();
+        // $mail=Config::get('mail');
+        // if(isset($settings['mailgun_domain'])){
+        //      $services=Config::get('services');       
+        //     $mail['from'] =array('address' => $settings['mail_from'], 'name' => $settings['mail_from_name']);
+        //     $services['mailgun'] =array('domain' => $settings['mailgun_domain'], 'secret' => $settings['mailgun_secret']);
+        //     Config::set('mail', $mail);
+        //     Config::set('services', $services);
+        // }
        
     }
 }

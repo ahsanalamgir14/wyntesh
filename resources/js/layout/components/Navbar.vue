@@ -90,6 +90,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+@media only screen and (max-device-width: 480px) {
+  .app-breadcrumb.el-breadcrumb {
+    display:none;
+  }
+}
+
 .navbar {
   height: 50px;
   overflow: hidden;

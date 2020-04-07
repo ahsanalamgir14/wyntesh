@@ -11,13 +11,18 @@
         <settings />
       </right-panel>
     </div>
-    <el-dialog title="Change Password" :visible.sync="dialogChangePassword">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="150px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="New Password" prop="password">
-          <el-input type="password" v-model="temp.password" />
-        </el-form-item>
+    <el-dialog title="Change Password" width="300px" :visible.sync="dialogChangePassword">
+      <el-row>
+        
+              <el-form ref="dataForm" :rules="rules" :model="temp">
+                <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+                  <el-form-item label="New Password" prop="password">
+                    <el-input type="password" v-model="temp.password" />
+                  </el-form-item>
+                </el-col>
 
-      </el-form>
+              </el-form>
+        </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogChangePassword = false">
           Cancel

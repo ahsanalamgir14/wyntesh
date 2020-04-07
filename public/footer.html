@@ -1,0 +1,34 @@
+<!-- Main -->
+<div class="container">
+	<div class="row">
+		<div class="col-md-5 col-sm-6">
+			<h4>About</h4>
+			<p>{{company_about}}</p>
+		</div>
+
+		<div class="col-md-4  col-sm-6">
+			{{#myUnless facebook_link '#'}}<a href="{{facebook_link}}" class="button social-btn" target="_blank"><i class="fa fa-facebook-official"></i> Like Us on Facebook</a>{{/myUnless}}
+			<a href="{{youtube_link}}" class="button social-btn" target="_blank"><i class="fa fa-youtube"></i> Subscribe to youtube</a>
+			<a href="https://wa.me/917723991177" class="button social-btn" target="_blank"><i class="fa fa-whatsapp"></i> Send Message on Whatsapp</a>
+		</div>		
+
+		<div class="col-md-3  col-sm-12">
+			<h4>Contact Us</h4>
+			<div class="text-widget">
+				<span>{{address}}</span> <br>
+				{{city}}, {{state}}, {{pincode}} <br>
+				Phone : <span> {{contact_phone}} </span><br>
+				E-Mail :<span> {{contact_email}} </span><br>
+			</div>
+		</div>
+
+	</div>
+	
+	<!-- Copyright -->
+	<div class="row">
+		<div class="col-md-12">
+			<div class="copyrights">©  Copyright 2020 by <a href="{{company_site_link}}"> {{company_name}} </a> |  All Rights Reserved.</div>
+		</div>
+	</div>
+
+</div>
