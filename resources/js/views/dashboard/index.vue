@@ -8,12 +8,12 @@
 import { mapGetters } from 'vuex';
 import adminDashboard from './admin';
 import superAdminDashboard from './superadmin';
-import franchiseDashboard from './franchise';
+import userDashboard from './user';
 import editorDashboard from './editor';
 
 export default {
   name: 'Dashboard',
-  components: { adminDashboard, editorDashboard, superAdminDashboard,franchiseDashboard},
+  components: { adminDashboard, editorDashboard, superAdminDashboard,userDashboard},
   data() {
     return {
       currentRole: 'adminDashboard',
@@ -27,8 +27,8 @@ export default {
   created() {
     if (this.roles.includes('admin')) {
       this.currentRole = 'adminDashboard';
-    }else if (this.roles.includes('franchise')) {
-      this.currentRole = 'franchiseDashboard';
+    }else if (this.roles.includes('user')) {
+      this.currentRole = 'userDashboard';
     }
     else if (this.roles.includes('superadmin')) {
       this.currentRole = 'superAdminDashboard';

@@ -27,10 +27,10 @@
             <router-link to="/">
               <el-dropdown-item>Dashboard</el-dropdown-item>
             </router-link>
-            <router-link v-if="roles.includes('franchise')" to="/my/profile">
+            <router-link v-if="roles.includes('user')" to="/my/profile">
               <el-dropdown-item>Profile</el-dropdown-item>
             </router-link>
-            <router-link v-if="roles.includes('franchise')" to="/reports/my-withdrawals">
+            <router-link v-if="roles.includes('user')" to="/reports/my-withdrawals">
               <el-dropdown-item>Wallet</el-dropdown-item>
             </router-link>
             <a href="#" @click="showChangePassword()">

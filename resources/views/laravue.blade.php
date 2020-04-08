@@ -23,7 +23,6 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-    <script src="{{ url(mix('js/vendor.js')) }}"></script>
     <link href="{{ url(mix('css/app.css')) }}" type="text/css" rel="stylesheet" />
 </head>
 <body>
@@ -32,9 +31,9 @@
     </div>
 
     <script src=/static/tinymce4.7.5/tinymce.min.js></script>
-    
+    <script src="{{ url(mix('js/vendor.js')) }}"></script>
     <script src="{{ url(mix('js/manifest.js')) }}"></script>
-    <script src="{{ url(mix('js/app.js')) }}"></script>
-    <!-- <script src="http://localhost:8080/js/app.js"></script> -->
+    <!-- <script src="{{ url(mix('js/app.js')) }}"></script> -->
+    <script src="http://localhost:8080/js/app.js"></script>
 </body>
 </html>

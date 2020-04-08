@@ -46,19 +46,10 @@ const actions = {
       login({ username: username.trim(), password: password })
         .then(response => {
           let role=response.user.roles;
-          if(role.includes('user')){
-            commit('SET_TOKEN', '');
-            commit('SET_ROLES', []);
-            removeToken();
-            reject('Unauthorised to login.');
-          }else{
-             commit('SET_TOKEN', response.access_token);
-             commit('SET_PERMISSIONS', response.user.permissions);
+            commit('SET_TOKEN', response.access_token);
+            commit('SET_PERMISSIONS', response.user.permissions);
             setToken(response.access_token);
             resolve();
-          }
-
-         
         })
         .catch(error => {
           reject(error);

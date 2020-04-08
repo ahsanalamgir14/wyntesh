@@ -47,19 +47,10 @@ Route::post('auth/google', 'Auth\AuthController@google');
 Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','namespace'=>'User'], function($router)
 {   
   
-    Route::get('/profile', function(){
-        $user = JWTAuth::user()->toArray();
-        unset($user['comission_from_self']);
-        unset($user['comission_from_child']);
-        unset($user['verification_code']);
-        unset($user['parent']);
-        $user['isPasswordSet'] =  !empty(DB::table('users')->where('id',$user['id'])->get()[0]->password);
-        return $user;
-    });
+    Route::get('profile', 'MembersController@getProfile');
+    Route::post('profile', 'MembersController@updateProfile');
 
     Route::post('auth/update-password','\App\Http\Controllers\Auth\AuthController@changePassword');
-  
-    Route::post('/profile','StaticController@update_profile');
     Route::get('static/home','StaticController@home');
     
 });

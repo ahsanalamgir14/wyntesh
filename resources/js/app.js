@@ -9,11 +9,15 @@ import '@/icons'; // icon
 import '@/permission'; // permission control
 import '@fortawesome/fontawesome-free/css/all.css'
 import '@fortawesome/fontawesome-free/js/all.js'
+import VueClipboard from 'vue-clipboard2'
 
 import * as filters from './filters'; // global filters
 import VueEvents from 'vue-events'
 
 Vue.use(VueEvents)
+
+VueClipboard.config.autoSetContainer = true // add this line
+Vue.use(VueClipboard)
 
 Vue.use(ElementUI, {
   size: Cookies.get('size') || 'medium', // set element-ui default size

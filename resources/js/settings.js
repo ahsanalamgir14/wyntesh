@@ -6,7 +6,7 @@ export default {
    */
   title: 'MLM World',
   theme: variables.theme,
-
+  baseUrl:'https://software.mlmworld.in/',
   /**
    * @type {boolean} true | false
    * @description Whether show the settings right-panel

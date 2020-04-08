@@ -88,22 +88,7 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-  
-  {
-    path: '/users',
-    component: Layout,
-    meta: {
-      roles: ['admin']
-    },
-    children: [
-      {
-        path: 'manage',
-        component: () => import('@/views/admin/users/index'),
-        name: 'Members',
-        meta: { title: 'Members', icon: 'fas fa-user', color:'color:#EE7642', affix: true, roles: ['admin'] }
-      }
-    ]
-  },
+    
   {
     path: '/users-and-roles',
     component: Layout,
@@ -116,6 +101,21 @@ export const asyncRoutes = [
         component: () => import('@/views/superadmin/admins-and-roles/index'),
         name: 'Admin and Roles',
         meta: { title: 'Admin and Roles', color:'color:#EE7642', icon: 'fas fa-users', affix: true, roles: ['superadmin'] }
+      }
+    ]
+  },
+  {
+    path: '/users',
+    component: Layout,
+    meta: {
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'manage',
+        component: () => import('@/views/admin/users/index'),
+        name: 'Members',
+        meta: { title: 'Members', icon: 'fas fa-user', color:'color:#EE7642', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -196,7 +196,7 @@ export const asyncRoutes = [
       {
         path: 'all',
         component: () => import('@/views/admin/pins/all'),
-        name: 'Generate PINs',
+        name: 'My Payout',
         meta: { title: 'Generate PINs', icon: 'fas fa-tag', color:'color:#35BED1', affix: true, roles: ['admin'] }
       },
       {
@@ -361,6 +361,134 @@ export const asyncRoutes = [
     ]
   },
 
+  //User Routes
+  {
+    path: '/my',
+    component: Layout,
+    name: 'Manage',
+    meta: {
+      title: 'Manage',
+      icon: 'fas fa-user',
+      roles: ['user'],
+      color:'color:#DC7633'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'profile',
+        component: () => import('@/views/user/profile/Profile'),
+        name: 'Profile & KYC',
+        meta: { title: 'Profile & KYC', icon: 'fas fa-user', color:'color:#FF5733', affix: true, roles: ['user'] }
+      },
+    ]
+  },
+  {
+    path: '/member/genealogy',
+    component: Layout,
+    meta: {
+      roles: ['user']
+    },
+    children: [
+      {
+        path: 'manage',
+        component: () => import('@/views/user/genealogy/index'),
+        name: 'Genealogy',
+        meta: { title: 'Genealogy', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
+      }
+    ]
+  },
+  {
+    path: '/member/pins',
+    component: Layout,
+    name: 'PINs',
+    meta: {
+      title: 'PINs',
+      icon: 'fas fa-tags',
+      roles: ['user'],
+      color:'color:#CF1F5C'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'all',
+        component: () => import('@/views/user/pins/all'),
+        name: 'My PINs',
+        meta: { title: 'My PINs', icon: 'fas fa-tag', color:'color:#35BED1', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'pin-requests',
+        component: () => import('@/views/user/pins/pin-requests'),
+        name: 'PIN Requests',
+        meta: { title: 'PIN Requests', icon: 'fas fa-tag', color:'color:#40BF27', affix: true, roles: ['user'] }
+      }
+    ]
+  },
+  {
+    path: '/member/payouts',
+    component: Layout,
+    name: 'Payouts',
+    meta: {
+      title: 'Payouts',
+      icon: 'fas fa-rupee-sign',
+      roles: ['user'],
+      color:'color:#078F6A'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'all',
+        component: () => import('@/views/user/payouts/generate'),
+        name: 'My Payout',
+        meta: { title: 'My Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['user'] }
+      },
+      // {
+      //   path: 'all',
+      //   component: () => import('@/views/admin/users/index'),
+      //   name: 'PIN Requests',
+      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
+      // }
+    ]
+  },
+  {
+    path: '/wallet',
+    component: Layout,
+    name: 'Wallet',
+    meta: {
+      title: 'Wallet',
+      icon: 'fas fa-wallet',
+      roles: ['user'],
+      color:'color:#DC7633'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'transactions',
+        component: () => import('@/views/user/wallet/transactions'),
+        name: 'Wallet Transactions',
+        meta: { title: 'Wallet Transactions', icon: 'fas fa-wallet', color:'color:#FF5733', affix: true, roles: ['user'] }
+      }
+    ]
+  },
+  {
+    path: '/reports',
+    component: Layout,
+    name: 'Reports',
+    meta: {
+      title: 'Reports',
+      icon: 'fas fa-chart-bar',
+      roles: ['user'],
+      color:'color:#FF5733'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'downlines',
+        component: () => import('@/views/user/reports/downlines'),
+        name: 'Downlines',
+        meta: { title: 'Downlines', icon: 'fas fa-user-friends', color:'color:#DC7633', affix: true, roles: ['user'] }
+      }
+    ]
+  },
 
   /** when your routing map is too long, you can split it into small modules **/
   //tableRouter,
