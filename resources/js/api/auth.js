@@ -16,6 +16,14 @@ export function changePassword(data) {
   })
 }
 
+export function resetPassword(data) {
+  return request({
+    url: '/auth/password/email',
+    method: 'post',
+    data
+  })
+}
+
 export function getInfo(token) {
   return request({
     url: '/auth/me',

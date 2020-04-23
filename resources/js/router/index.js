@@ -50,12 +50,22 @@ export const constantRoutes = [
   },
   {
     path: '/login',
-    component: () => import('@/views/login/index'),
+    component: () => import('@/views/auth/login/index'),
+    hidden: true
+  },
+  {
+    path: '/register',
+    component: () => import('@/views/auth/register/index'),
+    hidden: true
+  },
+  {
+    path: '/forgot-password',
+    component: () => import('@/views/auth/forgot-pass/index'),
     hidden: true
   },
   {
     path: '/auth-redirect',
-    component: () => import('@/views/login/AuthRedirect'),
+    component: () => import('@/views/auth/login/AuthRedirect'),
     hidden: true
   },
   {

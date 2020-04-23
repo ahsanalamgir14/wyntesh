@@ -69,7 +69,12 @@
         <template slot-scope="{row}">
           <span>{{ row.subtitle }}</span>
         </template>
-      </el-table-column>  
+      </el-table-column> 
+       <el-table-column label="Image" min-width="150px">
+        <template slot-scope="{row}">
+          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
+        </template>
+      </el-table-column> 
       <el-table-column label="From time" width="170px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.from_time }}</span>
@@ -78,6 +83,16 @@
       <el-table-column label="To time" width="170px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.to_time }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="CTA Text" min-width="150px">
+        <template slot-scope="{row}">
+          <span  >{{ row.cta_text }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="CTA Link" min-width="150px">
+        <template slot-scope="{row}">
+          <span  >{{ row.cta_link }}</span>
         </template>
       </el-table-column>
        <el-table-column label="Created at" width="150px" align="center">
@@ -95,7 +110,7 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogPopupVisible">
+    <el-dialog :title="textMap[dialogStatus]" width="70%" top="30px"  :visible.sync="dialogPopupVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" style="">
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
@@ -106,42 +121,59 @@
             <el-form-item label="Subtitle" prop="subtitle">
               <el-input v-model="temp.subtitle" />
             </el-form-item>
+             <el-form-item label="Description" prop="description">
+                <el-input
+                  type="textarea"
+                  :rows="4"
+                  placeholder="Description"
+                  v-model="temp.description">
+                </el-input>
+              </el-form-item>
+             <el-row :gutter="20">
+             
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+                  <el-form-item label="From Time" prop="from_time">
+                    </br>
+                    <el-date-picker
+                      v-model="temp.from_time"
+                      type="datetime"
+                      width="100%"
+                      format="yyyy-MM-dd hh:mm:ss"
+                      value-format="yyyy-MM-dd hh:mm:ss"
+                      placeholder="From Time">
+                    </el-date-picker>
+                  </el-form-item>
 
-            <el-form-item label="Description" prop="description">
-              <tinymce v-model="temp.description" :imageUploadButton="false" :height="150" />
-            </el-form-item>
+                  <el-form-item label="To Time" prop="to_time">
+                    </br>
+                    <el-date-picker
+                      v-model="temp.to_time"
+                      type="datetime"
+                      format="yyyy-MM-dd hh:mm:ss"
+                      value-format="yyyy-MM-dd hh:mm:ss"
+                      placeholder="To Time">
+                    </el-date-picker>
+                  </el-form-item>
 
-            <el-form-item label="From Time" prop="from_time">
-              </br>
-              <el-date-picker
-                v-model="temp.from_time"
-                type="datetime"
-                width="100%"
-                format="yyyy-MM-dd hh:mm:ss"
-                value-format="yyyy-MM-dd hh:mm:ss"
-                placeholder="From Time">
-              </el-date-picker>
-            </el-form-item>
-
-            <el-form-item label="To Time" prop="to_time">
-              </br>
-              <el-date-picker
-                v-model="temp.to_time"
-                type="datetime"
-                format="yyyy-MM-dd hh:mm:ss"
-                value-format="yyyy-MM-dd hh:mm:ss"
-                placeholder="To Time">
-              </el-date-picker>
-            </el-form-item>
-
-             <el-form-item label="Popup Visibility" prop="is_visible">
-              </br>
-              <el-switch
-                v-model="temp.is_visible"
-                active-text="Visible"
-                inactive-text="Not visible">
-              </el-switch>
-            </el-form-item>
+                   <el-form-item label="Popup Visibility" prop="is_visible">
+                    </br>
+                    <el-switch
+                      v-model="temp.is_visible"
+                      active-text="Visible"
+                      inactive-text="Not visible">
+                    </el-switch>
+                  </el-form-item>
+              </el-col>
+               <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+               
+                 <el-form-item label="CTA Text" prop="cta_text">
+                  <el-input v-model="temp.cta_text" />
+                </el-form-item>
+                <el-form-item label="CTA Link" prop="cta_link">
+                  <el-input v-model="temp.cta_link" />
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
             <div class="img-upload">
@@ -240,7 +272,9 @@ export default {
         from_time: undefined,
         to_time:undefined,
         is_visible: false,
-        image:undefined
+        image:undefined,
+        cta_link:undefined,
+        cta_text:undefined
       },
 
       dialogPopupVisible:false,
@@ -310,7 +344,9 @@ export default {
         from_time: undefined,
         to_time:undefined,
         is_visible: false,
-        image:undefined
+        image:undefined,
+        cta_link:undefined,
+        cta_text:undefined
       };
       this.file=undefined
       this.fileList=[];

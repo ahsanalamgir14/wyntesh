@@ -67,6 +67,8 @@ class PopupsController extends Controller
         $Popup->from_time=$request->from_time;
         $Popup->to_time=$request->to_time;
         $Popup->is_visible=$is_visible;
+        $Popup->cta_text=$request->cta_text;
+        $Popup->cta_link=$request->cta_link;
         $Popup->save();
 
         if($request->hasFile('image')){
@@ -111,6 +113,8 @@ class PopupsController extends Controller
         $Popup->from_time=$request->from_time;
         $Popup->to_time=$request->to_time;
         $Popup->is_visible=$is_visible;
+        $Popup->cta_text=$request->cta_text;
+        $Popup->cta_link=$request->cta_link;
         $Popup->save();
 
         if($request->hasFile('image')){

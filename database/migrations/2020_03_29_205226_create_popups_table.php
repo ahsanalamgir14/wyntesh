@@ -19,6 +19,8 @@ class CreatePopupsTable extends Migration {
 			$table->string('subtitle', 2048)->nullable();
 			$table->string('image', 2048)->nullable();
 			$table->text('description')->nullable();
+			$table->string('cta_text', 32)->nullable();
+            $table->string('cta_link', 2048)->nullable();
 			$table->timestamp('from_time')->nullable();
 			$table->timestamp('to_time')->nullable();
 			$table->boolean('is_visible')->default(1);

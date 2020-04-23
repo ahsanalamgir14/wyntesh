@@ -69,6 +69,11 @@
         <template slot-scope="{row}">
           <span>{{ row.subtitle }}</span>
         </template>
+      </el-table-column>
+       <el-table-column label="Image" min-width="150px">
+        <template slot-scope="{row}">
+          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
+        </template>
       </el-table-column>  
       <el-table-column label="Date" width="150px" align="center">
         <template slot-scope="{row}">
@@ -413,6 +418,10 @@ export default {
 </script>
 
 <style scoped>
+
+.avatar-uploader-icon {
+    line-height: 178px;
+}
 
 .el-drawer__body {
   padding: 20px;

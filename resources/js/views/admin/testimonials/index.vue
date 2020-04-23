@@ -66,6 +66,11 @@
           <span  >{{ row.name }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Subtitle" min-width="150px">
+        <template slot-scope="{row}">
+          <span  >{{ row.subtitle }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Description" min-width="270px">
         <template slot-scope="{row}">
           <span  >{{ row.description }}</span>
@@ -98,6 +103,9 @@
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
             <el-form-item label="Name" prop="name">
               <el-input v-model="temp.name" />
+            </el-form-item>
+             <el-form-item label="Subtitle" prop="subtitle">
+              <el-input v-model="temp.subtitle" />
             </el-form-item>
             <el-form-item label="Description" prop="description">
               <el-input
@@ -197,6 +205,7 @@ export default {
         name: undefined,
         description:undefined,
         image:undefined,
+        subtitle:undefined,
       },
 
       dialogTestimonialVisible:false,
@@ -264,6 +273,7 @@ export default {
         name: undefined,
         description:undefined,
         image:undefined,
+        subtitle:undefined,
       };
       this.file=undefined
       this.fileList=[];

@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form  :model="temp">
       <el-row :gutter="20">
-        <el-col :span="6">
+        <el-col  :xs="24" :sm="24" :md="12" :lg="6" :xl="6" >
           <el-card >
             <div class="user-profile">
               <div class="user-avatar box-center">
@@ -23,11 +23,11 @@
             </div>
           </el-card>
         </el-col>
-        <el-col :span="18">
+        <el-col  :xs="24" :sm="24" :md="12" :lg="18" :xl="18" >
           <el-tabs v-model="activeActivity" type="border-card">
             <el-tab-pane v-loading="updating" label="Basic Details" name="details">
               <el-row :gutter="20">
-                <el-col :span="12">
+                <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
                   <el-form-item label="Name">
                     <el-input v-model="temp.name"  />
                   </el-form-item>
@@ -38,7 +38,7 @@
                     <el-input disabled v-model="temp.username" />
                   </el-form-item>
                 </el-col>
-                <el-col :span="12">
+                <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
                   
                   <el-form-item label="Contact" prop="contact">
                     <el-input v-model="temp.contact" />

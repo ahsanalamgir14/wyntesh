@@ -94,6 +94,19 @@
             <el-form-item label="Title" prop="title">
               <el-input v-model="temp.title" />
             </el-form-item>
+            <el-form-item label="Tags" prop="tags">
+            </br>
+              <el-select v-model="temp.tags" multiple clearable placeholder="Tags">
+                <el-option
+                  v-for="tag in tagList"
+                  :key="tag.value"
+                  :label="tag.label"
+                  :value="tag.value"
+                  style="width: 100%"
+                  >
+                </el-option>
+              </el-select>
+            </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
             <div class="img-upload">
@@ -183,7 +196,8 @@ export default {
       temp: {
         id:undefined,
         title: undefined,
-        image:undefined
+        image:undefined,
+        tags:[]
       },
 
       dialogGalleryVisible:false,
@@ -192,6 +206,22 @@ export default {
         update: "Edit",
         create: "Create"
       },
+      tagList: [{
+        value: 'Seminar',
+        label: 'Seminar'
+      }, {
+        value: 'Anual Event',
+        label: 'Anual Event'
+      }, {
+        value: 'General',
+        label: 'General'
+      }, {
+        value: 'Social Activity',
+        label: 'Social Activity'
+      }, {
+        value: 'Promotion',
+        label: 'Promotion'
+      }],
       rules: {
         // file: [{ required: true, message: 'Image is required', trigger: 'blur' }]
       },
@@ -304,7 +334,7 @@ export default {
       this.fileList=[];
       this.file=undefined;
       this.temp = Object.assign({}, row); // copy obj
-
+      this.temp.tags = row.tags.split(',');
       this.dialogStatus = "update";
       this.dialogGalleryVisible = true;
       this.$nextTick(() => {
@@ -379,6 +409,10 @@ export default {
 <style scoped>
 .el-drawer__body {
   padding: 20px;
+}
+
+.el-select {
+    width: 100%;
 }
 .pagination-container {
   margin-top: 5px;

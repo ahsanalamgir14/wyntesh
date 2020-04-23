@@ -56,6 +56,7 @@ class GalleryController extends Controller
 
         $Gallery=new Gallery;
         $Gallery->title=$request->title;
+        $Gallery->tags=$request->tags;
         $Gallery->save();
 
         if($request->hasFile('file')){
@@ -89,6 +90,7 @@ class GalleryController extends Controller
         }
 
         $Gallery->title=$request->title;
+        $Gallery->tags=$request->tags;
         $Gallery->save();
 
         if($request->hasFile('file')){

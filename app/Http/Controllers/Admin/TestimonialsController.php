@@ -58,6 +58,7 @@ class TestimonialsController extends Controller
         $Testimonial=new Testimonial;
         $Testimonial->name=$request->name;
         $Testimonial->description=$request->description;
+        $Testimonial->subtitle=$request->subtitle;
         $Testimonial->save();
 
         if($request->hasFile('file')){
@@ -93,6 +94,7 @@ class TestimonialsController extends Controller
         }
 
         $Testimonial->name=$request->name;
+        $Testimonial->subtitle=$request->subtitle;
         $Testimonial->description=$request->description;
         $Testimonial->save();
 

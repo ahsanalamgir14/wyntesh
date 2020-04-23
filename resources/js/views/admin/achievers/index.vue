@@ -65,6 +65,11 @@
           <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
+       <el-table-column label="Image" min-width="150px">
+        <template slot-scope="{row}">
+          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
+        </template>
+      </el-table-column>
       <el-table-column label="Subtitle" width="150px" align="">
         <template slot-scope="{row}">
           <span>{{ row.subtitle }}</span>
@@ -103,7 +108,12 @@
             </el-form-item>
 
             <el-form-item label="Description" prop="description">
-              <tinymce v-model="temp.description" :imageUploadButton="false"  :height="150" />
+              <el-input
+                  type="textarea"
+                  :rows="4"
+                  placeholder="Description"
+                  v-model="temp.description">
+                </el-input>
             </el-form-item>
 
             <el-form-item label="Date" prop="date">
