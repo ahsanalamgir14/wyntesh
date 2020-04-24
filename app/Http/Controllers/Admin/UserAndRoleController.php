@@ -49,7 +49,7 @@ class UserAndRoleController extends Controller
                 $users=$users->where('is_active',$is_active);    
             }
 
-            $users=$users->orderBy('id',$sort)->paginate($limit);    
+            $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $users=User::select();
 
@@ -62,9 +62,9 @@ class UserAndRoleController extends Controller
             }
 
             
-            $users = User::role('user');
+            $users =$users->role('user');
 
-            $users=$users->orderBy('id',$sort)->paginate($limit);
+            $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);
         }
 
         

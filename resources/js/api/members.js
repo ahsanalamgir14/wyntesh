@@ -15,3 +15,18 @@ export function updateProfile(data) {
     data
   })
 }
+
+export function registerMember(data) {
+  return request({
+    url: '/member/registration',
+    method: 'post',
+    data
+  })
+}
+
+export function checkSponsorCode(code) {
+  return request({
+    url: '/member/check-sponsor-code/'+code,
+    method: 'get'
+  })
+}

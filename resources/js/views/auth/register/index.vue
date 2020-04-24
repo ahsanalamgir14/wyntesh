@@ -26,7 +26,7 @@
                 <span class="svg-container">
                   <i class="fas fa-users"></i>
                 </span>
-                <el-input v-model="registerForm.sponsor_code" name="sponsor_code" type="text" auto-complete="on" placeholder="Enter sponsor code" />
+                <el-input v-model="registerForm.sponsor_code" v-on:blur="handleCheckSponsorCode()" name="sponsor_code" type="text" auto-complete="on" placeholder="Enter sponsor code" />
               </el-form-item>
             </el-col>
 
@@ -39,11 +39,11 @@
               </el-form-item>
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >      
-              <el-form-item prop="leg"  class="radio-btn">
+              <el-form-item prop="position"  class="radio-btn">
 
-                <el-radio-group v-model="registerForm.leg">
-                    <el-radio border label="1">Right</el-radio>
-                    <el-radio border label="2">Left</el-radio>
+                <el-radio-group v-model="registerForm.position">
+                    <el-radio border label="1">Left</el-radio>
+                    <el-radio border label="2">Right</el-radio>
                   </el-radio-group>
               </el-form-item>
             </el-col>
@@ -130,6 +130,7 @@
 <script>
 import { validEmail } from '@/utils/validate';
 import logo from '@/assets/images/logo.png'
+import { checkSponsorCode,registerMember } from "@/api/members";
 
 export default {
   name: 'Login',
@@ -142,7 +143,7 @@ export default {
       }
     };
     const validateContact  = (rule, value, callback) => {
-      var pattern = new RegExp("([^\d])\d{10}([^\d])");
+      var pattern = /^\d*(?:\.\d{1,2})?$/;
       if (!pattern.test(value)) {
         callback(new Error('Enter valid 10 digit contact number.'));
       } else {
@@ -150,27 +151,34 @@ export default {
       }
     };
     const validatePass = (rule, value, callback) => {
-      if (value.length < 4) {
-        callback(new Error('Password cannot be less than 4 digits'));
+      if (value) {
+        if(value.length < 4){
+          callback(new Error('Password cannot be less than 4 characters'));  
+        }else{
+          callback();
+        }        
       } else {
-        callback();
+        callback(new Error('Password is required.'));  
       }
     };
     return {
       registerForm: {
-        name: '',
-        email: '',
-        password: '',
-        console:'',
-        leg:'1',
+        sponsor_code:undefined,
+        sponsor_name:undefined,
+        name: undefined,
+        email: undefined,
+        password: undefined,
+        contact:undefined,
+        dob:undefined,
+        position:'1',
         gender:'m'
       },
       logo: logo,
       registerRules: {
         name: [{ required: true, trigger: 'blur', message: 'Name is required', }],
-        email: [{ required: true, trigger: 'blur', validator: validateEmail }],
+        email: [{ required: true, trigger: 'blur', validator: validateEmail  }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
-        contact: [{ required: true, trigger: 'blur', validator: validateContact }],
+        contact: [{ required: true, trigger: 'blur', validator: validateContact  }],
       },
       loading: false,
       pwdType: 'password',
@@ -185,23 +193,45 @@ export default {
         this.pwdType = 'password';
       }
     },
+    resetRegistraionForm(){
+      this.registerForm= {
+        sponsor_code:undefined,
+        sponsor_name:undefined,
+        name: undefined,
+        email: undefined,
+        password: undefined,
+        contact:undefined,
+        dob:undefined,
+        position:'1',
+        gender:'m'
+      };
+    },
+    handleCheckSponsorCode(){
+      if(this.registerForm.sponsor_code){
+        checkSponsorCode(this.registerForm.sponsor_code).then((response) => {
+          this.registerForm.sponsor_name=response.data;          
+        })
+      }            
+    },
     register() {
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.loading = true;
-          this.$store.dispatch('user/login', this.registerForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/' });
-              this.loading = false;
+          registerMember(this.registerForm).then((response) => {
+            this.loading=false;
+            this.$notify({
+              title: "Success",
+              message: response.message,
+              type: "success",
+              duration: 2000
             })
-            .catch((error) => {
-               this.$message.error(error);
+            this.resetRegistraionForm();
+            this.$router.push('/login' );
+          })
+          .catch((error) => {             
               this.loading = false;
             });
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
+        } 
       });
     },
   },

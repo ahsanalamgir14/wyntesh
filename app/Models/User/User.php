@@ -60,6 +60,18 @@ class User extends  Authenticatable implements JWTSubject
         ]);
     }
 
+    public static function memberValidator(Request $request)
+    {
+        return Validator::make($request->all(), [
+            'name' => 'required|max:255',
+            'email' => 'required|regex:/^.+@.+$/i|unique:users',
+            'contact' => 'required|max:10|regex:/^[0-9]{10}$/',
+            'password' => 'required|max:255',
+            'dob'=>'date|date_format:Y-m-d',
+            'gender'=>'max:1'
+        ]);
+    }
+
     public static function updateValidator(Request $request)
     {
         return Validator::make($request->all(), [
@@ -72,14 +84,15 @@ class User extends  Authenticatable implements JWTSubject
     
     public function kyc()
     {
-        return $this->hasOne('App\Models\User\Kyc');
+        return $this->hasOneThrough('App\Models\User\Kyc', 'App\Models\Admin\Member');
     }
 
-    public function parent()
+    public function member()
     {
-        return $this->belongsTo(self::class,'parent');
+        return $this->hasOne('App\Models\Admin\Member');
     }
 
+    
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *

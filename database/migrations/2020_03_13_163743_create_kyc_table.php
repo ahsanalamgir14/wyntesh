@@ -15,19 +15,21 @@ class CreateKycTable extends Migration
     {
         Schema::create('kyc', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('user_id');
+            $table->integer('member_id');
             $table->string('address', 2048)->nullable();
             $table->string('pincode', 6)->nullable();            
             $table->string('adhar', 16)->nullable();
-            $table->string('adhar_image', 1024)->nullable();
+            $table->string('adhar_image', 2048)->nullable();
             $table->string('pan', 10)->nullable();
-            $table->string('pan_image', 1024)->nullable();
+            $table->string('pan_image', 2048)->nullable();
+            $table->string('cheque_image', 2048)->nullable();
             $table->string('city', 64)->nullable();
             $table->string('state', 64)->nullable();
             $table->string('bank_ac_name', 1024)->nullable();
             $table->string('bank_name', 1024)->nullable();
             $table->string('bank_ac_no', 32)->nullable();
             $table->string('ifsc', 32)->nullable();
+            $table->string('verification_status',16)->nullable();
             $table->boolean('is_verified')->default(0);
             $table->timestamps();
         });

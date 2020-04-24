@@ -17,7 +17,7 @@ Route::get('/', function (Request $request) {
     return 'Working';
 });
 
-Route::get('mail', 'Auth\AuthController@mailcheck');
+Route::get('mail', 'Auth\AuthController@mailCheck');
 
 
 // Authentication Routes
@@ -40,7 +40,8 @@ Route::group(['prefix' => 'auth'], function ($router) {
 Route::post('public/inquiry/submit', 'Admin\InquiriesController@store');
 Route::post('public/subscribe', 'Admin\SubscribersController@store');
 Route::post('auth/google', 'Auth\AuthController@google');
-
+Route::get('member/check-sponsor-code/{code}', 'User\MembersController@checkSponsorCode');
+Route::post('member/registration', 'User\MembersController@registerMember');
 
 
 // Superadmin Routes

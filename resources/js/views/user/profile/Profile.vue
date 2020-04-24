@@ -11,20 +11,26 @@
               <div class="box-center">
                 <div class="user-name text-center">
                   {{ temp.name }}
+                  </br></br>
+
+                  <el-tag v-if="temp.kyc.verification_status=='verified'" type="success">Verified</el-tag>
+                  <el-tag v-if="temp.kyc.verification_status=='pending'" type="warning">KYC - Pending</el-tag>
+                  <el-tag v-if="temp.kyc.verification_status=='submitted'" type="primary">KYC - Submitted</el-tag>
+                  <el-tag v-if="temp.kyc.verification_status=='rejected'" type="danger">KYC - Rejected</el-tag>
                 </div>
                 <div class="user-role text-center text-muted">
                   <h4 style="margin-bottom:7px ">Joined on</h4>
                   {{ temp.created_at | parseTime('{y}-{m}-{d}') }}
                 </div>
                 <div style="margin-top:10px;">
-                  <el-button type="success" round v-clipboard:copy="referral_link" v-clipboard:success="onCopy" >Copy referral link</el-button>
-                </div>
+                  <el-button type="warning" round v-clipboard:copy="referral_link" v-clipboard:success="onCopy" >Copy referral link</el-button>
+                </div>                
               </div>
             </div>
           </el-card>
         </el-col>
         <el-col  :xs="24" :sm="24" :md="12" :lg="18" :xl="18" >
-          <el-tabs v-model="activeActivity" type="border-card">
+          <el-tabs v-model="activeActivity" type="border-card" >
             <el-tab-pane v-loading="updating" label="Basic Details" name="details">
               <el-row :gutter="20">
                 <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
@@ -66,7 +72,7 @@
                 </el-col>
               </el-row>
               <el-form-item>
-                <el-button type="primary"  @click="onSubmit">
+                <el-button type="primary"  :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
                   Update
                 </el-button>
               </el-form-item>
@@ -114,8 +120,97 @@
                 </el-col>
               </el-row>
               <el-form-item>
-                <el-button type="primary"  @click="onSubmit">
+                <el-button type="primary" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
                   Update
+                </el-button>
+              </el-form-item>
+            </el-tab-pane>
+            <el-tab-pane v-loading="updating" label="KYC Images" name="kyc-images">
+              <el-row :gutter="20">
+                <el-col :span="8">            
+                  
+                  <div class="img-upload">
+                    <el-form-item  prop="adhar_image">
+                      <label for="Adhar Image">Adhar Image</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handleAdharChange"
+                        :on-remove="handleAdharRemove"
+                        :limit="1"
+                        :file-list="adharfileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">
+                        
+                        <img v-if="temp.kyc.adhar_image" :src="temp.kyc?temp.kyc.adhar_image:''" class="avatar">
+                        <i v-if="temp.kyc.adhar_image"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload>
+                      <a  v-if="temp.kyc.adhar_image" :href="temp.kyc?temp.kyc.adhar_image:''" target="_blank">View full image.</a>                      
+                    </el-form-item>
+                  </div>
+                 
+                </el-col>
+                <el-col :span="8">
+                  <div class="img-upload">
+                    <el-form-item  prop="pan_image">
+                      <label for="Pan Image">Pan Image</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handlePanChange"
+                        :on-remove="handlePanRemove"
+                        :limit="1"
+                        :file-list="panfileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">
+                        
+                        <img v-if="temp.kyc.pan_image" :src="temp.kyc?temp.kyc.pan_image:''" class="avatar">
+                        <i v-if="temp.kyc.pan_image"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload> 
+                      <a  v-if="temp.kyc.pan_image" :href="temp.kyc?temp.kyc.pan_image:''" target="_blank">View full image.</a>                       
+                    </el-form-item>
+                  </div>
+                </el-col>
+                <el-col :span="8">
+                  <div class="img-upload">
+                    <el-form-item  prop="pan_image">
+                      <label for="Bank/Cheque Image Image">Bank/Cheque Image</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handleChequeChange"
+                        :on-remove="handleChequeRemove"
+                        :limit="1"
+                        :file-list="chequefileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">
+                        
+                        <img v-if="temp.kyc.cheque_image" :src="temp.kyc?temp.kyc.cheque_image:''" class="avatar">
+                        <i v-if="temp.kyc.cheque_image"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload> 
+                      <a  v-if="temp.kyc.cheque_image" :href="temp.kyc?temp.kyc.cheque_image:''" target="_blank">View full image.</a>                     
+                    </el-form-item>
+                  </div>
+                </el-col>
+              </el-row>
+              <el-form-item style="margin-top:20px;">
+                <el-button type="primary" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                  Update
+                </el-button>
+                 <el-button type="success" :disabled="temp.kyc.verification_status=='submitted'" @click="submitVerification">
+                  {{temp.kyc.verification_status=='submitted'?'Submitted for apporval': 'Submit for verification'}}
                 </el-button>
               </el-form-item>
             </el-tab-pane>
@@ -141,6 +236,12 @@ export default {
       activeActivity: 'details',
       updating: false,
       referral_link:'',
+      adharfileList:[],
+      adharfile:undefined,
+      panfileList:[],
+      panfile:undefined,
+      chequefileList:[],
+      chequefile:undefined,
       temp:{
           id: undefined,
           name: undefined,
@@ -153,7 +254,10 @@ export default {
             address:undefined,
             pincode:undefined,
             adhar:undefined,
+            adhar_image:undefined,
             pan:undefined,
+            pan_image:undefined,
+            pan_cheque:undefined,
             city:undefined,
             state:undefined,
             bank_ac_name:undefined,
@@ -190,6 +294,45 @@ export default {
     });
   },
   methods: {
+    handleAdharChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.adharfile=f.raw      
+    },
+    handleAdharRemove(file, fileList) {
+       this.adharfile=undefined;
+       this.adharfileList=[];
+    },
+    handlePanChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.panfile=f.raw      
+    },
+    handlePanRemove(file, fileList) {
+       this.panfile=undefined;
+       this.panfileList=[];
+    },
+    handlePanChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.panfile=f.raw      
+    },
+     handleChequeChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.chequefile=f.raw      
+    },
+    handleChequeRemove(file, fileList) {
+       this.chequefile=undefined;
+       this.chequefileList=[];
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(`You can not select more than one file, please remove first.`);
+    },
     onCopy(){
       this.$notify({
           title: "Copied",
@@ -197,13 +340,34 @@ export default {
           type: "success",
           duration: 2000
         })
-
-      //const url = this.$router.resolve({ name: 'login', params: { id: this.temp.id } })
-      
+ 
+    },
+    submitVerification(){
+      this.temp.kyc.verification_status='submitted';
+      this.onSubmit();
     },
     onSubmit() {
       this.updating = true;
-      updateProfile(this.temp).then((response) => {
+      
+      var form = new FormData();
+      let form_data=this.temp;
+
+      for ( var key in form_data ) {
+        if(form_data[key] !== undefined && form_data[key] !== null){
+          if(key=='kyc'){
+            form.append(key, JSON.stringify(form_data[key]));  
+          }else{
+            form.append(key, form_data[key]);  
+          }
+          
+        }
+      }
+
+      form.append('adhar_image', this.adharfile);
+      form.append('pan_image', this.panfile);
+      form.append('cheque_image', this.chequefile);
+
+      updateProfile(form).then((response) => {
         this.updating = false;
         this.temp=response.data;
         this.$notify({
@@ -212,6 +376,12 @@ export default {
           type: "success",
           duration: 2000
         })
+        this.adharfile=undefined
+        this.adharfileList=[];
+        this.panfile=undefined
+        this.panfileList=[];
+        this.chequefile=undefined
+        this.chequefileList=[];
       })
     },
   },
@@ -289,6 +459,28 @@ export default {
     background-color: #d3dce6;
   }
 }
+
+@media (min-width:750px) {
+  .img-upload{
+    float: right;
+    margin-right:20px; 
+  }
+}
+
+.avatar {
+    width: 200px;
+    height: 115px;
+    display: block;
+  }
+
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 200px;
+    height: 115px !important;
+    line-height: 115px;
+    text-align: center;
+  }
 
 .user-profile {
   .user-name {
