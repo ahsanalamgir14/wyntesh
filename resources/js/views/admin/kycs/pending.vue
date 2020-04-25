@@ -555,4 +555,7 @@ export default {
     line-height: 115px;
     text-align: center;
   }
+  .el-table  td, .el-table  th {
+    padding: 2px 0;
+  }
 </style>
