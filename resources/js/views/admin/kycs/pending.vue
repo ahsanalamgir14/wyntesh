@@ -558,4 +558,7 @@ export default {
   .el-table  td, .el-table  th {
     padding: 2px 0;
   }
+  .el-table--medium td, .el-table--medium th {
+    padding: 1px 0;
+}
 </style>
