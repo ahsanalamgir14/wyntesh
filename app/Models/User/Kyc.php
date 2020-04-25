@@ -9,8 +9,8 @@ class Kyc extends Model
     
 	protected $table = 'kyc';
 
-    public function user()
+    public function member()
     {
-        return $this->belongsTo('App\Models\User\User');
+        return $this->belongsTo('App\Models\Admin\Member');
     }
 }

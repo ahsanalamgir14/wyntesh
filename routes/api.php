@@ -126,6 +126,11 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('bank-partners', 'BankPartnersController@getBankPartners');
     Route::delete('bank-partner/{id}/delete', 'BankPartnersController@deleteBankPartner');
 
+    Route::get('pending/kyc', 'KycController@getPendingKyc');
+    Route::get('rejected/kyc', 'KycController@getRejectedKyc');
+    Route::get('verified/kyc', 'KycController@getVerifiedKyc');
+    Route::post('kyc/update', 'KycController@updateMemberKyc');
+
 
 });
 

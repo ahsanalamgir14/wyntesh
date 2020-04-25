@@ -20,13 +20,7 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-      <el-button
-        class="filter-item"
-        style="margin-left: 10px;"
-        type="primary"
-        icon="el-icon-edit"
-        @click="handleCreate"
-      >Add</el-button>
+      
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -49,18 +43,18 @@
       @sort-change="sortChange"
     >
       <el-table-column
-        label="ID"
+        label="Sr#"
         prop="id"
         sortable="custom"
         align="center"
-        width="80"
+        width="70"
         :class-name="getSortClass('id')"
       >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="230" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="170" class-name="small-padding">
         <template slot-scope="{row}">
 
           <el-button
@@ -84,46 +78,79 @@
           </el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Name" min-width="150px">
-        <template slot-scope="{row}">
-          <span>{{ row.name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Username" min-width="150px">
+       <el-table-column label="ID" width="100px">
         <template slot-scope="{row}">
           <span class="link-type" @click="handleEdit(row)">{{ row.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Email" min-width="170px" align="center">
+
+      <el-table-column label="Name" min-width="120px">
         <template slot-scope="{row}">
-          <span>{{ row.email }}</span>
+          <span>{{ row.name }}</span>
         </template>
       </el-table-column>
+     
       <el-table-column label="Contact" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.contact }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Gender" width="180px" align="center">
+
+      <el-table-column label="Balance" width="110px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.gender=="f"?'Female':'Male' }}</span>
+          <span>{{ row.member?row.member.wallet_balace:'0.00' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="DOB" width="110px" align="center">
+
+      <el-table-column label="KYC" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.dob }}</span>
+          <span v-if="row.member.kyc">
+            <el-tag v-if="row.member.kyc.verification_status=='verified'" type="success">Verified</el-tag>
+            <el-tag v-if="row.member.kyc.verification_status=='pending'" type="warning">Pending</el-tag>
+            <el-tag v-if="row.member.kyc.verification_status=='submitted'" type="primary">Submitted</el-tag>
+            <el-tag v-if="row.member.kyc.verification_status=='rejected'" type="danger">Rejected</el-tag>
+          </span>
         </template>
       </el-table-column>
-      <el-table-column label="Status" class-name="status-col" width="100">
+
+       <el-table-column label="Status" class-name="status-col" width="100">
         <template slot-scope="{row}">
           <el-tag :type="row.is_active | statusFilter">{{ row.is_active?'Active':'Deactive' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Created At" width="150px" align="center">
+
+      <el-table-column label="Joining Date" width="120px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+
+      <el-table-column label="Sponsor" width="110px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.member.sponsor?row.member.sponsor.user.name:'---' }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Sponsor ID" width="110px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.member.sponsor?row.member.sponsor.user.username:'---' }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Parent" width="110px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.member.parent?row.member.parent.user.name:'---' }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Parent ID" width="110px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.member.parent?row.member.parent.user.username:'---' }}</span>
+        </template>
+      </el-table-column>
+
+     
+      
     </el-table>
 
     <pagination
@@ -379,19 +406,19 @@ export default {
       this.dialogUserVisible = true;
       var keys = [];
 
-      row.packages.map(pack => {
-          keys.push(pack.id);
-      })
+      // row.packages.map(pack => {
+      //     keys.push(pack.id);
+      // })
 
-      keys = keys.filter((item, i, ar) => ar.indexOf(item) === i);
+      // keys = keys.filter((item, i, ar) => ar.indexOf(item) === i);
 
-      this.temp.packages=keys;
+      // this.temp.packages=keys;
 
-      this.userPackages = row.packages.map(p => {
-        this.$set(p, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
-        p.pivot.originalExpireDate = p.pivot.expire_date //  will be used when user click the cancel botton
-        return p
-      })
+      // this.userPackages = row.packages.map(p => {
+      //   this.$set(p, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
+      //   p.pivot.originalExpireDate = p.pivot.expire_date //  will be used when user click the cancel botton
+      //   return p
+      // })
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
@@ -478,7 +505,7 @@ export default {
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "users"
+          filename: "members"
         });
         this.downloadLoading = false;
       });
@@ -507,6 +534,9 @@ export default {
 </script>
 
 <style scoped>
+.el-table--medium th, .el-table--medium td {
+    padding: 0px 0;
+}
 .el-drawer__body {
   padding: 20px;
 }

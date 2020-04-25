@@ -133,6 +133,7 @@ export const asyncRoutes = [
     path: '/kyc',
     component: Layout,
     name: 'KYCs',
+    redirect: '/kyc/pending',
     meta: {
       title: 'KYCs',
       icon: 'fas fa-images',

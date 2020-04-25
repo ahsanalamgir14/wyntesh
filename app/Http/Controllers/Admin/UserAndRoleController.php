@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Validator;
 use DataTables;
 use Carbon\Carbon;
-
+use DB;
 
 class UserAndRoleController extends Controller
 {    
@@ -51,11 +51,17 @@ class UserAndRoleController extends Controller
 
             $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);    
         }else{
+            DB::enableQueryLog();
             $users=User::select();
 
-            $users=$users->orWhere('name','like','%'.$search.'%');
-            $users=$users->orWhere('contact','like','%'.$search.'%');            
-            $users=$users->orWhere('email','like','%'.$search.'%');
+            $users=$users->where(function ($query)use($search) {
+                $query->orWhere('name','like','%'.$search.'%');
+                $query->orWhere('contact','like','%'.$search.'%');
+                $query->orWhere('email','like','%'.$search.'%');
+                $query->orWhere('username','like','%'.$search.'%');                
+
+            });
+
 
             if($is_active!='all'){
                 $users=$users->where('is_active',$is_active);    
@@ -64,7 +70,11 @@ class UserAndRoleController extends Controller
             
             $users =$users->role('user');
 
+
+
             $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);
+
+            
         }
 
         
