@@ -18,7 +18,7 @@ Route::get('/', function (Request $request) {
 });
 
 Route::get('mail', 'Auth\AuthController@mailCheck');
-
+Route::get('download-file', 'Admin\SettingsController@downloadFile');
 
 // Authentication Routes
 Route::group(['prefix' => 'auth'], function ($router) {
@@ -50,6 +50,13 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
   
     Route::get('profile', 'MembersController@getProfile');
     Route::post('profile', 'MembersController@updateProfile');
+
+    Route::post('tickets', '\App\Http\Controllers\Admin\SupportController@createTicket');    
+    Route::get('tickets/opened', '\App\Http\Controllers\Admin\SupportController@getMyOpened');
+    Route::get('tickets/closed', '\App\Http\Controllers\Admin\SupportController@getMyClosed');
+    Route::get('ticket/{id}/conversations', '\App\Http\Controllers\Admin\SupportController@getConversations');
+    Route::post('tickets/close', '\App\Http\Controllers\Admin\SupportController@closeTicket');
+    Route::post('tickets/add/message', '\App\Http\Controllers\Admin\SupportController@addUserMessage');
 
     Route::post('auth/update-password','\App\Http\Controllers\Auth\AuthController@changePassword');
     Route::get('static/home','StaticController@home');

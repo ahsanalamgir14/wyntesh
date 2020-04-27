@@ -110,7 +110,7 @@ export default {
         height: this.height,
         body_class: 'panel-body ',
         object_resizing: false,
-        //toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
+        toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
         menubar: this.menubar,
         plugins: plugins,
         end_container_on_empty_block: true,

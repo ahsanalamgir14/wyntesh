@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Storage;
 use JWTAuth;
 class SettingsController extends Controller
 {
+    public function downloadFile(Request $request){
+        $filename = basename($request->file);
+        $tempImage = tempnam(sys_get_temp_dir(), $filename);
+        copy($request->file, $tempImage);
+        return response()->download($tempImage, $filename);
+    }
+
     public function stats(){
         $courses=1;
         $users=User::count();

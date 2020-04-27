@@ -365,7 +365,7 @@ export const asyncRoutes = [
       },
       {
         path: 'tickets',
-        component: () => import('@/views/admin/inquiries/index'),
+        component: () => import('@/views/admin/tickets/index'),
         name: 'Tickets',
         meta: { title: 'Tickets', icon: 'fas fa-envelope-open-text', color:'color:#C39BD3', affix: true, roles: ['admin'] }
       }
@@ -497,6 +497,26 @@ export const asyncRoutes = [
         component: () => import('@/views/user/reports/downlines'),
         name: 'Downlines',
         meta: { title: 'Downlines', icon: 'fas fa-user-friends', color:'color:#DC7633', affix: true, roles: ['user'] }
+      }
+    ]
+  },
+  {
+    path: '/support',
+    component: Layout,
+    name: 'Support',
+    meta: {
+      title: 'Support',
+      icon: 'fas fa-headset',
+      roles: ['user'],
+      color:'color:#DC7633'
+    },
+    hidden: false,
+    children: [    
+      {
+        path: 'my-tickets',
+        component: () => import('@/views/user/support/index'),
+        name: 'Support Tickets',
+        meta: { title: 'Tickets', icon: 'fas fa-envelope-open-text', color:'color:#C39BD3', affix: true, roles: ['user'] }
       }
     ]
   },
