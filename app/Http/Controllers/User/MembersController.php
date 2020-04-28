@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User\User;
 use App\Models\User\Kyc;
-use App\Models\User\Position;
 use App\Models\Admin\Member;
 use Illuminate\Support\Facades\Hash;
 use Validator;
@@ -40,6 +39,12 @@ class MembersController extends Controller
         }
         
     } 
+
+    public function adminGeneology(){
+        $zero=Member::with('children.children.children.children')->with('user')->where('level',0)->first();
+        $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
+        return response()->json($response, 200);  
+    }
 
     public function updateProfile(Request $request)
     {   
@@ -173,6 +178,7 @@ class MembersController extends Controller
               
         $Member=new Member;
         $Member->user_id=$User->id;
+        $Member->position=$request->position;
         $Member->sponsor_id=$Sponsor->member->id;
         $Member->parent_id=$Parent->id;
         
@@ -181,13 +187,7 @@ class MembersController extends Controller
         $Member->save();
 
         $Member->path=$Parent->path.'/'.$Member->id;
-        $Member->save();        
-
-        $Position=new Position;
-        $Position->member_id=$Member->id;
-        $Position->parent_id=$Parent->id;
-        $Position->position=$request->position;
-        $Position->save();
+        $Member->save();  
 
         $Kyc=new Kyc;
         $Kyc->member_id=$Member->id;
@@ -210,7 +210,7 @@ class MembersController extends Controller
     }  
 
     public function getSponsorTail($parent,$position){
-        $results = DB::select( DB::raw("select  member_id from    (select * from positions where position=:position order by parent_id) positions_sorted, (select @pv := :parent) initialisation where   find_in_set(parent_id, @pv) and     length(@pv := concat(@pv, ',', member_id)) order by id desc limit 1"), 
+        $results = DB::select( DB::raw("select  id from    (select * from members where position=:position order by parent_id) positions_sorted, (select @pv := :parent) initialisation where   find_in_set(parent_id, @pv) and     length(@pv := concat(@pv, ',', id)) order by id desc limit 1"), 
             array(
                     'position' => $position,
                     'parent' => $parent,

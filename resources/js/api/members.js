@@ -30,3 +30,10 @@ export function checkSponsorCode(code) {
     method: 'get'
   })
 }
+
+export function getAdminGeneology() {
+  return request({
+    url: '/admin/geneology',
+    method: 'get'
+  })
+}

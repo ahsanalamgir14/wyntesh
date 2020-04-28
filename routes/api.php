@@ -18,6 +18,7 @@ Route::get('/', function (Request $request) {
 });
 
 Route::get('mail', 'Auth\AuthController@mailCheck');
+Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 
 // Authentication Routes
@@ -143,6 +144,8 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('ticket/{id}/conversations', 'SupportController@getConversations');
     Route::post('tickets/close', 'SupportController@closeTicket');
     Route::post('tickets/add/message', 'SupportController@addAdminMessage');
+
+    Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 
 
 });

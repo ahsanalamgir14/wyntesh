@@ -24,6 +24,11 @@ class Member extends Model
         return $this->belongsTo(self::class,'parent_id');
     }
 
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id')->with('user');
+    }
+
     public function sponsor()
     {
         return $this->belongsTo(self::class,'sponsor_id');
