@@ -314,7 +314,7 @@
 </template>
 
 <script>
-import { fetchUserOpenedList, fetchUserClosedList, openSupportTicket, closeSupportTicket, getConversations,
+import { fetchUserOpenedList, fetchUserClosedList, openSupportTicket, closeUserSupportTicket, getUserConversations,
   addUserConversationMessage,
  } from "@/api/support";
 import avatar from '@/assets/images/avatar.png'
@@ -487,7 +487,7 @@ export default {
     handleOpenCoversation(row){
       this.resetTemp();
       this.temp=row;
-      getConversations(row.id).then(response => {
+      getUserConversations(row.id).then(response => {
         this.conversations = response.data;
         this.showTicketConversations=true;
       });
@@ -517,7 +517,7 @@ export default {
               duration: 2000
             });
             
-            getConversations(this.temp.id).then(response => {
+            getUserConversations(this.temp.id).then(response => {
               this.conversations = response.data;
             });
 
@@ -538,7 +538,7 @@ export default {
             id:row.id
           };
 
-          closeSupportTicket(postData).then((data) => {
+          closeUserSupportTicket(postData).then((data) => {
             this.getList();
             this.$notify({
               title: "Success",

@@ -1,19 +1,6 @@
 <template>
-  <div class="app-container">
-    
-    <el-row>
-      <el-col>
-        <div style="float: right; margin-bottom:30px">
-          <el-button
-            v-waves
-            class="filter-item"
-            type="success"
-            icon="el-icon-plus"
-            @click="handleShowCreateTicket"
-          >Create new Support Ticket</el-button>
-        </div>
-      </el-col>
-    </el-row>
+  <div class="app-container">    
+   
     <el-tabs :tab-position="tabPosition" style="height: 100%;" @tab-click="handleTabClick">
       <el-tab-pane label="Opened Tickets" >
         <div class="filter-container">
@@ -54,7 +41,7 @@
               <span>#{{ row.id }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="Actions" align="center" width="150" class-name="small-padding">
+          <el-table-column label="Actions" align="center" width="130" class-name="small-padding">
             <template slot-scope="{row}">
               <el-tooltip class="item" effect="dark" content="View coversation" placement="top-start">
                 <el-button icon="el-icon-view"
@@ -69,6 +56,16 @@
                 </el-button>
               </el-tooltip>
              
+            </template>
+          </el-table-column>
+          <el-table-column label="User ID" width="110px">
+            <template slot-scope="{row}">
+              <span>{{ row.user?row.user.username:'' }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="User Name" width="110px">
+            <template slot-scope="{row}">
+              <span>{{ row.user?row.user.name:'' }}</span>
             </template>
           </el-table-column>
           <el-table-column label="Subject" min-width="150px">
@@ -141,13 +138,23 @@
               <span>#{{ row.id }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="Actions" align="center" width="150" class-name="small-padding">
+          <el-table-column label="Actions" align="center" width="130" class-name="small-padding">
             <template slot-scope="{row}">
               <el-tooltip class="item" effect="dark" content="View coversation" placement="top-start">
                 <el-button icon="el-icon-view"
                   circle type="success" @click="handleOpenCoversation(row)">
                 </el-button>
               </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column label="User ID" width="110px">
+            <template slot-scope="{row}">
+              <span>{{ row.user?row.user.username:'' }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="User Name" width="110px">
+            <template slot-scope="{row}">
+              <span>{{ row.user?row.user.name:'' }}</span>
             </template>
           </el-table-column>
           <el-table-column label="Subject" min-width="150px">
@@ -261,61 +268,12 @@
       </div>
     </el-drawer>
 
-    <el-drawer
-      title="I am the title"
-      :size="createTicketDrawerSize"
-      :visible.sync="showCreateTicket"
-      direction="rtl" :with-header="false">
-      <div style="padding: 20px 0px 0; ">
-        <el-form ref="formCreateTicket" :rules="createTicketRules" :model="temp" label-position="top"  style=" margin-left:30px;margin-right:30px;">          
-            <el-form-item label="Subject" prop="subject">
-              <el-input v-model="temp.subject" />
-            </el-form-item>
-
-            <el-form-item  label="Description" prop="message">
-              <tinymce v-model="temp.message"  :imageUploadButton="false"  menubar="format" :toolbar="tools" id="ticketMessage" ref="ticketMessage" :value="temp.message" :height="150" />
-            </el-form-item>
-            <el-form-item  prop="file"  label="Attachment">
-                <el-row>
-                  <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
-                    <el-upload
-                      class="avatar-uploader"
-                      action="#"
-                       ref="upload"
-                      :show-file-list="true"
-                      :auto-upload="false"
-                      :on-change="handleChange"
-                      :on-remove="handleRemove"
-                      :limit="1"
-                      :file-list="fileList"
-                      :on-exceed="handleExceed"
-                      >
-                      <el-button size="small" type="primary">Select file.</el-button>
-                     </el-upload>
-                  </el-col>
-                  <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
-                    <el-button
-                      style="float:right;margin-bottom: 20px;"
-                      v-waves
-                      :loading="buttonLoading"
-                      type="success"
-                      @click="handleCreateTicket"
-                    >Submit Request</el-button>
-                  </el-col>
-                </el-row>                                
-            </el-form-item>
-
-           
-        </el-form>
-      </div>
-    </el-drawer>
-
   </div>
 </template>
 
 <script>
-import { fetchUserOpenedList, fetchUserClosedList, openSupportTicket, closeSupportTicket, getConversations,
-  addUserConversationMessage,
+import { fetchOpenedList, fetchClosedList, openSupportTicket, closeUserSupportTicket, getAdminConversations,
+  addAdminConversationMessage,
  } from "@/api/support";
 import avatar from '@/assets/images/avatar.png'
 import support from '@/assets/images/support.png'
@@ -348,8 +306,6 @@ export default {
       support:support,
       showTicketConversations:false,
       ticketConversationDrawerSize:"40%",
-      createTicketDrawerSize:"40%",
-      showCreateTicket:false,
       tableKey: 0,
       list: null,
       total: 0,
@@ -381,7 +337,6 @@ export default {
       fileList:[],
       file:undefined,
       tabPosition:'left',
-      dialogInquiryVisible: false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
@@ -392,15 +347,6 @@ export default {
           { required: true, message: "Message is required", trigger: "blur" }
         ],
       },
-      createTicketRules: {
-        message: [
-          { required: true, message: "Description is required", trigger: "blur" }
-        ],
-        subject: [
-          { required: true, message: "Subject is required", trigger: "blur" }
-        ]
-
-      },
       downloadLoading: false,
       buttonLoading: false
     };
@@ -409,7 +355,6 @@ export default {
     this.getList();
     if(window.screen.width <= '550'){
       this.ticketConversationDrawerSize='90%';
-      this.createTicketDrawerSize='90%';
       this.tabPosition='top';
     }
   },
@@ -446,7 +391,7 @@ export default {
     },
     getList() {
       this.listLoading = true;
-      fetchUserOpenedList(this.listQuery).then(response => {
+      fetchOpenedList(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
@@ -456,7 +401,7 @@ export default {
     },
     getClosedList() {
       this.listLoading = true;
-      fetchUserClosedList(this.listQuery).then(response => {
+      fetchClosedList(this.listQuery).then(response => {
         this.closedlist = response.data.data;
         this.closedtotal = response.data.total;
         setTimeout(() => {
@@ -487,7 +432,7 @@ export default {
     handleOpenCoversation(row){
       this.resetTemp();
       this.temp=row;
-      getConversations(row.id).then(response => {
+      getAdminConversations(row.id).then(response => {
         this.conversations = response.data;
         this.showTicketConversations=true;
       });
@@ -509,7 +454,7 @@ export default {
 
           form.append('attachment', this.file);
 
-          addUserConversationMessage(form).then((data) => {
+          addAdminConversationMessage(form).then((data) => {
             this.$notify({
               title: "Success",
               message: data.message,
@@ -517,7 +462,7 @@ export default {
               duration: 2000
             });
             
-            getConversations(this.temp.id).then(response => {
+            getAdminConversations(this.temp.id).then(response => {
               this.conversations = response.data;
             });
 
@@ -538,7 +483,7 @@ export default {
             id:row.id
           };
 
-          closeSupportTicket(postData).then((data) => {
+          closeUserSupportTicket(postData).then((data) => {
             this.getList();
             this.$notify({
               title: "Success",
@@ -550,45 +495,6 @@ export default {
           });
         })
           
-    },
-    handleShowCreateTicket(){
-      this.resetTemp();
-      this.showCreateTicket=true;
-    },
-    handleCreateTicket(){      
-      this.$refs["formCreateTicket"].validate(valid => {
-        if (valid) {
-          this.buttonLoading=true;
-          var form = new FormData();
-          let form_data=this.temp;
-
-          for ( var key in form_data ) {
-            if(form_data[key] !== undefined && form_data[key] !== null){
-              form.append(key, form_data[key]);
-            }
-          }
-
-          form.append('attachment', this.file);
-
-          openSupportTicket(form).then((data) => {
-            this.showCreateTicket = false;
-            this.$notify({
-              title: "Success",
-              message: data.message,
-              type: "success",
-              duration: 2000
-            });
-            this.getList();
-            this.buttonLoading=false;
-            this.resetTemp();
-            this.$nextTick(() => {
-              this.$refs["formCreateTicket"].clearValidate();
-              this.$refs.ticketMessage.setContent("");
-            });
-          });
-        }
-      });
-     
     },
    
     sortByID(order) {

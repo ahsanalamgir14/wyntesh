@@ -55,7 +55,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('tickets/opened', '\App\Http\Controllers\Admin\SupportController@getMyOpened');
     Route::get('tickets/closed', '\App\Http\Controllers\Admin\SupportController@getMyClosed');
     Route::get('ticket/{id}/conversations', '\App\Http\Controllers\Admin\SupportController@getConversations');
-    Route::post('tickets/close', '\App\Http\Controllers\Admin\SupportController@closeTicket');
+    Route::post('tickets/close', '\App\Http\Controllers\Admin\SupportController@closeUserTicket');
     Route::post('tickets/add/message', '\App\Http\Controllers\Admin\SupportController@addUserMessage');
 
     Route::post('auth/update-password','\App\Http\Controllers\Auth\AuthController@changePassword');
@@ -137,6 +137,12 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('rejected/kyc', 'KycController@getRejectedKyc');
     Route::get('verified/kyc', 'KycController@getVerifiedKyc');
     Route::post('kyc/update', 'KycController@updateMemberKyc');
+
+    Route::get('tickets/opened', 'SupportController@getOpened');
+    Route::get('tickets/closed', 'SupportController@getClosed');
+    Route::get('ticket/{id}/conversations', 'SupportController@getConversations');
+    Route::post('tickets/close', 'SupportController@closeTicket');
+    Route::post('tickets/add/message', 'SupportController@addAdminMessage');
 
 
 });

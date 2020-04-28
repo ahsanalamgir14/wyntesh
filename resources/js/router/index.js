@@ -365,7 +365,7 @@ export const asyncRoutes = [
       },
       {
         path: 'tickets',
-        component: () => import('@/views/admin/tickets/index'),
+        component: () => import('@/views/admin/support/index'),
         name: 'Tickets',
         meta: { title: 'Tickets', icon: 'fas fa-envelope-open-text', color:'color:#C39BD3', affix: true, roles: ['admin'] }
       }
