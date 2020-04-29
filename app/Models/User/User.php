@@ -68,8 +68,10 @@ class User extends  Authenticatable implements JWTSubject
             'contact' => 'required|max:10|regex:/^[0-9]{10}$/',
             'password' => 'required|max:255',
             'dob'=>'date|date_format:Y-m-d',
-            'gender'=>'max:1'
-        ]);
+            'gender'=>'max:1',
+            'recaptcha' => 'required|recaptcha'
+        ],[
+        'recaptcha.recaptcha' => 'Invalid captcha.']);
     }
 
     public static function updateValidator(Request $request)

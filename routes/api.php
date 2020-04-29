@@ -43,6 +43,7 @@ Route::post('public/subscribe', 'Admin\SubscribersController@store');
 Route::post('auth/google', 'Auth\AuthController@google');
 Route::get('member/check-sponsor-code/{code}', 'User\MembersController@checkSponsorCode');
 Route::post('member/registration', 'User\MembersController@registerMember');
+Route::post('member/add', 'User\MembersController@addMember');
 
 
 // Superadmin Routes
@@ -61,6 +62,9 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::post('auth/update-password','\App\Http\Controllers\Auth\AuthController@changePassword');
     Route::get('static/home','StaticController@home');
+
+    Route::get('geneology', '\App\Http\Controllers\User\MembersController@myGeneology');
+    Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@myMemberGeneology');
     
 });
 
@@ -146,6 +150,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('tickets/add/message', 'SupportController@addAdminMessage');
 
     Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
+    Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@adminMemberGeneology');
 
 
 });

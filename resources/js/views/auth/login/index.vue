@@ -117,6 +117,8 @@ export default {
             .then(() => {
               this.$router.push({ path: this.redirect || '/' });
               this.loading = false;
+              const recaptcha = this.$recaptchaInstance;
+              recaptcha.hideBadge()
             })
             .catch((error) => {
                this.$message.error(error);

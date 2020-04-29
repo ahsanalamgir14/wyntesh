@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <div class="body genealogy-body genealogy-scroll">
-      <div class="genealogy-tree">
+    <div class="body geneology-body geneology-scroll">
+      <div class="geneology-tree">
         <ul>
           <node :node="members"></node>
         </ul>
@@ -38,7 +38,11 @@ export default {
   data() {
     return {   
       members:{
-        id:0,        
+        id:0,
+         user:{
+          name:'',
+          username:''
+        }        
       },   
       temp: {
         title: undefined
@@ -59,45 +63,45 @@ export default {
 </script>
 
 <style scoped>
-/*----------------genealogy-scroll----------*/
+/*----------------geneology-scroll----------*/
 
 .app-container{
   padding-top: 0px;
 }
-.genealogy-scroll::-webkit-scrollbar {
+.geneology-scroll::-webkit-scrollbar {
     width: 5px;
     height: 8px;
 }
-.genealogy-scroll::-webkit-scrollbar-track {
+.geneology-scroll::-webkit-scrollbar-track {
     border-radius: 10px;
     background-color: #e4e4e4;
 }
-.genealogy-scroll::-webkit-scrollbar-thumb {
+.geneology-scroll::-webkit-scrollbar-thumb {
     background: #212121;
     border-radius: 10px;
     transition: 0.5s;
 }
-.genealogy-scroll::-webkit-scrollbar-thumb:hover {
+.geneology-scroll::-webkit-scrollbar-thumb:hover {
     background: #d5b14c;
     transition: 0.5s;
 }
 
 
-/*----------------genealogy-tree----------*/
-.genealogy-body{
+/*----------------geneology-tree----------*/
+.geneology-body{
     white-space: nowrap;
     overflow-y: hidden;
     padding: 50px;
     min-height: 500px;
     padding-top: 10px;
 }
-.genealogy-tree ul {
+.geneology-tree ul {
     padding-top: 20px; 
     position: relative;
     padding-left: 0px;
     display: flex;
 }
-.genealogy-tree ul ul::before{
+.geneology-tree ul ul::before{
     content: '';
     position: absolute; top: 0; left: 50%;
     border-left: 2px solid #ccc;

@@ -10,9 +10,12 @@ import '@/permission'; // permission control
 import '@fortawesome/fontawesome-free/css/all.css'
 import '@fortawesome/fontawesome-free/js/all.js'
 import VueClipboard from 'vue-clipboard2'
+import { VueReCaptcha } from 'vue-recaptcha-v3'
 
 import * as filters from './filters'; // global filters
 import VueEvents from 'vue-events'
+
+Vue.use(VueReCaptcha, { siteKey: '6LeNueQUAAAAAOdXr5rhWWz5f4KodsexOwonkLAp' })
 
 Vue.use(VueEvents)
 

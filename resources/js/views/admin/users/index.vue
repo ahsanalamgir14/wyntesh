@@ -64,13 +64,13 @@
             :loading="buttonLoading"
             @click="handleEdit(row)"
           ></el-button>
-          <el-button
+          <!-- <el-button
             type="danger"
             icon="el-icon-delete"
             circle
             :loading="buttonLoading"
             @click="handleDelete(row)"
-          ></el-button>
+          ></el-button> -->
           <el-button icon="el-icon-turn-off"
             circle v-if="row.is_active!=1" type="info" @click="handleModifyStatus(row,1)">
           </el-button>

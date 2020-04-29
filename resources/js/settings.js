@@ -6,6 +6,7 @@ export default {
    */
   title: 'MLM World',
   theme: variables.theme,
+  totalLegs:2,
   baseUrl:'https://software.mlmworld.in/',
   /**
    * @type {boolean} true | false

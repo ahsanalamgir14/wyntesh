@@ -115,10 +115,15 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/users',
+    path: '/members',
     component: Layout,
+    name: 'Members',
+    redirect: '/members/manage',
     meta: {
-      roles: ['admin']
+      title: 'Members',
+      icon: 'fas fa-users',
+      roles: ['admin'],
+      color:'color:#854CE2'
     },
     children: [
       {
@@ -126,6 +131,12 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/users/index'),
         name: 'Members',
         meta: { title: 'Members', icon: 'fas fa-user', color:'color:#EE7642', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'add',
+        component: () => import('@/views/admin/members/add'),
+        name: 'Add Members',
+        meta: { title: 'Add Members', icon: 'fas fa-plus', color:'color:#EE7642', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -178,20 +189,28 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/genealogy',
+    path: '/geneology',
     component: Layout,
     meta: {
       roles: ['admin']
     },
     children: [
       {
-        path: 'manage',
-        component: () => import('@/views/admin/genealogy/index'),
-        name: 'Genealogy',
-        meta: { title: 'Genealogy', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
+        path: 'view',
+        component: () => import('@/views/admin/geneology/index'),
+        name: 'Geneology',
+        meta: { title: 'Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
+      },
+      {
+        path: 'member/:id',
+        component: () => import('@/views/admin/geneology/member'),
+        name: 'Member Geneology',
+        hidden:true,
+        meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
       }
     ]
   },
+
   {
     path: '/pins',
     component: Layout,
@@ -394,17 +413,44 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/member/genealogy',
+    path: '/members',
+    component: Layout,
+    name: 'Members',
+    redirect: '/members/add',
+    meta: {
+      title: 'Members',
+      icon: 'fas fa-users',
+      roles: ['user'],
+      color:'color:#854CE2'
+    },
+    children: [     
+      {
+        path: 'add',
+        component: () => import('@/views/admin/members/add'),
+        name: 'Add Member',
+        meta: { title: 'Add Member', icon: 'fas fa-plus', color:'color:#EE7642', affix: true, roles: ['user'] }
+      }
+    ]
+  },
+  {
+    path: '/my/geneology',
     component: Layout,
     meta: {
       roles: ['user']
     },
     children: [
       {
-        path: 'manage',
-        component: () => import('@/views/user/genealogy/index'),
-        name: 'Genealogy',
-        meta: { title: 'Genealogy', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
+        path: 'view',
+        component: () => import('@/views/user/geneology/index'),
+        name: 'Geneology',
+        meta: { title: 'Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'member/:id',
+        component: () => import('@/views/user/geneology/member'),
+        name: 'Member Geneology',
+        hidden:true,
+        meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
       }
     ]
   },

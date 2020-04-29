@@ -41,9 +41,52 @@ class MembersController extends Controller
     } 
 
     public function adminGeneology(){
-        $zero=Member::with('children.children.children.children')->with('user')->where('level',0)->first();
+        $zero=Member::with('children.children.children')->with('user')->where('level',0)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
         return response()->json($response, 200);  
+    }
+
+    public function adminMemberGeneology($id){
+        $User=User::where('username',$id)->first();
+        if($User){
+            $zero=Member::with('children.children.children')->with('user')->where('user_id',$User->id)->first();
+            $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
+            return response()->json($response, 200);  
+        }else{
+            $response = array('status' => false,'message'=>'Member not found');
+            return response()->json($response, 404);
+        }
+        
+    }
+
+    public function myGeneology(){
+        $id=JWTAuth::user()->id;
+        $zero=Member::with('children.children.children')->with('user')->where('user_id',$id)->first();
+        $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
+        return response()->json($response, 200);  
+    }
+
+    public function myMemberGeneology($id){
+        $user_id=JWTAuth::user()->id;
+        $my_member_id=JWTAuth::user()->member->id;
+        $User=User::where('username',$id)->first();
+
+        if($User){
+            $tempMember=Member::where('user_id',$User->id)->first();            
+            $pathArray=(explode("/",$tempMember->path));            
+            if(in_array($my_member_id,$pathArray)){
+                $zero=Member::with('children.children.children')->with('user')->where('user_id',$User->id)->first();
+                $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
+                return response()->json($response, 200);      
+            }else{
+                $response = array('status' => false,'message'=>'Member not in your downline');
+                return response()->json($response, 404);    
+            }            
+        }else{
+            $response = array('status' => false,'message'=>'Member not in your downline');
+            return response()->json($response, 404);
+        }
+        
     }
 
     public function updateProfile(Request $request)
@@ -168,7 +211,7 @@ class MembersController extends Controller
         $parent=$Sponsor->member->id;
         $parents=$this->getSponsorTail($parent,$request->position);
         if($parents){
-            $parent=$parents[0]->member_id;
+            $parent=$parents[0]->id;
         }else{
             $parent=$Sponsor->member->id;
         }
@@ -183,7 +226,7 @@ class MembersController extends Controller
         $Member->parent_id=$Parent->id;
         
         $Member->level=$level;
-        $Member->wallet_balace=0;
+        $Member->wallet_balance=0;
         $Member->save();
 
         $Member->path=$Parent->path.'/'.$Member->id;
@@ -196,6 +239,70 @@ class MembersController extends Controller
 
         
         $response = array('status' => true,'message'=>'You are registered successfully. Your ID is - '.$User->username);
+        return response()->json($response, 200);
+    }
+
+    public function addMember(Request $request){
+        $validate=User::memberValidator($request);
+        
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $Sponsor=User::where('username',$request->sponsor_code)->first();
+        if(!$Sponsor){
+            $response = array('status' => false,'message'=>'Sponsor not found.');
+            return response()->json($response, 404);
+        }
+
+        $username=$this->generateMemberID();
+
+        $User= User::create([
+            'name' => $request->name,
+            'username' => $username,
+            'email'=>$request->email,
+            'password'=>Hash::make($request->password),
+            'contact'=>$request->contact,
+            'gender'=>$request->gender,
+            'dob'=>$request->dob,
+            'is_active'=>1,
+            'verified_at'=>Carbon::now()
+        ]);
+
+        $User->assignRole('user');
+
+        $parent=$Sponsor->member->id;
+        $parents=$this->getSponsorTail($parent,$request->position);
+        if($parents){
+            $parent=$parents[0]->id;
+        }else{
+            $parent=$Sponsor->member->id;
+        }
+
+        $Parent=Member::where('id',$parent)->first();
+        $level=$Parent->level+1;
+              
+        $Member=new Member;
+        $Member->user_id=$User->id;
+        $Member->position=$request->position;
+        $Member->sponsor_id=$Sponsor->member->id;
+        $Member->parent_id=$Parent->id;
+        
+        $Member->level=$level;
+        $Member->wallet_balance=0;
+        $Member->save();
+
+        $Member->path=$Parent->path.'/'.$Member->id;
+        $Member->save();  
+
+        $Kyc=new Kyc;
+        $Kyc->member_id=$Member->id;
+        $Kyc->verification_status='pending';
+        $Kyc->save();
+
+        
+        $response = array('status' => true,'message'=>'Member added successfully. Member ID is - '.$User->username);
         return response()->json($response, 200);
     }  
 
