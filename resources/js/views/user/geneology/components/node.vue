@@ -1,5 +1,5 @@
 <template>
-    <li>
+    <li  v-if="node.id">
       <router-link :to="'/my/geneology/member/'+node.user.username">
           <div class="member-view-box">
               <div class="member-image">
@@ -27,20 +27,20 @@
           </div>
       </router-link>
       <ul v-if="node.hasOwnProperty('children')">
-          <node v-for="child in node.children" :key="node.id+rand()" :node="child" ></node>
-          <li v-for="index in totalLegs" :key="rand()"  v-if="node.hasOwnProperty('children')" >
-              <router-link :to="'/members/add?sponsor_code='+node.user.username+'&position='+(node.children.length+index)">
-                <div class="member-view-box">
-                    <div class="member-image">
-                        <img src="@/assets/images/tree-user.png" alt="Member">
-                        <div class="member-details">
-                            <h3>Place Here</h3>
-                        </div>
-                    </div>
-                </div>
-              </router-link>
-          </li>
+          <node v-for="child in childs" :key="node.id+rand()" :node="child" ></node>         
       </ul>
+    </li>
+    <li v-else >
+        <router-link :to="'/members/add?sponsor_code='+node.sponsor_code+'&position='+node.position">
+          <div class="member-view-box">
+              <div class="member-image">
+                  <img src="@/assets/images/tree-user.png" alt="Member">
+                  <div class="member-details">
+                      <h3>Place Here</h3>
+                  </div>
+              </div>
+          </div>
+        </router-link>
     </li>
 </template>
 
@@ -55,25 +55,40 @@ export default {
     node: Object
   },
   created(){
-    if(this.node.id){
-      this.children=this.node.children?this.node.children.length:0;  
-      this.totalLegs=totalLegs;
-      this.totalLegs=this.totalLegs-this.children;
+
+    if(this.node.children){
+      for(var i=1; i <= totalLegs; i++){
+        let ch=this.node.children.find(obj => {
+          return obj.position === i
+        });
+
+        if(ch){
+          this.childs.push(ch);
+        }else{
+          this.childs.push({id:0,position:i,sponsor_code:this.node.user.username})
+        }
+      }  
     }
+   
   },
   beforeUpdate(){
-    if(this.node.id){
+   
+    for(var i=1; i <= totalLegs; i++){
+      let ch=this.node.children.find(obj => {
+        return obj.position === i
+      });
 
-      this.children=this.node.children?this.node.children.length:0;  
-      this.totalLegs=totalLegs;
-      this.totalLegs=this.totalLegs-this.children;
+      if(ch){
+        this.childs.push(ch);
+      }else{
+        this.childs.push({id:0,position:i,sponsor_code:this.node.user.username})
+      }
     }
+   
   },
   data() {
     return {   
-      placehere:2,
-      totalLegs:0,
-      children:0
+      childs:[],
     };
   },
   methods:{

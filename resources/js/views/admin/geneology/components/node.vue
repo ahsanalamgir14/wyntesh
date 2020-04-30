@@ -94,22 +94,7 @@ export default {
   methods:{
     rand(){
       return Math.random();
-    },
-    getChild(index){
-      return this.node.children.filter(function (ch) {        
-          return ch.position==index;
-      })[0];
-
-    },
-    async isChild(index){
-       let child=await this.node.children.filter(function (ch) {
-          return ch.position==index;
-      })[0];
-      if (child){
-        return true;
-      }else{false}
-
-    },
+    },   
   }
 };
 </script>
