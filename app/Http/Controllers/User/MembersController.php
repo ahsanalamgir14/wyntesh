@@ -41,7 +41,7 @@ class MembersController extends Controller
     } 
 
     public function adminGeneology(){
-        $zero=Member::with('children.children.children')->with('user')->where('level',0)->first();
+        $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('level',0)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
         return response()->json($response, 200);  
     }
@@ -49,7 +49,7 @@ class MembersController extends Controller
     public function adminMemberGeneology($id){
         $User=User::where('username',$id)->first();
         if($User){
-            $zero=Member::with('children.children.children')->with('user')->where('user_id',$User->id)->first();
+            $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('user_id',$User->id)->first();
             $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
             return response()->json($response, 200);  
         }else{
@@ -61,7 +61,7 @@ class MembersController extends Controller
 
     public function myGeneology(){
         $id=JWTAuth::user()->id;
-        $zero=Member::with('children.children.children')->with('user')->where('user_id',$id)->first();
+        $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('user_id',$id)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
         return response()->json($response, 200);  
     }
@@ -75,7 +75,7 @@ class MembersController extends Controller
             $tempMember=Member::where('user_id',$User->id)->first();            
             $pathArray=(explode("/",$tempMember->path));            
             if(in_array($my_member_id,$pathArray)){
-                $zero=Member::with('children.children.children')->with('user')->where('user_id',$User->id)->first();
+                $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('user_id',$User->id)->first();
                 $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
                 return response()->json($response, 200);      
             }else{

@@ -26,7 +26,7 @@ class Member extends Model
 
     public function children()
     {
-        return $this->hasMany(self::class, 'parent_id')->with('user');
+        return $this->hasMany(self::class, 'parent_id')->with('user')->with('kyc');
     }
 
     public function sponsor()

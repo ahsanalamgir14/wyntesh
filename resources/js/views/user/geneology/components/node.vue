@@ -10,11 +10,14 @@
                   trigger="hover"
                     >
                   <div slot="reference">
-                    <img src="@/assets/images/tree-user.png" alt="Member">
+                    <img v-if="node.user.is_active && node.kyc.verification_status=='verified' " src="@/assets/images/active.png" alt="Member">
+                    <img v-else-if="node.user.is_active && node.kyc.verification_status!='verified' " src="@/assets/images/kyc-pending.png" alt="Member">
+                    <img v-else="!node.user.is_active" src="@/assets/images/deactive.png" alt="Member">
                   </div>
                   <div>                   
                     <p><b>ID</b> : {{node.user.username}}</p>
                     <p><b>Wallet Balance</b> : {{node.wallet_balance}}</p>
+                    <p><b>KYC Status</b> : {{node.kyc.verification_status}}</p>
                   </div>
                 </el-popover>
 
@@ -34,7 +37,7 @@
         <router-link :to="'/members/add?sponsor_code='+node.sponsor_code+'&position='+node.position">
           <div class="member-view-box">
               <div class="member-image">
-                  <img src="@/assets/images/tree-user.png" alt="Member">
+                  <img src="@/assets/images/add.png" alt="Member">
                   <div class="member-details">
                       <h3>Place Here</h3>
                   </div>

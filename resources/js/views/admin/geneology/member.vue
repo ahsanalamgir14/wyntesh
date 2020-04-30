@@ -1,5 +1,49 @@
 <template>
   <div class="app-container">
+    <el-row style="margin: 30px 20px 0px 20px;">
+      <el-col  :xs="6" :sm="2" :md="2" :lg="2" :xl="2" >
+          <div class="about-images">
+            <img height="50px" width="50px" src="@/assets/images/active.png" alt="Member">
+            <h6>Active Member</h6>
+          </div>
+      </el-col>
+      <el-col  :xs="6" :sm="2" :md="2" :lg="2" :xl="2" >
+          <div class="about-images">
+            <img height="50px" width="50px" src="@/assets/images/kyc-pending.png" alt="Member">
+            <h6>Kyc Pending</h6>
+          </div>
+      </el-col>
+      <el-col  :xs="6" :sm="2" :md="2" :lg="2" :xl="2" >
+          <div class="about-images">
+            <img height="50px" width="50px" src="@/assets/images/deactive.png" alt="Member">
+            <h6>Deactive Member</h6>
+          </div>
+      </el-col>
+      <el-col  :xs="6" :sm="2" :md="2" :lg="2" :xl="2" >
+          <div class="about-images">
+            <img height="50px" width="50px" src="@/assets/images/add.png" alt="Member">
+            <h6>Add Member</h6>
+          </div>
+      </el-col>
+      <el-col  :xs="24" :sm="16" :md="16" :lg="16" :xl="16" >
+        <div class="filter-container" style="float: right;margin-top: 10px;">
+          <el-input
+            v-model="memberId"
+            placeholder="Enter member ID"
+            style="width: 200px;"
+            class="filter-item"
+            @keyup.enter.native="viewMemberTree"
+          />
+          <el-button
+            v-waves
+            class="filter-item"
+            type="primary"
+            icon="el-icon-search"
+            @click="viewMemberTree"
+          >View</el-button>
+        </div>
+      </el-col>
+    </el-row>
     <div class="body geneology-body geneology-scroll">
       <div class="geneology-tree">
         <ul>
@@ -39,6 +83,7 @@ export default {
   },
   data() {
     return {   
+      memberId:undefined,
       members:{
         id:0,
         user:{
@@ -56,6 +101,11 @@ export default {
     this.getGeneology(this.$route.params.id);
   },
   methods: {
+    viewMemberTree(){
+      if(this.memberId){
+        this.$router.push('/geneology/member/'+this.memberId);  
+      }      
+    },
     getGeneology(id){
       getAdminMemberGeneology(id).then(response => {
         this.members = response.data;
@@ -67,9 +117,20 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /*----------------geneology-scroll----------*/
-
+.about-images{
+  width:50px;
+  text-align: center;
+  img{
+    height:30px;
+    width:30px;
+  }
+  h6{
+    margin-top:0px;
+    margin-bottom:0px;
+  }
+}
 .app-container{
   padding-top: 0px;
 }
