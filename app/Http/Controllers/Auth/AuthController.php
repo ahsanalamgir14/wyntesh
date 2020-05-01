@@ -53,7 +53,7 @@ class AuthController extends Controller
     }
 
     function mailcheck(){
-        $User=User::find(14);
+        $User=User::find(1);
         $this->sendVerificationMail($User);
     }
 

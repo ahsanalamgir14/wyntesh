@@ -31,7 +31,7 @@ Route::group(['prefix' => 'auth'], function ($router) {
     Route::post('refresh', 'Auth\AuthController@refresh');
     Route::get('me', 'Auth\AuthController@me');
 
-    Route::get('password/reset/{token?}', 'Auth\PasswordController@showResetForm');
+    //Route::get('password/reset/{token?}', 'Auth\PasswordController@showResetForm');
     Route::post('password/email', 'Auth\ForgotPasswordController@getResetToken');
     Route::post('password/reset', 'Auth\ResetPasswordController@reset');
     Route::get('email-verify', 'Auth\AuthController@emailVerify');
@@ -61,8 +61,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::post('tickets/add/message', '\App\Http\Controllers\Admin\SupportController@addUserMessage');
 
     Route::post('auth/update-password','\App\Http\Controllers\Auth\AuthController@changePassword');
-    Route::get('static/home','StaticController@home');
-
+   
     Route::get('geneology', '\App\Http\Controllers\User\MembersController@myGeneology');
     Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@myMemberGeneology');
     

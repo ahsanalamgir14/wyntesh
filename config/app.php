@@ -176,8 +176,6 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
-        Jenssegers\Agent\AgentServiceProvider::class,
-        PrettyRoutes\ServiceProvider::class,
         RobinCSamuel\LaravelMsg91\LaravelMsg91ServiceProvider::class,
         \Fruitcake\Cors\CorsServiceProvider::class,
         App\Providers\MailConfigServiceProvider::class,
