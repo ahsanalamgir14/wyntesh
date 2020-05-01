@@ -434,7 +434,7 @@ import {
   createAdminUser,
   updateAdminUser,
   deleteAdminUser,
-  changeUserStatus,
+  changeAdminUserStatus,
   fetchRoleList as roleList,
   createRole,
   updateRole,
@@ -442,7 +442,7 @@ import {
   createPermission,
   updatePermission,
 
-} from "@/api/admins-and-roles";
+} from "@/api/superadmin/admins-and-roles";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
@@ -607,7 +607,7 @@ export default {
     },
     handleModifyStatus(row, status) {
       let data={'id':row.id,'is_active':status};
-      changeUserStatus(data).then((response) => {
+      changeAdminUserStatus(data).then((response) => {
         this.$notify({
           title: "Success",
           message: "Status changed Successfully",

@@ -31,6 +31,13 @@ export function updatePackage(data,id) {
   })
 }
 
+export function changePackageStatus(data) {
+  return request({
+    url: '/admin/package/change-status',
+    method: 'post',
+    data
+  })
+}
 
 export function deletePackage(id) {
   return request({

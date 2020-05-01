@@ -152,7 +152,7 @@ import {
   deleteGallery,
   createGallery,
   updateGallery
-} from "@/api/gallery";
+} from "@/api/admin/gallery";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination

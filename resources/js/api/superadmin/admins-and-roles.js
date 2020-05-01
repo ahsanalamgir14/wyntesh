@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function fetchAdminList(query) {
   return request({
-    url: '/sadmin/users',
+    url: '/superadmin/users',
     method: 'get',
     params: query
   })
@@ -11,7 +11,7 @@ export function fetchAdminList(query) {
 
 export function createAdminUser(data) {
   return request({
-    url: '/sadmin/user',
+    url: '/superadmin/user',
     method: 'post',
     data
   })
@@ -25,9 +25,17 @@ export function changeUserStatus(data) {
   })
 }
 
+export function changeAdminUserStatus(data) {
+  return request({
+    url: '/superadmin/user/change-status',
+    method: 'post',
+    data
+  })
+}
+
 export function updateAdminUser(data) {
   return request({
-    url: '/sadmin/user/update',
+    url: '/superadmin/user/update',
     method: 'post',
     data
   })
@@ -35,7 +43,7 @@ export function updateAdminUser(data) {
 
 export function deleteAdminUser(id) {
   return request({
-    url: '/sadmin/user/'+id+'/delete',
+    url: '/superadmin/user/'+id+'/delete',
     method: 'delete'
   })
 }
@@ -43,7 +51,7 @@ export function deleteAdminUser(id) {
 // Roles
 export function fetchRoleList(query) {
   return request({
-    url: '/sadmin/roles',
+    url: '/superadmin/roles',
     method: 'get',
     params: query
   })
@@ -52,7 +60,7 @@ export function fetchRoleList(query) {
 
 export function createRole(data) {
   return request({
-    url: '/sadmin/role',
+    url: '/superadmin/role',
     method: 'post',
     data
   })
@@ -60,7 +68,7 @@ export function createRole(data) {
 
 export function updateRole(data) {
   return request({
-    url: '/sadmin/role/update',
+    url: '/superadmin/role/update',
     method: 'post',
     data
   })
@@ -69,7 +77,7 @@ export function updateRole(data) {
 // Permissions
 export function fetchPermissionList(query) {
   return request({
-    url: '/sadmin/permissions',
+    url: '/superadmin/permissions',
     method: 'get',
     params: query
   })
@@ -78,7 +86,7 @@ export function fetchPermissionList(query) {
 
 export function createPermission(data) {
   return request({
-    url: '/sadmin/permission',
+    url: '/superadmin/permission',
     method: 'post',
     data
   })
@@ -86,7 +94,7 @@ export function createPermission(data) {
 
 export function updatePermission(data) {
   return request({
-    url: '/sadmin/permission/update',
+    url: '/superadmin/permission/update',
     method: 'post',
     data
   })

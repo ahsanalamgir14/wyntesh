@@ -65,10 +65,11 @@ class PackagesController extends Controller
      */
     public function store(Request $request)
     {
-        $requestData = $request->only('name', 'description','default_period','price','gst','final_price','gst_amount');
-        $validate = Validator::make($requestData, [
+        
+        $validate = Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'default_period' => 'required|integer'
+            'package_code' => 'required|max:32|unique:packages',
+            'validity' => 'required|integer'
         ]);
 
         if($validate->fails()){
@@ -76,22 +77,22 @@ class PackagesController extends Controller
             return response()->json($response, 400);
         }
         
-        
-        $package =  Package::create([
-            'name' => $requestData['name'],
-            'description' => $requestData['description'],
-            'price' => $requestData['price'],
-            'gst' => $requestData['gst'],
-            'gst_amount' => $requestData['gst_amount'],
-            'final_price' => $requestData['final_price'],
-            'default_period' => $requestData['default_period'],
-        ]);
+        $Package=new Package;
+        $Package->name=$request->name;
+        $Package->package_code=$request->package_code;
+        $Package->description=$request->description;
+        $Package->base_amount=$request->base_amount;
+        $Package->gst_rate=$request->gst_rate;
+        $Package->name=$request->name;
+        $Package->gst_amount=$request->gst_amount;
+        $Package->net_amount=$request->net_amount;
+        $Package->capping_amount=$request->capping_amount;
+        $Package->pv=$request->pv;  
+        $Package->validity=$request->validity;
+        $Package->save();
 
-        $courses = $request->get('courses');
-        $package->courses()->sync($courses);
-
-         $Package=Package::find($package->id);
-            $response = array('status' => true,'message'=>'Package created successfully.','data'=>$Package);  
+        $Package=Package::find($Package->id);
+        $response = array('status' => true,'message'=>'Package created successfully.','data'=>$Package);  
         return response()->json($response, 200);
     }
 
@@ -114,6 +115,20 @@ class PackagesController extends Controller
 
     }
 
+    public function changePackageStatus(Request $request){
+        $Package=Package::find($request->id);
+
+        if($Package){
+            $Package->is_active=$request->is_active;
+            $Package->save();
+            $response = array('status' => true,'message'=>'Package status changed successfully');
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Package not found');
+            return response()->json($response, 400);
+        }
+    }
+
    
     /**
      * Update the specified resource in storage.
@@ -124,39 +139,39 @@ class PackagesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $package = Package::find($id);
-
-        if(empty($package)){
-           $response = array('status' => false,'message'=>'Package not found');
-            return response()->json($response, 404);
-        }
-
-        $requestData = $request->only('name', 'description','default_period','price','gst','final_price','gst_amount');
-        
-        $validate = Validator::make($requestData, [
+        $validate = Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'default_period' => 'required|integer'
+            'package_code' => 'required|max:32|unique:packages,package_code,'.$id.',id',
+            'validity' => 'required|integer'
         ]);
-        
+
         if($validate->fails()){
             $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
             return response()->json($response, 400);
         }
 
-        $package->name = $requestData['name'];
-        $package->description = $requestData['description'];
-        $package->price = $requestData['price'];
-        $package->gst = $requestData['gst'];
-        $package->gst_amount = $requestData['gst_amount'];
-        $package->final_price = $requestData['final_price'];
-        $package->default_period = $requestData['default_period'];
+        $Package=Package::find($id);
 
-        $package->save();
+        if(!$Package){
+            $response = array('status' => false,'message'=>'Package not found');
+            return response()->json($response, 404);
+        }
 
-        $courses = $request->get('courses');
-        $package->courses()->sync($courses);
+        $Package->name=$request->name;
+        $Package->package_code=$request->package_code;
+        $Package->description=$request->description;
+        $Package->base_amount=$request->base_amount;
+        $Package->gst_rate=$request->gst_rate;
+        $Package->name=$request->name;
+        $Package->gst_amount=$request->gst_amount;
+        $Package->net_amount=$request->net_amount;
+        $Package->capping_amount=$request->capping_amount;
+        $Package->pv=$request->pv;  
+        $Package->validity=$request->validity;
+        $Package->save();
 
-        $Package=Package::find($package->id);
+
+        $Package=Package::find($Package->id);
             $response = array('status' => true,'message'=>'Package updated successfully.','data'=>$Package);    
         return response()->json($response, 200);        
     }

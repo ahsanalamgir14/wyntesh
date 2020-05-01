@@ -229,8 +229,7 @@ import {
   deleteUser,
   changeUserStatus,
   updateExpireDate
-} from "@/api/users";
-import {  fetchList as packageList } from "@/api/packages";
+} from "@/api/admin/users";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
@@ -265,14 +264,11 @@ export default {
         email: undefined,
         contact: undefined,
         gender: "m",
-        package:[],
         dob: undefined,
         is_active: 'all',
         sort: "+id"
       },
       statusFilter:'all',
-      packageList:[],
-      userPackages:[],
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
@@ -287,7 +283,6 @@ export default {
         password:undefined,
         contact: undefined,
         gender: "m",
-        packages:[],
         dob: undefined,
         is_active: 0,
       },
@@ -324,9 +319,6 @@ export default {
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
-      });
-      packageList().then(response=>{
-        this.packageList=response.data.data;
       });
     },
     handleFilter() {
@@ -369,7 +361,6 @@ export default {
         email: undefined,
         contact: undefined,
         gender: "m",
-        packages:[],
         dob: undefined,
         is_active: 0,
       };
@@ -404,21 +395,6 @@ export default {
       this.temp = Object.assign({}, row);
       this.dialogStatus = "update";
       this.dialogUserVisible = true;
-      var keys = [];
-
-      // row.packages.map(pack => {
-      //     keys.push(pack.id);
-      // })
-
-      // keys = keys.filter((item, i, ar) => ar.indexOf(item) === i);
-
-      // this.temp.packages=keys;
-
-      // this.userPackages = row.packages.map(p => {
-      //   this.$set(p, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
-      //   p.pivot.originalExpireDate = p.pivot.expire_date //  will be used when user click the cancel botton
-      //   return p
-      // })
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
@@ -468,7 +444,7 @@ export default {
     },
     confirmEdit(row) {
       row.edit = false
-      let data={'user_id':row.pivot.user_id,'package_id':row.pivot.package_id,'expire_date':row.pivot.expire_date}
+      
       updateExpireDate(data).then((data) => {
          this.$message({
           message: 'Expire date has been updated',

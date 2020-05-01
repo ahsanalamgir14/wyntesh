@@ -274,7 +274,7 @@
 <script>
 import { fetchOpenedList, fetchClosedList, openSupportTicket, closeUserSupportTicket, getAdminConversations,
   addAdminConversationMessage,
- } from "@/api/support";
+ } from "@/api/user/support";
 import avatar from '@/assets/images/avatar.png'
 import support from '@/assets/images/support.png'
 

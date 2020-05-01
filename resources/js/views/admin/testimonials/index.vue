@@ -160,7 +160,7 @@ import {
   deleteTestimonial,
   createTestimonial,
   updateTestimonial
-} from "@/api/testimonials";
+} from "@/api/admin/testimonials";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination

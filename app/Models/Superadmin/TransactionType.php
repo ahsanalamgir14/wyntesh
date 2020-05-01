@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Models\Admin;
+namespace App\Models\Superadmin;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Package extends Model
+class TransactionType extends Model
 {
+	protected $table = 'transaction_types';
     public $timestamps = true;
     use SoftDeletes;
 

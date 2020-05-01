@@ -24,7 +24,7 @@ import BoxCard from './components/BoxCard'
 
 import {
   saveNews, getNews
-} from "@/api/settings";
+} from "@/api/admin/settings";
 
 const lineChartData = {
   newVisitis: {

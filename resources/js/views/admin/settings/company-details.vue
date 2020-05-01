@@ -99,7 +99,7 @@
 import {
   getAdminSettings,
   saveCompanySettings,
-} from "@/api/settings";
+} from "@/api/admin/settings";
 
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";

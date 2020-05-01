@@ -115,6 +115,36 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/configs',
+    component: Layout,
+    meta: {
+      title: 'Configrations',
+      icon: 'fas fa-cogs',
+      roles: ['superadmin'],
+      color:'color:#854CE2'
+    },
+    children: [
+      {
+        path: 'transaction-types',
+        component: () => import('@/views/superadmin/configs/transaction-types'),
+        name: 'Transaction Types',
+        meta: { title: 'Transaction Types', color:'color:#34A540', icon: 'fas fa-list-alt', affix: true, roles: ['superadmin'] }
+      },
+      {
+        path: 'payment-modes',
+        component: () => import('@/views/superadmin/configs/payment-modes'),
+        name: 'Payment Modes',
+        meta: { title: 'Payment Modes', color:'color:#EE7642', icon: 'fas fa-money-bill-wave', affix: true, roles: ['superadmin'] }
+      },
+      {
+        path: 'packages',
+        component: () => import('@/views/admin/packages/index'),
+        name: 'Packages',
+        meta: { title: 'Packages', icon: 'fas fa-box', color:'color:#854CE2', affix: true, roles: ['superadmin'] }
+      }
+    ]
+  },
+  {
     path: '/members',
     component: Layout,
     name: 'Members',
@@ -184,7 +214,7 @@ export const asyncRoutes = [
         path: 'manage',
         component: () => import('@/views/admin/packages/index'),
         name: 'Packages',
-        meta: { title: 'Packages', icon: 'fas fa-box', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
+        meta: { title: 'Packages', icon: 'fas fa-box', color:'color:#854CE2', affix: true, roles: ['admin'] }
       }
     ]
   },

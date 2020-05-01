@@ -153,7 +153,7 @@ import {
   fetchList,
   changeInquiryStatus,
   deleteInquiry,
-} from "@/api/inquiries";
+} from "@/api/admin/inquiries";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 

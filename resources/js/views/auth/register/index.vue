@@ -130,7 +130,7 @@
 <script>
 import { validEmail } from '@/utils/validate';
 import logo from '@/assets/images/logo.png'
-import { checkSponsorCode,registerMember } from "@/api/members";
+import { checkSponsorCode,registerMember } from "@/api/user/members";
 
 export default {
   name: 'Login',

@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { checkSponsorCode,addMember } from "@/api/members";
+import { checkSponsorCode,addMember } from "@/api/admin/members";
 import defaultSettings from '@/settings';
 const { totalLegs } = defaultSettings;
 import waves from "@/directive/waves"; // waves directive

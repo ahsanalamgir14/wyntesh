@@ -222,7 +222,7 @@
 </template>
 
 <script>
-import { updateProfile,getProfile } from "@/api/members";
+import { updateProfile,getProfile } from "@/api/user/members";
 import PanThumb from '@/components/PanThumb';
 import { parseTime } from "@/utils";
 import defaultSettings from '@/settings';

@@ -80,8 +80,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('user/update', 'UserAndRoleController@updateUser');
     Route::delete('user/{id}/delete', 'UserAndRoleController@deleteUser');
     Route::post('user/change-status', 'UserAndRoleController@changeUserStatus');
-    Route::post('user/package/update-expire-date','UserAndRoleController@updatePackageExpireDate');
-    
+   
     Route::get('inquiries', 'InquiriesController@index');
     Route::post('inquiry/change-status', 'InquiriesController@changeInquiryStatus');
     Route::delete('inquiry/{id}/delete', 'InquiriesController@destroy');
@@ -104,13 +103,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('popup','PopupsController@createPopup');
     Route::post('popup/update', 'PopupsController@updatePopup');
     Route::get('popups', 'PopupsController@getPopups');
-    Route::delete('popup/{id}/delete', 'PopupsController@deletePopup');
-
-    Route::get('packages', 'PackagesController@index');
-    Route::get('packages/all', 'PackagesController@all');
-    Route::post('packages', 'PackagesController@store');
-    Route::post('package/{id}/update','PackagesController@update');
-    Route::delete('package/{id}/delete', 'PackagesController@destroy');
+    Route::delete('popup/{id}/delete', 'PopupsController@deletePopup');    
 
     Route::post('download','DownloadsController@createDownload');
     Route::post('download/update', 'DownloadsController@updateDownload');
@@ -154,15 +147,27 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
 });
 
+Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' => 'admin','namespace'=>'Admin'], function($router)
+{  
+    Route::get('packages', 'PackagesController@index');
+    Route::get('packages/all', 'PackagesController@all');
+    Route::post('packages', 'PackagesController@store');
+    Route::post('package/{id}/update','PackagesController@update');
+    Route::post('package/change-status', 'PackagesController@changePackageStatus');
+    Route::delete('package/{id}/delete', 'PackagesController@destroy');
+
+});
+
 // Superadmin Routes
-Route::group(['middleware' => ['jwt.verify','role:superadmin'],'prefix' => 'sadmin','namespace'=>'Admin'], function($router)
+Route::group(['middleware' => ['jwt.verify','role:superadmin'],'prefix' => 'superadmin','namespace'=>'Superadmin'], function($router)
 {   
     
     Route::get('users', 'UserAndRoleController@getAdminUsers');
     Route::post('user','UserAndRoleController@createAdminUser');
     Route::post('user/update', 'UserAndRoleController@updateAdminUser');
     Route::delete('user/{id}/delete', 'UserAndRoleController@deleteUser');
-
+    Route::post('user/change-status', 'UserAndRoleController@changeUserStatus');
+    
     // Role Routes
     Route::post('role', 'UserAndRoleController@createRole');
     Route::post('role/update', 'UserAndRoleController@updateRole');
@@ -175,6 +180,16 @@ Route::group(['middleware' => ['jwt.verify','role:superadmin'],'prefix' => 'sadm
     Route::get('permissions', 'UserAndRoleController@getPermissions');
     Route::get('permission/{id}', 'UserAndRoleController@getPermission');
     Route::delete('permission/{id}/delete', 'UserAndRoleController@deletePermission');
+
+    Route::post('transaction-type','TransactionTypesController@createTransactionType');
+    Route::post('transaction-type/update', 'TransactionTypesController@updateTransactionType');
+    Route::get('transaction-types', 'TransactionTypesController@getTransactionTypes');
+    Route::delete('transaction-type/{id}/delete', 'TransactionTypesController@deleteTransactionType');
+
+    Route::post('payment-mode','PaymentModesController@createPaymentMode');
+    Route::post('payment-mode/update', 'PaymentModesController@updatePaymentMode');
+    Route::get('payment-modes', 'PaymentModesController@getPaymentModes');
+    Route::delete('payment-mode/{id}/delete', 'PaymentModesController@deletePaymentMode');
 
     Route::get('settings','SettingsController@get');
     Route::post('settings','SettingsController@update');

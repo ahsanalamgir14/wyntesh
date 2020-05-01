@@ -156,7 +156,7 @@ import {
   deleteDownload,
   createDownload,
   updateDownload
-} from "@/api/downloads";
+} from "@/api/admin/downloads";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
