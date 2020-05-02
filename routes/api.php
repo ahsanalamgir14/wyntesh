@@ -46,7 +46,7 @@ Route::post('member/registration', 'User\MembersController@registerMember');
 Route::post('member/add', 'User\MembersController@addMember');
 
 
-// Superadmin Routes
+// User Routes
 Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','namespace'=>'User'], function($router)
 {   
   
@@ -64,6 +64,28 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
    
     Route::get('geneology', '\App\Http\Controllers\User\MembersController@myGeneology');
     Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@myMemberGeneology');
+
+    Route::get('packages/all', 'ConfigController@allPackages');
+    Route::get('transaction-types/all', 'ConfigController@allTransactionTypes');
+    Route::get('payment-modes/all', 'ConfigController@allPaymentModes');
+    Route::get('bank-partners/all', 'ConfigController@allBankPartners');
+
+    Route::get('pending-pin-requests', 'PinsController@myPendingPinRequests');
+    Route::get('approved-pin-requests', 'PinsController@myApprovedPinRequests');
+    Route::get('rejected-pin-requests', 'PinsController@myRejectedPinRequests');
+    Route::post('pin-requests', 'PinsController@store');
+    Route::delete('pin-requests/{id}/delete', 'PinsController@destroy');
+    
+});
+
+Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user','namespace'=>'User'], function($router)
+{   
+  
+    Route::get('packages/all', 'ConfigController@allPackages');
+    Route::get('transaction-types/all', 'ConfigController@allTransactionTypes');
+    Route::get('payment-modes/all', 'ConfigController@allPaymentModes');
+    Route::get('bank-partners/all', 'ConfigController@allBankPartners');
+
     
 });
 
@@ -143,6 +165,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
     Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@adminMemberGeneology');
+
+    Route::get('all-pin-requests', 'PinsController@allPinRequests');
+    Route::delete('pin-requests/{id}/delete', 'PinsController@destroy');
 
 
 });

@@ -260,10 +260,22 @@ export const asyncRoutes = [
         meta: { title: 'Generate PINs', icon: 'fas fa-tag', color:'color:#35BED1', affix: true, roles: ['admin'] }
       },
       {
-        path: 'pin-requests',
-        component: () => import('@/views/admin/pins/pin-requests'),
+        path: 'pending-pin-requests',
+        component: () => import('@/views/admin/pins/pending-pin-requests'),
         name: 'PIN Requests',
-        meta: { title: 'PIN Requests', icon: 'fas fa-tag', color:'color:#40BF27', affix: true, roles: ['admin'] }
+        meta: { title: 'Pending Requests', icon: 'fas fa-tag', color:'color:#DC7633', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'approved-pin-requests',
+        component: () => import('@/views/admin/pins/approved-pin-requests'),
+        name: 'Approved Requests',
+        meta: { title: 'Approved Requests', icon: 'fas fa-tag', color:'color:#40BF27', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'rejected-pin-requests',
+        component: () => import('@/views/admin/pins/rejected-pin-requests'),
+        name: 'Rejected Requests',
+        meta: { title: 'Rejected Requests', icon: 'fas fa-tag', color:'color:#CF1F5C', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -503,10 +515,22 @@ export const asyncRoutes = [
         meta: { title: 'My PINs', icon: 'fas fa-tag', color:'color:#35BED1', affix: true, roles: ['user'] }
       },
       {
-        path: 'pin-requests',
-        component: () => import('@/views/user/pins/pin-requests'),
+        path: 'pending-pin-requests',
+        component: () => import('@/views/user/pins/pending-pin-requests'),
         name: 'PIN Requests',
-        meta: { title: 'PIN Requests', icon: 'fas fa-tag', color:'color:#40BF27', affix: true, roles: ['user'] }
+        meta: { title: 'Pending Requests', icon: 'fas fa-tag', color:'color:#DC7633', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'approved-pin-requests',
+        component: () => import('@/views/user/pins/approved-pin-requests'),
+        name: 'Approved Requests',
+        meta: { title: 'Approved Requests', icon: 'fas fa-tag', color:'color:#40BF27', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'rejected-pin-requests',
+        component: () => import('@/views/user/pins/rejected-pin-requests'),
+        name: 'Rejected Requests',
+        meta: { title: 'Rejected Requests', icon: 'fas fa-tag', color:'color:#CF1F5C', affix: true, roles: ['user'] }
       }
     ]
   },
