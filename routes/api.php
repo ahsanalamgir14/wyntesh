@@ -75,6 +75,8 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('rejected-pin-requests', 'PinsController@myRejectedPinRequests');
     Route::post('pin-requests', 'PinsController@store');
     Route::delete('pin-requests/{id}/delete', 'PinsController@destroy');
+    Route::get('request/{id}/pins', 'PinsController@getRequestPins');
+    Route::get('my/pins', 'PinsController@getMyPins');
     
 });
 
@@ -166,8 +168,15 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
     Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@adminMemberGeneology');
 
-    Route::get('all-pin-requests', 'PinsController@allPinRequests');
+    Route::get('pending-pin-requests', 'PinsController@pendingPinRequests');
+    Route::get('approved-pin-requests', 'PinsController@approvedPinRequests');
+    Route::get('rejected-pin-requests', 'PinsController@rejectedPinRequests');
     Route::delete('pin-requests/{id}/delete', 'PinsController@destroy');
+    Route::post('pin-requests/reject', 'PinsController@reject');
+    Route::post('generate-pins', 'PinsController@generatePins');
+
+    Route::get('request/{id}/pins', 'PinsController@getRequestPins');
+    Route::get('all/pins', 'PinsController@getAllPins');
 
 
 });

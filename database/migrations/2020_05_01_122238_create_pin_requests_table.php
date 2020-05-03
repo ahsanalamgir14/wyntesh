@@ -28,7 +28,7 @@ class CreatePinRequestsTable extends Migration
             $table->string('payment_status',32)->nullable();
             $table->string('status',32)->nullable();
             $table->integer('approved_by');
-            $table->integer('approved_at')->timestamp()->nullable();
+            $table->timestamp('approved_at')->nullable();
             $table->string('note',2048)->nullable();
             $table->timestamps();
             $table->softDeletes();  

@@ -518,7 +518,7 @@ export const asyncRoutes = [
         path: 'pending-pin-requests',
         component: () => import('@/views/user/pins/pending-pin-requests'),
         name: 'PIN Requests',
-        meta: { title: 'Pending Requests', icon: 'fas fa-tag', color:'color:#DC7633', affix: true, roles: ['user'] }
+        meta: { title: 'Create Request', icon: 'fas fa-tag', color:'color:#DC7633', affix: true, roles: ['user'] }
       },
       {
         path: 'approved-pin-requests',

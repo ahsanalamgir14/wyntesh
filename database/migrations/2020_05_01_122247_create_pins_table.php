@@ -23,9 +23,9 @@ class CreatePinsTable extends Migration
             $table->decimal('total_amount', 8, 2)->default(0);
             $table->integer('owned_by');
             $table->integer('used_by')->nullable();
-            $table->integer('used_at')->timestamp()->nullable();
+            $table->timestamp('used_at')->nullable();
             $table->integer('request_id')->nullable();
-            $table->integer('allocated_at')->timestamp()->nullable();
+            $table->timestamp('allocated_at')->nullable();
             $table->string('status',32)->nullable();
             $table->string('note',2048)->nullable();
             $table->timestamps();

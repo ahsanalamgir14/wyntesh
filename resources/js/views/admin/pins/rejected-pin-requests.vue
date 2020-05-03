@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+    
       <el-input
         v-model="listQuery.search"
         placeholder="Search Records"
@@ -8,13 +9,33 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
+
+      <el-select v-model="listQuery.package_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Package">
+        <el-option
+          v-for="item in packages"
+          :key="item.name"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
+
+      <el-select v-model="listQuery.payment_mode" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Payment Mode">
+        <el-option
+          v-for="item in paymentModes"
+          :key="item.name"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
+
       <el-button
         v-waves
         class="filter-item"
         type="primary"
         icon="el-icon-search"
         @click="handleFilter"
-      >Search</el-button>      
+      >Search</el-button>
+           
     </div>
 
     <el-table
@@ -38,7 +59,30 @@
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
-      </el-table-column>      
+      </el-table-column>
+      <el-table-column label="Actions" align="center" width="150px" class-name="small-padding">        
+        <template slot-scope="{row}">
+          <el-tooltip content="Reject" placement="right" effect="dark">
+            <el-button
+              circle
+              type="danger"
+              icon="el-icon-delete"
+              @click="deleteData(row)"
+              ></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      
+      <el-table-column label="Member ID" width="140px" >
+        <template slot-scope="{row}">
+          <span>{{ row.member.user.username }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Member Name" width="140px" >
+        <template slot-scope="{row}">
+          <span>{{ row.member.user.name }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Package" width="120px" >
         <template slot-scope="{row}">
           <span>{{ row.package.name }}</span>
@@ -74,17 +118,17 @@
           <span>{{ row.total_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Reference No." width="120px" >
+      <el-table-column label="Reference No." width="130px" >
         <template slot-scope="{row}">
           <span>{{ row.reference }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Bank Name" width="150px" >
+      <el-table-column label="Bank Name" width="130px" >
         <template slot-scope="{row}">
           <span>{{ row.bank.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Payment Status" width="150px" >
+      <el-table-column label="Payment Status" width="130px" >
         <template slot-scope="{row}">
           <span>{{ row.payment_status }}</span>
         </template>
@@ -117,8 +161,8 @@
 </template>
 
 <script>
-import { fetchMyRejectedPinRequests, createPinRequest, deletePinRequest } from "@/api/user/pins";
-import { getPackages, getPaymentModes, getBankPartners } from "@/api/user/config";
+import { fetchRejectedPinRequests, deletePinRequest, } from "@/api/admin/pins";
+import { getPackages, getPaymentModes } from "@/api/user/config";
 
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -149,13 +193,12 @@ export default {
         page: 1,
         limit: 5,
         search:undefined,
-        package: 0,
-        approved: undefined,
+        package_id: undefined,
+        payment_mode: undefined,
         sort: "+id"
       },
       paymentModes:[],
       packages:[],
-      banks:[],
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
@@ -164,33 +207,38 @@ export default {
         id:undefined,
         package_id: undefined,
         quantity: undefined,
-        amount:undefined,
-        // tax_percentage: undefined,
-        // tax_amount: undefined,
-        // total_amount:undefined,
+        base_amount:undefined,
+        tax_percentage: undefined,
+        tax_amount: undefined,
+        total_amount:undefined,
         payment_mode:undefined,
         reference:undefined,
         bank_id:undefined,
         note:undefined,
+
+        username:undefined,
       },
 
+      dialogPinGenerateVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
+      dialogTitle:'',
       downloadLoading: false,
       buttonLoading: false
     };
   },
   created() {
     this.getList();
+    this.getConfig();
   },
   methods: {
     
     getList() {
       this.listLoading = true;
-      fetchMyRejectedPinRequests(this.listQuery).then(response => {
+      fetchRejectedPinRequests(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
@@ -198,22 +246,42 @@ export default {
         }, 1 * 100);
       });
     },
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
+    getConfig() {      
+      getPackages().then(response => {
+        this.packages = response.data;
+      });
+      getPaymentModes().then(response => {
+        this.paymentModes = response.data;
+      });
+    },    
+     deleteData(row) {
+      this.$confirm('Are you sure you want to delete PIN Request?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        deletePinRequest(row.id).then((data) => {
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          const index = this.list.indexOf(row);
+          this.list.splice(index, 1);
+        });
+      })        
     },
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();
     },
-    sortblur(data) {
+    sortChange(data) {
       const { prop, order } = data;
       if (prop === "id") {
         this.sortByID(order);
       }
-    },
+    },    
     sortByID(order) {
       if (order === "ascending") {
         this.listQuery.sort = "+id";
@@ -221,22 +289,7 @@ export default {
         this.listQuery.sort = "-id";
       }
       this.handleFilter();
-    },
-    resetTemp() {
-      this.temp = {
-        id:undefined,
-        package_id: undefined,
-        quantity: undefined,
-        amount:undefined,
-        // tax_percentage: undefined,
-        // tax_amount: undefined,
-        // total_amount:undefined,
-        payment_mode:undefined,
-        reference:undefined,
-        bank_id:undefined,
-        note:undefined,
-      };
-    },
+    },   
     getSortClass: function(key) {
       const sort = this.listQuery.sort;
       return sort === `+${key}`

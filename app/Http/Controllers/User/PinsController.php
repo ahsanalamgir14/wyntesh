@@ -172,6 +172,120 @@ class PinsController extends Controller
         
        $response = array('status' => true,'message'=>"Pin requests retrieved.",'data'=>$PinRequests);
             return response()->json($response, 200);
+    }
+
+    public function getRequestPins(Request $request,$id)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $status=$request->status;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$status ){           
+            $Pins=Pin::select();
+            $Pins=$Pins->where('request_id',$id);
+
+            $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $Pins=Pin::select();
+            $Pins=$Pins->where('request_id',$id);
+
+            $Pins=$Pins->where(function ($query)use($search) {
+                $query=$query->orWhere('pin_number',$search);
+
+                $query=$query->orWhereHas('owner.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($status){
+                $Pins=$Pins->where('status',$status);                
+            }
+
+
+            $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Pins retrieved.",'data'=>$Pins);
+            return response()->json($response, 200);
+    }
+
+    public function getMyPins(Request $request)
+    {
+        $user_id=JWTAuth::user()->id;
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $status=$request->status;
+        $package_id=$request->package_id;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$status && !$package_id){           
+            $Pins=Pin::select();
+            $Pins=$Pins->where('owned_by',$user_id);
+
+            $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $Pins=Pin::select();
+            $Pins=$Pins->where('owned_by',$user_id);
+
+            $Pins=$Pins->where(function ($query)use($search) {
+                $query=$query->orWhere('pin_number',$search);
+
+                $query=$query->orWhereHas('owner.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($status){
+                $Pins=$Pins->where('status',$status);                
+            }
+
+            if($package_id){
+                $Pins=$Pins->where('package_id',$package_id);                
+            }
+
+
+            $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Pins retrieved.",'data'=>$Pins);
+            return response()->json($response, 200);
     }    
 
     /**

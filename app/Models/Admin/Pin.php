@@ -3,6 +3,7 @@
 namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pin extends Model
 {
@@ -17,12 +18,12 @@ class Pin extends Model
 
     public function owner()
     {
-        return $this->belongsTo('App\Models\Admin\Member','owned_by');
+        return $this->belongsTo('App\Models\Admin\Member','owned_by')->with('user');
     }
 
     public function user()
     {
-        return $this->belongsTo('App\Models\Admin\Member','used_by');
+        return $this->belongsTo('App\Models\Admin\Member','used_by')->with('user');
     }
 
     public function request()

@@ -123,11 +123,6 @@
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-     <!--  <el-table-column label="Approved ?" class-name="status-col" width="100">
-        <template slot-scope="{row}">
-          <el-tag :type="row.is_approved | statusFilter">{{ row.is_approved?'Approved':'Pending' }}</el-tag>
-        </template>
-      </el-table-column> -->
     </el-table>
 
     <pagination
@@ -138,7 +133,7 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogPinRequestVisible">
+    <el-dialog :title="dialogTitle" width="60%" top="30px"  :visible.sync="dialogPinRequestVisible">
       <el-form ref="pinRequestForm" :rules="rules" :model="temp"  >
         <el-row :gutter="20">
           <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
@@ -185,12 +180,12 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Description" prop="description">
+            <el-form-item label="Note" prop="note">
               <el-input
                 type="textarea"
-                v-model="temp.description"
+                v-model="temp.note"
                 :rows="2"
-                placeholder="Please Enter description">
+                placeholder="Please Enter note">
               </el-input>
             </el-form-item>
           </el-col>
@@ -242,8 +237,6 @@ export default {
         page: 1,
         limit: 5,
         search:undefined,
-        package: 0,
-        approved: undefined,
         sort: "+id"
       },
       paymentModes:[],
@@ -269,6 +262,7 @@ export default {
 
       dialogPinRequestVisible:false,
       dialogStatus: "",
+      dialogTitle:'',
       textMap: {
         update: "Edit",
         create: "Create"
@@ -304,7 +298,6 @@ export default {
       });
     },
     getConfig() {
-      this.listLoading = true;
       getPackages().then(response => {
         this.packages = response.data;
       });
@@ -314,30 +307,6 @@ export default {
       getBankPartners().then(response => {
         this.banks = response.data;
       });
-    },    
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
-    },
-    handleFilter() {
-      this.listQuery.page = 1;
-      this.getList();
-    },
-    sortblur(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
-    },
-    sortByID(order) {
-      if (order === "ascending") {
-        this.listQuery.sort = "+id";
-      } else {
-        this.listQuery.sort = "-id";
-      }
-      this.handleFilter();
     },
     resetTemp() {
       this.temp = {
@@ -358,6 +327,7 @@ export default {
       this.resetTemp();
       this.dialogStatus = "create";
       this.dialogPinRequestVisible = true;
+      this.dialogTitle="Create PIN Request"
       this.$nextTick(() => {
         this.$refs["pinRequestForm"].clearValidate();
       });
@@ -401,6 +371,24 @@ export default {
         });
       })        
     },
+    handleFilter() {
+      this.listQuery.page = 1;
+      this.getList();
+    },    
+    sortChange(data) {
+      const { prop, order } = data;
+      if (prop === "id") {
+        this.sortByID(order);
+      }
+    },
+    sortByID(order) {
+      if (order === "ascending") {
+        this.listQuery.sort = "+id";
+      } else {
+        this.listQuery.sort = "-id";
+      }
+      this.handleFilter();
+    },    
     getSortClass: function(key) {
       const sort = this.listQuery.sort;
       return sort === `+${key}`

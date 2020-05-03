@@ -118,7 +118,6 @@
 
 <script>
 import { fetchMyRejectedPinRequests, createPinRequest, deletePinRequest } from "@/api/user/pins";
-import { getPackages, getPaymentModes, getBankPartners } from "@/api/user/config";
 
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -149,31 +148,12 @@ export default {
         page: 1,
         limit: 5,
         search:undefined,
-        package: 0,
-        approved: undefined,
         sort: "+id"
       },
-      paymentModes:[],
-      packages:[],
-      banks:[],
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
-      temp: {
-        id:undefined,
-        package_id: undefined,
-        quantity: undefined,
-        amount:undefined,
-        // tax_percentage: undefined,
-        // tax_amount: undefined,
-        // total_amount:undefined,
-        payment_mode:undefined,
-        reference:undefined,
-        bank_id:undefined,
-        note:undefined,
-      },
-
       dialogStatus: "",
       textMap: {
         update: "Edit",
@@ -186,8 +166,7 @@ export default {
   created() {
     this.getList();
   },
-  methods: {
-    
+  methods: {    
     getList() {
       this.listLoading = true;
       fetchMyRejectedPinRequests(this.listQuery).then(response => {
@@ -208,12 +187,6 @@ export default {
       this.listQuery.page = 1;
       this.getList();
     },
-    sortblur(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
-    },
     sortByID(order) {
       if (order === "ascending") {
         this.listQuery.sort = "+id";
@@ -221,21 +194,6 @@ export default {
         this.listQuery.sort = "-id";
       }
       this.handleFilter();
-    },
-    resetTemp() {
-      this.temp = {
-        id:undefined,
-        package_id: undefined,
-        quantity: undefined,
-        amount:undefined,
-        // tax_percentage: undefined,
-        // tax_amount: undefined,
-        // total_amount:undefined,
-        payment_mode:undefined,
-        reference:undefined,
-        bank_id:undefined,
-        note:undefined,
-      };
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;

@@ -20,8 +20,8 @@ class CreateWithdrawalsTable extends Migration
             $table->decimal('tds_percentage', 8, 2)->default(0);
             $table->decimal('tds_amount', 8, 2)->default(0);
             $table->decimal('net_amount', 8, 2)->default(0);
-            $table->integer('withdrawal_request_id');
-            $table->integer('payment_made_at')->timestamp()->nullable();
+            $table->integer('withdrawal_request_id');            
+            $table->timestamp('payment_made_at')->nullable();
             $table->string('payment_status',32)->nullable();
             $table->integer('transaction_by')->nullable();
             $table->string('note',2048)->nullable();

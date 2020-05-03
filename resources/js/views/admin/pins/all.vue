@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+    
       <el-input
         v-model="listQuery.search"
         placeholder="Search Records"
@@ -8,6 +9,22 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
+
+      <el-select v-model="listQuery.package_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Package">
+        <el-option
+          v-for="item in packages"
+          :key="item.name"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
+
+      <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
+        <el-option label="Used" value="Used"></el-option>
+        <el-option label="Not Used" value="Not Used"></el-option>
+      </el-select>
+
+
       <el-button
         v-waves
         class="filter-item"
@@ -15,22 +32,8 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-      <el-button
-        class="filter-item"
-        style="margin-left: 10px;"
-        type="success"
-        
-      ><i class="fas fa-sync-alt"></i> Generate</el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="warning"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >Export</el-button>
+           
     </div>
-
     <el-table
       :key="tableKey"
       v-loading="listLoading"
@@ -40,7 +43,8 @@
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
-    >
+      >
+
       <el-table-column
         label="ID"
         prop="id"
@@ -48,62 +52,68 @@
         align="center"
         width="80"
         :class-name="getSortClass('id')"
-      >
+        >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="Actions" align="center" width="90" class-name="small-padding">
+      </el-table-column>           
+      <el-table-column label="PIN" width="140px" >
         <template slot-scope="{row}">
-          <el-tooltip content="Block" placement="top" effect="dark">
-            <el-button
-                size="mini"
-                type="danger"
-                @click=""
-            ><i class="fas fa-ban"></i></el-button>
-          </el-tooltip>
+          <span>{{ row.pin_number }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="PIN" width="150px">
+       <el-table-column label="Owner" width="130px" >
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleEdit(row)">{{ row.code }}</span>
+          <span>{{ row.owner?row.owner.user.username:'' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Package" width="150px">
+      <el-table-column label="Package" width="120px" >
         <template slot-scope="{row}">
           <span>{{ row.package.name }}</span>
         </template>
-      </el-table-column>  
-      <el-table-column label="Amount" width="150px" >
+      </el-table-column>
+      <el-table-column label="Base Amount" width="120px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.amount }}</span>
+          <span>{{ row.base_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Owner Name" min-width="150px" >
+      <el-table-column label="Tax %" width="120px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.owner?row.owner.name:'' }}</span>
+          <span>{{ row.tax_percentage }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Owner Code" min-width="150px" >
+      <el-table-column label="Tax Amount" width="120px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.owner?row.owner.code:'' }}</span>
+          <span>{{ row.tax_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Used ?" class-name="status-col" width="100">
+      <el-table-column label="Total Amount" width="150px" align="right">
         <template slot-scope="{row}">
-          <el-tag :type="row.is_used | statusFilter">{{ row.is_used?'Used':'Unused' }}</el-tag>
+          <span>{{ row.total_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Used by name" min-width="150px" >
+     
+      <el-table-column label="Userd by" width="130px" >
         <template slot-scope="{row}">
-          <span>{{ row.member?row.member.name:'' }}</span>
+          <span>{{ row.user?row.user.user.username:'' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Used by code" min-width="150px" >
+      <el-table-column label="Used at" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.member?row.member.code:'' }}</span>
+          <span v-if="row.used_at">{{ row.used_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+       <el-table-column label="Allocation date" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.allocated_at | parseTime('{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Note" min-width="150px" >
+        <template slot-scope="{row}">
+          <span>{{ row.note }}</span>
+        </template>
+      </el-table-column>
+    
     </el-table>
 
     <pagination
@@ -113,101 +123,27 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
-
-    <el-dialog :title="textMap[dialogStatus]" width="85%" top="30px"  :visible.sync="dialogAchieverVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp"  >
-        <el-row>
-          <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
-            <el-form-item label="Title" prop="title">
-              <el-input v-model="temp.title" />
-            </el-form-item>
-
-            <el-form-item label="Subtitle" prop="subtitle">
-              <el-input v-model="temp.subtitle" />
-            </el-form-item>
-
-            <el-form-item label="Description" prop="description">
-              <tinymce v-model="temp.description" :imageUploadButton="false"  :height="150" />
-            </el-form-item>
-
-            <el-form-item label="Date" prop="date">
-              <el-date-picker
-                v-model="temp.date"
-                type="date"
-                format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd"
-                placeholder="End Date">
-              </el-date-picker>
-            </el-form-item>
-
-             <el-form-item label="Achiever Visibility" prop="is_visible">
-              <el-switch
-                v-model="temp.is_visible"
-                active-text="Visible"
-                inactive-text="Not visible">
-              </el-switch>
-            </el-form-item>
-          </el-col>
-          <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
-            <div class="img-upload">
-              <el-form-item  prop="image">
-                <label for="Image">Image</label>
-                <el-upload
-                  class="avatar-uploader"
-                  action="#"
-                   ref="upload"
-                  :show-file-list="true"
-                  :auto-upload="false"
-                  :on-change="handleChange"
-                  :limit="3"
-                  :file-list="fileList"
-                  :on-exceed="handleExceed"
-                  accept="image/png, image/jpeg">
-                  <img v-if="temp.image" :src="temp.image" class="avatar">
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
-                <p>Click to upload image.</p>
-              </el-form-item>
-            </div>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogAchieverVisible = false">
-          Cancel
-        </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
-        </el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import {
-  fetchList,
-  fetchAchiever,
-  deleteAchiever,
-  createAchiever,
-  updateAchiever
-} from "@/api/admin/achievers";
+import { fetchAllPins, deletePinRequest } from "@/api/admin/pins";
+import { getPackages,  } from "@/api/user/config";
+
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
-import axios from "axios";
-import Tinymce from '@/components/Tinymce'
+import Pagination from "@/components/Pagination";
 
 export default {
-  name: "all-pings",
-  components: { Pagination,Tinymce },
+  name: "pin-requests",
+  components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        1: "success",
-        draft: "info",
-        0: "danger"
+        Approved: "success",
+        Pending: "info",
+        Rejected: "danger"
       };
 
       return statusMap[status];
@@ -216,113 +152,67 @@ export default {
   data() {
     return {
       tableKey: 0,
-      list: [
-        {
-          id:1,
-          code:'ADJKDSC7YE',
-          amount:'1000',
-          is_used:1,
-          package:{
-            name:'Silver'
-          },
-          owner:{
-            code:'1000005',
-            name:'Prashant Pandey'
-          },
-          member:{
-            code:'1000001',
-            name:'Nirmal Patel'
-          }
-        },
-        {
-          id:2,
-          code:'29YIBQHFOQ',
-          amount:'1000',
-          is_used:0,
-          package:{
-            name:'Silver'
-          }
-        },
-        ,
-        {
-          id:3,
-          code:'6G6RHSQML3',
-          amount:'2000',
-          is_used:0,
-          package:{
-            name:'Platinum'
-          }
-        },
-        ,
-        {
-          id:4,
-          code:'CAAIILY7GL',
-          amount:'3000',
-          is_used:0,
-          package:{
-            name:'Gold'
-          }
-        },
-        
-      ],
-      total: 4,
+      list: [],
+      total: 0,
       listLoading: false,
       listQuery: {
         page: 1,
         limit: 5,
-        title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        image:undefined,
-        is_visible: 0,
+        search:undefined,
+        package: 0,
+        approved: undefined,
         sort: "+id"
       },
-      fileList:[],
-      file:undefined,
+      paymentModes:[],
+      packages:[],
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
-        title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        id:undefined,
+        package_id: undefined,
+        quantity: undefined,
+        base_amount:undefined,
+        tax_percentage: undefined,
+        tax_amount: undefined,
+        net_amount:undefined,
+        payment_mode:undefined,
+        reference:undefined,
+        bank_id:undefined,
+        note:undefined,
+
+        username:undefined,
       },
 
-      dialogAchieverVisible:false,
+      dialogPinGenerateVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }],
-        date: [{  required: true, message: 'Date is required', trigger: 'blur' }]
+        package_id: [{ required: true, message: 'Package is required', trigger: 'blur' }],
+        quantity: [{  required: true, message: 'Quantity is required', trigger: 'blur' }],
+        base_amount: [{  required: true, message: 'Base amount is required', trigger: 'blur' }],
+        tax_percentage: [{  required: true, message: 'Tax percentage is required', trigger: 'blur' }],
+        tax_amount: [{  required: true, message: 'Tax amount is required', trigger: 'blur' }],
+        net_amount: [{  required: true, message: 'Total amount is required', trigger: 'blur' }],
+        payment_mode: [{  required: true, message: 'Payment mode is required', trigger: 'blur' }],
+        reference: [{  required: true, message: 'Payment reference no is required', trigger: 'blur' }],
       },
       downloadLoading: false,
       buttonLoading: false
     };
   },
   created() {
-    //this.getList();
+    this.getList();
+    this.getConfig();
   },
-  methods: {
-    handleChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.file=f.raw      
-    },
-    handleExceed(files, fileList) {
-      this.$message.warning(`You can not select more than one file, please remove first.`);
-    },
+  methods: {    
     getList() {
       this.listLoading = true;
-      fetchList(this.listQuery).then(response => {
+      fetchAllPins(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
@@ -330,6 +220,72 @@ export default {
         }, 1 * 100);
       });
     },
+    getConfig() {      
+      getPackages().then(response => {
+        this.packages = response.data;
+      });
+    },    
+    resetTemp() {
+      this.temp = {
+        id:undefined,
+        package_id: undefined,
+        quantity: undefined,
+        amount:undefined,
+        // tax_percentage: undefined,
+        // tax_amount: undefined,
+        // net_amount:undefined,
+        payment_mode:undefined,
+        reference:undefined,
+        bank_id:undefined,
+        note:undefined,
+      };
+    },
+    handleCreate() {
+      this.resetTemp();
+      this.dialogStatus = "create";
+      this.dialogPinGenerateVisible = true;
+      this.$nextTick(() => {
+        this.$refs["pinRequestForm"].clearValidate();
+      });
+    },
+    approveRequest() {
+      this.buttonLoading=true;
+      this.$refs["pinRequestForm"].validate(valid => {
+        if (valid) {         
+          createPinRequest(this.temp).then((data) => {
+            this.list.unshift(data.data);
+            this.dialogPinGenerateVisible = false;
+            this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+            });
+            this.buttonLoading=false;
+            this.resetTemp();
+          });
+        }
+      });
+      this.buttonLoading=false;
+    },
+    rejectRequest(row) {
+      this.$confirm('Are you sure you want to delete PIN Request?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        deletePinRequest(row.id).then((data) => {          
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          const index = this.list.indexOf(row);
+          this.list.splice(index, 1);
+        });
+      })        
+    },    
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();
@@ -348,161 +304,6 @@ export default {
       }
       this.handleFilter();
     },
-    resetTemp() {
-      this.temp = {
-        title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
-      };
-      this.file=undefined
-      this.fileList=[];
-    },
-    handleCreate() {
-      this.fileList=[];
-      this.resetTemp();
-      this.dialogStatus = "create";
-      this.dialogAchieverVisible = true;
-      this.$nextTick(() => {
-        this.$refs["dataForm"].clearValidate();
-      });
-    },
-    createData() {
-      this.buttonLoading=true;
-      this.$refs["dataForm"].validate(valid => {
-        if (valid) {
-          var form = new FormData();
-          let form_data=this.temp;
-
-          for ( var key in form_data ) {
-            if(form_data[key] !== undefined && form_data[key] !== null){
-              form.append(key, form_data[key]);
-            }
-          }
-
-          form.append('image', this.file);
-
-          createAchiever(form).then((data) => {
-            this.list.unshift(data.data);
-            this.dialogAchieverVisible = false;
-            this.$notify({
-              title: "Success",
-              message: "Created Successfully",
-              type: "success",
-              duration: 2000
-            });
-            this.buttonLoading=false;
-            this.resetTemp();
-          });
-        }
-      });
-      this.buttonLoading=false;
-    },
-    handleEdit(row) {
-      this.fileList=[];
-      this.file=undefined;
-      this.temp = Object.assign({}, row); // copy obj
-      if(row.is_visible==1){
-        this.temp.is_visible=true
-      }else{
-        this.temp.is_visible=false
-      }
-      this.dialogStatus = "update";
-      this.dialogAchieverVisible = true;
-      this.$nextTick(() => {
-        this.$refs["dataForm"].clearValidate();
-      });
-    },
-    updateData() {
-      this.buttonLoading=true;
-      this.$refs["dataForm"].validate(valid => {
-        if (valid) {
-          var form = new FormData();
-          const tempData = Object.assign({}, this.temp);
-
-          for ( var key in tempData ) {
-            if(tempData[key] !== undefined && tempData[key] !== null){
-              form.append(key, tempData[key]);
-            }
-          }
-
-          form.append('image', this.file);
-
-          
-          updateAchiever(form).then((data) => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v);
-                this.list.splice(index, 1, data.data);
-                break;
-              }
-            }
-            this.dialogAchieverVisible = false;
-            this.$notify({
-              title: "Success",
-              message: "Update Successfully",
-              type: "success",
-              duration: 2000
-            });
-            this.buttonLoading=false;
-            this.resetTemp();
-          });
-        }
-      });
-      this.buttonLoading=false;
-    },
-    deleteData(row) {
-        deleteAchiever(row.id).then((data) => {
-            this.dialogAchieverVisible = false;
-            this.$notify({
-                title: "Success",
-                message: "Delete Successfully",
-                type: "success",
-                duration: 2000
-            });
-            const index = this.list.indexOf(row);
-            this.list.splice(index, 1);
-        });
-    },
-    handleDownload() {
-      this.downloadLoading = true;
-      import("@/vendor/Export2Excel").then(excel => {
-        const tHeader = [
-          "ID",
-          "Title",
-          "Subtitle",
-          "Date",
-          "Created at"
-        ];
-        const filterVal = [
-          "id",
-          "title",
-          "subtitle",
-          "date",
-          "created_at"
-        ];
-        const data = this.formatJson(filterVal, this.list);
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: "achievers"
-        });
-        this.downloadLoading = false;
-      });
-    },
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v =>
-        filterVal.map(j => {
-          if (j === "timestamp") {
-            return parseTime(v[j]);
-          } else {
-            return v[j];
-          }
-        })
-      );
-    },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;
       return sort === `+${key}`
@@ -516,6 +317,10 @@ export default {
 </script>
 
 <style scoped>
+
+.el-select{
+  width:100%;
+}
 .el-drawer__body {
   padding: 20px;
 }

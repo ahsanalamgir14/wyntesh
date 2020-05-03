@@ -26,6 +26,22 @@ export function fetchMyRejectedPinRequests(query) {
   })
 }
 
+export function fetchRequestPins(query,id) {
+  return request({
+    url: '/user/request/'+id+'/pins',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchMyPins(query) {
+  return request({
+    url: '/user/my/pins',
+    method: 'get',
+    params: query
+  })
+}
+
 export function createPinRequest(data) {
   return request({
     url: '/user/pin-requests',
