@@ -525,10 +525,24 @@ class PinsController extends Controller
         foreach ($request->pins as $pin_id) {
             $Pin=Pin::find($pin_id);
             if($Pin){
-              
+                
+                $transfered_from='';
+                if($Pin->owned_by){
+                    $Member=Member::find($Pin->owned_by);
+                    if($Member->id){
+                        $transfered_from=$Member->id;
+                    }else{
+                        $transfered_from=$user_id;
+                    }
+                }
+                else
+                {
+                    $transfered_from=$user_id;
+                }
+
                 $PinTransferLog=new PinTransferLog;
                 $PinTransferLog->pin_id=$pin_id;
-                $PinTransferLog->transfered_from=$Pin->owned_by?$Pin->owned_by:$user_id;
+                $PinTransferLog->transfered_from=$transfered_from;
                 $PinTransferLog->transfered_to=$Member->id;
                 $PinTransferLog->transfered_by=$user_id;
                 $PinTransferLog->note=$request->note;
