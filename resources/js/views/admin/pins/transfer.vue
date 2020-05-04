@@ -9,6 +9,20 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
+       <el-select v-model="listQuery.package_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Package">
+        <el-option
+          v-for="item in packages"
+          :key="item.name"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
+
+      <el-select v-model="listQuery.is_owned" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Owner Filter">
+        <el-option label="Owned" value="Owned"></el-option>
+        <el-option label="Not Owned" value="Not Owned"></el-option>
+      </el-select>
+
       <el-button
         v-waves
         class="filter-item"
@@ -24,40 +38,27 @@
         icon="el-icon-download"
         @click="handleDownload"
       >Export</el-button>
+
       <el-button
         class="filter-item"
-        style="margin-left: 10px;float:right;"
-        type="success"   
-         @click="handleCreate"     
-        ><i class="fas fa-plus"></i> Generate Pins</el-button>
-      <br>
-      <el-select v-model="listQuery.package_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Package">
-        <el-option
-          v-for="item in packages"
-          :key="item.name"
-          :label="item.name"
-          :value="item.id">
-        </el-option>
-      </el-select>
-
-      <el-select v-model="listQuery.is_owned" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Owner Filter">
-        <el-option label="Owned" value="Owned"></el-option>
-        <el-option label="Not Owned" value="Not Owned"></el-option>
-      </el-select>
-
-      <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
-        <el-option label="Used" value="Used"></el-option>
-        <el-option label="Not Used" value="Not Used"></el-option>
-      </el-select> 
+        style="margin-left: 10px;"
+        type="warning"
+        icon="el-icon-sort"
+        v-if="pinList.length >= 1"
+        @click="handlePinTansfer"
+      >Transfer Pins</el-button>
+           
     </div>
     <el-table
       :key="tableKey"
       v-loading="listLoading"
+      ref="pinTransferTable"
       :data="list"
       border
       fit
       highlight-current-row
       style="width: 100%;"
+      @selection-change="handleSelectionChange"
       @sort-change="sortChange"
       >
 
@@ -68,11 +69,17 @@
         align="center"
         width="80"
         :class-name="getSortClass('id')"
+        @selection-change="handleSelectionChange"
         >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
-      </el-table-column>           
+      </el-table-column>
+      <el-table-column
+        align="center"
+        type="selection"
+        width="55">
+      </el-table-column>                
       <el-table-column label="PIN" width="140px" >
         <template slot-scope="{row}">
           <span>{{ row.pin_number }}</span>
@@ -144,72 +151,32 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="dialogTitle" width="60%" top="30px"  :visible.sync="dialogPinGenerateVisible">
-      <el-form ref="pinGenerateForm" :rules="rules" :model="temp"  >
-        <el-row :gutter="20">
-          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-            <el-form-item label="Package" prop="package_id">
-              <br>
-              <el-select @change="handlePackageChange()" v-model="temp.package_id"  filterable placeholder="Select Package">
-                <el-option
-                  v-for="item in packages"
-                  :key="item.name"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item> 
-            <el-form-item label="Member ID" prop="member_id">
-              <el-input  v-on:blur="handleCheckMemberCode()" v-model="temp.member_id" />
-            </el-form-item>
-            <el-form-item label="Member Name" prop="member_name">
-              <el-input  disabled v-model="temp.member_name" />
-            </el-form-item>
-            <el-form-item label="Quantity" prop="quantity">
-              <el-input type="number" min=0 v-model="temp.quantity" />
-            </el-form-item>
-          </el-col>
-          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >              
-            <el-form-item label="Base Amount" prop="base_amount">
-              <el-input type="number" min=0 v-model="temp.base_amount"  @change="calculateFinalPrice()" />
-            </el-form-item>
-            <el-form-item label="Tax Percentage" prop="tax_percentage">
-              <el-input type="number" min=0 v-model="temp.tax_percentage"  @change="calculateFinalPrice()" />
-            </el-form-item>
-            <el-form-item label="Tax Amount" prop="tax_amount">
-              <el-input type="number" min=0 v-model="temp.tax_amount" />
-            </el-form-item>
-            <el-form-item label="Net Amount" prop="total_amount">
-              <el-input type="number" min=0 v-model="temp.total_amount" />
-            </el-form-item>
-
-            <el-form-item label="Note" prop="note">
-              <el-input
-                type="textarea"
-                v-model="temp.note"
-                :rows="2"
-                placeholder="Please Enter Note">
-              </el-input>
-            </el-form-item>
-          </el-col>
-         
-        </el-row>
+    <el-dialog title="Transfer Pins to Member" width="40%" center :visible.sync="dialogPinTransferVisible" style="height: auto;margin: 0 auto;">
+      <el-form ref="pinTransferForm" :rules="pinTransferRules"  :model="temp" style="width: 70%;margin: 0 auto;">
+        <el-form-item label="Member ID" prop="member_id">
+          <el-input  v-on:blur="handleCheckMemberId()" v-model="temp.member_id" />
+        </el-form-item>
+        <el-form-item label="Member Name" prop="member_name">
+          <el-input  disabled v-model="temp.member_name" />
+        </el-form-item>
+        <el-input
+          type="textarea"
+          v-model="temp.note"
+          :rows="2"
+          placeholder="Please Enter Note">
+        </el-input>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogPinGenerateVisible = false">
-          Cancel
-        </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="generatePins()">
-          Confirm
-        </el-button>
-      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogPinTransferVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="transferPins()">Confirm</el-button>
+      </span>
     </el-dialog>
 
   </div>
 </template>
 
 <script>
-import { fetchAllPins, generatePin } from "@/api/admin/pins";
+import { fetchNotUsedPins, transferPinsToMember } from "@/api/admin/pins";
 import { getPackages,  } from "@/api/user/config";
 import { checkMemberCode } from "@/api/admin/members";
 import waves from "@/directive/waves"; // waves directive
@@ -244,35 +211,24 @@ export default {
         package_id: undefined,
         sort: "+id"
       },
+      pinList:[],
       packages:[],
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
-        id:undefined,
-        package_id: undefined,
-        quantity: 0,
-        base_amount:0,
-        tax_percentage: 0,
-        tax_amount: 0,
-        total_amount:0,
-        note:undefined, 
         member_id:undefined,
-        member_name:undefined,
-      },
+        member_name: undefined,   
+        note:undefined,
 
-      dialogPinGenerateVisible:false,
-      dialogTitle:'',
-      is_create:true,
-      rules: {
-        package_id: [{ required: true, message: 'Package is required', trigger: 'blur' }],
-        quantity: [{  required: true, message: 'Quantity is required', trigger: 'blur' }],
-        base_amount: [{  required: true, message: 'Base amount is required', trigger: 'blur' }],
-        tax_percentage: [{  required: true, message: 'Tax percentage is required', trigger: 'blur' }],
-        tax_amount: [{  required: true, message: 'Tax amount is required', trigger: 'blur' }],
-        total_amount: [{  required: true, message: 'Total amount is required', trigger: 'blur' }],
       },
+      pinTransferRules: {
+        member_id: [{ required: true, message: 'Member Id is required', trigger: 'blur' }]
+      },
+      dialogPinTransferVisible:false,
+      dialogTitle:'',
+      is_create:true,      
       downloadLoading: false,
       buttonLoading: false
     };
@@ -284,7 +240,7 @@ export default {
   methods: {    
     getList() {
       this.listLoading = true;
-      fetchAllPins(this.listQuery).then(response => {
+      fetchNotUsedPins(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
@@ -296,91 +252,51 @@ export default {
       getPackages().then(response => {
         this.packages = response.data;
       });
-    },    
-    resetTemp() {
-      this.temp = {
-        id:undefined,
-        package_id: undefined,
-        quantity: undefined,
-        amount:undefined,
-        tax_percentage: undefined,
-        base_amount:undefined,
-        tax_amount: undefined,
-        total_amount:undefined,
-        note:undefined,
-        member_id:undefined,
-        member_name:undefined,
-      };
     },
-    async handlePackageChange(){
-      
-      let packg=await this.packages.filter((pack)=>{
-        return pack.id==this.temp.package_id;
-      })[0];
-      let tempPack = await Object.assign({}, packg);
-
-      this.temp.base_amount=tempPack.base_amount;
-      this.temp.tax_percentage=tempPack.gst_rate;
-      this.temp.tax_amount=tempPack.gst_amount;
-      this.temp.total_amount=tempPack.net_amount;
-
-
-
-    },
-    handleCheckMemberCode(){
+    handleCheckMemberId(){
       if(this.temp.member_id){
         checkMemberCode(this.temp.member_id).then((response) => {
-          this.temp.member_name=response.data.name;     
-          this.temp.owned_by=response.data.member.id;     
+          this.temp.member_name=response.data.name;    
         }).catch((error)=>{
           this.temp.member_name='';
-          this.temp.member_id='';
         });
       }            
     },
-    calculateFinalPrice(){
-      let temp=Object.assign({}, this.temp);
-      if(temp.tax_percentage != undefined && temp.tax_percentage != null){
-        if(temp.tax_percentage == 0){
-          this.temp.tax_amount=0;
-          this.temp.total_amount=temp.base_amount;
-        }else{
-          let gst=(temp.tax_percentage*temp.base_amount)/100;
-          gst=Math.floor(gst);
-          this.temp.tax_amount=gst;
-          this.temp.total_amount=parseInt(temp.base_amount)+gst;
-        }        
-      }
+    handleSelectionChange(val) {        
+        this.pinList = val.map(a => a.id);        
     },
-    handleCreate() {
-      this.resetTemp();
-      this.is_create = true;
-      this.dialogTitle="Generate Pins";
-      this.dialogPinGenerateVisible = true;
+    handlePinTansfer() {
+      this.dialogPinTransferVisible = true;
       this.$nextTick(() => {
-        this.$refs["pinGenerateForm"].clearValidate();
-      });
+        this.$refs["pinTransferForm"].clearValidate();
+      });      
     },
-    generatePins() {
-      this.buttonLoading=true;
-      this.$refs["pinGenerateForm"].validate(valid => {
-        if (valid) {         
-          generatePin(this.temp).then((data) => {
-            this.dialogPinGenerateVisible = false;
+    transferPins(){
+      this.$refs["pinTransferForm"].validate(valid => {
+        if (valid) {
+          let tempData={
+            'member_id':this.temp.member_id,
+            'pins':this.pinList,
+            'note':this.temp.note
+          };
+          transferPinsToMember(tempData).then((response) => {
+            this.pinList=[];
+            this.getList();
+            this.dialogPinTransferVisible = false;
+            this.temp.member_id='';
+            this.temp.member_name='';
+            this.temp.note='';
             this.$notify({
               title: "Success",
-              message: data.message,
+              message: response.message,
               type: "success",
               duration: 2000
             });
-            this.getList();
-            this.buttonLoading=false;
-            this.resetTemp();
           });
         }
       });
-      this.buttonLoading=false;
-    },  
+      
+    },
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();

@@ -42,6 +42,7 @@ Route::post('public/inquiry/submit', 'Admin\InquiriesController@store');
 Route::post('public/subscribe', 'Admin\SubscribersController@store');
 Route::post('auth/google', 'Auth\AuthController@google');
 Route::get('member/check-sponsor-code/{code}', 'User\MembersController@checkSponsorCode');
+Route::get('member/check-member-code/{code}', 'User\MembersController@checkMemberCode');
 Route::post('member/registration', 'User\MembersController@registerMember');
 Route::post('member/add', 'User\MembersController@addMember');
 
@@ -77,7 +78,10 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::delete('pin-requests/{id}/delete', 'PinsController@destroy');
     Route::get('request/{id}/pins', 'PinsController@getRequestPins');
     Route::get('my/pins', 'PinsController@getMyPins');
-    
+    Route::get('unused/my/pins', 'PinsController@getNotUsedPins');
+    Route::post('pins/transfer', 'PinsController@transferPinsToMember');
+    Route::get('pins/transfer-log', 'PinsController@getPinTransferLog');
+
 });
 
 Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user','namespace'=>'User'], function($router)
@@ -177,7 +181,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::get('request/{id}/pins', 'PinsController@getRequestPins');
     Route::get('all/pins', 'PinsController@getAllPins');
-
+    Route::get('unused/pins', 'PinsController@getNotUsedPins');
+    Route::post('pins/transfer', 'PinsController@transferPinsToMember');
+    Route::get('pins/transfer-log', 'PinsController@getPinTransferLog');
 
 });
 

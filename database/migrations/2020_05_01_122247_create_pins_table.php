@@ -21,7 +21,7 @@ class CreatePinsTable extends Migration
             $table->decimal('tax_percentage', 8, 2)->default(0);
             $table->decimal('tax_amount', 8, 2)->default(0);
             $table->decimal('total_amount', 8, 2)->default(0);
-            $table->integer('owned_by');
+            $table->integer('owned_by')->nullable();
             $table->integer('used_by')->nullable();
             $table->timestamp('used_at')->nullable();
             $table->integer('request_id')->nullable();

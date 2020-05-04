@@ -9,10 +9,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Package;
 use App\Models\Admin\Pin;
 use App\Models\Admin\PinRequest;
+use App\Models\Admin\PinTransferLog;
+use App\Models\User\User;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
-
+use DB;
 class PinsController extends Controller
 {
     /**
@@ -262,12 +264,15 @@ class PinsController extends Controller
 
     public function getAllPins(Request $request)
     {
+        DB::connection()->enableQueryLog();
+
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
         $status=$request->status;
         $package_id=$request->package_id;
+        $is_owned=$request->is_owned;
 
         if(!$page){
             $page=1;
@@ -283,7 +288,7 @@ class PinsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$status && !$package_id){           
+        if(!$search && !$status && !$package_id && !$is_owned){           
             $Pins=Pin::select();
            
             $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
@@ -291,13 +296,16 @@ class PinsController extends Controller
         }else{
             $Pins=Pin::select();
             
-            $Pins=$Pins->where(function ($query)use($search) {
-                $query=$query->orWhere('pin_number',$search);
+            if($search){
+                $Pins=$Pins->where(function ($query)use($search) {
+                    $query=$query->orWhere('pin_number',$search);
 
-                $query=$query->orWhereHas('owner.user',function($q)use($search){
-                    $q->where('username','like','%'.$search.'%');
-                });
-            });
+                    $query=$query->orWhereHas('owner.user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });
+                });    
+            }
+            
 
             if($status){
                 $Pins=$Pins->where('status',$status);                
@@ -307,57 +315,143 @@ class PinsController extends Controller
                 $Pins=$Pins->where('package_id',$package_id);                
             }
 
+            if($is_owned){
+                if($is_owned=='Owned'){
+                    $Pins=$Pins->whereNotNull('owned_by');
+                }else{                    
+                    $Pins=$Pins->whereNull('owned_by');
+                }                
+            }
+
 
             $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
             $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
         }
-
-        
        $response = array('status' => true,'message'=>"Pins retrieved.",'data'=>$Pins);
             return response()->json($response, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function getNotUsedPins(Request $request)
     {
-        $user_id=JWTAuth::user()->id;
-        
-        $validate = Validator::make($request->all(), [
-            'package_id' => 'required|integer',
-            'quantity' => 'required|integer',
-            'amount' => "required|regex:/^\d+(\.\d{1,2})?$/",         
-            'payment_mode' => 'required|integer',
-        ]);
+        DB::connection()->enableQueryLog();
 
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
-            return response()->json($response, 400);
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $package_id=$request->package_id;
+        $is_owned=$request->is_owned;
+
+        if(!$page){
+            $page=1;
         }
-        
-        $PinRequest=new PinRequest;
-        $PinRequest->package_id=$request->package_id;
-        $PinRequest->quantity=$request->quantity;
-        $PinRequest->amount=$request->amount;
-        $PinRequest->tax_percentage=$request->tax_percentage;
-        $PinRequest->tax_amount=$request->tax_amount;
-        $PinRequest->total_amount=$request->total_amount;
-        $PinRequest->requested_by=$user_id;
-        $PinRequest->payment_mode=$request->payment_mode;
-        $PinRequest->reference=$request->reference;
-        $PinRequest->bank_id=$request->bank_id;  
-        $PinRequest->note=$request->note;
-        $PinRequest->status='Pending';
-        $PinRequest->save();
 
-        $PinRequest=PinRequest::with('package','payment_mode','bank','member.user:username','approver')->find($PinRequest->id);
-        $response = array('status' => true,'message'=>'Pin requests created successfully.','data'=>$PinRequest);  
-        return response()->json($response, 200);
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search &&  !$package_id && !$is_owned){           
+            $Pins=Pin::select();
+
+            $Pins=$Pins->where('status','Not Used');
+            $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $Pins=Pin::select();
+            
+            if($search){
+                $Pins=$Pins->where(function ($query)use($search) {
+                    $query=$query->orWhere('pin_number',$search);
+
+                    $query=$query->orWhereHas('owner.user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });
+                });    
+            }
+            
+            if($package_id){
+                $Pins=$Pins->where('package_id',$package_id);
+            }
+
+            if($is_owned){
+                if($is_owned=='Owned'){
+                    $Pins=$Pins->whereNotNull('owned_by');
+                }else{                    
+                    $Pins=$Pins->whereNull('owned_by');
+                }                
+            }
+
+            $Pins=$Pins->where('status','Not Used');
+            $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }
+       $response = array('status' => true,'message'=>"Pins retrieved.",'data'=>$Pins);
+            return response()->json($response, 200);
     }
+
+    public function getPinTransferLog(Request $request)
+    {
+        
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $transfer_from=$request->transfer_from;
+        $transfer_to=$request->transfer_to;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search &&  !$transfer_from && !$transfer_to){           
+            $PinTransferLogs=PinTransferLog::select();
+            
+            $PinTransferLogs=$PinTransferLogs->with('transfered_from:id,username','transfered_to:id,username','transfered_by:id,username','pin:id,pin_number');
+            $PinTransferLogs=$PinTransferLogs->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $PinTransferLogs=PinTransferLog::select();
+            
+            $PinTransferLogs=$PinTransferLogs->where(function ($query)use($search) {               
+                $query=$query->orWhereHas('pin',function($q)use($search){
+                    $q->where('pin_number','like','%'.$search.'%');
+                });
+            });
+            
+           
+            if($transfer_from){
+                $User=User::where('username',$transfer_from)->first();
+                $PinTransferLogs=$PinTransferLogs->where('transfered_from',$User->id);    
+            }
+
+            if($transfer_to){
+                $User=User::where('username',$transfer_to)->first();
+                $PinTransferLogs=$PinTransferLogs->where('transfered_to',$User->id);    
+            }
+
+            $PinTransferLogs=$PinTransferLogs->with('transfered_from:id,username','transfered_to:id,username','transfered_by:id,username','pin:id,pin_number');
+            $PinTransferLogs=$PinTransferLogs->orderBy('id',$sort)->paginate($limit);
+        }
+       $response = array('status' => true,'message'=>"Pin Transfer Logs retrieved.",'data'=>$PinTransferLogs);
+            return response()->json($response, 200);
+    }
+
+   
 
     public function generatePins(Request $request)
     {
@@ -369,8 +463,7 @@ class PinsController extends Controller
             'base_amount' => "required|regex:/^\d+(\.\d{1,2})?$/",
             'tax_percentage' => "required|regex:/^\d+(\.\d{1,2})?$/",
             'tax_amount' => "required|regex:/^\d+(\.\d{1,2})?$/",
-            'total_amount' => "required|regex:/^\d+(\.\d{1,2})?$/",
-            'owned_by' => 'required|integer',
+            'total_amount' => "required|regex:/^\d+(\.\d{1,2})?$/"
         ]);
 
         if($validate->fails()){
@@ -406,6 +499,47 @@ class PinsController extends Controller
         }
         
         $response = array('status' => true,'message'=>'Pins generated successfully.');  
+        return response()->json($response, 200);
+    }
+
+    public function transferPinsToMember(Request $request)
+    {
+        $user_id=JWTAuth::user()->id;
+        
+        $validate = Validator::make($request->all(), [
+            'member_id' => 'required|integer',
+        ]);
+
+        $Member=User::where('username',$request->member_id)->first();
+
+        if(!$Member){
+             $response = array('status' => false,'message'=>'Member not found');
+            return response()->json($response, 404);
+        }
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        foreach ($request->pins as $pin_id) {
+            $Pin=Pin::find($pin_id);
+            if($Pin){
+              
+                $PinTransferLog=new PinTransferLog;
+                $PinTransferLog->pin_id=$pin_id;
+                $PinTransferLog->transfered_from=$Pin->owned_by?$Pin->owned_by:$user_id;
+                $PinTransferLog->transfered_to=$Member->id;
+                $PinTransferLog->transfered_by=$user_id;
+                $PinTransferLog->note=$request->note;
+                $PinTransferLog->save();
+
+                $Pin->owned_by=$Member->member->id;
+                $Pin->save();
+            }
+        }
+       
+        $response = array('status' => true,'message'=>'Pins transferred successfully.');  
         return response()->json($response, 200);
     }
 

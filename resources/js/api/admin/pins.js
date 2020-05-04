@@ -34,9 +34,25 @@ export function fetchRequestPins(query,id) {
   })
 }
 
+export function fetchPinTransferLog(query) {
+  return request({
+    url: '/admin/pins/transfer-log',
+    method: 'get',
+    params: query
+  })
+}
+
 export function fetchAllPins(query) {
   return request({
     url: '/admin/all/pins',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchNotUsedPins(query) {
+  return request({
+    url: '/admin/unused/pins',
     method: 'get',
     params: query
   })
@@ -46,6 +62,14 @@ export function deletePinRequest(id) {
   return request({
     url: '/admin/pin-requests/'+id+'/delete',
     method: 'delete'
+  })
+}
+
+export function transferPinsToMember(data) {
+  return request({
+    url: '/admin/pins/transfer',
+    method: 'post',
+    data
   })
 }
 

@@ -32,6 +32,14 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >Export</el-button>
            
     </div>
     <el-table
@@ -90,6 +98,11 @@
       <el-table-column label="Total Amount" width="150px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.total_amount }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Status" width="150px" >
+        <template slot-scope="{row}">
+          <el-tag :type="row.status | statusFilter">{{row.status}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Used at" width="150px" align="center">
@@ -232,6 +245,63 @@ export default {
         : sort === `-${key}`
         ? "descending"
         : "";
+    },
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "Sr.No",
+          "PIN",
+          "Used by",
+          "Package",
+          "Base amount",
+          "Tax %",
+          "Tax Amount",
+          "Total Amount",
+          "Status",          
+          "Used at",
+          "Allocation Date",
+          "Note",
+        ];
+        const filterVal = [
+          "id",
+          "pin_number",
+          "used_by",
+          "package_id",
+          "base_amount",
+          "tax_percentage",
+          "tax_amount",
+          "total_amount",
+          "status",
+          "used_at",
+          "allocated_at",
+          "note",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "pins"
+        });
+        this.downloadLoading = false;
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else if(j=="owned_by"){
+            return v.owner.user.username
+          }else if(j=="package_id"){
+            return v.package.name
+          }else if(j=="used_by"){
+            return v.user?v.user.user.username:'';
+          }else {
+            return v[j];
+          }
+        })
+      );
     }
   }
 };

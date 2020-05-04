@@ -184,7 +184,7 @@ export default {
     handleCheckSponsorCode(){
       if(this.registerForm.sponsor_code){
         checkSponsorCode(this.registerForm.sponsor_code).then((response) => {
-          this.registerForm.sponsor_name=response.data;          
+          this.registerForm.sponsor_name=response.data.name;          
         })
       }            
     },

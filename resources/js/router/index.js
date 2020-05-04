@@ -256,8 +256,20 @@ export const asyncRoutes = [
       {
         path: 'all',
         component: () => import('@/views/admin/pins/all'),
-        name: 'My Payout',
+        name: 'Generate PIN',
         meta: { title: 'Generate PINs', icon: 'fas fa-tag', color:'color:#35BED1', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'transfer',
+        component: () => import('@/views/admin/pins/transfer'),
+        name: 'Transfer Pins',
+        meta: { title: 'Transfer Pins', icon: 'fas fa-exchange-alt', color:'color:#C39BD3', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'transfer-log',
+        component: () => import('@/views/admin/pins/pin-transfer-logs'),
+        name: 'Pin Transfer Log',
+        meta: { title: 'Pin Transfer Log', icon: 'fas fa-clipboard-list', color:'color:#FF5733', affix: true, roles: ['admin'] }
       },
       {
         path: 'pending-pin-requests',
@@ -509,17 +521,30 @@ export const asyncRoutes = [
     hidden: false,
     children: [
       {
+        path: 'pending-pin-requests',
+        component: () => import('@/views/user/pins/pending-pin-requests'),
+        name: 'PIN Requests',
+        meta: { title: 'Create Request', icon: 'fas fa-tag', color:'color:#DC7633', affix: true, roles: ['user'] }
+      },
+      {
         path: 'all',
         component: () => import('@/views/user/pins/all'),
         name: 'My PINs',
         meta: { title: 'My PINs', icon: 'fas fa-tag', color:'color:#35BED1', affix: true, roles: ['user'] }
       },
       {
-        path: 'pending-pin-requests',
-        component: () => import('@/views/user/pins/pending-pin-requests'),
-        name: 'PIN Requests',
-        meta: { title: 'Create Request', icon: 'fas fa-tag', color:'color:#DC7633', affix: true, roles: ['user'] }
+        path: 'transfer',
+        component: () => import('@/views/user/pins/transfer'),
+        name: 'Transfer Pins',
+        meta: { title: 'Transfer Pins', icon: 'fas fa-exchange-alt', color:'color:#C39BD3', affix: true, roles: ['user'] }
       },
+      {
+        path: 'transfer-log',
+        component: () => import('@/views/user/pins/pin-transfer-logs'),
+        name: 'Pin Transfer Log',
+        meta: { title: 'Pin Transfer Log', icon: 'fas fa-clipboard-list', color:'color:#FF5733', affix: true, roles: ['user'] }
+      },
+      
       {
         path: 'approved-pin-requests',
         component: () => import('@/views/user/pins/approved-pin-requests'),

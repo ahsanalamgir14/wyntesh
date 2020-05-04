@@ -39,6 +39,13 @@ export function checkSponsorCode(code) {
   })
 }
 
+export function checkMemberCode(code) {
+  return request({
+    url: '/member/check-member-code/'+code,
+    method: 'get'
+  })
+}
+
 export function getAdminGeneology() {
   return request({
     url: '/admin/geneology',

@@ -34,6 +34,8 @@ export function fetchRequestPins(query,id) {
   })
 }
 
+
+
 export function fetchMyPins(query) {
   return request({
     url: '/user/my/pins',
@@ -42,9 +44,33 @@ export function fetchMyPins(query) {
   })
 }
 
+export function fetchNotUsedPins(query) {
+  return request({
+    url: '/user/unused/my/pins',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchPinTransferLog(query) {
+  return request({
+    url: '/user/pins/transfer-log',
+    method: 'get',
+    params: query
+  })
+}
+
 export function createPinRequest(data) {
   return request({
     url: '/user/pin-requests',
+    method: 'post',
+    data
+  })
+}
+
+export function transferPinsToMember(data) {
+  return request({
+    url: '/user/pins/transfer',
     method: 'post',
     data
   })
