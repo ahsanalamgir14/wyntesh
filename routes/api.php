@@ -51,6 +51,8 @@ Route::post('member/add', 'User\MembersController@addMember');
 Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','namespace'=>'User'], function($router)
 {   
   
+    Route::get('settings','SettingsController@getMemberSettings');
+
     Route::get('profile', 'MembersController@getProfile');
     Route::post('profile', 'MembersController@updateProfile');
 
@@ -82,6 +84,10 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::post('pins/transfer', 'PinsController@transferPinsToMember');
     Route::get('pins/transfer-log', 'PinsController@getPinTransferLog');
 
+    Route::get('withdrawal-requests', 'WalletController@withdrawalRequests');
+    Route::post('withdrawal-requests', 'WalletController@createWithdrawal');
+    Route::delete('withdrawal-requests/{id}/delete', 'PinsController@destroy');
+
 });
 
 Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user','namespace'=>'User'], function($router)
@@ -101,7 +107,8 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
  
     Route::get('stats', 'SettingsController@stats');
     Route::post('settings','SettingsController@updateCompanyDetails');
-    Route::get('settings','SettingsController@getAdminSettings');
+    Route::get('settings','SettingsController@getSettings');
+    Route::get('settings/company','SettingsController@getCompanySettings');
 
     Route::get('users', 'UserAndRoleController@getUsers');
     Route::post('user','UserAndRoleController@createUser');
@@ -184,6 +191,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('unused/pins', 'PinsController@getNotUsedPins');
     Route::post('pins/transfer', 'PinsController@transferPinsToMember');
     Route::get('pins/transfer-log', 'PinsController@getPinTransferLog');
+
+    Route::get('withdrawal-requests', 'WalletController@withdrawalRequests');
+    Route::delete('withdrawal-requests/{id}/delete', 'PinsController@destroy');
 
 });
 

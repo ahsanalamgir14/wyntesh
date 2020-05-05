@@ -1,4 +1,5 @@
 import { login, logout, getInfo } from '@/api/auth';
+import { getSettings } from "@/api/user/settings";
 import avatar from '@/assets/images/avatar.png'
 import { getToken, setToken, removeToken } from '@/utils/auth';
 import router, { resetRouter } from '@/router';
@@ -12,6 +13,7 @@ const state = {
   introduction: '',
   roles: [],
   permissions: [],
+  settings: [],
 };
 
 const mutations = {
@@ -35,6 +37,9 @@ const mutations = {
   },
   SET_PERMISSIONS: (state, permissions) => {
     state.permissions = permissions;
+  },
+  SET_SETTINGS: (state, settings) => {
+    state.settings = settings;
   },
 };
 
@@ -85,6 +90,10 @@ const actions = {
         .catch(error => {
           reject(error);
         });
+
+        // getSettings().then(response => {
+        //   commit('SET_SETTINGS', response.data);
+        // });
     });
   },
 

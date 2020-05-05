@@ -1,27 +1,19 @@
 <template>
-  <div class="app-container">
-    <el-row :gutter="40" class="panel-group">
-
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel" >
-          <div class="card-panel-icon-wrapper icon-message">
-            <i class="fas fa-wallet card-panel-icon" style="color: #27AE60;" ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="balance" :duration="3000" class="card-panel-num" />
-            <div class="card-panel-text">
-              Wallet Balance
-            </div>
-          </div>
-        </div>
-      </el-col>
+  <div class="app-container">    
     </el-row>
     <div class="filter-container">
-      <el-select v-model="listQuery.is_approved" style="width: 140px" placeholder="Status" class="filter-item" @change="handleFilter">
-        <el-option  key="1200" label="All" value="all" />
-        <el-option  key="1201" label="Approved" value="1" />
-        <el-option  key="1202" label="Rejected" value="0" />
+       <el-input
+        v-model="listQuery.search"
+        placeholder="Search Records"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+
+      <el-select v-model="listQuery.status" style="width: 140px" clearable placeholder="Status" class="filter-item" @change="handleFilter">
+        <el-option label="Pending" value="Pending" />
+        <el-option label="Approved" value="Approved" />
+        <el-option label="Rejected" value="Rejected" />
       </el-select>
 
       <el-date-picker
@@ -53,14 +45,6 @@
         icon="el-icon-download"
         @click="handleDownload"
       >Export</el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="success"
-        icon="el-icon-upload"
-        @click="dialogWithdrawVisible=true"
-      >Withdraw</el-button>
     </div>
 
     <el-table
@@ -84,40 +68,60 @@
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
+      </el-table-column>
+      <el-table-column label="Actions" align="center" width="150px" class-name="small-padding">        
+        <template slot-scope="{row}">
+          <el-tooltip content="Approve" placement="right" effect="dark" v-if="row.request_status=='Pending'">
+            <el-button
+              circle
+              type="success"
+              icon="el-icon-check"
+              @click="handleApprove(row)"
+              ></el-button>
+          </el-tooltip>
+
+          <el-tooltip content="Reject" placement="right" effect="dark" v-if="row.request_status=='Pending'">
+            <el-button
+              circle
+              type="warning"
+              icon="el-icon-close"
+              @click="rejectRequest(row)"
+              ></el-button>
+          </el-tooltip>
+          
+          <el-tooltip content="Delete" placement="right" effect="dark" v-if="row.request_status=='Pending'">
+            <el-button
+              circle
+              type="danger"
+              icon="el-icon-delete"
+              @click="deleteRequest(row)"
+              ></el-button>
+          </el-tooltip>
+        </template>
       </el-table-column> 
+      <el-table-column label="Member" width="110px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.member.user.username }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Amout" width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS" width="160px" align="right">
-        <template slot-scope="{row}">
-          <span>{{ row.tds }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Admin Charge" min-width="110px"align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.admin_charge }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Status" class-name="status-col" width="100">
-        <template slot-scope="{row}">
-          <el-tag :type="row.type=='Credit'?'sucess':'danger'">{{ row.type }}</el-tag>
-        </template>
-      </el-table-column>
       <el-table-column label="Approved?" class-name="status-col" width="120">
         <template slot-scope="{row}">
-          <el-tag :type="row.is_approved | statusFilter">{{ row.is_approved==1?'Yes':row.is_approved==null?'No':'Rejected' }}</el-tag>
+          <el-tag :type="row.request_status | statusFilter">{{ row.request_status }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Created At" width="120px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.deposit_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Remark" min-width="150px"align="left">
+      <el-table-column label="Note" min-width="150px"align="left">
         <template slot-scope="{row}">
-          <span >{{ row.remark }}</span>
+          <span >{{ row.note }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -130,20 +134,28 @@
       @pagination="getList"
     />
 
-    <el-dialog title="Withdraw" width="40%"  :visible.sync="dialogWithdrawVisible">
-      <el-form ref="formWithdraw" :rules="rules" :model="temp">
-        <el-form-item label="Amount to withdraw" prop="debit" label-width="120">
-          <el-input  type="number" min=1 @change="handleDebitChange" v-model="temp.debit" ></el-input>
+    <el-dialog title="Withdraw" width="40%"  :visible.sync="dialogApproveVisible">
+      <el-form ref="formApprove" :rules="rules" :model="temp">
+        <el-form-item label="Amount to withdraw" prop="amount" label-width="120">
+          <el-input  type="number" min=1 @change="handleDebitChange" v-model="temp.amount" ></el-input>
         </el-form-item>
-        <el-form-item label="TDS" label-width="120" prop="tds_amount">
+        <el-form-item label="Expected TDS" label-width="120" prop="tds_amount">
           <el-input  type="number" disabled min=0 v-model="temp.tds_amount" ></el-input>
         </el-form-item>
-        <el-form-item label="Final Amount" label-width="120" prop="final_debit">
-          <el-input  type="number" disabled min=1 v-model="temp.final_debit" ></el-input>
+        <el-form-item label="Final Amount you will receive" label-width="120" prop="final_amount">
+          <el-input  type="number" disabled min=1 v-model="temp.final_amount" ></el-input>
+        </el-form-item>
+        <el-form-item label="Note" prop="note">
+          <el-input
+            type="textarea"
+            v-model="temp.note"
+            :rows="2"
+            placeholder="Please Enter note">
+          </el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogWithdrawVisible = false">Cancel</el-button>
+        <el-button @click="dialogApproveVisible = false">Cancel</el-button>
         <el-button type="primary" @click="handleWithdraw()">Confirm</el-button>
       </span>
     </el-dialog>
@@ -152,27 +164,27 @@
 </template>
 
 <script>
-// import {
-//   getMyWithdrawals,
-//   getMyBalance,
-//   createWithdrawal
-// } from "@/api/finances";
+import {
+  fetchWithdrawalRequests,
+  deleteWithdrawalRequest,
+  createWithdrawalRequest
+} from "@/api/admin/wallet";
+import { getSettings } from "@/api/admin/settings";
 import CountTo from 'vue-count-to'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
-import axios from "axios";
+import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Commissions",
+  name: "Wallet",
   components: { Pagination,CountTo },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        1: "success",
-        null: "info",
-        0: "danger"
+        Approved: "success",
+        Pending: "info",
+        Rejected: "danger"
       };
 
       return statusMap[status];
@@ -187,7 +199,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        is_approved:'all',
+        status:'Pending',
         sort: "+id",
         date_range:''
       },
@@ -199,25 +211,27 @@ export default {
       ],
       temp: {
         id: undefined,
-        debit:0,
+        amount:0,
         tds_amount:0,
-        tds_percent:5,
-        final_debit:0,
+        tds_percent:0,
+        final_final:0,
+        note:undefined,
       },
-      dialogWithdrawVisible:false,
+      dialogApproveVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-        debit: [
+        amount: [
           { type:"number", required: true, message: "Enter amount", trigger: "blur" }
         ],
-        final_debit: [
+        final_amount: [
           { type:"number", required: true, message: "Final Amount cannot be zero", trigger: "blur" }
         ],
       },
+      settings:undefined,
       downloadLoading: false,
       buttonLoading: false,
       pickerOptions: {
@@ -251,44 +265,25 @@ export default {
   },
   created() {
     this.getList();
+    this.getSettings();
   },
   methods: {
     getList() {
-      this.listLoading = false;
-      this.list=[
-        {
-          id:1,
-          amount:2000,
-          tds:200,
-          admin_charge:100,
-          type:'Debit',
-          final_amount:1700,
-          deposit_date:'2020-03-25',
-          remarks:'ASAP',
-          is_approved:1
-        },
-        {
-          id:2,
-          amount:4000,
-          tds:0,
-          admin_charge:0,
-          type:'Credit',
-          final_amount:4000,
-          deposit_date:'2020-03-25',
-          remarks:'ASAP',
-          is_approved:1
-        },
-      ]
-      //getMyWithdrawals(this.listQuery).then(response => {
-      //   this.list = response.data.data;
-      //   this.total = response.data.total;
-      //   setTimeout(() => {
-      //     this.listLoading = false;
-      //   }, 1 * 100);
-      // });
-      // getMyBalance().then(response => {
-      //   this.balance = response.data.balance;
-      // });
+      this.listLoading = false;     
+      fetchWithdrawalRequests(this.listQuery).then(response => {
+        this.list = response.data.data;
+        this.total = response.data.total;
+        this.balance = parseFloat(response.balance);
+        setTimeout(() => {
+          this.listLoading = false;
+        }, 1 * 100);
+      });
+    },
+    getSettings() {      
+      getSettings().then(response => {
+        this.settings = response.data
+        this.temp.tds_percent=parseFloat(response.data.tds_percentage);
+      });
     },
     handleDebitChange(){
       let tds=(this.temp.debit*this.temp.tds_percent)/100
@@ -296,8 +291,23 @@ export default {
       this.temp.debit=parseFloat(this.temp.debit);
       this.temp.final_debit=(parseFloat(this.temp.debit, 10)-parseFloat(this.temp.tds_amount, 10));
     },
-    handleWithdraw(){
-      this.$refs["formWithdraw"].validate(valid => {
+    rejectRequest(){
+
+    },
+    deleteRequest(){
+
+    },
+    handleApprove(row){
+      let temp = Object.assign({}, row);
+      let tds=(temp.amount*this.temp.tds_percent)/100
+      console.log(this.temp.tds_percent);
+      this.temp.tds_amount=parseFloat(tds);
+      this.temp.amount=parseFloat(temp.amount);
+      this.temp.final_amount=(parseFloat(temp.amount, 10)-parseFloat(this.temp.tds_amount, 10));
+      this.dialogApproveVisible=true;
+    },
+    approveRequest(){
+      this.$refs["formApprove"].validate(valid => {
         if(parseFloat(this.temp.final_debit) <=0 ){
           this.$message.error('Withdrawal amount cannot be 0.');
           return;
@@ -307,10 +317,10 @@ export default {
           return;
         }
         if (valid) {
-          createWithdrawal(this.temp).then((response) => {
+          createWithdrawalRequest(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
-            this.dialogWithdrawVisible = false;
+            this.dialogApproveVisible = false;
             this.$notify({
               title: "Success",
               message: "Withdrawal Created Successfully",
@@ -347,7 +357,9 @@ export default {
         debit:0,
         tds_amount:0,
         final_debit:0,
+        note:undefined,
       };
+      this.temp.tds_percent=this.settings.tds_percentage;
     },
     clean(obj) {
       for (var propName in obj) { 

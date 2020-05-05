@@ -26,6 +26,7 @@ class CreateWithdrawalsTable extends Migration
             $table->integer('transaction_by')->nullable();
             $table->string('note',2048)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

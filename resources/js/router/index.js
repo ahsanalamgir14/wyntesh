@@ -263,6 +263,7 @@ export const asyncRoutes = [
         path: 'transfer',
         component: () => import('@/views/admin/pins/transfer'),
         name: 'Transfer Pins',
+        hidden: false,
         meta: { title: 'Transfer Pins', icon: 'fas fa-exchange-alt', color:'color:#C39BD3', affix: true, roles: ['admin'] }
       },
       {
@@ -330,16 +331,28 @@ export const asyncRoutes = [
     hidden: false,
     children: [
       {
-        path: 'transactions',
-        component: () => import('@/views/admin/wallet/transactions'),
-        name: 'Transactions',
-        meta: { title: 'Transactions', icon: 'far fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
+        path: 'withdrawal-requests',
+        component: () => import('@/views/admin/wallet/index'),
+        name: 'With. Requests',
+        meta: { title: 'With. Requests', icon: 'fas fa-wallet', color:'color:#31a816', affix: true, roles: ['admin'] }
       },
       {
-        path: 'all',
-        component: () => import('@/views/admin/wallet/all-transactions'),
-        name: 'PIN Requests',
-        meta: { title: 'All Payouts', icon: 'fas fa-hand-holding-usd', color:'color:#C39BD3', affix: true, roles: ['admin'] }
+        path: 'withdrawals',
+        component: () => import('@/views/admin/wallet/withdrawals'),
+        name: 'Withdrawals',
+        meta: { title: 'Withdrawals', icon: 'fas fa-angle-double-up', color:'color:#4287f5', affix: true, roles: ['admin'] }
+      },      
+      {
+        path: 'transfer-balance',
+        component: () => import('@/views/admin/wallet/transactions'),
+        name: 'Transfer Balance',
+        meta: { title: 'Transfer Balance', icon: 'fas fa-people-arrows', color:'color:#e33b6b', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'wallet-transactions',
+        component: () => import('@/views/admin/wallet/transactions'),
+        name: 'Wallet Transactions',
+        meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -598,10 +611,28 @@ export const asyncRoutes = [
     hidden: false,
     children: [
       {
-        path: 'transactions',
+        path: 'wallet',
+        component: () => import('@/views/user/wallet/index'),
+        name: 'My Wallet',
+        meta: { title: 'My Wallet', icon: 'fas fa-wallet', color:'color:#31a816', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'withdrawals',
+        component: () => import('@/views/user/wallet/withdrawals'),
+        name: 'Withdrawals',
+        meta: { title: 'Withdrawals', icon: 'fas fa-angle-double-up', color:'color:#4287f5', affix: true, roles: ['user'] }
+      },      
+      {
+        path: 'transfer-balance',
+        component: () => import('@/views/user/wallet/transactions'),
+        name: 'Transfer Balance',
+        meta: { title: 'Transfer Balance', icon: 'fas fa-people-arrows', color:'color:#e33b6b', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'wallet-transactions',
         component: () => import('@/views/user/wallet/transactions'),
         name: 'Wallet Transactions',
-        meta: { title: 'Wallet Transactions', icon: 'fas fa-wallet', color:'color:#FF5733', affix: true, roles: ['user'] }
+        meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['user'] }
       }
     ]
   },

@@ -21,6 +21,7 @@ class CreateWithdrawalRequestsTable extends Migration
             $table->string('request_status',32)->nullable();            
             $table->string('note',2048)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -97,7 +97,7 @@
 
 <script>
 import {
-  getAdminSettings,
+  getCompanySettings,
   saveCompanySettings,
 } from "@/api/admin/settings";
 
@@ -193,7 +193,7 @@ export default {
     };
   },
   created() {
-    getAdminSettings().then(response => {
+    getCompanySettings().then(response => {
       this.temp = response.data;
     });
   },

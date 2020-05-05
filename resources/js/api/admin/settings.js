@@ -9,23 +9,15 @@ export function dashboardStats() {
 
 export function getSettings() {
   return request({
-    url: '/sadmin/settings',
-    method: 'get'
-  })
-}
-
-export function getAdminSettings() {
-  return request({
     url: '/admin/settings',
     method: 'get'
   })
 }
 
-export function saveSettings(data) {
+export function getCompanySettings() {
   return request({
-    url: '/sadmin/settings',
-    method: 'post',
-    data
+    url: '/admin/settings/company',
+    method: 'get'
   })
 }
 
@@ -34,12 +26,5 @@ export function saveCompanySettings(data) {
     url: '/admin/settings',
     method: 'post',
     data
-  })
-}
-
-export function franchiseDashboardStats() {
-  return request({
-    url: '/admin/stats/franchise',
-    method: 'get'
   })
 }

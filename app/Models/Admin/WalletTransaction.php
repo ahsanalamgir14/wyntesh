@@ -5,11 +5,17 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PinTransferLog extends Model
+class WalletTransaction extends Model
 {
-    protected $table = 'pin_transfer_logs';
+    protected $table = 'wallet_transactions';
     public $timestamps = true;
     use SoftDeletes;
+
+
+    public function member()
+    {
+        return $this->belongsTo('App\Models\Admin\Member')->with('user');
+    }
 
     public function transfered_from()
     {
@@ -21,14 +27,15 @@ class PinTransferLog extends Model
         return $this->belongsTo('App\Models\User\User','transfered_to');
     }
 
-    public function transfered_by()
+    public function transaction_by()
     {
-        return $this->belongsTo('App\Models\User\User','transfered_by');
+        return $this->belongsTo('App\Models\User\User','transaction_by');
     }
 
-    public function pin()
+    public function transaction()
     {
-        return $this->belongsTo('App\Models\Admin\Pin','pin_id');
+        return $this->belongsTo('App\Models\Admin\TransactionType','transaction_type_id');
     }
+
 
 }

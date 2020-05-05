@@ -14,7 +14,6 @@ use App\Models\User\User;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
-use DB;
 class PinsController extends Controller
 {
     /**
@@ -264,8 +263,7 @@ class PinsController extends Controller
 
     public function getAllPins(Request $request)
     {
-        DB::connection()->enableQueryLog();
-
+       
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
@@ -333,8 +331,7 @@ class PinsController extends Controller
 
     public function getNotUsedPins(Request $request)
     {
-        DB::connection()->enableQueryLog();
-
+       
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
