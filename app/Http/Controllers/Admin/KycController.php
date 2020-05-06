@@ -165,6 +165,11 @@ class KycController extends Controller
             $Kyc->bank_ac_no=$request->bank_ac_no;
             $Kyc->ifsc=$request->ifsc;
             $Kyc->verification_status=$request->verification_status;
+            if($request->verification_status=='verified'){
+                $Kyc->is_verified=1;
+            }else{
+                $Kyc->is_verified=0;
+            }
             $Kyc->save();
 
             if($request->hasFile('adhar_image')){

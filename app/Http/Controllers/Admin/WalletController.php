@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
-use App\Models\Admin\WalletTransactions;
+use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\Setting;
 use App\Models\User\User;
 use Validator;
@@ -50,7 +50,7 @@ class WalletController extends Controller
 
         if(!$search && !$status && !$date_range){           
             $WithdrawalRequests=WithdrawalRequest::select();           
-            $WithdrawalRequests=$WithdrawalRequests->with('member','approver');
+            $WithdrawalRequests=$WithdrawalRequests->with('member:id,user_id','member.kyc','approver');
             $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
         }else{
             $WithdrawalRequests=WithdrawalRequest::select();
@@ -70,7 +70,7 @@ class WalletController extends Controller
                 $WithdrawalRequests=$WithdrawalRequests->where('request_status',$status);
             }
 
-            $WithdrawalRequests=$WithdrawalRequests->with('member','approver');
+            $WithdrawalRequests=$WithdrawalRequests->with('member:id,user_id','member.kyc','approver');
             $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
         }
 
@@ -79,29 +79,66 @@ class WalletController extends Controller
         return response()->json($response, 200);
     }
 
-    public function createWithdrawal(Request $request){
+    public function approveWithdrawal(Request $request){
         $user=JWTAuth::user();
 
-        $balance=$user->member->wallet_balance;               
-        $amount=$request->debit;
-      
-        if($balance < $amount){
-            $response = array('status' => false,'message'=>'You do not have enough balance to withdraw');
+        $validate = Validator::make($request->all(), [
+            'id' => 'required|integer',
+            'amount' => "required|regex:/^\d+(\.\d{1,2})?$/",
+            'tds_percentage' => "required|regex:/^\d+(\.\d{1,2})?$/",
+            'tds_amount' => "required|regex:/^\d+(\.\d{1,2})?$/",
+            'final_amount' => "required|regex:/^\d+(\.\d{1,2})?$/"
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
             return response()->json($response, 400);
         }
 
-        $WithdrawalRequest=new WithdrawalRequest;
-        $WithdrawalRequest->member_id=$user->member->id;
-        $WithdrawalRequest->amount=$amount;
-        $WithdrawalRequest->request_status='Pending';
+        $id=$request->id;
+
+        $WithdrawalRequest=WithdrawalRequest::find($id);
+
+        if(!$WithdrawalRequest){
+            $response = array('status' => false,'message'=>'Withdrawal request not found','data' => array());
+            return response()->json($response, 404);
+        }
+
+        $balance=$WithdrawalRequest->member->wallet_balance;        
+        $WithdrawalRequest->member->save();
+        $WithdrawalRequest->request_status="Approved";
         $WithdrawalRequest->note=$request->note;
+        $WithdrawalRequest->approved_by=$user->id;
         $WithdrawalRequest->save();
 
-        $final_balance=$balance-$amount;
-        $user->member->wallet_balance=$final_balance;
-        $user->member->save();
+        $Withdrawal=new Withdrawal;
+        $Withdrawal->member_id=$WithdrawalRequest->member_id;
+        $Withdrawal->amount=$request->amount;
+        $Withdrawal->tds_percentage=$request->tds_percentage;
+        $Withdrawal->tds_amount=$request->tds_amount;
+        $Withdrawal->net_amount=$request->final_amount;
+        $Withdrawal->withdrawal_request_id=$WithdrawalRequest->id;
+        $Withdrawal->payment_made_at=$request->payment_made_at;
+        $Withdrawal->payment_status=$request->payment_status;
+        $Withdrawal->note=$request->note;
+        $Withdrawal->transaction_by=$user->id;
+        $Withdrawal->save();
 
-        $response = array('status' => true,'message'=>'Withdrawal request created successfully.');
+        $TransactionType=TransactionType::where('name','Withdrawal')->first();
+        $tran_type=2;
+        if($TransactionType){
+            $tran_type=$TransactionType->id;
+        }
+
+        $WalletTransaction=new WalletTransaction;
+        $WalletTransaction->member_id=$WithdrawalRequest->member_id;
+        $WalletTransaction->amount=$request->final_amount;
+        $WalletTransaction->balance=$WithdrawalRequest->member->wallet_balance;
+        $WalletTransaction->transaction_type_id=$tran_type;
+        $WalletTransaction->note=$request->note;
+        $WalletTransaction->save();
+
+        $response = array('status' => true,'message'=>'Withdrawal request approved successfully.');
         return response()->json($response, 200);
 
     }
@@ -220,7 +257,27 @@ class WalletController extends Controller
     //     return response()->json($response, 200);
     // }
 
-   
+    
+    public function rejectWithdrawalRequest(Request $request)
+    {
+        $WithdrawalRequest= WithdrawalRequest::find($request->id);
+        
+         if($WithdrawalRequest){
+            $amount=$WithdrawalRequest->amount;
+            $WithdrawalRequest->member->wallet_balance+=$amount;
+            $WithdrawalRequest->member->save();
+            $WithdrawalRequest->request_status='Rejected';
+            $WithdrawalRequest->note=$request->note;
+            $WithdrawalRequest->save(); 
+            $response = array('status' => true,'message'=>'Withdrawal request rejected.');             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Withdrawal request not found','data' => array());
+            return response()->json($response, 404);
+        }
+
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -229,8 +286,7 @@ class WalletController extends Controller
      */
     public function destroy($id)
     {
-        $member_id=JWTAuth::user()->member->id;
-        $WithdrawalRequest= WithdrawalRequest::where('member_id',$member_id)->first();
+        $WithdrawalRequest= WithdrawalRequest::where('request_status','Pending')->find($id);
         
          if($WithdrawalRequest){
             $WithdrawalRequest->delete(); 

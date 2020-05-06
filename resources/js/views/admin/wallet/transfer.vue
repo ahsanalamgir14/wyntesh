@@ -1,10 +1,27 @@
 <template>
   <div class="app-container">
+    <el-row :gutter="40" class="panel-group">
+
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel" >
+          <div class="card-panel-icon-wrapper icon-message">
+            <i class="fas fa-wallet card-panel-icon" style="color: #27AE60;" ></i>
+          </div>
+          <div class="card-panel-description">
+            
+            <count-to :start-val="0" :end-val="balance" :duration="3000" class="card-panel-num" />
+            <div class="card-panel-text">
+              Wallet Balance
+            </div>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
     <div class="filter-container">
-      <el-select v-model="listQuery.is_approved" style="width: 140px" placeholder="Status" class="filter-item" @change="handleFilter">
-        <el-option  key="1200" label="All" value="all" />
-        <el-option  key="1201" label="Approved" value="1" />
-        <el-option  key="1202" label="Rejected" value="0" />
+      <el-select v-model="listQuery.status" style="width: 140px" clearable placeholder="Status" class="filter-item" @change="handleFilter">
+        <el-option label="Pending" value="Pending" />
+        <el-option label="Approved" value="Approved" />
+        <el-option label="Rejected" value="Rejected" />
       </el-select>
 
       <el-date-picker
@@ -38,12 +55,13 @@
       >Export</el-button>
       <el-button
         v-waves
+        :disabled="!kyc_status"
         :loading="downloadLoading"
         class="filter-item"
         type="success"
         icon="el-icon-upload"
         @click="dialogWithdrawVisible=true"
-      >Withdraw</el-button>
+      >{{ kyc_status?'Withdraw':'Verify your KYC First to Withdraw'}}</el-button>
     </div>
 
     <el-table
@@ -67,40 +85,42 @@
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
+      </el-table-column>
+      <el-table-column label="Actions" align="center" width="170px" class-name="small-padding">        
+        <template slot-scope="{row}">         
+          <el-tooltip content="Delete" placement="right" effect="dark" v-if="row.request_status=='Pending'">
+            <el-button
+              circle
+              type="danger"
+              icon="el-icon-delete"
+              @click="deleteRequest(row)"
+              ></el-button>
+          </el-tooltip>
+        </template>
       </el-table-column> 
       <el-table-column label="Amout" width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS" width="160px" align="right">
+      <el-table-column label="Expected TDS" width="160px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.tds }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Admin Charge" min-width="110px"align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.admin_charge }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Status" class-name="status-col" width="100">
-        <template slot-scope="{row}">
-          <el-tag :type="row.type=='Credit'?'sucess':'danger'">{{ row.type }}</el-tag>
+          <span>{{ (parseFloat(row.amount)*parseFloat(temp.tds_percent))/100 }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Approved?" class-name="status-col" width="120">
         <template slot-scope="{row}">
-          <el-tag :type="row.is_approved | statusFilter">{{ row.is_approved==1?'Yes':row.is_approved==null?'No':'Rejected' }}</el-tag>
+          <el-tag :type="row.request_status | statusFilter">{{ row.request_status }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Created At" width="120px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.deposit_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Remark" min-width="150px"align="left">
+      <el-table-column label="Note" min-width="150px"align="left">
         <template slot-scope="{row}">
-          <span >{{ row.remark }}</span>
+          <span >{{ row.note }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -118,11 +138,19 @@
         <el-form-item label="Amount to withdraw" prop="debit" label-width="120">
           <el-input  type="number" min=1 @change="handleDebitChange" v-model="temp.debit" ></el-input>
         </el-form-item>
-        <el-form-item label="TDS" label-width="120" prop="tds_amount">
+        <el-form-item label="Expected TDS" label-width="120" prop="tds_amount">
           <el-input  type="number" disabled min=0 v-model="temp.tds_amount" ></el-input>
         </el-form-item>
-        <el-form-item label="Final Amount" label-width="120" prop="final_debit">
+        <el-form-item label="Final Amount you will receive" label-width="120" prop="final_debit">
           <el-input  type="number" disabled min=1 v-model="temp.final_debit" ></el-input>
+        </el-form-item>
+        <el-form-item label="Note" prop="note">
+          <el-input
+            type="textarea"
+            v-model="temp.note"
+            :rows="2"
+            placeholder="Please Enter note">
+          </el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -135,27 +163,27 @@
 </template>
 
 <script>
-// import {
-//   getMyWithdrawals,
-//   getMyBalance,
-//   createWithdrawal
-// } from "@/api/finances";
+import {
+  fetchWithdrawalRequests,
+  deleteWithdrawalRequest,
+  createWithdrawalRequest
+} from "@/api/user/wallet";
+import { getSettings } from "@/api/user/settings";
 import CountTo from 'vue-count-to'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
-import axios from "axios";
+import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Commissions",
+  name: "Wallet",
   components: { Pagination,CountTo },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        1: "success",
-        null: "info",
-        0: "danger"
+        Approved: "success",
+        Pending: "info",
+        Rejected: "danger"
       };
 
       return statusMap[status];
@@ -170,11 +198,12 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        is_approved:'all',
+        status:undefined,
         sort: "+id",
         date_range:''
       },
-      balance:60000,
+      balance:0,
+      kyc_status:0,
       dateRangeFilter:'',
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
@@ -184,8 +213,9 @@ export default {
         id: undefined,
         debit:0,
         tds_amount:0,
-        tds_percent:5,
+        tds_percent:0,
         final_debit:0,
+        note:undefined,
       },
       dialogWithdrawVisible:false,
       dialogStatus: "",
@@ -201,6 +231,7 @@ export default {
           { type:"number", required: true, message: "Final Amount cannot be zero", trigger: "blur" }
         ],
       },
+      settings:undefined,
       downloadLoading: false,
       buttonLoading: false,
       pickerOptions: {
@@ -234,44 +265,26 @@ export default {
   },
   created() {
     this.getList();
+    this.getSettings();
   },
   methods: {
     getList() {
-      this.listLoading = false;
-      this.list=[
-        {
-          id:1,
-          amount:2000,
-          tds:200,
-          admin_charge:100,
-          type:'Debit',
-          final_amount:1700,
-          deposit_date:'2020-03-25',
-          remarks:'ASAP',
-          is_approved:1
-        },
-        {
-          id:2,
-          amount:4000,
-          tds:0,
-          admin_charge:0,
-          type:'Credit',
-          final_amount:4000,
-          deposit_date:'2020-03-25',
-          remarks:'ASAP',
-          is_approved:1
-        },
-      ]
-      //getMyWithdrawals(this.listQuery).then(response => {
-      //   this.list = response.data.data;
-      //   this.total = response.data.total;
-      //   setTimeout(() => {
-      //     this.listLoading = false;
-      //   }, 1 * 100);
-      // });
-      // getMyBalance().then(response => {
-      //   this.balance = response.data.balance;
-      // });
+      this.listLoading = false;     
+      fetchWithdrawalRequests(this.listQuery).then(response => {
+        this.list = response.data.data;
+        this.total = response.data.total;
+        this.balance = parseFloat(response.balance);
+        this.kyc_status = response.kyc_status;
+        setTimeout(() => {
+          this.listLoading = false;
+        }, 1 * 100);
+      });
+    },
+    getSettings() {      
+      getSettings().then(response => {
+        this.settings = response.data
+        this.temp.tds_percent=parseFloat(response.data.tds_percentage);
+      });
     },
     handleDebitChange(){
       let tds=(this.temp.debit*this.temp.tds_percent)/100
@@ -290,7 +303,7 @@ export default {
           return;
         }
         if (valid) {
-          createWithdrawal(this.temp).then((response) => {
+          createWithdrawalRequest(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
             this.dialogWithdrawVisible = false;
@@ -304,6 +317,33 @@ export default {
           })
         }
       });
+    },
+    deleteRequest(row){
+      this.$confirm('Are you sure you want to delete withdrawal Request?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        deleteWithdrawalRequest(row.id).then((data) => {
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          this.getList();
+        });
+      })
+    },
+    resetTemp() {
+      this.temp = {
+        id: undefined,
+        debit:0,
+        tds_amount:0,
+        final_debit:0,
+        note:undefined,
+      };
+      this.temp.tds_percent=this.settings.tds_percentage;
     },
     handleFilter() {
       this.listQuery.page = 1;
@@ -323,15 +363,7 @@ export default {
         this.listQuery.sort = "-id";
       }
       this.handleFilter();
-    },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        debit:0,
-        tds_amount:0,
-        final_debit:0,
-      };
-    },
+    },    
     clean(obj) {
       for (var propName in obj) { 
         if (obj[propName] === null || obj[propName] === undefined) {

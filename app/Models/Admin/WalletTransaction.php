@@ -17,24 +17,24 @@ class WalletTransaction extends Model
         return $this->belongsTo('App\Models\Admin\Member')->with('user');
     }
 
-    public function transfered_from()
+    public function transfered_from_user()
     {
         return $this->belongsTo('App\Models\User\User','transfered_from');
     }
 
-    public function transfered_to()
+    public function transfered_to_user()
     {
         return $this->belongsTo('App\Models\User\User','transfered_to');
     }
 
-    public function transaction_by()
+    public function transaction_by_user()
     {
         return $this->belongsTo('App\Models\User\User','transaction_by');
     }
 
     public function transaction()
     {
-        return $this->belongsTo('App\Models\Admin\TransactionType','transaction_type_id');
+        return $this->belongsTo('App\Models\Superadmin\TransactionType','transaction_type_id');
     }
 
 

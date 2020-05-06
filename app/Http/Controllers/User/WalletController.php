@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
-use App\Models\Admin\WalletTransactions;
+use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\Setting;
 use App\Models\User\User;
 use Validator;
@@ -27,6 +27,7 @@ class WalletController extends Controller
     {
         $User=JWTAuth::user();
         $balance=$User->member->wallet_balance;
+        $kyc_status=$User->member->kyc->is_verified;
 
         $page=$request->page;
         $limit=$request->limit;
@@ -73,18 +74,220 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Pin requests retrieved.",'data'=>$WithdrawalRequests,'balance'=>$balance);
+       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$WithdrawalRequests,'balance'=>$balance,'kyc_status'=>$kyc_status);
+        return response()->json($response, 200);
+    }
+
+    public function getWithdrawals(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$date_range){           
+            $Withdrawals=Withdrawal::select();           
+            $Withdrawals=$Withdrawals->with('member','transaction_by');
+            $Withdrawals=$Withdrawals->where('member_id',$User->member->id);
+            $Withdrawals=$Withdrawals->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $Withdrawals=Withdrawal::select();
+           
+            if($search){
+                $Withdrawals=$Withdrawals->where(function ($query)use($search) {               
+                    $query=$query->orwhere('payment_status',$search);
+                });
+            }
+            
+            if($date_range){
+                $Withdrawals=$Withdrawals->whereDate('payment_made_at','>=', $date_range[0]);
+                $Withdrawals=$Withdrawals->whereDate('payment_made_at','<=', $date_range[1]);
+            }
+
+            $Withdrawals=$Withdrawals->where('member_id',$User->member->id);
+            $Withdrawals=$Withdrawals->with('member','transaction_by');
+            $Withdrawals=$Withdrawals->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals);
+        return response()->json($response, 200);
+    }
+
+    public function getWalletTransactions(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $transaction_type=$request->transaction_type;
+        $transfered_from=$request->transfered_from;
+        $transfered_to=$request->transfered_to;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$date_range && !$transaction_type && !$transfered_from && !$transfered_to){
+
+            $WalletTransactions=WalletTransaction::select();           
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $WalletTransactions=WalletTransaction::select();
+           
+            if($date_range){
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            if($transaction_type){
+                $WalletTransactions=$WalletTransactions->where('transaction_type_id',$transaction_type);                
+            }
+
+            if($transfered_from){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_from_user',function($q)use($transfered_from){
+                    $q->where('username','like','%'.$transfered_from.'%');
+                });               
+            }
+
+            if($transfered_to){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_to_user',function($q)use($transfered_to){
+                    $q->where('username','like','%'.$transfered_to.'%');
+                });
+            }
+
+            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        return response()->json($response, 200);
+    }
+
+    public function getWalletTransfers(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $transaction_type=$request->transaction_type;
+        $transfered_from=$request->transfered_from;
+        $transfered_to=$request->transfered_to;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$date_range && !$transaction_type && !$transfered_from && !$transfered_to){
+
+            $WalletTransactions=WalletTransaction::select();           
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            
+            $WalletTransactions=$WalletTransactions->whereHas('transaction',function($q){
+                $q->where('name','Balance Transfer');
+            });
+            
+            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $WalletTransactions=WalletTransaction::select();
+           
+            if($date_range){
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            if($transaction_type){
+                $WalletTransactions=$WalletTransactions->where('transaction_type_id',$transaction_type);                
+            }
+
+            if($transfered_from){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_from_user',function($q)use($transfered_from){
+                    $q->where('username','like','%'.$transfered_from.'%');
+                });               
+            }
+
+            if($transfered_to){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_to_user',function($q)use($transfered_to){
+                    $q->where('username','like','%'.$transfered_to.'%');
+                });
+            }
+
+            $WalletTransactions=$WalletTransactions->whereHas('transaction',function($q){
+                $q->where('name','Balance Transfer');
+            });
+
+            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
         return response()->json($response, 200);
     }
 
     public function createWithdrawal(Request $request){
         $user=JWTAuth::user();
 
-        $balance=$user->member->wallet_balance;               
+        $balance=$user->member->wallet_balance;
+        $kyc_status=$user->member->kyc->is_verified;               
         $amount=$request->debit;
       
         if($balance < $amount){
             $response = array('status' => false,'message'=>'You do not have enough balance to withdraw');
+            return response()->json($response, 400);
+        }
+
+        if(!$kyc_status){
+            $response = array('status' => false,'message'=>'Verify your KYC first to withdraw');
             return response()->json($response, 400);
         }
 
@@ -228,9 +431,12 @@ class WalletController extends Controller
     public function destroy($id)
     {
         $member_id=JWTAuth::user()->member->id;
-        $WithdrawalRequest= WithdrawalRequest::where('member_id',$member_id)->first();
+        $WithdrawalRequest= WithdrawalRequest::where('member_id',$member_id)->where('id',$id)->first();
         
          if($WithdrawalRequest){
+            $amount=$WithdrawalRequest->amount;
+            $WithdrawalRequest->member->wallet_balance+=$amount;
+            $WithdrawalRequest->member->save();
             $WithdrawalRequest->delete(); 
             $response = array('status' => true,'message'=>'Withdrawal request successfully deleted.');             
             return response()->json($response, 200);

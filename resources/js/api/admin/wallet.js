@@ -17,9 +17,17 @@ export function deleteWithdrawalRequest(id) {
   })
 }
 
-export function createWithdrawalRequest(data) {
+export function rejectWithdrawalRequest(data) {
   return request({
-    url: '/admin/withdrawal-requests',
+    url: '/admin/withdrawal-requests/reject',
+    method: 'post',
+    data
+  })
+}
+
+export function approveWithdrawalRequest(data) {
+  return request({
+    url: '/admin/withdrawal-requests/approve',
     method: 'post',
     data
   })

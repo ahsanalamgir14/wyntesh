@@ -69,7 +69,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="150px" class-name="small-padding">        
+      <el-table-column label="Actions" align="center" width="230px" class-name="small-padding">        
         <template slot-scope="{row}">
           <el-tooltip content="Approve" placement="right" effect="dark" v-if="row.request_status=='Pending'">
             <el-button
@@ -97,11 +97,20 @@
               @click="deleteRequest(row)"
               ></el-button>
           </el-tooltip>
+
+          <el-tooltip content="View Kyc" placement="right" effect="dark" >
+            <el-button
+              circle
+              type="primary"
+              icon="el-icon-view"
+              @click="viewKyc(row)"
+              ></el-button>
+          </el-tooltip>
         </template>
       </el-table-column> 
       <el-table-column label="Member" width="110px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.member.user.username }}</span>
+          <span class="link-type" @click="viewKyc(row)">{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Amout" width="110px" align="right">
@@ -134,30 +143,184 @@
       @pagination="getList"
     />
 
-    <el-dialog title="Withdraw" width="40%"  :visible.sync="dialogApproveVisible">
+    <el-dialog title="Approve Withdrawal" width="60%" top="30px" :visible.sync="dialogApproveVisible">
       <el-form ref="formApprove" :rules="rules" :model="temp">
-        <el-form-item label="Amount to withdraw" prop="amount" label-width="120">
-          <el-input  type="number" min=1 @change="handleDebitChange" v-model="temp.amount" ></el-input>
-        </el-form-item>
-        <el-form-item label="Expected TDS" label-width="120" prop="tds_amount">
-          <el-input  type="number" disabled min=0 v-model="temp.tds_amount" ></el-input>
-        </el-form-item>
-        <el-form-item label="Final Amount you will receive" label-width="120" prop="final_amount">
-          <el-input  type="number" disabled min=1 v-model="temp.final_amount" ></el-input>
-        </el-form-item>
-        <el-form-item label="Note" prop="note">
-          <el-input
-            type="textarea"
-            v-model="temp.note"
-            :rows="2"
-            placeholder="Please Enter note">
-          </el-input>
-        </el-form-item>
+        <el-row :gutter="20">
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+            <el-form-item label="Amount to withdraw" prop="amount" label-width="120">
+              <el-input  type="number" disabled min=1 @change="handleDebitChange" v-model="temp.amount" ></el-input>
+            </el-form-item>
+            <el-form-item label="TDS (%)" label-width="120" prop="tds_amount">
+              <el-input  type="number"  @change="handleDebitChange" min=0 v-model="temp.tds_percentage" ></el-input>
+            </el-form-item>
+            <el-form-item label="TDS Amount" label-width="120" prop="tds_amount">
+              <el-input  type="number"  min=0 v-model="temp.tds_amount" ></el-input>
+            </el-form-item>
+            <el-form-item label="Final Amount" label-width="120" prop="final_amount">
+              <el-input  type="number"  min=1 v-model="temp.final_amount" ></el-input>
+            </el-form-item>
+            
+          </el-col>
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+            <el-form-item prop="payment_made_at" class="dob-input" label="Payment made at">
+              </br>
+              <el-date-picker
+                  style="width: 100%"
+                  :picker-options="datePickerOptions"
+                  v-model="temp.payment_made_at"
+                  type="date"
+                  format="yyyy-MM-dd"
+                  value-format="yyyy-MM-dd"
+                  placeholder="Payment made at">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="Payment Status" prop="payment_status">
+              <el-select v-model="temp.payment_status" style="width: 100%" clearable placeholder="Status"  >
+                <el-option label="Paid" value="Paid" />
+                <el-option label="In progress" value="In progress" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="Note" prop="note">
+              <el-input
+                type="textarea"
+                v-model="temp.note"
+                :rows="2"
+                placeholder="Please Enter note">
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogApproveVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleWithdraw()">Confirm</el-button>
+        <el-button type="primary" @click="approveRequest()">Confirm</el-button>
       </span>
+    </el-dialog>
+
+    <el-dialog title="KYC" width="85%" top="30px"  :visible.sync="dialogKycVisible">
+      <el-form  :model="tempKyc">
+        <el-tabs v-model="kycsTabs" type="border-card" >
+          <el-tab-pane label="Kyc and Bank" name="kyc">
+            <el-row :gutter="20">
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >            
+                
+                <el-form-item label="Adhar" prop="adhar">
+                  <el-input disabled max="16" v-model="tempKyc.adhar" />
+                </el-form-item>
+               
+                <el-form-item label="City" prop="city">
+                  <el-input  disabled v-model="tempKyc.city" />
+                </el-form-item>
+                <el-form-item label="State" prop="state">
+                  <el-input disabled v-model="tempKyc.state" />
+                </el-form-item>
+                <el-form-item label="Address" prop="address">
+                  <el-input type="textarea" disabled
+                    :rows="2"
+                    placeholder="Address" v-model="tempKyc.address" />
+                </el-form-item>
+                <el-form-item label="Pincode" prop="pincode">
+                  <el-input disabled v-model="tempKyc.pincode" />
+                </el-form-item>
+
+              </el-col>
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+                 <el-form-item label="Pan" prop="pan">
+                  <el-input max="10" disabled v-model="tempKyc.pan" />
+                </el-form-item>
+                <el-form-item label="Bank A/C Name" prop="bank_ac_name">
+                  <el-input disabled v-model="tempKyc.bank_ac_name"  />
+                </el-form-item>
+                <el-form-item label="Bank Name" prop="bank_name">
+                  <el-input disabled v-model="tempKyc.bank_name"  />
+                </el-form-item>
+                <el-form-item label="A/C No" prop="bank_ac_no">
+                  <el-input disabled v-model="tempKyc.bank_ac_no"  />
+                </el-form-item>
+                <el-form-item label="IFSC Code" prop="ifsc">
+                  <el-input disabled v-model="tempKyc.ifsc"  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            
+          </el-tab-pane>
+          <el-tab-pane  label="KYC Images" name="kyc-images">
+            <el-row :gutter="20">
+              <el-col :span="8">            
+                
+                <div class="img-upload">
+                  <el-form-item  prop="adhar_image">
+                    <label for="Adhar Image">Adhar Image</label>
+                    <el-upload disabled
+                      class="avatar-uploader"
+                      action="#"
+                       ref="upload"
+                      :show-file-list="true"
+                      :auto-upload="false"
+                      
+                      accept="image/png, image/jpeg">
+                      
+                      <img v-if="tempKyc.adhar_image" :src="tempKyc?tempKyc.adhar_image:''" class="avatar">
+                      <i v-if="tempKyc.adhar_image"  slot="default" class="el-icon-plus"></i>
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                    <a  v-if="tempKyc.adhar_image" :href="tempKyc?tempKyc.adhar_image:''" target="_blank">View full image.</a>                      
+                  </el-form-item>
+                </div>
+               
+              </el-col>
+              <el-col :span="8">
+                <div class="img-upload">
+                  <el-form-item  prop="pan_image">
+                    <label for="Pan Image">Pan Image</label>
+                    <el-upload disabled
+                      class="avatar-uploader"
+                      action="#"
+                       ref="upload"
+                      :show-file-list="true"
+                      :auto-upload="false"
+                      
+                      accept="image/png, image/jpeg">
+                      
+                      <img v-if="tempKyc.pan_image" :src="tempKyc?tempKyc.pan_image:''" class="avatar">
+                      <i v-if="tempKyc.pan_image"  slot="default" class="el-icon-plus"></i>
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload> 
+                    <a  v-if="tempKyc.pan_image" :href="tempKyc?tempKyc.pan_image:''" target="_blank">View full image.</a>                       
+                  </el-form-item>
+                </div>
+              </el-col>
+              <el-col :span="8">
+                <div class="img-upload">
+                  <el-form-item  prop="pan_image">
+                    <label for="Bank/Cheque Image Image">Bank/Cheque Image</label>
+                    <el-upload disabled
+                      class="avatar-uploader"
+                      action="#"
+                       ref="upload"
+                      :show-file-list="true"
+                      :auto-upload="false"
+                      
+                      accept="image/png, image/jpeg">
+                      
+                      <img v-if="tempKyc.cheque_image" :src="tempKyc?tempKyc.cheque_image:''" class="avatar">
+                      <i v-if="tempKyc.cheque_image"  slot="default" class="el-icon-plus"></i>
+                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload> 
+                    <a  v-if="tempKyc.cheque_image" :href="tempKyc?tempKyc.cheque_image:''" target="_blank">View full image.</a>                     
+                  </el-form-item>
+                </div>
+              </el-col>
+            </el-row>
+            
+          </el-tab-pane>
+        </el-tabs>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogKycVisible = false">
+          Cancel
+        </el-button>      
+      </div>
     </el-dialog>
 
   </div>
@@ -167,7 +330,8 @@
 import {
   fetchWithdrawalRequests,
   deleteWithdrawalRequest,
-  createWithdrawalRequest
+  approveWithdrawalRequest,
+  rejectWithdrawalRequest
 } from "@/api/admin/wallet";
 import { getSettings } from "@/api/admin/settings";
 import CountTo from 'vue-count-to'
@@ -192,6 +356,7 @@ export default {
   },
   data() {
     return {
+      kycsTabs:'kyc',
       tableKey: 0,
       list: null,
       total: 0,
@@ -213,11 +378,41 @@ export default {
         id: undefined,
         amount:0,
         tds_amount:0,
-        tds_percent:0,
-        final_final:0,
+        tds_percentage:0,
+        final_amount:0,
+        payment_made_at:undefined,
+        payment_status:'Paid',
         note:undefined,
       },
+      tempKyc: {
+        address:undefined,
+        pincode:undefined,
+        adhar:undefined,
+        pan:undefined,
+        city:undefined,
+        state:undefined,
+        bank_ac_name:undefined,
+        bank_name:undefined,
+        bank_ac_no:undefined,
+        ifsc:undefined,
+        member:{
+          user:{
+            name:undefined,
+            username:undefined,
+            contact:undefined,
+            email:undefined,
+            gender:undefined,
+            dob:undefined,
+          }
+        }
+      },
+      datePickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now();
+        }
+      },
       dialogApproveVisible:false,
+      dialogKycVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
@@ -282,25 +477,60 @@ export default {
     getSettings() {      
       getSettings().then(response => {
         this.settings = response.data
-        this.temp.tds_percent=parseFloat(response.data.tds_percentage);
+        this.temp.tds_percentage=parseFloat(response.data.tds_percentage);
       });
     },
     handleDebitChange(){
-      let tds=(this.temp.debit*this.temp.tds_percent)/100
+      let tds=(this.temp.amount*this.temp.tds_percentage)/100
       this.temp.tds_amount=parseFloat(tds);
-      this.temp.debit=parseFloat(this.temp.debit);
-      this.temp.final_debit=(parseFloat(this.temp.debit, 10)-parseFloat(this.temp.tds_amount, 10));
+      this.temp.amount=parseFloat(this.temp.amount);
+      this.temp.final_amount=(parseFloat(this.temp.amount, 10)-parseFloat(this.temp.tds_amount, 10));
     },
-    rejectRequest(){
+    rejectRequest(row){
+      this.$prompt('Enter note', 'Confirm Rejection', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+        }).then(({ value }) => {
 
+          let data={
+            id:row.id,
+            note:value
+          };
+
+          rejectWithdrawalRequest(data).then((res) => {          
+            this.$notify({
+                title: "Success",
+                message: res.message,
+                type: "success",
+                duration: 2000
+            });
+            const index = this.list.indexOf(row);
+            this.list.splice(index, 1);
+          });
+      })
     },
-    deleteRequest(){
-
+    deleteRequest(row){
+      this.$confirm('Are you sure you want to delete withdrawal Request?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        deleteWithdrawalRequest(row.id).then((data) => {
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          const index = this.list.indexOf(row);
+          this.list.splice(index, 1);
+        });
+      })
     },
     handleApprove(row){
       let temp = Object.assign({}, row);
-      let tds=(temp.amount*this.temp.tds_percent)/100
-      console.log(this.temp.tds_percent);
+      let tds=(temp.amount*this.temp.tds_percentage)/100;
+      this.temp.id=temp.id;
       this.temp.tds_amount=parseFloat(tds);
       this.temp.amount=parseFloat(temp.amount);
       this.temp.final_amount=(parseFloat(temp.amount, 10)-parseFloat(this.temp.tds_amount, 10));
@@ -308,22 +538,19 @@ export default {
     },
     approveRequest(){
       this.$refs["formApprove"].validate(valid => {
-        if(parseFloat(this.temp.final_debit) <=0 ){
+        if(parseFloat(this.temp.final_amount) <=0 ){
           this.$message.error('Withdrawal amount cannot be 0.');
           return;
         }
-        if(parseFloat(this.balance) < parseFloat(this.temp.debit)){
-          this.$message.error('Oops, You have not enough balance to withdraw.');
-          return;
-        }
+       
         if (valid) {
-          createWithdrawalRequest(this.temp).then((response) => {
+          approveWithdrawalRequest(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
             this.dialogApproveVisible = false;
             this.$notify({
               title: "Success",
-              message: "Withdrawal Created Successfully",
+              message: response.message,
               type: "success",
               duration: 2000
             })
@@ -331,6 +558,12 @@ export default {
           })
         }
       });
+    },
+    viewKyc(row) {  
+      this.kycsTabs='kyc';
+      let tempKyc = Object.assign({}, row);
+      this.tempKyc = tempKyc.member.kyc;
+      this.dialogKycVisible = true;
     },
     handleFilter() {
       this.listQuery.page = 1;
@@ -354,12 +587,15 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        debit:0,
+        amount:0,
+        tds_percentage:0,
         tds_amount:0,
-        final_debit:0,
+        final_amount:0,
+        payment_made_at:undefined,
+        payment_status:'Paid',
         note:undefined,
       };
-      this.temp.tds_percent=this.settings.tds_percentage;
+      this.temp.tds_percentage=this.settings.tds_percentage;
     },
     clean(obj) {
       for (var propName in obj) { 
@@ -384,7 +620,7 @@ export default {
           "id",
           "debit",
           "tds_amount",
-          "final_debit",
+          "final_amount",
           "is_approved",
           "remark",
           "Created at"

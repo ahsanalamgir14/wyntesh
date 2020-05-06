@@ -344,7 +344,7 @@ export const asyncRoutes = [
       },      
       {
         path: 'transfer-balance',
-        component: () => import('@/views/admin/wallet/transactions'),
+        component: () => import('@/views/admin/wallet/transfer'),
         name: 'Transfer Balance',
         meta: { title: 'Transfer Balance', icon: 'fas fa-people-arrows', color:'color:#e33b6b', affix: true, roles: ['admin'] }
       },
@@ -624,7 +624,7 @@ export const asyncRoutes = [
       },      
       {
         path: 'transfer-balance',
-        component: () => import('@/views/user/wallet/transactions'),
+        component: () => import('@/views/user/wallet/transfer'),
         name: 'Transfer Balance',
         meta: { title: 'Transfer Balance', icon: 'fas fa-people-arrows', color:'color:#e33b6b', affix: true, roles: ['user'] }
       },

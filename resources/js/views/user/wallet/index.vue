@@ -55,12 +55,13 @@
       >Export</el-button>
       <el-button
         v-waves
+        :disabled="!kyc_status"
         :loading="downloadLoading"
         class="filter-item"
         type="success"
         icon="el-icon-upload"
         @click="dialogWithdrawVisible=true"
-      >Withdraw</el-button>
+      >{{ kyc_status?'Withdraw':'Verify your KYC First to Withdraw'}}</el-button>
     </div>
 
     <el-table
@@ -83,6 +84,18 @@
       >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Actions" align="center" width="170px" class-name="small-padding">        
+        <template slot-scope="{row}">         
+          <el-tooltip content="Delete" placement="right" effect="dark" v-if="row.request_status=='Pending'">
+            <el-button
+              circle
+              type="danger"
+              icon="el-icon-delete"
+              @click="deleteRequest(row)"
+              ></el-button>
+          </el-tooltip>
         </template>
       </el-table-column> 
       <el-table-column label="Amout" width="110px" align="right">
@@ -189,7 +202,8 @@ export default {
         sort: "+id",
         date_range:''
       },
-      balance:60000,
+      balance:0,
+      kyc_status:0,
       dateRangeFilter:'',
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
@@ -259,7 +273,8 @@ export default {
       fetchWithdrawalRequests(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
-        this.balance = parseFloat(response.balance);
+        this.balance = response.balance;
+        this.kyc_status = response.kyc_status;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
@@ -303,6 +318,33 @@ export default {
         }
       });
     },
+    deleteRequest(row){
+      this.$confirm('Are you sure you want to delete withdrawal Request?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        deleteWithdrawalRequest(row.id).then((data) => {
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          this.getList();
+        });
+      })
+    },
+    resetTemp() {
+      this.temp = {
+        id: undefined,
+        debit:0,
+        tds_amount:0,
+        final_debit:0,
+        note:undefined,
+      };
+      this.temp.tds_percent=this.settings.tds_percentage;
+    },
     handleFilter() {
       this.listQuery.page = 1;
       this.listQuery.date_range=this.dateRangeFilter;
@@ -321,17 +363,7 @@ export default {
         this.listQuery.sort = "-id";
       }
       this.handleFilter();
-    },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        debit:0,
-        tds_amount:0,
-        final_debit:0,
-        note:undefined,
-      };
-      this.temp.tds_percent=this.settings.tds_percentage;
-    },
+    },    
     clean(obj) {
       for (var propName in obj) { 
         if (obj[propName] === null || obj[propName] === undefined) {

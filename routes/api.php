@@ -86,7 +86,12 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::get('withdrawal-requests', 'WalletController@withdrawalRequests');
     Route::post('withdrawal-requests', 'WalletController@createWithdrawal');
-    Route::delete('withdrawal-requests/{id}/delete', 'PinsController@destroy');
+    Route::delete('withdrawal-requests/{id}/delete', 'WalletController@destroy');
+    Route::post('withdrawal-requests/reject', 'WalletController@rejectWithdrawalRequest');
+
+    Route::get('withdrawals', 'WalletController@getWithdrawals');
+    Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
+    Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
 
 });
 
@@ -193,7 +198,11 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('pins/transfer-log', 'PinsController@getPinTransferLog');
 
     Route::get('withdrawal-requests', 'WalletController@withdrawalRequests');
-    Route::delete('withdrawal-requests/{id}/delete', 'PinsController@destroy');
+    Route::delete('withdrawal-requests/{id}/delete', 'WalletController@destroy');
+    Route::post('withdrawal-requests/reject', 'WalletController@rejectWithdrawalRequest');
+    Route::post('withdrawal-requests/approve', 'WalletController@approveWithdrawal');
+
+    Route::get('withdrawals', 'WalletController@getWithdrawals');
 
 });
 

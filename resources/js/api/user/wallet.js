@@ -24,3 +24,28 @@ export function createWithdrawalRequest(data) {
     data
   })
 }
+
+
+export function fetchWithdrawals(query) {
+  return request({
+    url: '/user/withdrawals',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchWalletTransactions(query) {
+  return request({
+    url: '/user/wallet-transactions',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchWalletTransfers(query) {
+  return request({
+    url: '/user/wallet-transfers',
+    method: 'get',
+    params: query
+  })
+}
