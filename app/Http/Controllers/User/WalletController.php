@@ -162,7 +162,13 @@ class WalletController extends Controller
 
             $WalletTransactions=WalletTransaction::select();           
             $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
-            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
+            
+            $WalletTransactions=$WalletTransactions->where(function ($query)use($User) {
+                $query=$query->orWhere('transfered_from',$User->id);
+                $query=$query->orWhere('transfered_to',$User->id);
+                $query=$query->orWhere('transaction_by',$User->id);                
+            });
+
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
@@ -171,6 +177,12 @@ class WalletController extends Controller
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
             }
+
+            $WalletTransactions=$WalletTransactions->where(function ($query)use($User) {
+                $query=$query->orWhere('transfered_from',$User->id);
+                $query=$query->orWhere('transfered_to',$User->id);
+                $query=$query->orWhere('transaction_by',$User->id);                
+            });
 
             if($transaction_type){
                 $WalletTransactions=$WalletTransactions->where('transaction_type_id',$transaction_type);                
@@ -188,7 +200,6 @@ class WalletController extends Controller
                 });
             }
 
-            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
             $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }
@@ -209,7 +220,9 @@ class WalletController extends Controller
         $sort=$request->sort;
         $search=$request->search;
         $date_range=$request->date_range;
+        $transfered_from=$request->transfered_from;
         $transfered_to=$request->transfered_to;
+        $transaction_by=$request->transaction_by;
 
         if(!$page){
             $page=1;
@@ -225,7 +238,7 @@ class WalletController extends Controller
             $sort = 'desc';
         }
 
-        if(!$date_range &&  !$transfered_to){
+        if(!$date_range &&  !$transfered_to && !$transfered_from){
 
             $WalletTransactions=WalletTransaction::select();           
             $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
@@ -233,8 +246,13 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->whereHas('transaction',function($q){
                 $q->where('name','Balance Transfer');
             });
-            
-            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
+
+            $WalletTransactions=$WalletTransactions->where(function ($query)use($User) {
+                $query=$query->orWhere('transfered_from',$User->id);
+                $query=$query->orWhere('transfered_to',$User->id);
+                $query=$query->orWhere('transaction_by',$User->id);                
+            });
+           
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
@@ -243,6 +261,12 @@ class WalletController extends Controller
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
             }
+
+            $WalletTransactions=$WalletTransactions->where(function ($query)use($User) {
+                $query=$query->orWhere('transfered_from',$User->id);
+                $query=$query->orWhere('transfered_to',$User->id);
+                $query=$query->orWhere('transaction_by',$User->id);                
+            });
 
             if($transfered_to){
                 $WalletTransactions=$WalletTransactions->whereHas('transfered_to_user',function($q)use($transfered_to){
@@ -254,7 +278,12 @@ class WalletController extends Controller
                 $q->where('name','Balance Transfer');
             });
 
-            $WalletTransactions=$WalletTransactions->where('member_id',$User->member->id);
+            if($transfered_from){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_from_user',function($q)use($transfered_from){
+                    $q->where('username','like','%'.$transfered_from.'%');
+                });               
+            }
+
             $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }

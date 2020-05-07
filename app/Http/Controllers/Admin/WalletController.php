@@ -307,7 +307,7 @@ class WalletController extends Controller
             $sort = 'desc';
         }
 
-        if(!$date_range &&  !$transfered_to && !$transfered_from && !$transaction_by){
+        if(!$date_range &&  !$transfered_to && !$transfered_from){
 
             $WalletTransactions=WalletTransaction::select();           
             $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');

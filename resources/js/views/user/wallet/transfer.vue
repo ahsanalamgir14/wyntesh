@@ -19,6 +19,14 @@
     </el-row>
     <div class="filter-container">
        <el-input
+          v-model="listQuery.transfered_from"
+          placeholder="Transfer from"
+          style="width: 200px;"
+          class="filter-item"
+          @keyup.enter.native="handleFilter"
+        />
+
+       <el-input
           v-model="listQuery.transfered_to"
           placeholder="Transfer to"
           style="width: 200px;"
@@ -40,7 +48,7 @@
         end-placeholder="End date"
         :picker-options="pickerOptions">
       </el-date-picker>
-
+      <br>
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -90,6 +98,11 @@
       <el-table-column label="Balance" width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.balance }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Tran. Type" min-width="150px"align="center">
+        <template slot-scope="{row}">
+          <el-tag :type="row.transaction.name | statusFilter">{{ row.transaction?row.transaction.name:''}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Transfer from" min-width="120px"align="right">

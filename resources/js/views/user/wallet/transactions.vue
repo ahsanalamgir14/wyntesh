@@ -148,7 +148,7 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        'Withdrawal': "success",
+        'Withdrawal': "warning",
         'Credit': "success",
         'Balance Transfer': "info",
         'Payout': "warning",
