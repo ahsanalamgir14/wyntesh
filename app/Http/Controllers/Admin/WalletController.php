@@ -313,7 +313,7 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
             
             $WalletTransactions=$WalletTransactions->whereHas('transaction',function($q){
-                $q->where('name','Balance Transfer');
+                $q->whereIn('name',['Balance Transfer','Credit']);
             });
             
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
@@ -345,7 +345,7 @@ class WalletController extends Controller
             }
 
             $WalletTransactions=$WalletTransactions->whereHas('transaction',function($q){
-                $q->where('name','Balance Transfer');
+                $q->whereIn('name',['Balance Transfer','Credit']);
             });
 
             $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
@@ -357,7 +357,7 @@ class WalletController extends Controller
         return response()->json($response, 200);
     }
 
-     public function createBalanceTransfer(Request $request){
+    public function createBalanceTransfer(Request $request){
         $user=JWTAuth::user();
 
         $transfered_from_user=User::where('username',$request->transfer_from)->first();
@@ -400,6 +400,49 @@ class WalletController extends Controller
             $transfered_from_user->member->save();
 
             $response = array('status' => true,'message'=>'Balance transfered successfully.');
+            return response()->json($response, 200);
+
+        }else{
+            $response = array('status' => false,'message'=>'Invalid transaction type, contact admin.');
+            return response()->json($response, 404);
+        }
+
+    }
+
+    public function addBalance(Request $request){
+        $user=JWTAuth::user();
+
+        $Member=User::where('username',$request->member_id)->first();
+
+        $transfered_from_user=$user;
+        $transfered_to_user=$Member;
+  
+        if(!$transfered_to_user){
+            $response = array('status' => false,'message'=>'Member not found.');
+            return response()->json($response, 404);
+        }
+
+        $balance=floatval($transfered_to_user->member->wallet_balance);
+        $amount=$request->amount;
+        $TransactionType=TransactionType::where('name','Credit')->first();
+        
+        if($TransactionType){
+            $WalletTransaction=new WalletTransaction;
+            $WalletTransaction->member_id=$transfered_to_user->member->id;
+            $WalletTransaction->balance=$balance+$amount;
+            $WalletTransaction->amount=$amount;
+            $WalletTransaction->transaction_type_id=$TransactionType->id;
+            $WalletTransaction->transfered_from=$transfered_from_user->id;
+            $WalletTransaction->transfered_to=$transfered_to_user->id;
+            $WalletTransaction->transaction_by=$user->id;
+            $WalletTransaction->note=$request->note;
+            $WalletTransaction->save();
+
+            $final_balance=$balance+$amount;
+            $transfered_to_user->member->wallet_balance=$final_balance;
+            $transfered_to_user->member->save();
+
+            $response = array('status' => true,'message'=>'Balance added successfully.');
             return response()->json($response, 200);
 
         }else{

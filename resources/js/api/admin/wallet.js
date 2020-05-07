@@ -64,3 +64,11 @@ export function createTransfer(data) {
     data
   })
 }
+
+export function addBalance(data) {
+  return request({
+    url: '/admin/wallet/balance/add',
+    method: 'post',
+    data
+  })
+}

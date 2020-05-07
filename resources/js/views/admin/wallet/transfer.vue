@@ -32,7 +32,7 @@
         end-placeholder="End date"
         :picker-options="pickerOptions">
       </el-date-picker>
-
+      <br>
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -47,8 +47,16 @@
         class="filter-item"
         type="success"
         icon="el-icon-upload"
-        @click="shotTransferPopup()"
+        @click="showTransferPopup()"
       >Transfer Balance</el-button>
+      <el-button
+        v-waves       
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-plus"
+        @click="dialogAddBalanceVisible=true"
+      >Add Balance</el-button>
     </div>
 
     <el-table
@@ -81,6 +89,11 @@
       <el-table-column label="Balance" width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.balance }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Tran. Type" min-width="150px"align="center">
+        <template slot-scope="{row}">
+          <el-tag :type="row.transaction.name | statusFilter">{{ row.transaction?row.transaction.name:''}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Transfer from" min-width="120px"align="right">
@@ -118,34 +131,40 @@
       @pagination="getList"
     />
 
-    <el-dialog title="Transfer Balance" width="40%"  top="30px" :visible.sync="dialogTransferVisible">
+    <el-dialog title="Transfer Balance" width="60%"  top="30px" :visible.sync="dialogTransferVisible">
       <el-form ref="formBalanceTransfer" :rules="rules" :model="temp">
-        <el-form-item label="Transfer from (Memmber ID)" label-width="120" prop="transfer_from">
-          <el-input  v-on:blur="handleFromCheckMemberId()" v-model="temp.transfer_from" ></el-input>
-        </el-form-item>
-        <el-form-item label="From Member Name" label-width="120" prop="transfer_from_name">
-          <el-input  disabled v-model="temp.transfer_from_name" ></el-input>
-        </el-form-item>
-        <el-form-item label="Balance" prop="balance" label-width="120">
-          <el-input  type="number" min=0  disabled v-model="temp.balance" ></el-input>
-        </el-form-item>
-        <el-form-item label="Transfer to (Memmber ID)" label-width="120" prop="transfer_to">
-          <el-input  v-on:blur="handleToCheckMemberId()" v-model="temp.transfer_to" ></el-input>
-        </el-form-item>
-        <el-form-item label="Member Name" label-width="120" prop="transfer_to_name">
-          <el-input  disabled v-model="temp.transfer_to_name" ></el-input>
-        </el-form-item>
-        <el-form-item label="Amount to transfer" prop="amount" label-width="120">
-          <el-input  type="number" min=1  v-model="temp.amount" ></el-input>
-        </el-form-item>        
-        <el-form-item label="Note" prop="note">
-          <el-input
-            type="textarea"
-            v-model="temp.note"
-            :rows="2"
-            placeholder="Please Enter note">
-          </el-input>
-        </el-form-item>
+        <el-row :gutter="20">
+            <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+              <el-form-item label="Transfer from (Memmber ID)" label-width="120" prop="transfer_from">
+                <el-input  v-on:blur="handleFromCheckMemberId()" v-model="temp.transfer_from" ></el-input>
+              </el-form-item>
+              <el-form-item label="From Member Name" label-width="120" prop="transfer_from_name">
+                <el-input  disabled v-model="temp.transfer_from_name" ></el-input>
+              </el-form-item>
+              <el-form-item label="Balance" prop="balance" label-width="120">
+                <el-input  type="number" min=0  disabled v-model="temp.balance" ></el-input>
+              </el-form-item>              
+            </el-col>
+            <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+              <el-form-item label="Transfer to (Memmber ID)" label-width="120" prop="transfer_to">
+                <el-input  v-on:blur="handleToCheckMemberId()" v-model="temp.transfer_to" ></el-input>
+              </el-form-item>
+              <el-form-item label="Member Name" label-width="120" prop="transfer_to_name">
+                <el-input  disabled v-model="temp.transfer_to_name" ></el-input>
+              </el-form-item>
+              <el-form-item label="Amount to transfer" prop="amount" label-width="120">
+                <el-input  type="number" min=1  v-model="temp.amount" ></el-input>
+              </el-form-item>        
+              <el-form-item label="Note" prop="note">
+                <el-input
+                  type="textarea"
+                  v-model="temp.note"
+                  :rows="2"
+                  placeholder="Please Enter note">
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogTransferVisible = false">Cancel</el-button>
@@ -153,11 +172,47 @@
       </span>
     </el-dialog>
 
+    <el-dialog title="Add Balance" width="60%"  top="30px" :visible.sync="dialogAddBalanceVisible">
+      <el-form ref="formAddBalance" :rules="rulesAddBalance" :model="tempAddBalance">
+        <el-row :gutter="20">
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+            <el-form-item label="Memmber ID" label-width="120" prop="member_id">
+              <el-input  v-on:blur="handleAddMemberGetBalance()" v-model="tempAddBalance.member_id" ></el-input>
+            </el-form-item>
+            <el-form-item label="Member Name" label-width="120" prop="member_name">
+              <el-input  disabled v-model="tempAddBalance.member_name" ></el-input>
+            </el-form-item>
+            
+          </el-col>
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+            <el-form-item label="Balance" prop="balance" label-width="120">
+              <el-input  type="number" min=0  disabled v-model="tempAddBalance.balance" ></el-input>
+            </el-form-item>
+            <el-form-item label="Amount to add" prop="amount" label-width="120">
+              <el-input  type="number" min=1  v-model="tempAddBalance.amount" ></el-input>
+            </el-form-item>        
+            <el-form-item label="Note" prop="note">
+              <el-input
+                type="textarea"
+                v-model="tempAddBalance.note"
+                :rows="2"
+                placeholder="Please Enter note">
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddBalanceVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="handleAddBalance()">Confirm</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
-import { fetchWalletTransfers, createTransfer } from "@/api/admin/wallet";
+import { fetchWalletTransfers, createTransfer, addBalance } from "@/api/admin/wallet";
 import { getMemberBalance } from "@/api/admin/members";
 import CountTo from 'vue-count-to'
 import waves from "@/directive/waves"; // waves directive
@@ -171,9 +226,11 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        Approved: "success",
-        Pending: "info",
-        Rejected: "danger"
+        'Withdrawal': "success",
+        'Credit': "success",
+        'Balance Transfer': "info",
+        'Payout': "warning",
+        'Debit': "danger"
       };
 
       return statusMap[status];
@@ -207,6 +264,14 @@ export default {
         transfer_to_name:undefined,
         note:undefined,
       },
+      tempAddBalance:{
+        amount:undefined,
+        balance:undefined,
+        member_id:undefined,        
+        member_name:undefined,
+        note:undefined,
+      },
+      dialogAddBalanceVisible:false,
       dialogTransferVisible:false,
       dialogStatus: "",
       textMap: {
@@ -223,6 +288,14 @@ export default {
         transfer_from: [
           {  required: true, message: "Transfer from is required.", trigger: "blur" }
         ],
+      },
+      rulesAddBalance: {       
+        amount: [
+          { required: true, message: "Enter amount", trigger: "blur" }
+        ],
+        member_id: [
+          {  required: true, message: "Member Id is required.", trigger: "blur" }
+        ]
       },
       downloadLoading: false,
       buttonLoading: false,
@@ -282,6 +355,17 @@ export default {
         });
       }            
     },
+    handleAddMemberGetBalance(){
+       if(this.tempAddBalance.member_id){
+        getMemberBalance(this.tempAddBalance.member_id).then((response) => {
+          this.tempAddBalance.member_name=response.data.name;
+          this.tempAddBalance.balance=response.data.member.wallet_balance;    
+        }).catch((error)=>{
+          this.tempAddBalance.member_id='';
+          this.tempAddBalance.member_name='';
+        });
+      }    
+    },
     handleToCheckMemberId(){
       if(this.temp.transfer_to){
         getMemberBalance(this.temp.transfer_to).then((response) => {
@@ -292,14 +376,35 @@ export default {
         });
       }            
     },
-    shotTransferPopup() {
+    showTransferPopup() {
       this.dialogTransferVisible = true;
       this.$nextTick(() => {
         this.$refs["formBalanceTransfer"].clearValidate();
       });      
     },
-    handleTransfer(){
+    handleAddBalance(){
+      this.$refs["formAddBalance"].validate(valid => {
+        if(parseFloat(this.temp.amount) <=0 ){
+          this.$message.error('Amount cannot be 0.');
+          return;
+        }
 
+        if (valid) {
+          addBalance(this.tempAddBalance).then((response) => {
+            this.getList();
+            this.resetTempAddBalance();
+            this.dialogAddBalanceVisible = false;
+            this.$notify({
+              title: "Success",
+              message: response.message,
+              type: "success",
+              duration: 2000
+            })
+          })
+        }
+      });
+    },
+    handleTransfer(){
       this.$refs["formBalanceTransfer"].validate(valid => {
         if(parseFloat(this.temp.amount) <=0 ){
           this.$message.error('Withdrawal amount cannot be 0.');
@@ -323,6 +428,15 @@ export default {
           })
         }
       });
+    },
+    resetTempAddBalance(){
+      this.tempAddBalance={
+        amount:undefined,
+        balance:undefined,
+        member_id:undefined,        
+        member_name:undefined,
+        note:undefined,
+      }
     },
     resetTemp() {
       this.temp = {

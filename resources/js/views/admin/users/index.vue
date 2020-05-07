@@ -98,7 +98,7 @@
 
       <el-table-column label="Balance" width="110px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.member?row.member.wallet_balace:'0.00' }}</span>
+          <span>{{ row.member?row.member.wallet_balance:'0.00' }}</span>
         </template>
       </el-table-column>
 

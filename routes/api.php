@@ -204,6 +204,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
+    Route::post('wallet/balance/add', 'WalletController@addBalance');
 
 });
 
