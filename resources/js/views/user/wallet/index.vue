@@ -175,7 +175,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Wallet",
+  name: "WithdrawalRequests",
   components: { Pagination,CountTo },
   directives: { waves },
   filters: {
@@ -273,7 +273,7 @@ export default {
       fetchWithdrawalRequests(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
-        this.balance = response.balance;
+        this.balance = parseFloat(response.balance);
         this.kyc_status = response.kyc_status;
         setTimeout(() => {
           this.listLoading = false;
@@ -377,26 +377,20 @@ export default {
         const tHeader = [
           "ID",
           "Amount",
-          "TDS",
-          "Final amount",
-          "Approved",          
-          "Remark",
+          "Status",
           "Created at",
         ];
         const filterVal = [
           "id",
-          "debit",
-          "tds_amount",
-          "final_debit",
-          "is_approved",
-          "remark",
-          "Created at"
+          "amount",
+          "request_status",
+          "created_at"
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "withdrawals"
+          filename: "WithdrawalRequests"
         });
         this.downloadLoading = false;
       });
@@ -406,7 +400,9 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
-          } else {
+          } else if(j=='member'){
+            return v.member.user.username
+          }else {
             return v[j];
           }
         })

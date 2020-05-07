@@ -213,7 +213,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination";
 
 export default {
-  name: "pin-requests",
+  name: "pending-pin-requests",
   components: { Pagination },
   directives: { waves },
   filters: {
@@ -235,7 +235,7 @@ export default {
       listLoading: false,
       listQuery: {
         page: 1,
-        limit: 5,
+        limit: 10,
         search:undefined,
         sort: "+id"
       },

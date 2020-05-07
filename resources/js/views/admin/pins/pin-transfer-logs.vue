@@ -109,7 +109,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination";
 
 export default {
-  name: "pin-requests",
+  name: "pin-transfer-logs",
   components: { Pagination },
   directives: { waves },
   filters: {

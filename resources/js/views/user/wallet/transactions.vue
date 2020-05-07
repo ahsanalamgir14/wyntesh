@@ -17,6 +17,7 @@
           @keyup.enter.native="handleFilter"
         />
 
+
         <el-select v-model="listQuery.transaction_type" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Transaction Type">
           <el-option
             v-for="item in transactionTypes"
@@ -90,22 +91,22 @@
           <span>{{ row.balance }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Tran. Type" min-width="110px"align="right">
+      <el-table-column label="Tran. Type" min-width="140px"align="center">
         <template slot-scope="{row}">
-          <span >{{ row.transaction?row.transaction.name:'' }}</span>
+          <el-tag :type="row.transaction.name | statusFilter">{{ row.transaction?row.transaction.name:''}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Transfer from" min-width="120px"align="right">
+      <el-table-column label="Transfer from" min-width="120px"align="center">
         <template slot-scope="{row}">
           <span >{{ row.transfered_from_user?row.transfered_from_user.username:'' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Transfer to" min-width="120px"align="right">
+      <el-table-column label="Transfer to" min-width="120px"align="center">
         <template slot-scope="{row}">
           <span >{{ row.transfered_to_user?row.transfered_to_user.username:'' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Transfer by" min-width="120px"align="right">
+      <el-table-column label="Transaction by" min-width="120px"align="center">
         <template slot-scope="{row}">
           <span >{{ row.transaction_by_user?row.transaction_by_user.username:'' }}</span>
         </template>
@@ -141,15 +142,17 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Commissions",
+  name: "walletTransactions",
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        1: "success",
-        null: "info",
-        0: "danger"
+        'Withdrawal': "success",
+        'Credit': "success",
+        'Balance Transfer': "info",
+        'Payout': "warning",
+        'Debit': "danger"
       };
 
       return statusMap[status];
@@ -250,26 +253,28 @@ export default {
         const tHeader = [
           "ID",
           "Amount",
-          "TDS",
-          "Final amount",
-          "Approved",          
-          "Remark",
+          "Balance",
+          "Transaction Type",
+          "Transfer from",
+          "Transfer to",          
+          "Transaction by",
           "Created at",
         ];
         const filterVal = [
           "id",
-          "debit",
-          "tds_amount",
-          "final_debit",
-          "is_approved",
-          "remark",
-          "Created at"
+          "amount",
+          "balance",
+          "transaction_type_id",
+          "transfered_from",
+          "transfered_to",
+          "transaction_by",
+          "created_at"
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "withdrawals"
+          filename: "WalletTransactions"
         });
         this.downloadLoading = false;
       });
@@ -279,7 +284,15 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
-          } else {
+          } else if(j === "transaction_type_id") {
+            return v.transaction?v.transaction.name:''
+          }else if(j === "transfered_from") {
+            return v.transfered_from_user?v.transfered_from_user.username:''
+          }else if(j === "transfered_to") {
+            return v.transfered_to_user?v.transfered_to_user.username:''
+          }else if(j === "transaction_by") {
+            return v.transaction_by_user?v.transaction_by_user.username:''
+          }else {
             return v[j];
           }
         })

@@ -49,3 +49,11 @@ export function fetchWalletTransfers(query) {
     params: query
   })
 }
+
+export function createTransfer(data) {
+  return request({
+    url: '/user/wallet/balance/transfer',
+    method: 'post',
+    data
+  })
+}

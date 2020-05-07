@@ -340,7 +340,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Wallet",
+  name: "withdrawal-requests",
   components: { Pagination,CountTo },
   directives: { waves },
   filters: {
@@ -363,7 +363,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 5,
+        limit: 10,
         status:'Pending',
         sort: "+id",
         date_range:''
@@ -609,27 +609,23 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "ID",
+          "Member",
           "Amount",
-          "TDS",
-          "Final amount",
-          "Approved",          
-          "Remark",
+          "Status",
           "Created at",
         ];
         const filterVal = [
           "id",
-          "debit",
-          "tds_amount",
-          "final_amount",
-          "is_approved",
-          "remark",
-          "Created at"
+          "member",
+          "amount",
+          "request_status",
+          "created_at"
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "withdrawals"
+          filename: "withdrawal-requests"
         });
         this.downloadLoading = false;
       });
@@ -639,7 +635,9 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
-          } else {
+          } else if(j=='member'){
+            return v.member.user.username
+          }else {
             return v[j];
           }
         })
@@ -677,97 +675,5 @@ export default {
   top: 10px;
 }
 
-.panel-group {
-  margin-top: 18px;
-
-  .card-panel-col {
-    margin-bottom: 32px;
-  }
-
-  .card-panel {
-    height: 108px;
-    cursor: pointer;
-    font-size: 12px;
-    position: relative;
-    overflow: hidden;
-    color: #666;
-    background: #fff;
-    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
-
-    .card-panel-icon-wrapper {
-      float: left;
-      margin: 10px 0 0 10px;
-      padding: 5px;
-      transition: all 0.38s ease-out;
-      border-radius: 6px;
-    }
-
-    .card-panel-icon {
-      float: left;
-      font-size: 35px;
-      border-style: solid;
-      border-width: thin;
-      padding:5px;
-      height: 35px;
-      width: 45px;
-    }
-    @media (min-width:550px) {
-      .card-panel-description {
-        float: right;
-        font-weight: bold;
-        margin-top: 15px;
-        margin-right: 10px;
-        width: 90%;
-
-        .card-panel-text {
-          line-height: 25px;
-          color: rgba(0, 0, 0, 0.45);
-          font-size: 14px;
-          display: block;
-          margin-top: 5px;
-        }
-
-        .card-panel-num {
-          font-size: 25px;
-          float:right;
-          display: block;
-        }
-      }
-    }
-  }
-}
-
-@media (max-width:550px) {
-  .card-panel{
-    .card-panel-description {
-        font-weight: bold;
-          margin: 5px auto !important;
-          float: none !important;
-          text-align: center;
-        .card-panel-text {
-          line-height: 20px;
-          color: rgba(0, 0, 0, 0.45);
-          font-size: 10px;
-        }
-
-        .card-panel-num {
-          display: block;
-          font-size: 20px;
-        
-        }
-      }
-  }
-
-  .card-panel-icon-wrapper {
-    float: none !important;
-    margin: 0 !important;
-
-    svg {
-      display: block;
-      margin: 5px auto !important;
-      float: none !important;
-    }
-  }
-}
 
 </style>

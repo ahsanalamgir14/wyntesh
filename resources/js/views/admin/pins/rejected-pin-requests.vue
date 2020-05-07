@@ -169,7 +169,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination";
 
 export default {
-  name: "pin-requests",
+  name: "rejected-pin-requests",
   components: { Pagination },
   directives: { waves },
   filters: {
@@ -191,7 +191,7 @@ export default {
       listLoading: false,
       listQuery: {
         page: 1,
-        limit: 5,
+        limit: 10,
         search:undefined,
         package_id: undefined,
         payment_mode: undefined,

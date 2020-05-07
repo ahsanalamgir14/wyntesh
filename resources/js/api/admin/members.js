@@ -22,6 +22,13 @@ export function checkMemberCode(code) {
   })
 }
 
+export function getMemberBalance(code) {
+  return request({
+    url: '/admin/member/balance/'+code,
+    method: 'get'
+  })
+}
+
 export function getAdminGeneology() {
   return request({
     url: '/admin/geneology',

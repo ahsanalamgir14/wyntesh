@@ -68,11 +68,6 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('geneology', '\App\Http\Controllers\User\MembersController@myGeneology');
     Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@myMemberGeneology');
 
-    Route::get('packages/all', 'ConfigController@allPackages');
-    Route::get('transaction-types/all', 'ConfigController@allTransactionTypes');
-    Route::get('payment-modes/all', 'ConfigController@allPaymentModes');
-    Route::get('bank-partners/all', 'ConfigController@allBankPartners');
-
     Route::get('pending-pin-requests', 'PinsController@myPendingPinRequests');
     Route::get('approved-pin-requests', 'PinsController@myApprovedPinRequests');
     Route::get('rejected-pin-requests', 'PinsController@myRejectedPinRequests');
@@ -92,6 +87,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('withdrawals', 'WalletController@getWithdrawals');
     Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
+    Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
 
 });
 
@@ -202,7 +198,12 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('withdrawal-requests/reject', 'WalletController@rejectWithdrawalRequest');
     Route::post('withdrawal-requests/approve', 'WalletController@approveWithdrawal');
 
+    Route::get('member/balance/{code}', '\App\Http\Controllers\User\MembersController@checkMemberBalance');
+
     Route::get('withdrawals', 'WalletController@getWithdrawals');
+    Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
+    Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
+    Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
 
 });
 

@@ -32,3 +32,35 @@ export function approveWithdrawalRequest(data) {
     data
   })
 }
+
+export function fetchWithdrawals(query) {
+  return request({
+    url: '/admin/withdrawals',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchWalletTransactions(query) {
+  return request({
+    url: '/admin/wallet-transactions',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchWalletTransfers(query) {
+  return request({
+    url: '/admin/wallet-transfers',
+    method: 'get',
+    params: query
+  })
+}
+
+export function createTransfer(data) {
+  return request({
+    url: '/admin/wallet/balance/transfer',
+    method: 'post',
+    data
+  })
+}

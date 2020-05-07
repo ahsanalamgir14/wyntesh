@@ -128,7 +128,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Commissions",
+  name: "withdrawals",
   components: { Pagination },
   directives: { waves },
   filters: {
@@ -229,21 +229,25 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "ID",
+          "Payment made at",
           "Amount",
-          "TDS",
-          "Final amount",
-          "Approved",          
-          "Remark",
-          "Created at",
+          "Status",          
+          "TDS %",
+          "TDS amount",
+          "Net Amount",
+          "Request id",
+          "Transaction by",
         ];
         const filterVal = [
           "id",
-          "debit",
+          "payment_made_at",
+          "amount",
+          "payment_status",
+          "tds_percentage",
           "tds_amount",
-          "final_debit",
-          "is_approved",
-          "remark",
-          "Created at"
+          "net_amount",
+          "withdrawal_request_id",
+          "transaction_by",
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
@@ -259,7 +263,11 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
-          } else {
+          } else if(j=="member_id"){
+            return v.member.user.username
+          }else if(j=="transaction_by"){
+            return v.transaction_by.username
+          }else {
             return v[j];
           }
         })

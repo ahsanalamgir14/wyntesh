@@ -9,7 +9,7 @@
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="balance" :duration="3000" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="balance" :duration="100" class="card-panel-num" />
             <div class="card-panel-text">
               Wallet Balance
             </div>
@@ -18,14 +18,16 @@
       </el-col>
     </el-row>
     <div class="filter-container">
-      <el-select v-model="listQuery.status" style="width: 140px" clearable placeholder="Status" class="filter-item" @change="handleFilter">
-        <el-option label="Pending" value="Pending" />
-        <el-option label="Approved" value="Approved" />
-        <el-option label="Rejected" value="Rejected" />
-      </el-select>
+       <el-input
+          v-model="listQuery.transfered_to"
+          placeholder="Transfer to"
+          style="width: 200px;"
+          class="filter-item"
+          @keyup.enter.native="handleFilter"
+        />
 
       <el-date-picker
-        v-model="dateRangeFilter"
+        v-model="listQuery.date_range"
         class="filter-item"
         type="daterange"
         align="right"
@@ -38,13 +40,7 @@
         end-placeholder="End date"
         :picker-options="pickerOptions">
       </el-date-picker>
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >Search</el-button>
+
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -60,8 +56,8 @@
         class="filter-item"
         type="success"
         icon="el-icon-upload"
-        @click="dialogWithdrawVisible=true"
-      >{{ kyc_status?'Withdraw':'Verify your KYC First to Withdraw'}}</el-button>
+        @click="shotTransferPopup()"
+      >{{ kyc_status?'Transfer Balance':'Verify your KYC First to ransfer Balance'}}</el-button>
     </div>
 
     <el-table
@@ -86,41 +82,39 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="170px" class-name="small-padding">        
-        <template slot-scope="{row}">         
-          <el-tooltip content="Delete" placement="right" effect="dark" v-if="row.request_status=='Pending'">
-            <el-button
-              circle
-              type="danger"
-              icon="el-icon-delete"
-              @click="deleteRequest(row)"
-              ></el-button>
-          </el-tooltip>
-        </template>
-      </el-table-column> 
-      <el-table-column label="Amout" width="110px" align="right">
+      <el-table-column label="Amount" width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Expected TDS" width="160px" align="right">
+      <el-table-column label="Balance" width="110px" align="right">
         <template slot-scope="{row}">
-          <span>{{ (parseFloat(row.amount)*parseFloat(temp.tds_percent))/100 }}</span>
+          <span>{{ row.balance }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Approved?" class-name="status-col" width="120">
+      <el-table-column label="Transfer from" min-width="120px"align="right">
         <template slot-scope="{row}">
-          <el-tag :type="row.request_status | statusFilter">{{ row.request_status }}</el-tag>
+          <span >{{ row.transfered_from_user?row.transfered_from_user.username:'' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Transfer to" min-width="120px"align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.transfered_to_user?row.transfered_to_user.username:'' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Transfer by" min-width="120px"align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.transaction_by_user?row.transaction_by_user.username:'' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Remark" min-width="150px"align="left">
+        <template slot-scope="{row}">
+          <span >{{ row.note }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Created At" width="120px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Note" min-width="150px"align="left">
-        <template slot-scope="{row}">
-          <span >{{ row.note }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -133,17 +127,17 @@
       @pagination="getList"
     />
 
-    <el-dialog title="Withdraw" width="40%"  :visible.sync="dialogWithdrawVisible">
-      <el-form ref="formWithdraw" :rules="rules" :model="temp">
-        <el-form-item label="Amount to withdraw" prop="debit" label-width="120">
-          <el-input  type="number" min=1 @change="handleDebitChange" v-model="temp.debit" ></el-input>
+    <el-dialog title="Transfer Balance" width="40%"  top="30px" :visible.sync="dialogTransferVisible">
+      <el-form ref="formBalanceTransfer" :rules="rules" :model="temp">
+        <el-form-item label="Transfer to (Memmber ID)" label-width="120" prop="transfer_to">
+          <el-input  v-on:blur="handleCheckMemberId()" v-model="temp.transfer_to" ></el-input>
         </el-form-item>
-        <el-form-item label="Expected TDS" label-width="120" prop="tds_amount">
-          <el-input  type="number" disabled min=0 v-model="temp.tds_amount" ></el-input>
+        <el-form-item label="Member Name" label-width="120" prop="transfer_to_name">
+          <el-input  disabled v-model="temp.transfer_to_name" ></el-input>
         </el-form-item>
-        <el-form-item label="Final Amount you will receive" label-width="120" prop="final_debit">
-          <el-input  type="number" disabled min=1 v-model="temp.final_debit" ></el-input>
-        </el-form-item>
+        <el-form-item label="Amount to transfer" prop="amount" label-width="120">
+          <el-input  type="number" min=1  v-model="temp.amount" ></el-input>
+        </el-form-item>        
         <el-form-item label="Note" prop="note">
           <el-input
             type="textarea"
@@ -154,8 +148,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogWithdrawVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleWithdraw()">Confirm</el-button>
+        <el-button @click="dialogTransferVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="handleTransfer()">Confirm</el-button>
       </span>
     </el-dialog>
 
@@ -163,19 +157,15 @@
 </template>
 
 <script>
-import {
-  fetchWithdrawalRequests,
-  deleteWithdrawalRequest,
-  createWithdrawalRequest
-} from "@/api/user/wallet";
-import { getSettings } from "@/api/user/settings";
+import { fetchWalletTransfers, createTransfer } from "@/api/user/wallet";
+import { checkMemberCode } from "@/api/user/members";
 import CountTo from 'vue-count-to'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Wallet",
+  name: "WalletTransfer",
   components: { Pagination,CountTo },
   directives: { waves },
   filters: {
@@ -204,34 +194,30 @@ export default {
       },
       balance:0,
       kyc_status:0,
-      dateRangeFilter:'',
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
-      temp: {
-        id: undefined,
-        debit:0,
-        tds_amount:0,
-        tds_percent:0,
-        final_debit:0,
+      temp: {       
+        amount:undefined,
+        transfer_to:undefined,
         note:undefined,
+        transfer_to_name:undefined,
       },
-      dialogWithdrawVisible:false,
+      dialogTransferVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
-      rules: {
-        debit: [
-          { type:"number", required: true, message: "Enter amount", trigger: "blur" }
+      rules: {       
+        amount: [
+          { required: true, message: "Enter amount", trigger: "blur" }
         ],
-        final_debit: [
-          { type:"number", required: true, message: "Final Amount cannot be zero", trigger: "blur" }
+        transfer_to: [
+          {  required: true, message: "Transfer to is required.", trigger: "blur" }
         ],
       },
-      settings:undefined,
       downloadLoading: false,
       buttonLoading: false,
       pickerOptions: {
@@ -265,12 +251,11 @@ export default {
   },
   created() {
     this.getList();
-    this.getSettings();
   },
   methods: {
     getList() {
       this.listLoading = false;     
-      fetchWithdrawalRequests(this.listQuery).then(response => {
+      fetchWalletTransfers(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         this.balance = parseFloat(response.balance);
@@ -280,74 +265,58 @@ export default {
         }, 1 * 100);
       });
     },
-    getSettings() {      
-      getSettings().then(response => {
-        this.settings = response.data
-        this.temp.tds_percent=parseFloat(response.data.tds_percentage);
-      });
+    handleCheckMemberId(){
+      if(this.temp.transfer_to){
+        checkMemberCode(this.temp.transfer_to).then((response) => {
+          this.temp.transfer_to_name=response.data.name;    
+        }).catch((error)=>{
+          this.temp.transfer_to_name='';
+          this.temp.transfer_to='';
+        });
+      }            
     },
-    handleDebitChange(){
-      let tds=(this.temp.debit*this.temp.tds_percent)/100
-      this.temp.tds_amount=parseFloat(tds);
-      this.temp.debit=parseFloat(this.temp.debit);
-      this.temp.final_debit=(parseFloat(this.temp.debit, 10)-parseFloat(this.temp.tds_amount, 10));
+    shotTransferPopup() {
+      this.dialogTransferVisible = true;
+      this.$nextTick(() => {
+        this.$refs["formBalanceTransfer"].clearValidate();
+      });      
     },
-    handleWithdraw(){
-      this.$refs["formWithdraw"].validate(valid => {
-        if(parseFloat(this.temp.final_debit) <=0 ){
+    handleTransfer(){
+
+      this.$refs["formBalanceTransfer"].validate(valid => {
+        if(parseFloat(this.temp.amount) <=0 ){
           this.$message.error('Withdrawal amount cannot be 0.');
           return;
         }
-        if(parseFloat(this.balance) < parseFloat(this.temp.debit)){
-          this.$message.error('Oops, You have not enough balance to withdraw.');
+        if(parseFloat(this.balance) < parseFloat(this.temp.amount)){
+          this.$message.error('Oops, You have not enough balance to transfer.');
           return;
         }
         if (valid) {
-          createWithdrawalRequest(this.temp).then((response) => {
+          createTransfer(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
-            this.dialogWithdrawVisible = false;
+            this.dialogTransferVisible = false;
             this.$notify({
               title: "Success",
-              message: "Withdrawal Created Successfully",
+              message: response.message,
               type: "success",
               duration: 2000
             })
-
           })
         }
       });
     },
-    deleteRequest(row){
-      this.$confirm('Are you sure you want to delete withdrawal Request?', 'Warning', {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }).then(() => {
-        deleteWithdrawalRequest(row.id).then((data) => {
-          this.$notify({
-              title: "Success",
-              message: data.message,
-              type: "success",
-              duration: 2000
-          });
-          this.getList();
-        });
-      })
-    },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        debit:0,
-        tds_amount:0,
-        final_debit:0,
+        amount:undefined,
+        transfer_to:undefined,
         note:undefined,
+        transfer_to_name:undefined,
       };
-      this.temp.tds_percent=this.settings.tds_percentage;
     },
     handleFilter() {
       this.listQuery.page = 1;
-      this.listQuery.date_range=this.dateRangeFilter;
       this.getList();
     },
     sortChange(data) {
@@ -377,26 +346,26 @@ export default {
         const tHeader = [
           "ID",
           "Amount",
-          "TDS",
-          "Final amount",
-          "Approved",          
-          "Remark",
+          "Balance",
+          "Transfer from",
+          "Transfer to",          
+          "Transaction by",
           "Created at",
         ];
         const filterVal = [
           "id",
-          "debit",
-          "tds_amount",
-          "final_debit",
-          "is_approved",
-          "remark",
-          "Created at"
+          "amount",
+          "balance",
+          "transfered_from",
+          "transfered_to",
+          "transaction_by",
+          "created_at"
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "withdrawals"
+          filename: "WalletTransfer"
         });
         this.downloadLoading = false;
       });
@@ -406,7 +375,13 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
-          } else {
+          } else if(j === "transfered_from") {
+            return v.transfered_from_user.username
+          }else if(j === "transfered_to") {
+            return v.transfered_to_user.username
+          }else if(j === "transaction_by") {
+            return v.transaction_by_user.username
+          }else {
             return v[j];
           }
         })
