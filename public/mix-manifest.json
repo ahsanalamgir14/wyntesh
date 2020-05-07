@@ -1,24 +1,6 @@
 {
-    "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css",
-    "/js/manifest.js": "/js/manifest.js",
-    "/js/vendor.js": "/js/vendor.js",
-    "/js/app.005e62010fb4d1c3efa3.hot-update.js": "/js/app.005e62010fb4d1c3efa3.hot-update.js",
-    "/js/app.5034d404342b47757a47.hot-update.js": "/js/app.5034d404342b47757a47.hot-update.js",
-    "/js/app.5b51c7ba8b6772f052af.hot-update.js": "/js/app.5b51c7ba8b6772f052af.hot-update.js",
-    "/js/app.cf7b347cfc16a3a173ac.hot-update.js": "/js/app.cf7b347cfc16a3a173ac.hot-update.js",
-    "/js/app.08d8e41f116b77941eef.hot-update.js": "/js/app.08d8e41f116b77941eef.hot-update.js",
-    "/js/app.4a7b5d772298e951045b.hot-update.js": "/js/app.4a7b5d772298e951045b.hot-update.js",
-    "/js/app.34dbbaf4cefafa774b8b.hot-update.js": "/js/app.34dbbaf4cefafa774b8b.hot-update.js",
-    "/js/app.ad035c6525be9a3b3d49.hot-update.js": "/js/app.ad035c6525be9a3b3d49.hot-update.js",
-    "/js/app.f9b80689e5d34572d573.hot-update.js": "/js/app.f9b80689e5d34572d573.hot-update.js",
-    "/js/app.4c9f3e9d92abad6567dc.hot-update.js": "/js/app.4c9f3e9d92abad6567dc.hot-update.js",
-    "/js/app.a0cc1d685aeadc113e77.hot-update.js": "/js/app.a0cc1d685aeadc113e77.hot-update.js",
-    "/js/app.5ae27a74aab16515b774.hot-update.js": "/js/app.5ae27a74aab16515b774.hot-update.js",
-    "/js/app.90f049dbc9ed74e2fdf2.hot-update.js": "/js/app.90f049dbc9ed74e2fdf2.hot-update.js",
-    "/js/app.2c6f4cab3f200e4820fa.hot-update.js": "/js/app.2c6f4cab3f200e4820fa.hot-update.js",
-    "/js/app.aa35888a1658492bed45.hot-update.js": "/js/app.aa35888a1658492bed45.hot-update.js",
-    "/js/app.1f90c45cf532abc516b0.hot-update.js": "/js/app.1f90c45cf532abc516b0.hot-update.js",
-    "/js/app.202c865099aec5998f42.hot-update.js": "/js/app.202c865099aec5998f42.hot-update.js",
-    "/js/app.3186efe57079081f61d5.hot-update.js": "/js/app.3186efe57079081f61d5.hot-update.js"
+    "/js/app.js": "/js/app.js?id=0494faa577baed5f21d7",
+    "/css/app.css": "/css/app.css?id=b2450fbac2620b671c1c",
+    "/js/manifest.js": "/js/manifest.js?id=3c768977c2574a34506e",
+    "/js/vendor.js": "/js/vendor.js?id=e3aee73c648e343cf7ca"
 }
