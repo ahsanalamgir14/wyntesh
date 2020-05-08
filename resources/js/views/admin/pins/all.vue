@@ -9,6 +9,19 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
+      <el-select v-model="listQuery.package_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Package">
+        <el-option
+          v-for="item in packages"
+          :key="item.name"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
+      <el-select v-model="listQuery.is_owned" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Owner Filter">
+        <el-option label="Owned" value="Owned"></el-option>
+        <el-option label="Not Owned" value="Not Owned"></el-option>
+      </el-select>
+
       <el-button
         v-waves
         class="filter-item"
@@ -16,6 +29,7 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
+      
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -31,24 +45,40 @@
          @click="handleCreate"     
         ><i class="fas fa-plus"></i> Generate Pins</el-button>
       <br>
-      <el-select v-model="listQuery.package_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Package">
-        <el-option
-          v-for="item in packages"
-          :key="item.name"
-          :label="item.name"
-          :value="item.id">
-        </el-option>
-      </el-select>
-
-      <el-select v-model="listQuery.is_owned" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Owner Filter">
-        <el-option label="Owned" value="Owned"></el-option>
-        <el-option label="Not Owned" value="Not Owned"></el-option>
-      </el-select>
-
+      
+      
       <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
         <el-option label="Used" value="Used"></el-option>
         <el-option label="Not Used" value="Not Used"></el-option>
-      </el-select> 
+      </el-select>
+      <el-date-picker
+        v-model="listQuery.used_at_date_range"
+        class="filter-item"
+        type="daterange"
+        align="right"
+        unlink-panels
+        @change="handleFilter"
+        format="yyyy-MM-dd"
+        value-format="yyyy-MM-dd"
+        range-separator="|"
+        start-placeholder="Used at start date"
+        end-placeholder="Used at end date"
+        :picker-options="pickerOptions">
+      </el-date-picker>
+      <el-date-picker
+        v-model="listQuery.allocated_at_date_range"
+        class="filter-item"
+        type="daterange"
+        align="right"
+        unlink-panels
+        @change="handleFilter"
+        format="yyyy-MM-dd"
+        value-format="yyyy-MM-dd"
+        range-separator="|"
+        start-placeholder="Allocation start date"
+        end-placeholder="Allocation end date"
+        :picker-options="pickerOptions">
+      </el-date-picker> 
     </div>
     <el-table
       :key="tableKey"
@@ -274,7 +304,34 @@ export default {
         total_amount: [{  required: true, message: 'Total amount is required', trigger: 'blur' }],
       },
       downloadLoading: false,
-      buttonLoading: false
+      buttonLoading: false,
+      pickerOptions: {
+        shortcuts: [{
+          text: 'Last week',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: 'Last month',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: 'Last 3 months',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
     };
   },
   created() {

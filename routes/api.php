@@ -89,6 +89,9 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
 
+    Route::get('wallet/credit-requests', 'WalletController@creditRequests');
+    Route::post('wallet/credit-requests', 'WalletController@createCreditRequest');
+
 });
 
 Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user','namespace'=>'User'], function($router)
@@ -205,6 +208,11 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
     Route::post('wallet/balance/add', 'WalletController@addBalance');
+
+    Route::get('wallet/credit-requests', 'WalletController@creditRequests');
+    Route::post('wallet/approve-credit-requests', 'WalletController@approveCreditRequest');
+    Route::post('wallet/reject-credit-requests', 'WalletController@rejectCreditRequest');
+
 
 });
 

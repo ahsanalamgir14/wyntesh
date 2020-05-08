@@ -274,6 +274,12 @@ class MembersController extends Controller
             return response()->json($response, 400);
         }
 
+        $Parent=User::where('username',$request->parent_code)->first();
+        if(!$Parent){
+            $response = array('status' => false,'message'=>'Parent not found.');
+            return response()->json($response, 404);
+        }
+
         $Sponsor=User::where('username',$request->sponsor_code)->first();
         if(!$Sponsor){
             $response = array('status' => false,'message'=>'Sponsor not found.');
@@ -296,28 +302,28 @@ class MembersController extends Controller
 
         $User->assignRole('user');
 
-        $parent=$Sponsor->member->id;
-        $parents=$this->getSponsorTail($parent,$request->position);
-        if($parents){
-            $parent=$parents[0]->id;
-        }else{
-            $parent=$Sponsor->member->id;
-        }
+        // $parent=$Sponsor->member->id;
+        // $parents=$this->getSponsorTail($parent,$request->position);
+        // if($parents){
+        //     $parent=$parents[0]->id;
+        // }else{
+        //     $parent=$Sponsor->member->id;
+        // }
 
-        $Parent=Member::where('id',$parent)->first();
-        $level=$Parent->level+1;
+        //$Parent=Member::where('id',$parent)->first();
+        $level=$Parent->member->level+1;
               
         $Member=new Member;
         $Member->user_id=$User->id;
         $Member->position=$request->position;
         $Member->sponsor_id=$Sponsor->member->id;
-        $Member->parent_id=$Parent->id;
+        $Member->parent_id=$Parent->member->id;
         
         $Member->level=$level;
         $Member->wallet_balance=0;
         $Member->save();
 
-        $Member->path=$Parent->path.'/'.$Member->id;
+        $Member->path=$Parent->member->path.'/'.$Member->id;
         $Member->save();  
 
         $Kyc=new Kyc;

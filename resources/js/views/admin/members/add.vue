@@ -5,24 +5,32 @@
         <el-form ref="registerForm" :model="registerForm" :rules="registerRules" class="register-form" auto-complete="on" label-position="left">          
           <el-row :gutter="20">
             <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >      
-              <el-form-item prop="sponsor_code" label="Spondor Code">
-               
+              <el-form-item prop="parent_code" label="Parent Code">               
+                <el-input v-model="registerForm.parent_code" v-on:blur="handleCheckParentCode()" name="parent_code" type="text" auto-complete="on" placeholder="Enter parent code" />
+              </el-form-item>
+              <el-form-item prop="parent_name" label="Parent Name">
+                
+                <el-input v-model="registerForm.parent_name" disabled name="parent_name" type="text" auto-complete="on" placeholder="Parent name." />
+              </el-form-item>
+
+              <el-form-item prop="sponsor_code" label="Sponsor Code">               
                 <el-input v-model="registerForm.sponsor_code" v-on:blur="handleCheckSponsorCode()" name="sponsor_code" type="text" auto-complete="on" placeholder="Enter sponsor code" />
               </el-form-item>
               <el-form-item prop="sponsor_name" label="Spondor Name">
                 
                 <el-input v-model="registerForm.sponsor_name" disabled name="sponsor_name" type="text" auto-complete="on" placeholder="Sponsor name." />
               </el-form-item>
+              
+            </el-col>
+
+            <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >  
               <el-form-item prop="position"  class="radio-btn" label="Position">
                 </br>
                 <el-radio-group v-model="registerForm.position" >                  
                     <el-radio border label="1">Left</el-radio>
                     <el-radio border label="2">Right</el-radio>
                   </el-radio-group>
-              </el-form-item>
-            </el-col>
-
-            <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >      
+              </el-form-item>    
               <el-form-item prop="name" label="Member Name">             
                 <el-input v-model="registerForm.name" name="name" type="text" auto-complete="on" placeholder="Enter Name." />
               </el-form-item>
@@ -87,12 +95,12 @@ export default {
   name: "AddMember",
   async created() {        
     await this.getRecaptcha();
-    let sponsor_code=this.$route.query.sponsor_code;
+    let parent_code=this.$route.query.parent_code;
     let position=this.$route.query.position;
-    this.registerForm.sponsor_code=sponsor_code;
-    if(sponsor_code){
-      checkSponsorCode(sponsor_code).then((response) => {
-        this.registerForm.sponsor_name=response.data;                
+    this.registerForm.parent_code=parent_code;
+    if(parent_code){
+      checkSponsorCode(parent_code).then((response) => {
+        this.registerForm.parent_name=response.data.name;                
       })  
     }
     if(position && position <= totalLegs){
@@ -131,6 +139,8 @@ export default {
       registerForm: {
         sponsor_code:undefined,
         sponsor_name:undefined,
+        parent_code:undefined,
+        parent_name:undefined,
         name: undefined,
         email: undefined,
         password: undefined,
@@ -141,6 +151,7 @@ export default {
       },
       registerRules: {
         sponsor_code: [{ required: true, trigger: 'blur', message: 'Sponsor code is required', }],
+        parent_code: [{ required: true, trigger: 'blur', message: 'Parent code is required', }],
         name: [{ required: true, trigger: 'blur', message: 'Name is required', }],
         email: [{ required: true, trigger: 'blur', validator: validateEmail  }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
@@ -171,6 +182,8 @@ export default {
       this.registerForm= {
         sponsor_code:undefined,
         sponsor_name:undefined,
+        parent_code:undefined,
+        parent_name:undefined,
         name: undefined,
         email: undefined,
         password: undefined,
@@ -185,6 +198,13 @@ export default {
       if(this.registerForm.sponsor_code){
         checkSponsorCode(this.registerForm.sponsor_code).then((response) => {
           this.registerForm.sponsor_name=response.data.name;          
+        })
+      }            
+    },
+    handleCheckParentCode(){
+      if(this.registerForm.parent_code){
+        checkSponsorCode(this.registerForm.parent_code).then((response) => {
+          this.registerForm.parent_name=response.data.name;          
         })
       }            
     },

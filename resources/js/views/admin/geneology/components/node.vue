@@ -34,7 +34,7 @@
       </ul>
     </li>
     <li v-else >
-        <router-link :to="'/members/add?sponsor_code='+node.sponsor_code+'&position='+node.position">
+        <router-link :to="'/members/add?parent_code='+node.parent_code+'&position='+node.position">
           <div class="member-view-box">
               <div class="member-image">
                   <img src="@/assets/images/add.png" alt="Member">
@@ -68,7 +68,7 @@ export default {
         if(ch){
           this.childs.push(ch);
         }else{
-          this.childs.push({id:0,position:i,sponsor_code:this.node.user.username})
+          this.childs.push({id:0,position:i,parent_code:this.node.user.username})
         }
       }  
     }
@@ -84,7 +84,7 @@ export default {
       if(ch){
         this.childs.push(ch);
       }else{
-        this.childs.push({id:0,position:i,sponsor_code:this.node.user.username})
+        this.childs.push({id:0,position:i,parent_code:this.node.user.username})
       }
     }
    

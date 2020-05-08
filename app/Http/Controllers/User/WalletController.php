@@ -10,6 +10,7 @@ use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\CreditRequest;
 use App\Models\Admin\Setting;
 use App\Models\User\User;
 use Validator;
@@ -376,6 +377,91 @@ class WalletController extends Controller
             return response()->json($response, 404);
         }
 
+    }
+
+    public function creditRequests(Request $request)
+    {
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;       
+        $payment_mode=$request->payment_mode;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search  && !$payment_mode){           
+            $CreditRequests=CreditRequest::select();
+            $CreditRequests=$CreditRequests->where('requested_by',$user->member->id);
+
+            $CreditRequests=$CreditRequests->with('payment_mode','bank','member:id,user_id','approver:id,name');
+            $CreditRequests=$CreditRequests->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $CreditRequests=CreditRequest::select();
+            $CreditRequests=$CreditRequests->where('requested_by',$user->member->id);
+            
+            $CreditRequests=$CreditRequests->where(function ($query)use($search) {               
+                $query=$query->orWhereHas('payment_mode',function($q)use($search){
+                    $q->where('name','like','%'.$search.'%');
+                });
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+                $query=$query->orWhere('status',$search);
+            });
+
+            if($payment_mode){
+                $CreditRequests=$CreditRequests->where('payment_mode',$payment_mode);                
+            }
+
+            $CreditRequests=$CreditRequests->with('payment_mode','bank','member:id,user_id','approver:id,name');
+            $CreditRequests=$CreditRequests->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Credit requests retrieved.",'data'=>$CreditRequests);
+            return response()->json($response, 200);
+    }
+
+    public function createCreditRequest(Request $request)
+    {
+        $user=JWTAuth::user();
+        
+        $validate = Validator::make($request->all(), [
+            'amount' => "required|regex:/^\d+(\.\d{1,2})?$/",         
+            'payment_mode' => 'required|integer',
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+        
+        $CreditRequest=new CreditRequest;
+        $CreditRequest->amount=$request->amount;
+        $CreditRequest->requested_by=$user->member->id;
+        $CreditRequest->payment_mode=$request->payment_mode;
+        $CreditRequest->reference=$request->reference;
+        $CreditRequest->bank_id=$request->bank_id;  
+        $CreditRequest->note=$request->note;
+        $CreditRequest->status='Pending';
+        $CreditRequest->save();
+
+        $CreditRequest=CreditRequest::with('payment_mode','bank','member.user:username','approver')->find($CreditRequest->id);
+        $response = array('status' => true,'message'=>'Wallet Credit requests created successfully.','data'=>$CreditRequest);  
+        return response()->json($response, 200);
     }
 
    

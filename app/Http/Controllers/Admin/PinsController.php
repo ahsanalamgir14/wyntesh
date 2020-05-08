@@ -271,6 +271,8 @@ class PinsController extends Controller
         $status=$request->status;
         $package_id=$request->package_id;
         $is_owned=$request->is_owned;
+        $used_at_date_range=$request->used_at_date_range;
+        $allocated_at_date_range=$request->allocated_at_date_range;
 
         if(!$page){
             $page=1;
@@ -286,7 +288,7 @@ class PinsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$status && !$package_id && !$is_owned){           
+        if(!$search && !$status && !$package_id && !$is_owned  && !$used_at_date_range && !$allocated_at_date_range){           
             $Pins=Pin::select();
            
             $Pins=$Pins->with('package','owner:id,user_id','user:id,user_id');
@@ -304,6 +306,15 @@ class PinsController extends Controller
                 });    
             }
             
+            if($used_at_date_range){
+                $Pins=$Pins->whereDate('used_at','>=', $used_at_date_range[0]);
+                $Pins=$Pins->whereDate('used_at','<=', $used_at_date_range[1]);
+            }
+
+            if($allocated_at_date_range){
+                $Pins=$Pins->whereDate('allocated_at','>=', $allocated_at_date_range[0]);
+                $Pins=$Pins->whereDate('allocated_at','<=', $allocated_at_date_range[1]);
+            }
 
             if($status){
                 $Pins=$Pins->where('status',$status);                
@@ -338,6 +349,8 @@ class PinsController extends Controller
         $search=$request->search;
         $package_id=$request->package_id;
         $is_owned=$request->is_owned;
+        $used_at_date_range=$request->used_at_date_range;
+        $allocated_at_date_range=$request->allocated_at_date_range;
 
         if(!$page){
             $page=1;
@@ -353,7 +366,7 @@ class PinsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search &&  !$package_id && !$is_owned){           
+        if(!$search &&  !$package_id && !$is_owned && !$used_at_date_range && !$allocated_at_date_range){           
             $Pins=Pin::select();
 
             $Pins=$Pins->where('status','Not Used');
@@ -370,6 +383,16 @@ class PinsController extends Controller
                         $q->where('username','like','%'.$search.'%');
                     });
                 });    
+            }
+
+            if($used_at_date_range){
+                $Pins=$Pins->whereDate('used_at','>=', $used_at_date_range[0]);
+                $Pins=$Pins->whereDate('used_at','<=', $used_at_date_range[1]);
+            }
+
+            if($allocated_at_date_range){
+                $Pins=$Pins->whereDate('allocated_at','>=', $allocated_at_date_range[0]);
+                $Pins=$Pins->whereDate('allocated_at','<=', $allocated_at_date_range[1]);
             }
             
             if($package_id){
@@ -570,7 +593,7 @@ class PinsController extends Controller
             $response = array('status' => true,'message'=>'Pin request successfully deleted.');             
             return response()->json($response, 200);
         }else{
-            $response = array('status' => false,'message'=>'Pin request not found','data' => array());
+            $response = array('status' => false,'message'=>'Pin request not found');
             return response()->json($response, 404);
         }
 
@@ -588,7 +611,7 @@ class PinsController extends Controller
             $response = array('status' => true,'message'=>'Pin request rejected.');             
             return response()->json($response, 200);
         }else{
-            $response = array('status' => false,'message'=>'Pin request not found','data' => array());
+            $response = array('status' => false,'message'=>'Pin request not found');
             return response()->json($response, 404);
         }
 

@@ -72,3 +72,27 @@ export function addBalance(data) {
     data
   })
 }
+
+export function fetchCreditRequests(query) {
+  return request({
+    url: '/admin/wallet/credit-requests',
+    method: 'get',
+    params: query
+  })
+}
+
+export function approveCreditRequest(data) {
+  return request({
+    url: '/admin/wallet/approve-credit-requests',
+    method: 'post',
+    data
+  })
+}
+
+export function rejectCreditRequest(data) {
+  return request({
+    url: '/admin/wallet/reject-credit-requests',
+    method: 'post',
+    data
+  })
+}

@@ -47,6 +47,35 @@
         v-if="pinList.length >= 1"
         @click="handlePinTansfer"
       >Transfer Pins</el-button>
+      <br>
+      <el-date-picker
+        v-model="listQuery.used_at_date_range"
+        class="filter-item"
+        type="daterange"
+        align="right"
+        unlink-panels
+        @change="handleFilter"
+        format="yyyy-MM-dd"
+        value-format="yyyy-MM-dd"
+        range-separator="|"
+        start-placeholder="Used at start date"
+        end-placeholder="Used at end date"
+        :picker-options="pickerOptions">
+      </el-date-picker>
+      <el-date-picker
+        v-model="listQuery.allocated_at_date_range"
+        class="filter-item"
+        type="daterange"
+        align="right"
+        unlink-panels
+        @change="handleFilter"
+        format="yyyy-MM-dd"
+        value-format="yyyy-MM-dd"
+        range-separator="|"
+        start-placeholder="Allocation start date"
+        end-placeholder="Allocation end date"
+        :picker-options="pickerOptions">
+      </el-date-picker> 
            
     </div>
     <el-table
@@ -230,7 +259,34 @@ export default {
       dialogTitle:'',
       is_create:true,      
       downloadLoading: false,
-      buttonLoading: false
+      buttonLoading: false,
+      pickerOptions: {
+        shortcuts: [{
+          text: 'Last week',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: 'Last month',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: 'Last 3 months',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
     };
   },
   created() {

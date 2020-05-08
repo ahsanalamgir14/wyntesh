@@ -10,6 +10,7 @@ use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\CreditRequest;
 use App\Models\Admin\Setting;
 use App\Models\User\User;
 use Validator;
@@ -100,7 +101,7 @@ class WalletController extends Controller
         $WithdrawalRequest=WithdrawalRequest::find($id);
 
         if(!$WithdrawalRequest){
-            $response = array('status' => false,'message'=>'Withdrawal request not found','data' => array());
+            $response = array('status' => false,'message'=>'Withdrawal request not found');
             return response()->json($response, 404);
         }
 
@@ -409,6 +410,118 @@ class WalletController extends Controller
 
     }
 
+    public function creditRequests(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;       
+        $payment_mode=$request->payment_mode;
+        $status=$request->status;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search  && !$payment_mode && !$status){           
+            $CreditRequests=CreditRequest::select();
+            
+            $CreditRequests=$CreditRequests->with('payment_mode','bank','member:id,user_id','approver:id,name');
+            $CreditRequests=$CreditRequests->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $CreditRequests=CreditRequest::select();
+            
+            $CreditRequests=$CreditRequests->where(function ($query)use($search) {               
+                $query=$query->orWhereHas('payment_mode',function($q)use($search){
+                    $q->where('name','like','%'.$search.'%');
+                });
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($status){
+                $CreditRequests=$CreditRequests->where('status',$status);                
+            }
+
+            if($payment_mode){
+                $CreditRequests=$CreditRequests->where('payment_mode',$payment_mode);                
+            }
+
+            $CreditRequests=$CreditRequests->with('payment_mode','bank','member:id,user_id','approver:id,name');
+            $CreditRequests=$CreditRequests->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Credit requests retrieved.",'data'=>$CreditRequests);
+            return response()->json($response, 200);
+    }
+
+    public function approveCreditRequest(Request $request)
+    {
+        $user=JWTAuth::user();
+        
+        $validate = Validator::make($request->all(), [         
+            'request_id' => 'required|integer',
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+        
+        $CreditRequest=CreditRequest::find($request->request_id);
+        $CreditRequest->status='Approved';
+        $CreditRequest->note=$request->note;
+        $CreditRequest->save();
+
+        $balance=floatval($CreditRequest->member->wallet_balance);
+        $amount=floatval($CreditRequest->amount);
+
+        $CreditRequest->member->wallet_balance+=$amount;
+        $CreditRequest->member->save();
+
+        $TransactionType=TransactionType::where('name','Credit')->first();
+        
+        $WalletTransaction=new WalletTransaction;
+        $WalletTransaction->member_id=$CreditRequest->member->id;
+        $WalletTransaction->transfered_to=$CreditRequest->member->user->id;
+        $WalletTransaction->balance=$balance+$amount;
+        $WalletTransaction->amount=$amount;
+        $WalletTransaction->transaction_type_id=$TransactionType->id;
+        $WalletTransaction->transaction_by=$user->id;
+        $WalletTransaction->note=$request->note;
+        $WalletTransaction->save();
+
+        $response = array('status' => true,'message'=>'Wallet Credit requests approved successfully.');  
+        return response()->json($response, 200);
+    }
+    
+    public function rejectCreditRequest(Request $request){
+        $CreditRequest= CreditRequest::find($request->id);         
+        
+         if($CreditRequest){
+            $CreditRequest->status='Rejected';
+            $CreditRequest->note=$request->note;
+            $CreditRequest->save(); 
+            $response = array('status' => true,'message'=>'Wallet credit request rejected.');             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Wallet credit request not found');
+            return response()->json($response, 404);
+        }
+    }
+
     public function addBalance(Request $request){
         $user=JWTAuth::user();
 
@@ -466,7 +579,7 @@ class WalletController extends Controller
             $response = array('status' => true,'message'=>'Withdrawal request rejected.');             
             return response()->json($response, 200);
         }else{
-            $response = array('status' => false,'message'=>'Withdrawal request not found','data' => array());
+            $response = array('status' => false,'message'=>'Withdrawal request not found');
             return response()->json($response, 404);
         }
 
@@ -487,7 +600,7 @@ class WalletController extends Controller
             $response = array('status' => true,'message'=>'Withdrawal request successfully deleted.');             
             return response()->json($response, 200);
         }else{
-            $response = array('status' => false,'message'=>'Withdrawal request not found','data' => array());
+            $response = array('status' => false,'message'=>'Withdrawal request not found');
             return response()->json($response, 404);
         }
 

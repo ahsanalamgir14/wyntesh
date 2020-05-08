@@ -337,6 +337,12 @@ export const asyncRoutes = [
         meta: { title: 'With. Requests', icon: 'fas fa-wallet', color:'color:#31a816', affix: true, roles: ['admin'] }
       },
       {
+        path: 'credit-requests',
+        component: () => import('@/views/admin/wallet/credit-requests'),
+        name: 'Credit Requests',
+        meta: { title: 'Credit Requests', icon: 'fas fa-plus', color:'color:#DCB527', affix: true, roles: ['admin'] }
+      },     
+      {
         path: 'withdrawals',
         component: () => import('@/views/admin/wallet/withdrawals'),
         name: 'Withdrawals',
@@ -615,6 +621,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/wallet/index'),
         name: 'My Wallet',
         meta: { title: 'My Wallet', icon: 'fas fa-wallet', color:'color:#31a816', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'credit-requests',
+        component: () => import('@/views/user/wallet/credit-requests'),
+        name: 'Credit Requests',
+        meta: { title: 'Credit Requests', icon: 'fas fa-plus', color:'color:#DCB527', affix: true, roles: ['user'] }
       },
       {
         path: 'withdrawals',

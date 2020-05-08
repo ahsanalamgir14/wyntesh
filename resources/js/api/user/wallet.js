@@ -50,9 +50,25 @@ export function fetchWalletTransfers(query) {
   })
 }
 
+export function fetchMyCreditRequests(query) {
+  return request({
+    url: '/user/wallet/credit-requests',
+    method: 'get',
+    params: query
+  })
+}
+
 export function createTransfer(data) {
   return request({
     url: '/user/wallet/balance/transfer',
+    method: 'post',
+    data
+  })
+}
+
+export function createCreditRequest(data) {
+  return request({
+    url: '/user/wallet/credit-requests',
     method: 'post',
     data
   })
