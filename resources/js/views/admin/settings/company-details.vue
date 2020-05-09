@@ -26,7 +26,7 @@
               <el-form-item label="Support Email" prop="support_email">
                 <el-input v-model="temp.support_email" />
               </el-form-item>                
-              <el-form-item label="Contact Phone" prop="contact_email">
+              <el-form-item label="Contact Phone" prop="contact_phone">
                 <el-input v-model="temp.contact_phone" />
               </el-form-item>
               <el-form-item label="Support Phone" prop="support_phone">

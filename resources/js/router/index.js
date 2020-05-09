@@ -219,6 +219,39 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/products',
+    component: Layout,
+    name: 'Products',
+    redirect: '/products/add',
+    meta: {
+      title: 'Products',
+      icon: 'fas fa-luggage-cart',
+      roles: ['admin'],
+      color:'color:#078F6A'
+    },
+    children: [
+      {
+        path: 'add',
+        component: () => import('@/views/admin/products/add'),
+        name: 'Add Product',
+        meta: { title: 'Add Product', icon: 'fas fa-plus', color:'color:#854CE2', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'edit',
+        component: () => import('@/views/admin/products/add'),
+        name: 'Edit Product',
+        hidden:true, 
+        meta: { title: 'Edit Product', icon: 'fas fa-plus', color:'color:#854CE2', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'categories',
+        component: () => import('@/views/admin/products/categories'),
+        name: 'Categories',
+        meta: { title: 'Categories', icon: 'fas fa-list', color:'color:#35BED1', affix: true, roles: ['admin'] }
+      }
+    ]
+  },
+  {
     path: '/geneology',
     component: Layout,
     meta: {
@@ -236,7 +269,7 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/geneology/member'),
         name: 'Member Geneology',
         hidden:true,
-        meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
+        meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#C39BD3', affix: true, roles: ['admin','superadmin'] }
       }
     ]
   },

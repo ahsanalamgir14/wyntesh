@@ -213,6 +213,18 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('wallet/approve-credit-requests', 'WalletController@approveCreditRequest');
     Route::post('wallet/reject-credit-requests', 'WalletController@rejectCreditRequest');
 
+    Route::post('categories','ProductsAndCategoryController@createCategory');
+    Route::post('categories/update', 'ProductsAndCategoryController@updateCategory');
+    Route::get('categories', 'ProductsAndCategoryController@getCategories');
+    Route::get('categories/all', 'ProductsAndCategoryController@getAllCategories');
+    Route::delete('categories/{id}/delete', 'ProductsAndCategoryController@deleteCategory');
+
+    Route::post('products','ProductsAndCategoryController@createProduct');
+    Route::post('products/update', 'ProductsAndCategoryController@updateProduct');
+    Route::get('products', 'ProductsAndCategoryController@getProducts');
+    Route::get('products/{id}', 'ProductsAndCategoryController@getProduct');
+    Route::delete('products/{id}/delete', 'ProductsAndCategoryController@deleteProduct');
+
 
 });
 
