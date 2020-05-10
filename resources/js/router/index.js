@@ -145,19 +145,19 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/members',
+    path: '/network',
     component: Layout,
-    name: 'Members',
-    redirect: '/members/manage',
+    name: 'Network',
+    redirect: '/network/members',
     meta: {
-      title: 'Members',
-      icon: 'fas fa-users',
+      title: 'Network',
+      icon: 'fas fa-network-wired',
       roles: ['admin'],
       color:'color:#854CE2'
     },
     children: [
       {
-        path: 'manage',
+        path: 'members',
         component: () => import('@/views/admin/users/index'),
         name: 'Members',
         meta: { title: 'Members', icon: 'fas fa-user', color:'color:#EE7642', affix: true, roles: ['admin'] }
@@ -167,6 +167,19 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/members/add'),
         name: 'Add Members',
         meta: { title: 'Add Members', icon: 'fas fa-plus', color:'color:#EE7642', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'geneology',
+        component: () => import('@/views/admin/geneology/index'),
+        name: 'Geneology',
+        meta: { title: 'Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
+      },
+      {
+        path: 'geneology/member/:id',
+        component: () => import('@/views/admin/geneology/member'),
+        name: 'Member Geneology',
+        hidden:true,
+        meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#C39BD3', affix: true, roles: ['admin','superadmin'] }
       }
     ]
   },
@@ -257,28 +270,6 @@ export const asyncRoutes = [
       }
     ]
   },
-  {
-    path: '/geneology',
-    component: Layout,
-    meta: {
-      roles: ['admin']
-    },
-    children: [
-      {
-        path: 'view',
-        component: () => import('@/views/admin/geneology/index'),
-        name: 'Geneology',
-        meta: { title: 'Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
-      },
-      {
-        path: 'member/:id',
-        component: () => import('@/views/admin/geneology/member'),
-        name: 'Member Geneology',
-        hidden:true,
-        meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#C39BD3', affix: true, roles: ['admin','superadmin'] }
-      }
-    ]
-  },
 
   {
     path: '/pins',
@@ -332,32 +323,6 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/payouts',
-    component: Layout,
-    name: 'Payouts',
-    meta: {
-      title: 'Payouts',
-      icon: 'fas fa-rupee-sign',
-      roles: ['admin'],
-      color:'color:#078F6A'
-    },
-    hidden: false,
-    children: [
-      {
-        path: 'generate',
-        component: () => import('@/views/admin/payouts/generate'),
-        name: 'Generate PINs',
-        meta: { title: 'Generate Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
-      },
-      // {
-      //   path: 'all',
-      //   component: () => import('@/views/admin/users/index'),
-      //   name: 'PIN Requests',
-      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
-      // }
-    ]
-  },
-  {
     path: '/wallet',
     component: Layout,
     name: 'Wallet',
@@ -399,6 +364,33 @@ export const asyncRoutes = [
         name: 'Wallet Transactions',
         meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
       }
+    ]
+  },
+  
+  {
+    path: '/payouts',
+    component: Layout,
+    name: 'Payouts',
+    meta: {
+      title: 'Payouts',
+      icon: 'fas fa-rupee-sign',
+      roles: ['admin'],
+      color:'color:#078F6A'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'generate',
+        component: () => import('@/views/admin/payouts/generate'),
+        name: 'Generate PINs',
+        meta: { title: 'Generate Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
+      },
+      // {
+      //   path: 'all',
+      //   component: () => import('@/views/admin/users/index'),
+      //   name: 'PIN Requests',
+      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
+      // }
     ]
   },
   {
@@ -525,13 +517,13 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/members',
+    path: '/network',
     component: Layout,
-    name: 'Members',
-    redirect: '/members/add',
+    name: 'Network',
+    redirect: '/network/geneology',
     meta: {
-      title: 'Members',
-      icon: 'fas fa-users',
+      title: 'Network',
+      icon: 'fas fa-network-wired',
       roles: ['user'],
       color:'color:#854CE2'
     },
@@ -541,28 +533,25 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/members/add'),
         name: 'Add Member',
         meta: { title: 'Add Member', icon: 'fas fa-plus', color:'color:#EE7642', affix: true, roles: ['user'] }
-      }
-    ]
-  },
-  {
-    path: '/my/geneology',
-    component: Layout,
-    meta: {
-      roles: ['user']
-    },
-    children: [
+      },
       {
-        path: 'view',
+        path: 'geneology',
         component: () => import('@/views/user/geneology/index'),
         name: 'Geneology',
         meta: { title: 'Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
       },
       {
-        path: 'member/:id',
+        path: 'geneology/member/:id',
         component: () => import('@/views/user/geneology/member'),
         name: 'Member Geneology',
         hidden:true,
         meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'downlines',
+        component: () => import('@/views/user/reports/downlines'),
+        name: 'Downlines',
+        meta: { title: 'Downlines', icon: 'fas fa-user-friends', color:'color:#DC7633', affix: true, roles: ['user'] }
       }
     ]
   },
@@ -618,32 +607,6 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/member/payouts',
-    component: Layout,
-    name: 'Payouts',
-    meta: {
-      title: 'Payouts',
-      icon: 'fas fa-rupee-sign',
-      roles: ['user'],
-      color:'color:#078F6A'
-    },
-    hidden: false,
-    children: [
-      {
-        path: 'all',
-        component: () => import('@/views/user/payouts/generate'),
-        name: 'My Payout',
-        meta: { title: 'My Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['user'] }
-      },
-      // {
-      //   path: 'all',
-      //   component: () => import('@/views/admin/users/index'),
-      //   name: 'PIN Requests',
-      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
-      // }
-    ]
-  },
-  {
     path: '/wallet',
     component: Layout,
     name: 'Wallet',
@@ -687,6 +650,33 @@ export const asyncRoutes = [
       }
     ]
   },
+
+  {
+    path: '/member/payouts',
+    component: Layout,
+    name: 'Payouts',
+    meta: {
+      title: 'Payouts',
+      icon: 'fas fa-rupee-sign',
+      roles: ['user'],
+      color:'color:#078F6A'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'all',
+        component: () => import('@/views/user/payouts/generate'),
+        name: 'My Payout',
+        meta: { title: 'My Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['user'] }
+      },
+      // {
+      //   path: 'all',
+      //   component: () => import('@/views/admin/users/index'),
+      //   name: 'PIN Requests',
+      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
+      // }
+    ]
+  },
   {
     path: '/reports',
     component: Layout,
@@ -699,12 +689,7 @@ export const asyncRoutes = [
     },
     hidden: false,
     children: [
-      {
-        path: 'downlines',
-        component: () => import('@/views/user/reports/downlines'),
-        name: 'Downlines',
-        meta: { title: 'Downlines', icon: 'fas fa-user-friends', color:'color:#DC7633', affix: true, roles: ['user'] }
-      }
+      
     ]
   },
   {

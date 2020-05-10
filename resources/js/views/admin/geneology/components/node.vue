@@ -1,6 +1,6 @@
 <template>
     <li v-if="node.id">
-      <router-link :to="'/geneology/member/'+node.user.username">
+      <router-link :to="'/network/geneology/member/'+node.user.username">
           <div class="member-view-box">
               <div class="member-image">
                 <el-popover
@@ -34,7 +34,7 @@
       </ul>
     </li>
     <li v-else >
-        <router-link :to="'/members/add?parent_code='+node.parent_code+'&position='+node.position">
+        <router-link :to="'/network/add?parent_code='+node.parent_code+'&position='+node.position">
           <div class="member-view-box">
               <div class="member-image">
                   <img src="@/assets/images/add.png" alt="Member">

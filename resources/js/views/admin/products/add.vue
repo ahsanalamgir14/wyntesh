@@ -145,7 +145,7 @@
                 <tinymce v-model="temp.benefits"  :imageUploadButton="false" menubar="format" :toolbar="tools" id="productBenefits" ref="productBenefits" :value="temp.benefits" :height="50" />
               </el-form-item>          
             </el-col>
-            <el-col  :xs="24" :sm="24" :md="12" :lg="10" :xl="10" >
+            <el-col  :xs="24" :sm="24" :md="12" :lg="10" :xl="10" v-if="is_updating">
                 <div class="filter-container" style="margin-top: 10px;">
                   <span style="font-size: 14px; font-weight: bold; color: #606266;">Product Images</span>                  
                   <el-button

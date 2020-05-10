@@ -101,7 +101,7 @@ export default {
   methods: {
     viewMemberTree(){
       if(this.memberId){
-        this.$router.push('/geneology/member/'+this.memberId);  
+        this.$router.push('/network/geneology/member/'+this.memberId);  
       }      
     },
     getGeneology(){
