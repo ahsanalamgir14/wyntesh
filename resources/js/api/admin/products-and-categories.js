@@ -79,3 +79,19 @@ export function updateProduct(data) {
   })
 }
 
+export function uploadProductImage(data) {
+  return request({
+    url: '/admin/products/image/upload',
+    method: 'post',
+    data,
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+}
+
+export function deleteProductImage(id) {
+  return request({
+    url: '/admin/products/image/'+id+'/delete',
+    method: 'delete'
+  })
+}
+

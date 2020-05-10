@@ -129,11 +129,11 @@ class ProductsAndCategoryController extends Controller
         }
 
         if(!$search){           
-            $Products=Product::with('parent')->orderBy('id',$sort)->paginate($limit);    
+            $Products=Product::with('categories')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $Products=Product::select();
             $Products=$Products->orWhere('name','like','%'.$search.'%');
-            $Products=$Products->with('parent')->orderBy('id',$sort)->paginate($limit);
+            $Products=$Products->with('categories')->orderBy('id',$sort)->paginate($limit);
         }
         
        $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
@@ -316,36 +316,65 @@ class ProductsAndCategoryController extends Controller
 
     public function deleteProduct($id)
     {
-       $Categories= Categories::find($id);                 
-         if($Categories){
-            $Categories->delete(); 
-            $response = array('status' => true,'message'=>'Category successfully deleted.');             
+       $Product= Product::find($id);                 
+         if($Product){
+            $Product->delete(); 
+            $response = array('status' => true,'message'=>'Product successfully deleted.');             
             return response()->json($response, 200);
         }else{
-            $response = array('status' => false,'message'=>'Categories not found');
+            $response = array('status' => false,'message'=>'Product not found');
             return response()->json($response, 404);
         }
     }
 
-    public function uploadCover(){
-        $courses=Course::all();
-        $file_path=public_path().'/courses/images/';
-        foreach ($courses as $course) {
-            $filename=$course->cover_image;          
+     public function uploadProductImage(Request $request){        
+        
+        $validate = Validator::make($request->all(), [           
+            'id' => "required|integer",
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $Product= Product::find($request->id);
+        $ProductImage=new ProductImage;
+        $ProductImage->product_id=$Product->id;
+
+        if($request->hasFile('file')){
+            $file = $request->file('file');
+            $str=rand(); 
+            $randomID = md5($str);
+            $filename=$randomID.'-'.$Product->id.".".$file->getClientOriginalExtension();
+
             $project_directory=env('DO_STORE_PATH');
-            $file_path=public_path().'/courses/images/'.$filename;
 
+            $store=Storage::disk('spaces')->put($project_directory.'/products/'.$filename, file_get_contents($file->getRealPath()), 'public');            
+            $url=Storage::disk('spaces')->url($project_directory.'/products/'.$filename);            
+            $product_image=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
 
-            $store=Storage::disk('spaces')->put($project_directory.'/courses/images/'.$filename, file_get_contents($file_path), 'public');
-            
-            $url=Storage::disk('spaces')->url($project_directory.'/courses/images/'.$filename);
-            
-            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $course->cover_image=$cdn_url;
-            $course->save();
+            $ProductImage->url=$product_image;
+            $ProductImage->save();
         }
         
-        
+        $response = array('status' => true,'message'=>'Product image added successfully.','data'=>$ProductImage);
+        return response()->json($response, 200);
+    }
+
+    public function deleteProductImage($id)
+    {
+       $ProductImage= ProductImage::find($id);                 
+         if($ProductImage){
+            $project_directory=env('DO_STORE_PATH');
+            $filePath=($project_directory.'/products/'.basename($ProductImage->url));            
+            Storage::disk('spaces')->delete($filePath);
+            $ProductImage->delete(); 
+            $response = array('status' => true,'message'=>'Product Image successfully deleted.');             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Product Image not found');
+            return response()->json($response, 404);
+        }
     }
 }

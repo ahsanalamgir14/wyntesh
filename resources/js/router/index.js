@@ -237,6 +237,12 @@ export const asyncRoutes = [
         meta: { title: 'Add Product', icon: 'fas fa-plus', color:'color:#854CE2', affix: true, roles: ['admin'] }
       },
       {
+        path: 'all',
+        component: () => import('@/views/admin/products/all-products'),
+        name: 'All Products',
+        meta: { title: 'All Products', icon: 'fas fa-list', color:'color:#854CE2', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'edit',
         component: () => import('@/views/admin/products/add'),
         name: 'Edit Product',

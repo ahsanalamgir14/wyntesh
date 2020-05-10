@@ -27,7 +27,7 @@
                 <el-input type="number" min="0" v-model="temp.gst_rate" />
               </el-form-item>
               <el-form-item label="Base Cost" prop="cost_base">
-                <el-input type="number" min="1" v-model="temp.cost_base" />
+                <el-input type="number" @blur="calculateFinalCostPrice()" min="1" v-model="temp.cost_base" />
               </el-form-item>                
               <el-form-item label="GST on Base cost" prop="cost_gst">
                 <el-input type="number" min="1" v-model="temp.cost_gst" />
@@ -39,7 +39,7 @@
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
               <el-form-item label="DP Cost" prop="dp_base">
-                <el-input type="number" min="1" v-model="temp.dp_base" />
+                <el-input type="number" min="1" @blur="calculateFinalDPPrice()" v-model="temp.dp_base" />
               </el-form-item>                
               <el-form-item label="GST on DP " prop="dp_gst">
                 <el-input type="number" min="1" v-model="temp.dp_gst" />
@@ -51,7 +51,7 @@
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
               <el-form-item label="Retail Cost" prop="retail_base">
-                <el-input type="number" min="1" v-model="temp.retail_base" />
+                <el-input type="number" min="1" @blur="calculateFinalRetailPrice()" v-model="temp.retail_base" />
               </el-form-item>                
               <el-form-item label="GST on Retail price" prop="retail_gst">
                 <el-input type="number" min="1" v-model="temp.retail_gst" />
@@ -116,7 +116,7 @@
                       :file-list="fileList"
                       :on-exceed="handleExceed"
                       accept="image/png, image/jpeg">                      
-                      <img v-if="temp.cover_image" :src="temp?temp.cover_image:''"  class="avatar">
+                      <img v-if="temp.cover_image" :src="temp?temp.cover_image_thumbnail:''"  class="avatar">
                       <i v-if="temp.cover_image"  slot="default" class="el-icon-plus"></i>
                       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
@@ -136,8 +136,8 @@
           </el-row>
         </el-tab-pane>
         <el-tab-pane label="Details and Images">
-          <el-row :gutter="20">            
-            <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+          <el-row :gutter="50">            
+            <el-col  :xs="24" :sm="24" :md="12" :lg="14" :xl="14" >
               <el-form-item  label="Description" prop="description">
                 <tinymce v-model="temp.description"  :imageUploadButton="false" menubar="format" :toolbar="tools" id="productDescription" ref="productDescription" :value="temp.description" :height="50" />
               </el-form-item>
@@ -145,9 +145,38 @@
                 <tinymce v-model="temp.benefits"  :imageUploadButton="false" menubar="format" :toolbar="tools" id="productBenefits" ref="productBenefits" :value="temp.benefits" :height="50" />
               </el-form-item>          
             </el-col>
-            <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
-                
-                          
+            <el-col  :xs="24" :sm="24" :md="12" :lg="10" :xl="10" >
+                <div class="filter-container" style="margin-top: 10px;">
+                  <span style="font-size: 14px; font-weight: bold; color: #606266;">Product Images</span>                  
+                  <el-button
+                    class="filter-item"
+                    style="margin-left: 10px;float: right;"
+                    size="mini"
+                    type="success"
+                    @click="handleAddImage()"
+                  ><i class="fas fa-plus"></i> Add</el-button>
+                </div>
+                <el-table
+                  :data="temp.images"
+                  style="width: 100%">
+                  <el-table-column label="Image" min-width="150px">
+                    <template slot-scope="{row}">
+                      <span ><a  v-if="row.url" :href="row.url" target="_blank">View image.</a></span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="Actions" align="center" width="200" class-name="small-padding">
+                    <template slot-scope="{row}">                     
+                      <el-button
+                          circle
+                          type="danger"
+                          :loading="buttonLoading" 
+                          icon="el-icon-delete"
+                          @click="deleteImage(row)"
+                          ></el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+                                      
             </el-col>
           </el-row>
           <el-row >
@@ -162,12 +191,48 @@
         </el-tab-pane>
       </el-tabs>
     </el-form>
+
+    <el-dialog title="Add Image" width="30%" top="30px"  :visible.sync="dialogAddImageVisible">
+      <el-form ref="imageForm"  style="">
+        <el-row>
+          <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+            <el-form-item  prop="cover_image" style="margin-right: 40px;">
+              <label for="Select Image"> Select Image</label>
+              <el-upload
+                class="avatar-uploader"
+                action="#"
+                 ref="productImage"
+                :show-file-list="true"
+                :auto-upload="false"
+                :on-change="handleImageChange"
+                :on-remove="handleImageRemove"
+                :limit="1"
+                :file-list="imageFileList"
+                :on-exceed="handleImageExceed"
+                accept="image/png, image/jpeg">                                                     
+                <i class="el-icon-plus avatar-uploader-icon"></i>
+              </el-upload>
+                                  
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddImageVisible = false">
+          Cancel
+        </el-button>
+        <el-button type="primary" :loading="buttonLoading" @click="addImage()">
+          Upload
+        </el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import {
-  getAllCategories, createProduct, getProduct, updateProduct
+  getAllCategories, createProduct, getProduct, updateProduct, deleteProductImage, uploadProductImage
 } from "@/api/admin/products-and-categories";
 import Tinymce from '@/components/Tinymce'
 import waves from "@/directive/waves"; 
@@ -184,6 +249,9 @@ export default {
       categories:[],
       fileList:[],
       file:undefined,
+      imageFileList:[],
+      imageFile:undefined,
+      dialogAddImageVisible:false,
       temp: {
         product_number:undefined,
         name:undefined,
@@ -209,6 +277,7 @@ export default {
         cover_image:undefined,
         cover_image_thumbnail:undefined,
         categories:[],
+        images:[],
       },
       rules: {
         product_number: [
@@ -301,6 +370,58 @@ export default {
     handleExceed(files, fileList) {
       this.$message.warning(`You can not select more than one file, please remove first.`);
     },
+    handleImageChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.imageFile=f.raw      
+    },
+    handleImageRemove(file, fileList) {
+       this.imageFile=undefined;
+       this.imageFileList=[];
+    },
+    handleImageExceed(imageFile, imageFileList) {
+      this.$message.warning(`You can not select more than one file, please remove first.`);
+    },
+    calculateFinalCostPrice(){
+      if(this.temp.gst_rate != undefined && this.temp.gst_rate != null){
+        if(this.temp.gst_rate == 0){
+          this.temp.cost_amount=0;
+          this.temp.cost_amount=this.temp.cost_base;
+        }else{
+          let gst=(this.temp.gst_rate*this.temp.cost_base)/100;
+          gst=Math.floor(gst);
+          this.temp.cost_gst=gst;
+          this.temp.cost_amount=parseInt(this.temp.cost_base)+gst;
+        }        
+      }
+    },
+    calculateFinalDPPrice(){
+      if(this.temp.gst_rate != undefined && this.temp.gst_rate != null){
+        if(this.temp.gst_rate == 0){
+          this.temp.dp_amount=0;
+          this.temp.dp_amount=this.temp.dp_base;
+        }else{
+          let gst=(this.temp.gst_rate*this.temp.dp_base)/100;
+          gst=Math.floor(gst);
+          this.temp.dp_gst=gst;
+          this.temp.dp_amount=parseInt(this.temp.dp_base)+gst;
+        }        
+      }
+    },
+    calculateFinalRetailPrice(){
+      if(this.temp.gst_rate != undefined && this.temp.gst_rate != null){
+        if(this.temp.gst_rate == 0){
+          this.temp.retail_amount=0;
+          this.temp.retail_amount=this.temp.retail_base;
+        }else{
+          let gst=(this.temp.gst_rate*this.temp.retail_base)/100;
+          gst=Math.floor(gst);
+          this.temp.retail_gst=gst;
+          this.temp.retail_amount=parseInt(this.temp.retail_base)+gst;
+        }        
+      }
+    },
     addProduct() {
       this.$refs["productForm"].validate(valid => {
         if (valid) {
@@ -319,6 +440,7 @@ export default {
           createProduct(form).then((response) => {
             this.temp=response.data;
             this.loading=false;
+            this.$router.push({ path: '/products/edit', query: { id: response.data.id } });
             this.$notify({
               title: "Success",
               message: response.message,
@@ -346,6 +468,7 @@ export default {
 
           updateProduct(form).then((response) => {
             this.temp=response.data;
+            this.fileList=[];
             this.loading=false;
             var keys = [];
             response.data.categories.map(cat => {
@@ -361,6 +484,49 @@ export default {
             });
           });
         }
+      });
+    },
+    handleAddImage(){
+      this.dialogAddImageVisible=true;
+      this.imageFileList=[];
+    },
+    addImage(){
+      
+      if(!this.imageFile){
+          this.$message.error('Please select image');
+          return;
+      }
+      var form = new FormData();
+      form.append('id', this.temp.id);
+      form.append('file', this.imageFile);
+      this.buttonLoading=true;
+
+      uploadProductImage(form).then((response) => {
+        this.imageFileList=[];
+        this.buttonLoading=false;
+        this.dialogAddImageVisible=false;
+        this.temp.images.push(response.data);
+        this.$notify({
+          title: "Success",
+          message: response.message,
+          type: "success",
+          duration: 2000
+        });
+      });
+
+    },
+    deleteImage(row){
+      this.buttonLoading=true;
+      deleteProductImage(row.id).then((data) => {
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          this.buttonLoading=false;
+          const index = this.temp.images.indexOf(row);
+          this.temp.images.splice(index, 1);
       });
     },
   }

@@ -224,6 +224,8 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('products', 'ProductsAndCategoryController@getProducts');
     Route::get('products/{id}', 'ProductsAndCategoryController@getProduct');
     Route::delete('products/{id}/delete', 'ProductsAndCategoryController@deleteProduct');
+    Route::post('products/image/upload', 'ProductsAndCategoryController@uploadProductImage');
+    Route::delete('products/image/{id}/delete', 'ProductsAndCategoryController@deleteProductImage');
 
 
 });
