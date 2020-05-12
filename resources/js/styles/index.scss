@@ -273,9 +273,14 @@ hr {
 }
 
 .el-form-item {
-    margin-bottom: 6px;
+    margin-bottom: 25px;
 }
 
 .el-form-item--medium .el-form-item__content, .el-form-item--medium .el-form-item__label {
-    line-height: 30px;
+    line-height: 5px;
 }
+
+.el-form-item--medium .el-form-item__content, .el-form-item--medium .el-form-item__label {
+    line-height: 20px;
+}
+

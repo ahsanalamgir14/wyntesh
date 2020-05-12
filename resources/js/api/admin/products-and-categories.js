@@ -27,7 +27,8 @@ export function createCategory(data) {
   return request({
     url: '/admin/categories',
     method: 'post',
-    data
+    data,
+    headers: { "Content-Type": "multipart/form-data" }
   })
 }
 
@@ -35,7 +36,8 @@ export function updateCategory(data) {
   return request({
     url: '/admin/categories/update',
     method: 'post',
-    data
+    data,
+    headers: { "Content-Type": "multipart/form-data" }
   })
 }
 

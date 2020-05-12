@@ -38,6 +38,9 @@
               
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
+              <el-form-item label="Stock" prop="stock">
+                <el-input type="number" min="1" v-model="temp.stock" />
+              </el-form-item> 
               <el-form-item label="DP Cost" prop="dp_base">
                 <el-input type="number" min="1" @blur="calculateFinalDPPrice()" v-model="temp.dp_base" />
               </el-form-item>                
@@ -50,6 +53,9 @@
               
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
+              <el-form-item label="PV" prop="pv">
+                <el-input type="number" min="0" v-model="temp.pv" />
+              </el-form-item>
               <el-form-item label="Retail Cost" prop="retail_base">
                 <el-input type="number" min="1" @blur="calculateFinalRetailPrice()" v-model="temp.retail_base" />
               </el-form-item>                
@@ -75,12 +81,8 @@
           <el-row :gutter="20">            
            
             <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
-              <el-form-item label="Stock" prop="stock">
-                <el-input type="number" min="1" v-model="temp.stock" />
-              </el-form-item>  
-              <el-form-item label="PV" prop="pv">
-                <el-input type="number" min="0" v-model="temp.pv" />
-              </el-form-item>                          
+               
+                                        
               <el-form-item label="Discount Rate" prop="discount_rate">
                 <el-input type="number" min="0" v-model="temp.discount_rate" />
               </el-form-item>
@@ -101,29 +103,29 @@
               </el-form-item>              
             </el-col>
             <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
-            <div class="img-upload" >
-              <el-form-item  prop="cover_image" style="float: right;margin-right: 40px;">
-                    <label for="Cover Image"> Cover Image</label>
-                    <el-upload
-                      class="avatar-uploader"
-                      action="#"
-                       ref="upload"
-                      :show-file-list="true"
-                      :auto-upload="false"
-                      :on-change="handleChange"
-                      :on-remove="handleRemove"
-                      :limit="1"
-                      :file-list="fileList"
-                      :on-exceed="handleExceed"
-                      accept="image/png, image/jpeg">                      
-                      <img v-if="temp.cover_image" :src="temp?temp.cover_image_thumbnail:''"  class="avatar">
-                      <i v-if="temp.cover_image"  slot="default" class="el-icon-plus"></i>
-                      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                    </el-upload>
-                    <a  v-if="temp.cover_image" :href="temp?temp.cover_image:''" target="_blank">View full image.</a>                      
-                  </el-form-item>
-            </div>
-          </el-col>
+              <div class="img-upload" >
+                <el-form-item  prop="cover_image" style="float: right;margin-right: 40px;">
+                      <label for="Cover Image" style="line-height: 2;"> Cover Image</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handleChange"
+                        :on-remove="handleRemove"
+                        :limit="1"
+                        :file-list="fileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">                      
+                        <img v-if="temp.cover_image" :src="temp?temp.cover_image_thumbnail:''"  class="avatar">
+                        <i v-if="temp.cover_image"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload>
+                      <a  v-if="temp.cover_image" :href="temp?temp.cover_image:''" target="_blank">View full image.</a>                      
+                    </el-form-item>
+              </div>
+            </el-col>
           </el-row>
           <el-row >
             <hr>

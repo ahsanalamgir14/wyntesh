@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Product;
-use App\Models\Admin\Category;
-use App\Models\Admin\ProductImage;
+use App\Models\User\Cart;
+use App\Models\User\Order;
+use App\Models\User\OrderProduct;
 use Validator;
-use Image;
-use Storage;
+use JWTAuth;
 
-class ProductsAndCategoryController extends Controller
+class ShoppingController extends Controller
 {
    
     public function getCategories(Request $request)
@@ -47,16 +47,17 @@ class ProductsAndCategoryController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getAllCategories()
-    {           
-        $Categories=Category::all();                  
-        $response = array('status' => true,'message'=>"Categories retrieved.",'data'=>$Categories);
+    public function myCartProducts(){
+        $User=JWTAuth::user();
+        $Cart=Cart::where('user_id',$User->id)->pluck('product_id')->toArray();
+        $response = array('status' => true,'message'=>'Cart product received','data'=>$Cart);
         return response()->json($response, 200);
-    }
+    }    
 
-    public function createCategory(Request $request){
+    public function addToCart(Request $request){
+        $User=JWTAuth::user();
         $validate = Validator::make($request->all(), [           
-            'name' => "required"
+            'product_id' => "required"
         ]);
 
         if($validate->fails()){
@@ -64,29 +65,21 @@ class ProductsAndCategoryController extends Controller
             return response()->json($response, 400);
         }
 
-        $Category=new Category;
-        $Category->name=$request->name;
-        $Category->parent_id=$request->parent_id;
-        $Category->save();
+        $Cart=new Cart;
+        $Cart->product_id=$request->product_id;
+        $Cart->user_id=$User->id;
+        $Cart->qty=1;
+        $Cart->save();
 
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Category->id.".".$file->getClientOriginalExtension();          
-            $project_directory=env('DO_STORE_PATH');
+        $response = array('status' => true,'message'=>'Item added to cart.');
+        return response()->json($response, 200);
+    }
 
-            $store=Storage::disk('spaces')->put($project_directory.'/categories/'.$filename, file_get_contents($file->getRealPath()), 'public');
-            
-            $url=Storage::disk('spaces')->url($project_directory.'/categories/'.$filename);
-            
-            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $Category->image=$cdn_url;
-            $Category->save();
-        }
-       
-        $response = array('status' => true,'message'=>'Category created successfully.','data'=>$Category);
+    public function removeFromCart($id)
+    {
+        $User=JWTAuth::user();
+        $Cart= Cart::where('product_id',$id)->where('user_id',$User->id)->delete();                          
+        $response = array('status' => true,'message'=>'Product removed from cart.');             
         return response()->json($response, 200);
     }
 

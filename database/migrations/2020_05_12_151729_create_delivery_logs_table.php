@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCategoriesTable extends Migration
+class CreateDeliveryLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('delivery_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('name',64)->nullable();
-            $table->integer('parent_id')->nullable();
-            $table->string('image',2048)->nullable();            
+            $table->integer('order_id');
+            $table->string('delivery_status',32);
+            $table->string('remarks',1024)->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -30,6 +29,6 @@ class CreateCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('delivery_logs');
     }
 }

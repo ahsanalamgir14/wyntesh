@@ -556,6 +556,38 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/shopping',
+    component: Layout,
+    name: 'Shopping',
+    redirect: '/shopping/products',
+    meta: {
+      title: 'Shopping',
+      icon: 'fas fa-store',
+      roles: ['user'],
+      color:'color:#32a852'
+    },
+    children: [     
+      {
+        path: 'products',
+        component: () => import('@/views/user/shopping/products'),
+        name: 'Products',
+        meta: { title: 'Products', icon: 'fas fa-shopping-basket', color:'color:#EE7642', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'cart',
+        component: () => import('@/views/user/shopping/cart'),
+        name: 'Cart',
+        meta: { title: 'Cart', icon: 'fas fa-shopping-cart', color:'color:#854CE2', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'orders',
+        component: () => import('@/views/user/shopping/products'),
+        name: 'Orders',
+        meta: { title: 'Orders', icon: 'fas fa-truck', color:'color:#35BED1', affix: true, roles: ['user'] }
+      }
+    ]
+  },
+  {
     path: '/member/pins',
     component: Layout,
     name: 'PINs',

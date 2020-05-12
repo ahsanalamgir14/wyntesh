@@ -86,10 +86,10 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="dialogTitle" width="40%" top="30px"  :visible.sync="dialogCategoryVisible">
+    <el-dialog :title="dialogTitle" width="60%" top="30px"  :visible.sync="dialogCategoryVisible">
       <el-form ref="categoryForm" :rules="rules" :model="temp" style="">
         <el-row>
-          <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
             <el-form-item label="Name" prop="name">
               <el-input v-model="temp.name" />
             </el-form-item>
@@ -104,6 +104,30 @@
                 </el-option>
               </el-select>
             </el-form-item>
+          </el-col>
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+            <div class="img-upload" >
+              <el-form-item  prop="cover_image" style="float: right;margin-right: 40px;">
+                <label for="Cover Image" style="line-height: 2;"> Image</label>
+                <el-upload
+                  class="avatar-uploader"
+                  action="#"
+                   ref="upload"
+                  :show-file-list="true"
+                  :auto-upload="false"
+                  :on-change="handleChange"
+                  :on-remove="handleRemove"
+                  :limit="1"
+                  :file-list="fileList"
+                  :on-exceed="handleExceed"
+                  accept="image/png, image/jpeg">                      
+                  <img v-if="temp.image" :src="temp?temp.image:''"  class="avatar">
+                  <i v-if="temp.image"  slot="default" class="el-icon-plus"></i>
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-upload>
+                <a  v-if="temp.image" :href="temp?temp.image:''" target="_blank">View full image.</a>                      
+              </el-form-item>
+            </div>
           </el-col>
         </el-row>
       </el-form>
@@ -168,6 +192,8 @@ export default {
         parent_id: undefined,
       },
       parents:[],
+      fileList:[],
+      file:undefined,
       dialogCategoryVisible:false,
       is_updating: false,
       dialogTitle:'Create',
@@ -200,13 +226,27 @@ export default {
         this.parents = response.data;
       });
     },
-    
+    handleChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.file=f.raw      
+    },
+    handleRemove(file, fileList) {
+       this.file=undefined;
+       this.fileList=[];
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(`You can not select more than one file, please remove first.`);
+    },
     resetTemp() {
       this.temp = {
         id: undefined,
         name: undefined,
         parent_id: undefined,
       };
+      this.fileList=[];
+      this.file=undefined;
     },
     handleCreate() {
       this.is_updating = false;
@@ -220,8 +260,19 @@ export default {
     createData() {
       this.buttonLoading=true;
       this.$refs["categoryForm"].validate(valid => {
-        if (valid) {         
-          createCategory(this.temp).then((data) => {            
+        if (valid) {   
+          var form = new FormData();
+          let form_data=this.temp;
+
+          for ( var key in form_data ) {
+            if(form_data[key] !== undefined && form_data[key] !== null){
+              form.append(key, form_data[key]);
+            }
+          }
+
+          form.append('file', this.file);
+
+          createCategory(form).then((data) => {            
             this.dialogCategoryVisible = false;
             this.buttonLoading=false;
             this.resetTemp();
@@ -253,9 +304,18 @@ export default {
       this.buttonLoading=true;
       this.$refs["categoryForm"].validate(valid => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp);
+          var form = new FormData();
+          let form_data=this.temp;
 
-          updateCategory(tempData).then((data) => {
+          for ( var key in form_data ) {
+            if(form_data[key] !== undefined && form_data[key] !== null){
+              form.append(key, form_data[key]);
+            }
+          }
+
+          form.append('file', this.file);
+
+          updateCategory(form).then((data) => {
             this.dialogCategoryVisible = false;
             this.buttonLoading=false;
             this.resetTemp();

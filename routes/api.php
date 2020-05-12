@@ -65,8 +65,8 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::post('auth/update-password','\App\Http\Controllers\Auth\AuthController@changePassword');
    
-    Route::get('geneology', '\App\Http\Controllers\User\MembersController@myGeneology');
-    Route::get('geneology/member/{id}', '\App\Http\Controllers\User\MembersController@myMemberGeneology');
+    Route::get('geneology', 'MembersController@myGeneology');
+    Route::get('geneology/member/{id}', 'MembersController@myMemberGeneology');
 
     Route::get('pending-pin-requests', 'PinsController@myPendingPinRequests');
     Route::get('approved-pin-requests', 'PinsController@myApprovedPinRequests');
@@ -91,6 +91,13 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::get('wallet/credit-requests', 'WalletController@creditRequests');
     Route::post('wallet/credit-requests', 'WalletController@createCreditRequest');
+
+    Route::get('categories/all', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getAllCategories');
+    Route::get('products', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getProducts');
+
+    Route::post('cart/add/product', 'ShoppingController@addToCart');
+    Route::get('my/cart/products', 'ShoppingController@myCartProducts');
+    Route::delete('cart/product/{id}/remove', 'ShoppingController@removeFromCart');
 
 });
 
