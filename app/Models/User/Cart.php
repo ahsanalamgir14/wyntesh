@@ -14,7 +14,7 @@ class Cart extends Model {
 
     public function products()
     {
-        return $this->hasMany('App\Models\Admin\Product');
+        return $this->belongsTo('App\Models\Admin\Product','product_id');
     }
 
     public function user()

@@ -2,6 +2,13 @@ import request from '@/utils/request'
 
 // User Endpoints
 
+export function getMyBalance() {
+  return request({
+    url: '/user/wallet/balance',
+    method: 'get'
+  })
+}
+
 export function fetchWithdrawalRequests(query) {
   return request({
     url: '/user/withdrawal-requests',

@@ -34,6 +34,8 @@ class CreateProductsTable extends Migration
             $table->decimal('retail_amount', 8, 2)->default(0)->nullable();
             $table->decimal('discount_rate', 8, 2)->default(0)->nullable();
             $table->decimal('discount_amount', 8, 2)->default(0)->nullable();
+            $table->decimal('admin_charge', 8, 2)->default(0)->nullable();
+            $table->decimal('shipping_fee', 8, 2)->default(0)->nullable();
             $table->decimal('pv', 8, 2)->default(0)->nullable();
             $table->integer('stock')->default(0);  
             $table->string('cover_image',2048)->nullable();

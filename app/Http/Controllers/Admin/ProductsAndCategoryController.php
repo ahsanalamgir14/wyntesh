@@ -217,8 +217,10 @@ class ProductsAndCategoryController extends Controller
         $Product->retail_base=$request->retail_base;
         $Product->retail_gst=$request->retail_gst;
         $Product->retail_amount=$request->retail_amount;
-        $Product->discount_rate=$request->discount_rate;
-        $Product->discount_amount=$request->discount_amount;
+        $Product->discount_rate=$request->discount_rate?:0;
+        $Product->discount_amount=$request->discount_amount?:0;
+        $Product->admin_fee=$request->admin_fee;
+        $Product->shipping_fee=$request->shipping_fee;
         $Product->pv=$request->pv;
         $Product->stock=$request->stock;
         $Product->save();
@@ -301,8 +303,10 @@ class ProductsAndCategoryController extends Controller
         $Product->retail_base=$request->retail_base;
         $Product->retail_gst=$request->retail_gst;
         $Product->retail_amount=$request->retail_amount;
-        $Product->discount_rate=$request->discount_rate;
-        $Product->discount_amount=$request->discount_amount;
+        $Product->discount_rate=$request->discount_rate?:0;
+        $Product->discount_amount=$request->discount_amount?:0;
+        $Product->admin_fee=$request->admin_fee;
+        $Product->shipping_fee=$request->shipping_fee;
         $Product->pv=$request->pv;
         $Product->stock=$request->stock;
         $Product->save();

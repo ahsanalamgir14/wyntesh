@@ -84,6 +84,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::delete('withdrawal-requests/{id}/delete', 'WalletController@destroy');
     Route::post('withdrawal-requests/reject', 'WalletController@rejectWithdrawalRequest');
 
+    Route::get('wallet/balance', 'WalletController@getMyBalance');
     Route::get('withdrawals', 'WalletController@getWithdrawals');
     Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
@@ -92,12 +93,23 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('wallet/credit-requests', 'WalletController@creditRequests');
     Route::post('wallet/credit-requests', 'WalletController@createCreditRequest');
 
+    Route::post('address','AddressesController@createAddress');
+    Route::post('address/update', 'AddressesController@updateAddress');
+    Route::get('addresses', 'AddressesController@getAddresses');
+    Route::get('addresses/all', 'AddressesController@getAllAddresses');
+    Route::get('address/{id}', 'AddressesController@getAddress');
+    Route::delete('address/{id}/delete', 'AddressesController@deleteAddress');
+
     Route::get('categories/all', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getAllCategories');
     Route::get('products', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getProducts');
 
     Route::post('cart/add/product', 'ShoppingController@addToCart');
+    Route::post('cart/update/qty', 'ShoppingController@updateCartQty');
     Route::get('my/cart/products', 'ShoppingController@myCartProducts');
+    Route::get('my/cart', 'ShoppingController@myCart');
     Route::delete('cart/product/{id}/remove', 'ShoppingController@removeFromCart');
+
+    Route::post('order/place', 'ShoppingController@placeOrder');
 
 });
 

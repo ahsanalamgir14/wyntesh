@@ -1,98 +1,100 @@
 <template>
   <div class="app-container">
     
-    <el-row>
+   <!--  <el-row>
       <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" style="margin-right: 10px;">
         <h1 >My Cart<br><br><br></h1>
       </el-col>
-    </el-row>
-    <el-row >
-      <el-col  :span="23"  style="margin-right: 10px;">
+    </el-row> -->
+    <el-row :gutter="10">
+      <el-col  :xs="24" :sm="24" :md="16" :lg="16" :xl="16" >
         <div class="shopping-cart">
-          <div class="column-labels">
-            <label class="product-image">Product</label>
-            <label class="product-details">Product</label>
-            <label class="product-price">Price</label>
-            <label class="product-quantity">Quantity</label>
-            <label class="product-removal">Remove</label>
-            <label class="product-line-price">Total</label>
+          <!-- Title -->
+          <div class="title">
+            My Cart
+          </div>
+         
+          <!-- Product #1 -->
+          <div class="item"  v-for="product in cartProducts" :key="product.id" v-if="cartProducts">
+            <div class="buttons">
+              <el-button                
+                type="danger"
+                icon="el-icon-delete"
+                circle
+                :loading="buttonLoading"
+                @click="removeFromCart(product.product_id)"
+              ></el-button>
+            </div>
+         
+            <div class="image">
+              <img :src="product.products.cover_image_thumbnail" alt="" style="max-height: 78px;max-width: 78px;" />
+            </div>
+         
+            <div class="description">
+              <span>{{product.products.name}}</span>
+            </div>
+         
+            <div class="quantity">
+             
+              <el-input style="width: 80px;" v-model="product.qty" @change="updateCartQty(product.product_id,product.qty)" type="number"  min="1"  :max="product.products.stock" />
+            </div>
+         
+            <div class="total-price">₹ {{product.products.retail_amount*product.qty}}</div>
+          </div>
+          <div class="empty-cart" v-if="cartProducts.length == 0">
+              <h2 style="text-align: center;">Your cart is empty, buy something.</h2>
+              <img :src="emptyCart" alt="" style="max-height: 400px;max-width: 400px;" />
+          </div>
+        </div>
+      </el-col>
+      <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
+        <div class="shopping-cart">
+          <!-- Title -->
+          <div class="title">
+            Cart Total (Without Taxes)
+          </div>          
+          <div class="calculations">
+            <div class="cal-grand">
+              <span>Total</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.subtotal}}</span></div>
           </div>
 
-          <div class="product"  v-for="product in list" :key="product.id" >
-            <div class="product-image">
-              <img :src="product.cover_image_thumbnail" >
-            </div>
-            <div class="product-details">
-              <div class="product-title">{{product.name}}</div>
-              <!-- <span class="product-description" v-html="product.description?product.description.substr(0, 150)+' ...':''"></span> -->
-            </div>
-            <div class="product-price">{{product.retail_amount}}</div>
-            <div class="product-quantity">
-              <el-input style="width: 80px;" type="number" value="2" min="1"  />
-            </div>
-            <div class="product-removal">
-              <button class="remove-product">
-                Remove
-              </button>
-            </div>
-            <div class="product-line-price">25.98</div>
+          <div class="checkout-btn" v-if="cartProducts.length != 0">
+            <el-button 
+                class="checkout"               
+                type="success"
+                round
+                size="large"
+                icon="el-icon-shopping-cart-full"                
+                :loading="buttonLoading"
+                @click="$router.push('/shopping/checkout')"
+              >Checkout</el-button>
           </div>
-
-          <div class="totals">
-            <div class="totals-item">
-              <label>Subtotal</label>
-              <div class="totals-value" id="cart-subtotal">71.97</div>
-            </div>
-            <div class="totals-item">
-              <label>Tax (5%)</label>
-              <div class="totals-value" id="cart-tax">3.60</div>
-            </div>
-            <div class="totals-item">
-              <label>Shipping</label>
-              <div class="totals-value" id="cart-shipping">15.00</div>
-            </div>
-            <div class="totals-item totals-item-total">
-              <label>Grand Total</label>
-              <div class="totals-value" id="cart-total">90.57</div>
-            </div>
+          <div class="checkout-btn" v-if="cartProducts.length == 0">
+            <el-button 
+                class="checkout"               
+                type="success"
+                round
+                size="large"
+                icon="el-icon-shopping-cart-full"                
+                :loading="buttonLoading"
+                @click="$router.push('/shopping/products')"
+              >Go to Products</el-button>
           </div>
-              
-              <button class="checkout">Checkout</button>
-
         </div>
       </el-col>
     </el-row>
-
-
-    <el-dialog title="Transfer Pins to Member" width="40%" center :visible.sync="dialogPinTransferVisible" style="height: auto;margin: 0 auto;">
-      <el-form ref="pinTransferForm" :rules="pinTransferRules"  :model="temp" style="width: 70%;margin: 0 auto;">
-        <el-form-item label="Member ID" prop="member_id">
-          <el-input  v-on:blur="handleCheckMemberId()" v-model="temp.member_id" />
-        </el-form-item>
-        <el-form-item label="Member Name" prop="member_name">
-          <el-input  disabled v-model="temp.member_name" />
-        </el-form-item>
-        <el-input
-          type="textarea"
-          v-model="temp.note"
-          :rows="2"
-          placeholder="Please Enter Note">
-        </el-input>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogPinTransferVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="transferPins()">Confirm</el-button>
-      </span>
-    </el-dialog>
 
   </div>
 </template>
 
 <script>
-import { fetchProducts, getAllCategories, getMyCartProducts, addToCart, removeFromCart } from "@/api/user/shopping";
+import { getMyCart, addToCart, removeFromCart, updateCartQty } from "@/api/user/shopping";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination";
+import emptyCart from "@/assets/images/empty-cart.jpg";
 
 export default {
   name: "transfer-pin",
@@ -111,6 +113,7 @@ export default {
   },
   data() {
     return {
+      emptyCart:emptyCart,
       tableKey: 0,
       list: [],
       total: 0,
@@ -125,74 +128,66 @@ export default {
       categories:[],
       cartProducts:[],
       temp: {
-        member_id:undefined,
-        member_name: undefined,
-        note:undefined,   
+        subtotal:0,
+        total_gst: 0,
+        shipping:0,
+        admin:0,
+        discount:0,
+        grand_total:0,
 
       },
-      pinTransferRules: {
-        member_id: [{ required: true, message: 'Member Id is required', trigger: 'blur' }]
-      },
-      dialogPinTransferVisible:false,
-      dialogTitle:'',
       is_create:true,      
       downloadLoading: false,
       buttonLoading: false
     };
   },
-  created() {
-    this.getList();
-    this.getConfig();
-    this.getMyCartProducts();
+  created() {    
+    this.getMyCart();
   },
-  methods: {    
-    getList() {
-      this.listLoading = true;
-      fetchProducts(this.listQuery).then(response => {
-        this.list = response.data.data;
-        this.total = response.data.total;
-        setTimeout(() => {
-          this.listLoading = false;
-        }, 1 * 100);
+  methods: {        
+    getMyCart(){
+      getMyCart().then(response => {
+        this.cartProducts = response.data;   
+        this.calculateFinal();     
       });
     },
-    getConfig() {      
-      getAllCategories().then(response => {
-        this.categories = response.data;
-      });
+    calculateFinal() {
+      this.resetTemp();
+        this.cartProducts.forEach((cart)=>{
+          this.temp.subtotal+=parseFloat(cart.products.retail_amount)*parseInt(cart.qty);
+          this.temp.total_gst+=parseFloat(cart.products.retail_gst)*parseInt(cart.qty);
+          this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
+          this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
+          this.temp.discount+=parseFloat(cart.products.discount_amount)*parseInt(cart.qty);
+          this.temp.grand_total=this.temp.subtotal+this.temp.total_gst+this.temp.shipping+this.temp.admin-this.temp.discount;
+        });  
     },
-    getMyCartProducts(){
-      getMyCartProducts().then(response => {
-        this.cartProducts = response.data;
-      });
+    resetTemp(){
+      this.temp= {
+        subtotal:0,
+        total_gst: 0,
+        shipping:0,
+        admin:0,
+        discount:0,
+        grand_total:0,
+
+      };
     },
-    handlePinTansfer() {
-      this.dialogPinTransferVisible = true;
-      this.$nextTick(() => {
-        this.$refs["pinTransferForm"].clearValidate();
-      });      
-    },
-    addToCart(id){
+    updateCartQty(id,qty){
       let tempData={
         'product_id':id,
+        'qty':qty,
       };
-      this.buttonLoading=true;
-      addToCart(tempData).then((response) => {
+      updateCartQty(tempData).then((response) => {
         this.buttonLoading=false;
-        this.getMyCartProducts();
-        this.$notify({
-          title: "Success",
-          message: response.message,
-          type: "success",
-          duration: 2000
-        });
+        this.getMyCart();
       });      
     },
     removeFromCart(id){      
       this.buttonLoading=true;
       removeFromCart(id).then((response) => {
         this.buttonLoading=false;
-        this.getMyCartProducts();
+        this.getMyCart();
         this.$notify({
           title: "Success",
           message: response.message,
@@ -210,248 +205,260 @@ export default {
 </script>
 
 <style scoped >
-/*
-I wanted to go with a mobile first approach, but it actually lead to more verbose CSS in this case, so I've gone web first. Can't always force things...
-
-Side note: I know that this style of nesting in SASS doesn't result in the most performance efficient CSS code... but on the OCD/organizational side, I like it. So for CodePen purposes, CSS selector performance be damned.
-*/
-/* Global settings */
-/* Global "table" column settings */
-.product-image {
-  float: left;
-  width: 20%;
+* {
+  box-sizing: border-box;
 }
 
-.product-details {
-  float: left;
-  width: 37%;
-  padding-right: 20px;
-}
-
-.product-price {
-  float: left;
-  width: 12%;
-}
-
-.product-quantity {
-  float: left;
-  width: 10%;
-}
-
-.product-removal {
-  float: left;
-  width: 9%;
-}
-
-.product-line-price {
-  float: left;
-  width: 12%;
-  text-align: right;
-}
-
-/* This is used as the traditional .clearfix class */
-.group:before, .shopping-cart:before, .column-labels:before, .product:before, .totals-item:before,
-.group:after,
-.shopping-cart:after,
-.column-labels:after,
-.product:after,
-.totals-item:after {
-  content: '';
-  display: table;
-}
-
-.group:after, .shopping-cart:after, .column-labels:after, .product:after, .totals-item:after {
-  clear: both;
-}
-
-.group, .shopping-cart, .column-labels, .product, .totals-item {
-  zoom: 1;
-}
-
-/* Apply clearfix in a few places */
-/* Apply dollar signs */
-.product .product-price:before, .product .product-line-price:before, .totals-value:before {
-  content: '$';
-}
-
-/* Body/Header stuff */
+html,
 body {
-  padding: 0px 30px 30px 20px;  
-  font-weight: 100;  
-}
-
-h1 {
-  font-weight: 100;
-  color:#2b2b2b;
-}
-
-label {
-  color: #aaa;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  margin: 0;
+  background-color: #7EC855;
+  font-family: 'Roboto', sans-serif;
 }
 
 .shopping-cart {
-  margin-top: -45px;
+ 
+  background: #FFFFFF;
+  box-shadow: 0px 1px 10px 5px rgba(0,0,0,0.10);
+  border-radius: 6px;
+
+  display: flex;
+  flex-direction: column;
 }
 
-/* Column headers */
-.column-labels label {
-  padding-bottom: 15px;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #eee;
-}
- .column-labels .product-details, .column-labels .product-removal {
-  text-indent: -9999px;
+.empty-cart{
+  margin:0 auto;
 }
 
-/* Product entries */
-.product {
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+.title {
+  height: 60px;
+  border-bottom: 1px solid #E1E8EE;
+  padding: 20px 30px;
+  color: #5E6977;
+  font-size: 18px;
+  font-weight: 400;
 }
-.product .product-image {
-  text-align: center;
+
+.calculations {
+  padding: 5px 7px;
+  height: 40px;
+  display: flex;
 }
-.product .product-image img {
-  max-width: 50px;
-  max-height: 50px;
+
+.calculations {
+ /* border-top:  1px solid #E1E8EE;*/
+  border-bottom:  1px solid #E1E8EE;
 }
-.product .product-details .product-title {
+
+
+.item {
+  padding: 20px 30px;
+  height: 120px;
+  display: flex;
+}
+
+.item {
+  /*border-top:  1px solid #E1E8EE;*/
+  border-bottom:  1px solid #E1E8EE;
+}
+
+/* Buttons -  Delete and Like */
+.buttons {
+  position: relative;
+  padding-top: 30px;
+  margin-right: 60px;
+}
+
+.delete-btn {
+  display: inline-block;
+  cursor: pointer;
+  width: 18px;
+  height: 17px;
+  
   margin-right: 20px;
-  
-  color:#2b2b2b;
-}
-.product .product-details .product-description {
-  margin: 5px 20px 5px 0;
-  line-height: 1.4em;
-  color:#757575;
-}
-.product .product-quantity el-input {
-  width: 40px;
-}
-.product .remove-product {
-  border: 0;
-  padding: 4px 8px;
-  background-color: #c66;
-  color: #fff;
-  
-  font-size: 12px;
-  border-radius: 3px;
-}
-.product .remove-product:hover {
-  background-color: #a44;
 }
 
-/* Totals section */
-.totals .totals-item {
-  float: right;
-  clear: both;
+.like-btn {
+  position: absolute;
+  top: 9px;
+  left: 15px;
+  display: inline-block;
+  
+  width: 60px;
+  height: 60px;
+  background-size: 2900%;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.is-active {
+  animation-name: animate;
+  animation-duration: .8s;
+  animation-iteration-count: 1;
+  animation-timing-function: steps(28);
+  animation-fill-mode: forwards;
+}
+
+@keyframes animate {
+  0%   { background-position: left;  }
+  50%  { background-position: right; }
+  100% { background-position: right; }
+}
+
+/* Product Image */
+.image {
+  margin-right: 50px;
+  width: 100px;
+  text-align:center;
+}
+
+/* Product Description */
+.description {
+  padding-top: 10px;
+  margin-right: 60px;
+  width: 115px;
+}
+
+.description span {
+  display: block;
+  font-size: 14px;
+  color: #43484D;
+  font-weight: 400;
+}
+
+.description span:first-child {
+  margin-bottom: 5px;
+}
+.description span:last-child {
+  font-weight: 300;
+  margin-top: 8px;
+  color: #86939E;
+}
+
+.cal-title {
   width: 100%;
-  margin-bottom: 10px;
 }
-.totals .totals-item label {
-  float: left;
-  clear: both;
-  width: 79%;
-  text-align: right;
+
+.cal-title span {
+  margin-left: 25px;
+  display: block;
+  font-size: 16px;
+  color: #6c7175;
+  font-weight: 400;
 }
-.totals .totals-item .totals-value {
+
+.cal-grand {
+  width: 100%;
+}
+.cal-grand span {
+  margin-left: 25px;
+  display: block;
+  font-size: 20px;
+  margin-top: 4px;
+  color: #5d5d5d;
+  font-weight: 400;
+}
+
+.cal-title span:first-child {
+  margin-bottom: 5px;
+}
+.cal-title span:last-child {
+  font-weight: 300;
+  margin-top: 8px;
+  color: #86939E;
+}
+
+/* Product Quantity */
+.quantity {
+  padding-top: 20px;
+  margin-right: 60px;
+}
+.quantity input {
+  -webkit-appearance: none;
+  border: none;
+  text-align: center;
+  width: 32px;
+  font-size: 16px;
+  color: #43484D;
+  font-weight: 300;
+}
+
+.checkout-btn{
+  padding: 15px 15px 15px 15px;
+}
+
+.checkout-btn button{
   float: right;
-  width: 21%;
+}
+
+
+button[class*=btn] {
+  width: 30px;
+  height: 30px;
+  background-color: #E1E8EE;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.minus-btn img {
+  margin-bottom: 3px;
+}
+.plus-btn img {
+  margin-top: 2px;
+}
+button:focus,
+input:focus {
+  outline:0;
+}
+
+/* Total Price */
+.total-price {
+  width: 83px;
+  padding-top: 27px;
+  text-align: center;
+  font-size: 16px;
+  color: #43484D;
+  font-weight: 300;
+}
+
+.cal-amount {  
+  width: 100%;
+  margin-right: 25px;
+  padding-top: 8px;
   text-align: right;
-}
-.totals .totals-item-total {
-  font-family: "HelveticaNeue-Medium", "Helvetica Neue Medium";
-}
-
-.checkout {
-  float: right;
-  border: 0;
-  margin-top: 20px;
-  padding: 6px 25px;
-  background-color: #6b6;
-  color: #fff;
-  font-size: 25px;
-  border-radius: 3px;
+  font-size: 16px;
+  color: #43484D;
+  font-weight: 300;
 }
 
-.checkout:hover {
-  background-color: #494;
-}
-
-/* Make adjustments for tablet */
-@media screen and (max-width: 650px) {
+/* Responsive */
+@media (max-width: 800px) {
   .shopping-cart {
-    margin: 0;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
   }
-
-  .column-labels {
-    display: none;
+  .item {
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-
-  .product-image {
-    float: right;
-    width: auto;
+  .image img {
+    max-height: 50px;
+    max-width: 50px;
   }
-  .product-image img {
-    margin: 0 0 10px 10px;
+  .image,
+  .quantity,
+  .description {
+    width: 100%;
+    text-align: center;
+    margin: 6px 0;
   }
-
-  .product-details {
-    float: none;
-    margin-bottom: 10px;
-    width: auto;
-  }
-
-  .product-price {
-    clear: both;
-    width: 70px;
-  }
-
-  .product-quantity {
-    width: 100px;
-  }
-  .product-quantity input {
-    margin-left: 20px;
-  }
-
-  .product-quantity:before {
-    content: 'x';
-  }
-
-  .product-removal {
-    width: auto;
-  }
-
-  .product-line-price {
-    float: right;
-    width: 70px;
-  }
-}
-/* Make more adjustments for phone */
-@media screen and (max-width: 350px) {
-  .product-removal {
-    float: right;
-  }
-
-  .product-line-price {
-    float: right;
-    clear: left;
-    width: auto;
-    margin-top: 10px;
-  }
-
-  .product .product-line-price:before {
-    content: 'Item Total: $';
-  }
-
-  .totals .totals-item label {
-    width: 60%;
-  }
-  .totals .totals-item .totals-value {
-    width: 40%;
+  .buttons {
+    margin-right: 20px;
   }
 }
 </style>

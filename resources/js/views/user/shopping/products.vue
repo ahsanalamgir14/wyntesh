@@ -122,7 +122,7 @@ export default {
       listLoading: false,
       listQuery: {
         page: 1,
-        limit: 12,
+        limit: 20,
         search:undefined,
         package_id: undefined,
         sort: "+id"

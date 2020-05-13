@@ -464,6 +464,13 @@ class WalletController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getMyBalance(){
+        $user=JWTAuth::user();
+        $balance=$user->member->wallet_balance;
+        $response = array('status' => true,'message'=>'Balance retrieved','data'=>$balance);             
+        return response()->json($response, 200);
+    }
+
    
     /**
      * Remove the specified resource from storage.

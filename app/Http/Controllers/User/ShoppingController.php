@@ -8,6 +8,8 @@ use App\Models\Admin\Product;
 use App\Models\User\Cart;
 use App\Models\User\Order;
 use App\Models\User\OrderProduct;
+use App\Models\Superadmin\TransactionType;
+use App\Models\Admin\WalletTransaction;
 use Validator;
 use JWTAuth;
 
@@ -52,6 +54,13 @@ class ShoppingController extends Controller
         $Cart=Cart::where('user_id',$User->id)->pluck('product_id')->toArray();
         $response = array('status' => true,'message'=>'Cart product received','data'=>$Cart);
         return response()->json($response, 200);
+    }
+
+    public function myCart(){
+        $User=JWTAuth::user();
+        $Cart=Cart::where('user_id',$User->id)->with('products')->get();
+        $response = array('status' => true,'message'=>'Cart product received','data'=>$Cart);
+        return response()->json($response, 200);
     }    
 
     public function addToCart(Request $request){
@@ -75,6 +84,25 @@ class ShoppingController extends Controller
         return response()->json($response, 200);
     }
 
+    public function updateCartQty(Request $request){
+        $User=JWTAuth::user();
+        $validate = Validator::make($request->all(), [           
+            'product_id' => "required|integer",
+            'qty' => "required|integer",
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $Cart=Cart::where('product_id',$request->product_id)->where('user_id',$User->id)->first();
+        $Cart->qty=$request->qty;
+        $Cart->save();
+
+        $response = array('status' => true,'message'=>'Cart updated.');
+        return response()->json($response, 200);
+    }
     public function removeFromCart($id)
     {
         $User=JWTAuth::user();
@@ -83,10 +111,11 @@ class ShoppingController extends Controller
         return response()->json($response, 200);
     }
 
-    public function updateCategory(Request $request){        
-        
+    public function placeOrder(Request $request){
         $validate = Validator::make($request->all(), [           
-            'name' => "required"
+            'payment_mode' => "required|max:32",
+            'grand_total' => "required|numeric",
+            'shipping_address_id' => 'required|integer'
         ]);
 
         if($validate->fails()){
@@ -94,324 +123,84 @@ class ShoppingController extends Controller
             return response()->json($response, 400);
         }
 
-        $Category=Category::find($request->id);
-        $Category->name=$request->name;
-        $Category->parent_id=$request->parent_id;
-        $Category->save();
+        $User=JWTAuth::user();
 
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Category->id.".".$file->getClientOriginalExtension();          
-            $project_directory=env('DO_STORE_PATH');
+        $balance=$User->member->wallet_balance;
 
-            $store=Storage::disk('spaces')->put($project_directory.'/categories/'.$filename, file_get_contents($file->getRealPath()), 'public');
+        if($balance < $request->grand_total){
+            $response = array('status' => false,'message'=>'You do not have enough balance place order');
+            return response()->json($response, 400);
+        }
+
+        $Cart=Cart::where('user_id',$User->id)->get();
+
+        $subtotal=0;
+        $total_gst=0;
+        $shipping=0;
+        $admin=0;
+        $discount=0;
+        $grand_total=0;
+        $pv=0;
+
+        foreach ($Cart as $item) {
+            $subtotal+=floatval($item->products->retail_base)*intval($item->qty);
+            $total_gst+=floatval($item->products->retail_gst)*intval($item->qty);
+            $shipping+=floatval($item->products->shipping_fee)*intval($item->qty);
+            $admin+=floatval($item->products->admin_fee)*intval($item->qty);
+            $discount+=floatval($item->products->discount_amount)*intval($item->qty);
+            $pv+=floatval($item->products->pv?:0)*intval($item->pv);
+            $grand_total=$subtotal+$total_gst+$shipping+$admin-$discount;
+        }
+
+        if($grand_total != $request->grand_total){
+            $response = array('status' => false,'message'=>'Order data mismatch. try again');
+            return response()->json($response, 400);
+        }
+
+        $order_no = substr(str_shuffle("01234012345678900123456789123456012345678978956789"), 0, 10);
+
+        $TransactionType=TransactionType::where('name','Debit (Purchase)')->first();
+
+        if($TransactionType){
+            $WalletTransaction=new WalletTransaction;
+            $WalletTransaction->member_id=$User->member->id;
+            $WalletTransaction->balance=$balance-$grand_total;
+            $WalletTransaction->amount=$grand_total;
+            $WalletTransaction->transaction_type_id=$TransactionType->id;
+            $WalletTransaction->transaction_by=$User->id;
+            $WalletTransaction->note='Product Purchase';
+            $WalletTransaction->save();
+
+            $final_balance=$balance-$grand_total;
+            $User->member->wallet_balance=$final_balance;
+            $User->member->save();
+
+            $Order=new Order;
+            $Order->order_no=$order_no;
+            $Order->user_id=$User->id;
+            $Order->amount=$subtotal;
+            $Order->discount=$discount;
+            $Order->gst=$total_gst;
+            $Order->shipping_fee=$shipping;
+            $Order->admin_fee=$admin;
+            $Order->final_amount=$grand_total;
+            $Order->pv=$pv;
+            $Order->payment_status='Success';
+            $Order->wallet_transaction_id=$WalletTransaction->id;            
+            $Order->payment_mode=$request->payment_mode;
+            $Order->shipping_address_id=$request->shipping_address_id;
+            $Order->billing_address_id=$request->billing_address_id;
+            $Order->delivery_status='Order Created';
+            $Order->save();
+
+            Cart::where('user_id',$User->id)->delete();
             
-            $url=Storage::disk('spaces')->url($project_directory.'/categories/'.$filename);
-            
-            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $Category->image=$cdn_url;
-            $Category->save();
-        }
-
-        $response = array('status' => true,'message'=>'Category updated successfully.','data'=>$Category);
-        return response()->json($response, 200);
-    }
-
-    public function deleteCategory($id)
-    {
-       $Categories= Categories::find($id);                 
-         if($Categories){
-            $Categories->delete(); 
-            $response = array('status' => true,'message'=>'Category successfully deleted.');             
+            $response = array('status' => true,'message'=>'Your order has been placed successfully','data'=>$Order);
             return response()->json($response, 200);
+
         }else{
-            $response = array('status' => false,'message'=>'Categories not found');
-            return response()->json($response, 404);
-        }
-    }
-
-    public function getProducts(Request $request)
-    {
-        $page=$request->page;
-        $limit=$request->limit;
-        $sort=$request->sort;
-        $search=$request->search;
-        $category_id=$request->category_id;
-
-        if(!$page){
-            $page=1;
-        }
-
-        if(!$limit){
-            $limit=1000;
-        }
-
-        if ($sort=='+id'){
-            $sort = 'asc';
-        }else{
-            $sort = 'desc';
-        }
-
-        if(!$search && !$category_id){           
-            $Products=Product::with('categories')->orderBy('id',$sort)->paginate($limit);    
-        }else{
-            $Products=Product::select();
-            
-            $Products=$Products->where(function ($query)use($search) {
-                $query->orWhere('name','like','%'.$search.'%');             
-            });
-
-            if($category_id){
-                $Products=$Products->whereHas('categories', function($q)use($category_id){
-                    $q->where('categories.id',$category_id);
-                });    
-            }
-         
-            $Products=$Products->with('categories')->orderBy('id',$sort)->paginate($limit);
-        }
-        
-       $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
-        return response()->json($response, 200);
-    }
-
-
-    public function createProduct(Request $request){
-        $validate = Validator::make($request->all(), [           
-            'product_number' => "required|max:32",
-            'name' => "required|max:64",
-            'qty' => "required|integer",
-            'qty_unit' => "required|max:32",
-            'stock' => "required|integer",
-        ]);
-
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            $response = array('status' => false,'message'=>'Something went wrong, contact admin.');
             return response()->json($response, 400);
-        }
-
-        $Product=new Product;
-        $Product->product_number=$request->product_number;
-        $Product->name=$request->name;
-        $Product->brand_name=$request->brand_name;
-        $Product->qty=$request->qty;
-        $Product->qty_unit=$request->qty_unit;
-        $Product->description=$request->description;
-        $Product->benefits=$request->benefits;
-        $Product->gst_rate=$request->gst_rate;
-        $Product->cost_base=$request->cost_base;
-        $Product->cost_gst=$request->cost_gst;
-        $Product->cost_amount=$request->cost_amount;
-        $Product->dp_base=$request->dp_base;
-        $Product->dp_gst=$request->dp_gst;
-        $Product->dp_amount=$request->dp_amount;
-        $Product->retail_base=$request->retail_base;
-        $Product->retail_gst=$request->retail_gst;
-        $Product->retail_amount=$request->retail_amount;
-        $Product->discount_rate=$request->discount_rate;
-        $Product->discount_amount=$request->discount_amount;
-        $Product->pv=$request->pv;
-        $Product->stock=$request->stock;
-        $Product->save();
-
-        $cats=explode(',', $request->categories);
-        $Product->categories()->sync($cats);
-
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Product->id.".".$file->getClientOriginalExtension();
-            $thumb=$randomID.'-'.$Product->id."-thumb.".$file->getClientOriginalExtension();
-
-            $thumb_img = Image::make($file);
-
-            $thumb_img->resize(400, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-
-            $thumb_resized = $thumb_img->stream()->detach();
-
-            $project_directory=env('DO_STORE_PATH');
-
-            $store=Storage::disk('spaces')->put($project_directory.'/products/'.$filename, file_get_contents($file->getRealPath()), 'public');            
-            $url=Storage::disk('spaces')->url($project_directory.'/products/'.$filename);            
-            $cover_image=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $store=Storage::disk('spaces')->put($project_directory.'/products/'.$thumb, $thumb_resized, 'public');
-            $url=Storage::disk('spaces')->url($project_directory.'/products/'.$thumb);            
-            $cover_image_thumbnail=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $Product->cover_image=$cover_image;
-            $Product->cover_image_thumbnail=$cover_image_thumbnail;
-            $Product->save();
-        }
-        
-        $Product=Product::with('categories','images')->find($Product->id);
-        $response = array('status' => true,'message'=>'Product created successfully.','data'=>$Product);
-        return response()->json($response, 200);
-    }
-
-    public function updateProduct(Request $request){        
-        
-        $validate = Validator::make($request->all(), [           
-            'id' => "required|integer",
-            'product_number' => "required|max:32",
-            'name' => "required|max:64",
-            'qty' => "required|integer",
-            'qty_unit' => "required|max:32",
-            'stock' => "required|integer",
-        ]);
-
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
-            return response()->json($response, 400);
-        }
-
-        $Product= Product::find($request->id);
-
-        if(!$Product){
-            $response = array('status' => false,'message'=>'Product not found');
-            return response()->json($response, 404);
-        }
-
-        $Product->product_number=$request->product_number;
-        $Product->name=$request->name;
-        $Product->brand_name=$request->brand_name;
-        $Product->qty=$request->qty;
-        $Product->qty_unit=$request->qty_unit;
-        $Product->description=$request->description;
-        $Product->benefits=$request->benefits;
-        $Product->gst_rate=$request->gst_rate;
-        $Product->cost_base=$request->cost_base;
-        $Product->cost_gst=$request->cost_gst;
-        $Product->cost_amount=$request->cost_amount;
-        $Product->dp_base=$request->dp_base;
-        $Product->dp_gst=$request->dp_gst;
-        $Product->dp_amount=$request->dp_amount;
-        $Product->retail_base=$request->retail_base;
-        $Product->retail_gst=$request->retail_gst;
-        $Product->retail_amount=$request->retail_amount;
-        $Product->discount_rate=$request->discount_rate;
-        $Product->discount_amount=$request->discount_amount;
-        $Product->pv=$request->pv;
-        $Product->stock=$request->stock;
-        $Product->save();
-
-        $cats=explode(',', $request->categories);
-        $Product->categories()->sync($cats);
-
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Product->id.".".$file->getClientOriginalExtension();
-            $thumb=$randomID.'-'.$Product->id."-thumb.".$file->getClientOriginalExtension();
-
-            $thumb_img = Image::make($file);
-
-            $thumb_img->resize(400, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-
-            $thumb_resized = $thumb_img->stream()->detach();
-
-            $project_directory=env('DO_STORE_PATH');
-
-            $store=Storage::disk('spaces')->put($project_directory.'/products/'.$filename, file_get_contents($file->getRealPath()), 'public');            
-            $url=Storage::disk('spaces')->url($project_directory.'/products/'.$filename);            
-            $cover_image=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $store=Storage::disk('spaces')->put($project_directory.'/products/'.$thumb, $thumb_resized, 'public');
-            $url=Storage::disk('spaces')->url($project_directory.'/products/'.$thumb);            
-            $cover_image_thumbnail=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $Product->cover_image=$cover_image;
-            $Product->cover_image_thumbnail=$cover_image_thumbnail;
-            $Product->save();
-        }
-        
-        $Product=Product::with('categories','images')->find($Product->id);
-        
-        $response = array('status' => true,'message'=>'Product updated successfully.','data'=>$Product);
-        return response()->json($response, 200);
-    }
-
-    public function getProduct($id)
-    {
-       $Product=Product::with('categories','images')->find($id);
-         if($Product){
-            $response = array('status' => true,'message'=>'Product retrieved.','data'=>$Product);             
-            return response()->json($response, 200);
-        }else{
-            $response = array('status' => false,'message'=>'Product not found');
-            return response()->json($response, 404);
-        }
-    }
-
-    public function deleteProduct($id)
-    {
-       $Product= Product::find($id);                 
-         if($Product){
-            $Product->delete(); 
-            $response = array('status' => true,'message'=>'Product successfully deleted.');             
-            return response()->json($response, 200);
-        }else{
-            $response = array('status' => false,'message'=>'Product not found');
-            return response()->json($response, 404);
-        }
-    }
-
-     public function uploadProductImage(Request $request){        
-        
-        $validate = Validator::make($request->all(), [           
-            'id' => "required|integer",
-        ]);
-
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
-            return response()->json($response, 400);
-        }
-
-        $Product= Product::find($request->id);
-        $ProductImage=new ProductImage;
-        $ProductImage->product_id=$Product->id;
-
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Product->id.".".$file->getClientOriginalExtension();
-
-            $project_directory=env('DO_STORE_PATH');
-
-            $store=Storage::disk('spaces')->put($project_directory.'/products/'.$filename, file_get_contents($file->getRealPath()), 'public');            
-            $url=Storage::disk('spaces')->url($project_directory.'/products/'.$filename);            
-            $product_image=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $ProductImage->url=$product_image;
-            $ProductImage->save();
-        }
-        
-        $response = array('status' => true,'message'=>'Product image added successfully.','data'=>$ProductImage);
-        return response()->json($response, 200);
-    }
-
-    public function deleteProductImage($id)
-    {
-       $ProductImage= ProductImage::find($id);                 
-         if($ProductImage){
-            $project_directory=env('DO_STORE_PATH');
-            $filePath=($project_directory.'/products/'.basename($ProductImage->url));            
-            Storage::disk('spaces')->delete($filePath);
-            $ProductImage->delete(); 
-            $response = array('status' => true,'message'=>'Product Image successfully deleted.');             
-            return response()->json($response, 200);
-        }else{
-            $response = array('status' => false,'message'=>'Product Image not found');
-            return response()->json($response, 404);
-        }
+        }        
     }
 }

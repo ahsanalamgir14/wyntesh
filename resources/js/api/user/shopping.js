@@ -30,9 +30,24 @@ export function addToCart(data) {
   })
 }
 
+export function updateCartQty(data) {
+  return request({
+    url: '/user/cart/update/qty',
+    method: 'post',
+    data
+  })
+}
+
 export function getMyCartProducts() {
   return request({
     url: '/user/my/cart/products/',
+    method: 'get'
+  })
+}
+
+export function getMyCart() {
+  return request({
+    url: '/user/my/cart',
     method: 'get'
   })
 }
@@ -44,3 +59,10 @@ export function removeFromCart(id) {
   })
 }
 
+export function placeOrder(data) {
+  return request({
+    url: '/user/order/place',
+    method: 'post',
+    data
+  })
+}

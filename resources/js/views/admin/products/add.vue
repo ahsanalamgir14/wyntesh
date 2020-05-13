@@ -91,6 +91,12 @@
               </el-form-item>              
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
+              <el-form-item label="Admin Fee" prop="admin_charge">
+                <el-input type="number" min="0" v-model="temp.admin_fee" />
+              </el-form-item>
+              <el-form-item label="Shipping Charge" prop="shipping_fee">
+                <el-input type="number" min="0" v-model="temp.shipping_fee" />
+              </el-form-item>
               <el-form-item label="Categories" prop="parent_id">
                 <el-select v-model="temp.categories" multiple clearable  style="width:100%;" filterable placeholder="Select Categories">
                   <el-option
@@ -273,7 +279,9 @@ export default {
         retail_gst:undefined,
         retail_amount:undefined,
         discount_rate:undefined,
-        discount_amount:undefined,        
+        discount_amount:undefined,
+        admin_fee:undefined,
+        shipping_fee:undefined,        
         pv:undefined,                
         stock:1,
         cover_image:undefined,
