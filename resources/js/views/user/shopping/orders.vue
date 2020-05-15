@@ -306,7 +306,7 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
-      listLoading: true,
+      listLoading: false,
       listQuery: {
         page: 1,
         limit: 10,
@@ -381,7 +381,7 @@ export default {
   },
   methods: {
     getList() {
-      this.listLoading = false;
+      this.listLoading = true;
      
       myOrders(this.listQuery).then(response => {
         this.list = response.data.data;
