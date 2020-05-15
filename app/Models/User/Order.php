@@ -18,6 +18,16 @@ class Order extends Model {
         return $this->belongsTo('App\Models\User\User');
     }
 
+    public function products()
+    {
+        return $this->hasMany('App\Models\User\OrderProduct')->with('product:id,name,product_number,pv,qty,qty_unit,retail_amount,retail_base,retail_gst,shipping_fee,gst_rate,discount_amount,discount_rate,cover_image_thumbnail,brand_name');
+    }
+
+    public function logs()
+    {
+        return $this->hasMany('App\Models\User\DeliveryLog');
+    }
+
     public function billing_address()
     {
         return $this->belongsTo('App\Models\User\Address','billing_address_id');

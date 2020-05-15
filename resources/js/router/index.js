@@ -270,7 +270,31 @@ export const asyncRoutes = [
       }
     ]
   },
-
+  {
+    path: '/shopping',
+    component: Layout,
+    name: 'Shopping',
+    redirect: '/shopping/orders',
+    meta: {
+      title: 'Shopping',
+      icon: 'fas fa-store',
+      roles: ['admin'],
+      color:'color:#32a852'
+    },
+    children: [ 
+      {
+        path: 'orders/new',
+        component: () => import('@/views/admin/shopping/orders'),
+        name: 'New Orders/all',
+        meta: { title: 'New Orders', icon: 'fas fa-fire', color:'color:#fc8803', affix: true, roles: ['admin'] }
+      },{
+        path: 'orders/all',
+        component: () => import('@/views/admin/shopping/all-orders'),
+        name: 'All Orders',
+        meta: { title: 'All Orders', icon: 'fas fa-truck', color:'color:#35BED1', affix: true, roles: ['admin'] }
+      }
+    ]
+  },
   {
     path: '/pins',
     component: Layout,
@@ -588,7 +612,7 @@ export const asyncRoutes = [
       },
       {
         path: 'orders',
-        component: () => import('@/views/user/shopping/products'),
+        component: () => import('@/views/user/shopping/orders'),
         name: 'Orders',
         meta: { title: 'Orders', icon: 'fas fa-truck', color:'color:#35BED1', affix: true, roles: ['user'] }
       }

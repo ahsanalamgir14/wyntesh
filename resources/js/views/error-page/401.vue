@@ -17,9 +17,6 @@
               {{ $t('route.dashboard') }}
             </router-link>
           </li>
-          <li class="link-type">
-            <a href="https://www.google.com/">just looking around</a>
-          </li>
           <li><a href="#" @click.prevent="dialogVisible=true">show a picture</a></li>
         </ul>
       </el-col>

@@ -60,7 +60,7 @@
             <div class="cal-amount"><span>₹ {{temp.subtotal}}</span></div>
           </div>
 
-          <div class="checkout-btn" v-if="cartProducts.length != 0">
+          <div class="checkout-btn make-payment-btn" v-if="cartProducts.length != 0">
             <el-button 
                 class="checkout"               
                 type="success"
@@ -71,7 +71,7 @@
                 @click="$router.push('/shopping/checkout')"
               >Checkout</el-button>
           </div>
-          <div class="checkout-btn" v-if="cartProducts.length == 0">
+          <div class="checkout-btn make-payment-btn" v-if="cartProducts.length == 0">
             <el-button 
                 class="checkout"               
                 type="success"
@@ -307,6 +307,12 @@ body {
   50%  { background-position: right; }
   100% { background-position: right; }
 }
+
+.make-payment-btn{
+  padding: 15px 15px 15px 15px;
+  margin:0 auto;
+}
+
 
 /* Product Image */
 .image {

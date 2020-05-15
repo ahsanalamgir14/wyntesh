@@ -110,6 +110,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::delete('cart/product/{id}/remove', 'ShoppingController@removeFromCart');
 
     Route::post('order/place', 'ShoppingController@placeOrder');
+    Route::get('orders', 'ShoppingController@getMyOrders');
 
 });
 
@@ -245,6 +246,10 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::delete('products/{id}/delete', 'ProductsAndCategoryController@deleteProduct');
     Route::post('products/image/upload', 'ProductsAndCategoryController@uploadProductImage');
     Route::delete('products/image/{id}/delete', 'ProductsAndCategoryController@deleteProductImage');
+
+    Route::get('orders/new', 'ShoppingController@getNewOrders');
+    Route::get('orders/all', 'ShoppingController@getAllOrders');
+    Route::post('order/update', 'ShoppingController@updateOrder');
 
 
 });

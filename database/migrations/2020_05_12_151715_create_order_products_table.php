@@ -17,6 +17,7 @@ class CreateOrderProductsTable extends Migration
             $table->id();
             $table->integer('order_id');
             $table->integer('product_id';
+            $table->integer('qty');
             $table->decimal('amount', 8, 2)->default(0);
             $table->decimal('gst', 8, 2)->default(0);
             $table->decimal('gst_rate', 8, 2)->default(0);

@@ -66,3 +66,11 @@ export function placeOrder(data) {
     data
   })
 }
+
+export function myOrders(query) {
+  return request({
+    url: '/user/orders',
+    method: 'get',
+    params: query
+  })
+}

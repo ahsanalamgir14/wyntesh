@@ -8,6 +8,7 @@ use App\Models\Admin\Product;
 use App\Models\User\Cart;
 use App\Models\User\Order;
 use App\Models\User\OrderProduct;
+use App\Models\User\DeliveryLog;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\WalletTransaction;
 use Validator;
@@ -46,6 +47,62 @@ class ShoppingController extends Controller
         }
         
        $response = array('status' => true,'message'=>"Categories retrieved.",'data'=>$Categories);
+        return response()->json($response, 200);
+    }
+
+    public function getMyOrders(Request $request)
+    {
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $delivery_status=$request->delivery_status;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$date_range && !$delivery_status){           
+            $Orders=Order::select();
+            $Orders=$Orders->with('products','shipping_address','logs');
+            $Orders=$Orders->where('user_id',$user->id);
+            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $Orders=Order::select();
+            
+            $Orders=$Orders->where(function ($query)use($search) {
+                $query->orWhere('order_no','like','%'.$search.'%');               
+
+            });
+
+            if($delivery_status){
+                $Orders=$Orders->where('delivery_status',$delivery_status);
+            }
+
+            if($date_range){
+                $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
+                $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            $Orders=$Orders->where('user_id',$user->id);
+
+            $Orders=$Orders->with('products','shipping_address','logs');
+            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+        }
+        
+       $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
         return response()->json($response, 200);
     }
 
@@ -148,7 +205,7 @@ class ShoppingController extends Controller
             $shipping+=floatval($item->products->shipping_fee)*intval($item->qty);
             $admin+=floatval($item->products->admin_fee)*intval($item->qty);
             $discount+=floatval($item->products->discount_amount)*intval($item->qty);
-            $pv+=floatval($item->products->pv?:0)*intval($item->pv);
+            $pv+=floatval($item->products->pv?:0)*intval($item->qty);
             $grand_total=$subtotal+$total_gst+$shipping+$admin-$discount;
         }
 
@@ -192,6 +249,27 @@ class ShoppingController extends Controller
             $Order->billing_address_id=$request->billing_address_id;
             $Order->delivery_status='Order Created';
             $Order->save();
+
+            foreach ($Cart as $item) {
+                $OrderProduct=new OrderProduct;
+                $OrderProduct->order_id=$Order->id;
+                $OrderProduct->product_id=$item->products->id;
+                $OrderProduct->amount=floatval($item->products->retail_base)*intval($item->qty);
+                $OrderProduct->gst=floatval($item->products->retail_gst)*intval($item->qty);
+                $OrderProduct->gst_rate=$item->products->gst_rate;
+                $OrderProduct->shipping_fee=floatval($item->products->shipping_fee)*intval($item->qty);
+                $OrderProduct->admin_fee=floatval($item->products->admin_fee)*intval($item->qty);
+                $OrderProduct->discount=floatval($item->products->discount_amount)*intval($item->qty);
+                $OrderProduct->final_amount=$OrderProduct->amount+$OrderProduct->gst+$OrderProduct->shipping_fee+$OrderProduct->admin_fee+$OrderProduct->discount;
+                $OrderProduct->pv=floatval($item->products->pv?:0)*intval($item->qty);
+                $OrderProduct->qty=$item->qty;
+                $OrderProduct->save();
+            }
+
+            $DeliveryLog=new DeliveryLog;
+            $DeliveryLog->order_id=$Order->id;
+            $DeliveryLog->delivery_status='Order Created';
+            $DeliveryLog->save();
 
             Cart::where('user_id',$User->id)->delete();
             

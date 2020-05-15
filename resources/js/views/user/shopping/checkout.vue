@@ -83,7 +83,7 @@
             <div class="cal-amount"><span>₹ {{temp.grand_total}}</span></div>
           </div>
 
-          <div class="checkout-btn">
+          <div class="checkout-btn make-payment-btn">
             <el-button 
                 class="checkout"               
                 type="success"
@@ -385,7 +385,10 @@ export default {
     getMyCart(){
       getMyCart().then(response => {
         this.cartProducts = response.data;   
-        this.calculateFinal();     
+        this.calculateFinal();
+        if(this.cartProducts.length==0){
+          this.$router.push('/shopping/products')
+        }     
       });
     },
     getAllAddresses(){
@@ -484,7 +487,7 @@ export default {
           message: response.message,
           type: "success",
           duration: 2000
-        });
+        });            
       });      
     },
     handleFilter() {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Admin;
+namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,5 +18,10 @@ class OrderProduct extends Model
     public function order()
     {
         return $this->belongsTo('App\Models\User\Order');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo('App\Models\Admin\Product');
     }
 }
