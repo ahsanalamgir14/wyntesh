@@ -598,6 +598,13 @@ export const asyncRoutes = [
         meta: { title: 'Products', icon: 'fas fa-shopping-basket', color:'color:#EE7642', affix: true, roles: ['user'] }
       },
       {
+        path: 'product/:id',
+        component: () => import('@/views/user/shopping/product'),
+        name: 'Product',
+        hidden:true,
+        meta: { title: 'Product', icon: 'fas fa-shopping-basket', color:'color:#EE7642', affix: true, roles: ['user'] }
+      },
+      {
         path: 'cart',
         component: () => import('@/views/user/shopping/cart'),
         name: 'Cart',

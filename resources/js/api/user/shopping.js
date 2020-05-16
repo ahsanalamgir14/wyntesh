@@ -52,6 +52,13 @@ export function getMyCart() {
   })
 }
 
+export function getMyCartCount() {
+  return request({
+    url: '/user/my/cart/count',
+    method: 'get'
+  })
+}
+
 export function removeFromCart(id) {
   return request({
     url: '/user/cart/product/'+id+'/remove',

@@ -188,6 +188,7 @@ export default {
       removeFromCart(id).then((response) => {
         this.buttonLoading=false;
         this.getMyCart();
+        this.$events.fire('update-cart-count');
         this.$notify({
           title: "Success",
           message: response.message,

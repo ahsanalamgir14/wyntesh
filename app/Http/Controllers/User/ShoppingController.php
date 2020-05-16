@@ -118,6 +118,12 @@ class ShoppingController extends Controller
         $Cart=Cart::where('user_id',$User->id)->with('products')->get();
         $response = array('status' => true,'message'=>'Cart product received','data'=>$Cart);
         return response()->json($response, 200);
+    }  
+    public function myCartCount(){
+        $User=JWTAuth::user();
+        $Cart=Cart::where('user_id',$User->id)->get();
+        $response = array('status' => true,'message'=>'Cart count received','data'=>$Cart->count());
+        return response()->json($response, 200);
     }    
 
     public function addToCart(Request $request){

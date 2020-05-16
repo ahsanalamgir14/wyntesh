@@ -8,7 +8,12 @@
       <template v-if="device!=='mobile'">
         <!-- <search id="header-search" class="right-menu-item" /> -->
 
-         <screenfull id="screenfull" class="right-menu-item hover-effect" />
+        
+        <el-badge v-if="roles.includes('user')" :value="cartCount" class="item" style="margin-right: 20px;">
+          <router-link to="/shopping/cart"><i class="fas fa-shopping-cart cart-btn""></i></router-link>
+        </el-badge>
+
+        <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
         <el-tooltip content="Global Size" effect="dark" placement="bottom">
             <size-select id="size-select" class="right-menu-item hover-effect" />
@@ -30,7 +35,7 @@
             <router-link v-if="roles.includes('user')" to="/my/profile">
               <el-dropdown-item>Profile</el-dropdown-item>
             </router-link>
-            <router-link v-if="roles.includes('user')" to="/reports/my-withdrawals">
+            <router-link v-if="roles.includes('user')" to="/wallet/wallet">
               <el-dropdown-item>Wallet</el-dropdown-item>
             </router-link>
             <a href="#" @click="showChangePassword()">
@@ -53,6 +58,7 @@ import Screenfull from '@/components/Screenfull';
 import SizeSelect from '@/components/SizeSelect';
 import LangSelect from '@/components/LangSelect';
 import Search from '@/components/HeaderSearch';
+import { getMyCartCount } from "@/api/user/shopping";
 
 export default {
   components: {
@@ -73,13 +79,29 @@ export default {
       'roles'
     ]),
   },
-  
+  data() {
+    return {
+      cartCount:0,
+    }
+  },
+  created(){
+    this.updateCartCount();
+  },
+  mounted() {
+      this.$events.$on("update-cart-count", () => this.updateCartCount());
+    },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar');
     },
     showChangePassword(){
         this.$events.fire('show-change-password');
+    },
+    
+    updateCartCount(){
+      getMyCartCount().then(response => {
+        this.cartCount = response.data;
+      });      
     },
     async logout() {
       await this.$store.dispatch('user/logout');
@@ -95,6 +117,14 @@ export default {
   .app-breadcrumb.el-breadcrumb {
     display:none;
   }
+}
+
+.cart-btn{
+  width: 40px;
+  display: inline-block;
+    cursor: pointer;
+    color: #5a5e66;
+    vertical-align: 18px;
 }
 
 .navbar {

@@ -102,11 +102,13 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::get('categories/all', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getAllCategories');
     Route::get('products', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getProducts');
+    Route::get('products/{id}', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getProduct');
 
     Route::post('cart/add/product', 'ShoppingController@addToCart');
     Route::post('cart/update/qty', 'ShoppingController@updateCartQty');
     Route::get('my/cart/products', 'ShoppingController@myCartProducts');
     Route::get('my/cart', 'ShoppingController@myCart');
+    Route::get('my/cart/count', 'ShoppingController@myCartCount');
     Route::delete('cart/product/{id}/remove', 'ShoppingController@removeFromCart');
 
     Route::post('order/place', 'ShoppingController@placeOrder');

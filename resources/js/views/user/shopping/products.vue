@@ -32,7 +32,7 @@
         <el-card :body-style="{ padding: '0px' }" >
           <div style="background-color: #fff;">
             <center>
-              <router-link :to="'/shppping/product/'+product.id">
+              <router-link :to="'/shopping/product/'+product.id">
                 <img :src="product.cover_image_thumbnail" class="image" >
               </router-link>
             </center>
@@ -68,27 +68,6 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
-
-    <el-dialog title="Transfer Pins to Member" width="40%" center :visible.sync="dialogPinTransferVisible" style="height: auto;margin: 0 auto;">
-      <el-form ref="pinTransferForm" :rules="pinTransferRules"  :model="temp" style="width: 70%;margin: 0 auto;">
-        <el-form-item label="Member ID" prop="member_id">
-          <el-input  v-on:blur="handleCheckMemberId()" v-model="temp.member_id" />
-        </el-form-item>
-        <el-form-item label="Member Name" prop="member_name">
-          <el-input  disabled v-model="temp.member_name" />
-        </el-form-item>
-        <el-input
-          type="textarea"
-          v-model="temp.note"
-          :rows="2"
-          placeholder="Please Enter Note">
-        </el-input>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogPinTransferVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="transferPins()">Confirm</el-button>
-      </span>
-    </el-dialog>
 
   </div>
 </template>
@@ -181,10 +160,12 @@ export default {
       let tempData={
         'product_id':id,
       };
+      
       this.buttonLoading=true;
       addToCart(tempData).then((response) => {
         this.buttonLoading=false;
         this.getMyCartProducts();
+        this.$events.fire('update-cart-count');
         this.$notify({
           title: "Success",
           message: response.message,
@@ -195,9 +176,11 @@ export default {
     },
     removeFromCart(id){      
       this.buttonLoading=true;
+
       removeFromCart(id).then((response) => {
         this.buttonLoading=false;
         this.getMyCartProducts();
+        this.$events.fire('update-cart-count');
         this.$notify({
           title: "Success",
           message: response.message,
