@@ -42,7 +42,7 @@
               <div style="padding: 30px;">
                 <p class="product-name">{{temp.name}}</p>
                 <p class="product-brand">{{temp.brand_name}}</p>
-                <p class="product-cat"><el-tag size="mini" type="warning" effect="dark" v-for="cat in temp.categories" >{{cat.name}}</el-tag></p>
+                <p class="product-cat"><el-tag size="mini" type="warning" effect="dark" :key="cat.name" v-for="cat in temp.categories" >{{cat.name}}</el-tag></p>
                 <p class="product-qty">{{temp.qty}} {{temp.qty_unit}}</p>
                 <p class="product-qty"><b>{{temp.stock}}</b> Units left (Hurry up)</p>
                 <p class="product-price" slot="reference">₹ {{temp.retail_amount}} /- 
@@ -93,15 +93,14 @@
             </div>
           </div>
           <hr style="width: 100%">
-          <div style="padding: 30px;">
-            <p class="product-name">Description</p>
-            <span v-html="temp.description"></span>
-          </div>
-          <hr style="width: 100%">
-          <div style="padding: 30px;">
-            <p class="product-name">Benefits</p>
-            <span v-html="temp.benefits"></span>
-          </div>
+          <el-collapse v-model="activeAccordion" style="margin-left: 30px;margin-right: 20px;" accordion>
+            <el-collapse-item title="Description" name="1">
+                <span v-html="temp.description"></span>
+            </el-collapse-item>
+            <el-collapse-item title="Benefits" name="2">
+                <span v-html="temp.benefits"></span>
+            </el-collapse-item>
+          </el-collapse>
           
         </el-card>
       </el-col>
@@ -131,6 +130,7 @@ export default {
   data() {
     return {
       cartProducts:[],
+      activeAccordion:"1",
       temp: {
         id:undefined,
         name:undefined,
@@ -218,7 +218,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
 .el-select{
   width:100%;
@@ -291,13 +291,5 @@ export default {
   max-width: 40px;
 }
 
-  .clearfix:before,
-  .clearfix:after {
-      display: table;
-      content: "";
-  }
-  
-  .clearfix:after {
-      clear: both
-  }
+ 
 </style>
