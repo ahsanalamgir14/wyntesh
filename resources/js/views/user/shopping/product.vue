@@ -23,15 +23,15 @@
     <el-row :gutter="10">
       <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
         <el-card :body-style="{ padding: '0px' }" shadow="never">
-          <div style="background-color: #fff;">
-            <center>
-              <img :src="currentImage.url" class="image" >
+          <div style="background-color: #fff;" >
+            <center v-lazy-container="{ selector: 'img' }">
+              <img :data-src="currentImage.url" class="image" data-loading="images/fallback-product.png">
             </center>
           </div>
         </el-card>
         <div>
-          <div v-for="img in temp.images" class="imgs-block" v-bind:class="{ 'img-active': img.id==currentImage.id }" @click="changeImage(img)">
-            <img  :src="img.url" class="more-images" >
+          <div v-for="img in temp.images" v-lazy-container="{ selector: 'img' }" class="imgs-block" v-bind:class="{ 'img-active': img.id==currentImage.id }" @click="changeImage(img)">
+            <img  :data-src="img.url" data-loading="images/fallback-product.png" class="more-images" >
           </div>
         </div>
       </el-col>

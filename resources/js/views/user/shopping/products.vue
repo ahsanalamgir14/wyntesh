@@ -32,8 +32,8 @@
         <el-card :body-style="{ padding: '0px' }" >
           <div style="background-color: #fff;">
             <center>
-              <router-link :to="'/shopping/product/'+product.id">
-                <img :src="product.cover_image_thumbnail" class="image" >
+              <router-link :to="'/shopping/product/'+product.id" v-lazy-container="{ selector: 'img' }">
+                <img :data-src="product.cover_image_thumbnail" class="image" data-loading="images/fallback-product.png">
               </router-link>
             </center>
           </div>

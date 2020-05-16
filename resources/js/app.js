@@ -14,10 +14,13 @@ import { VueReCaptcha } from 'vue-recaptcha-v3'
 
 import * as filters from './filters'; // global filters
 import VueEvents from 'vue-events'
+import VueLazyload from 'vue-lazyload'
+ 
 
 Vue.use(VueReCaptcha, { siteKey: '6LeNueQUAAAAAOdXr5rhWWz5f4KodsexOwonkLAp' })
 
 Vue.use(VueEvents)
+Vue.use(VueLazyload)
 
 VueClipboard.config.autoSetContainer = true // add this line
 Vue.use(VueClipboard)
