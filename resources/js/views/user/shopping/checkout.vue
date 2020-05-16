@@ -517,9 +517,9 @@ body {
 .shopping-cart {
  
   background: #FFFFFF;
-  box-shadow: 0px 1px 10px 5px rgba(0,0,0,0.10);
-  border-radius: 6px;
-
+  /*  box-shadow: 0px 1px 10px 5px rgba(0,0,0,0.10);
+  border-radius: 6px;*/
+  border: 1px solid #ccc;
   display: flex;
   flex-direction: column;
 }

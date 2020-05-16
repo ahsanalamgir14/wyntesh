@@ -223,9 +223,9 @@ body {
 .shopping-cart {
  
   background: #FFFFFF;
-  box-shadow: 0px 1px 10px 5px rgba(0,0,0,0.10);
-  border-radius: 6px;
-
+  /*  box-shadow: 0px 1px 10px 5px rgba(0,0,0,0.10);
+  border-radius: 6px;*/
+  border: 1px solid #ccc;
   display: flex;
   flex-direction: column;
 }
@@ -269,8 +269,8 @@ body {
 /* Buttons -  Delete and Like */
 .buttons {
   position: relative;
-  padding-top: 30px;
-  margin-right: 60px;
+  padding-top: 25px;
+  margin-right: 30px;
 }
 
 .delete-btn {
@@ -317,7 +317,7 @@ body {
 
 /* Product Image */
 .image {
-  margin-right: 50px;
+  margin-right: 30px;
   width: 100px;
   text-align:center;
 }
@@ -325,8 +325,8 @@ body {
 /* Product Description */
 .description {
   padding-top: 10px;
-  margin-right: 60px;
-  width: 115px;
+  margin-right: 30px;
+  width: 160px;
 }
 
 .description span {
