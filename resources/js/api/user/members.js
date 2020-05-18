@@ -73,3 +73,11 @@ export function getMyMemberGeneology(id) {
     method: 'get'
   })
 }
+
+export function getDownlines(query) {
+  return request({
+    url: '/user/downlines',
+    method: 'get',
+    params: query
+  })
+}

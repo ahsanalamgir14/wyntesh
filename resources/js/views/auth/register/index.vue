@@ -185,6 +185,10 @@ export default {
       redirect: undefined,
     };
   },
+  created(){
+    this.registerForm.sponsor_code=this.$route.query.sponsor_code
+    this.handleCheckSponsorCode(this.$route.query.sponsor_code);
+  },
   methods: {
     showPwd() {
       if (this.pwdType === 'password') {

@@ -18,10 +18,9 @@
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
-        type="primary"
-        icon="el-icon-edit"
+        type="success"
         @click="handleCreate"
-      >Add</el-button>
+      ><i class="fas fa-plus"></i> Add</el-button>
     </div>
 
     <el-table
@@ -46,19 +45,21 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="150" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="150px" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button
             type="primary"
             :loading="buttonLoading"
-            size="mini"
+            icon="el-icon-edit"
+            circle
             @click="handleEdit(row)"
-          ><i class="fas fa-edit"></i></el-button>
+          ></el-button>
           <el-button
-              size="mini"
+              icon="el-icon-delete"
+              circle
               type="danger"
               @click="deleteData(row)"
-          ><i class="fas fa-trash"></i></el-button>
+          ></el-button>
         </template>
       </el-table-column>
       <el-table-column label="Name" width="150px">
@@ -174,14 +175,13 @@ import {
   createBankPartner,
   updateBankPartner
 } from "@/api/admin/bank-partners";
-import waves from "@/directive/waves"; // waves directive
+import waves from "@/directive/waves";
 import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
-import axios from "axios";
+import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "ComplexTable",
+  name: "bank-partners",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {

@@ -58,7 +58,9 @@ class SettingsController extends Controller
 
     public function getCompanySettings()
     {
-        $settings= Setting::where('is_public',1)->get()->pluck('value', 'key')->toArray();
+        $settings= Setting::orWhere('is_public',1)
+        ->orWhereIn('key',['is_member_pin_transfer_enabled','tds_percentage'])
+        ->get()->pluck('value', 'key')->toArray();
         $response = array('status' => true,'message'=>'Settings retrived.','data'=>$settings);             
         return response()->json($response, 200);
     }

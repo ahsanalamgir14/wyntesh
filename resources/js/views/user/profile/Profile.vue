@@ -290,7 +290,7 @@ export default {
             ifsc:undefined
           }
         }
-        this.referral_link=baseUrl+'#/register/?sponsor='+this.temp.id;
+        this.referral_link=baseUrl+'#/register?sponsor_code='+this.temp.username;
     });
   },
   methods: {

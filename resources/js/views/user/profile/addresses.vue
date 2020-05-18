@@ -62,27 +62,41 @@
           ></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Name" min-width="150px">
+      <el-table-column label="Full Name" min-width="150px">
         <template slot-scope="{row}">
-          <span  >{{ row.name }}</span>
+          <span  >{{ row.full_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Subtitle" min-width="150px">
+      <el-table-column label="Mobile Number" min-width="150px">
         <template slot-scope="{row}">
-          <span  >{{ row.subtitle }}</span>
+          <span  >{{ row.mobile_number }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Description" min-width="270px">
+      <el-table-column label="Address" min-width="270px">
         <template slot-scope="{row}">
-          <span  >{{ row.description }}</span>
+          <span  >{{ row.address }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Image" min-width="150px">
+      <el-table-column label="Landmark" min-width="270px">
         <template slot-scope="{row}">
-          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
+          <span  >{{ row.landmark }}</span>
         </template>
       </el-table-column>
-
+      <el-table-column label="City" min-width="270px">
+        <template slot-scope="{row}">
+          <span  >{{ row.city }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="State" min-width="270px">
+        <template slot-scope="{row}">
+          <span  >{{ row.state }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Pincode" min-width="270px">
+        <template slot-scope="{row}">
+          <span  >{{ row.pincode }}</span>
+        </template>
+      </el-table-column>
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -98,52 +112,38 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogTestimonialVisible">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogAddressesVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" style="">
-        <el-row>
-          <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
-            <el-form-item label="Name" prop="name">
-              <el-input v-model="temp.name" />
+        <el-row :gutter="10">
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+            <el-form-item label="Full Name" prop="full_name">
+              <el-input v-model="temp.full_name" />
             </el-form-item>
-             <el-form-item label="Subtitle" prop="subtitle">
-              <el-input v-model="temp.subtitle" />
-            </el-form-item>
-            <el-form-item label="Description" prop="description">
-              <el-input
-                type="textarea"
-                :rows="3"
-                placeholder="Description"
-                v-model="temp.description">
-              </el-input>
+             <el-form-item label="Mobile Number" prop="mobile_number">
+              <el-input v-model="temp.mobile_number" />
             </el-form-item>
           </el-col>
-          <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
-            <div class="img-upload">
-              <el-form-item  prop="image">
-                <label for="Image">Image</label>
-                <el-upload
-                  class="avatar-uploader"
-                  action="#"
-                   ref="upload"
-                  :show-file-list="true"
-                  :auto-upload="false"
-                  :on-change="handleChange"
-                  :on-remove="handleRemove"
-                  :limit="3"
-                  :file-list="fileList"
-                  :on-exceed="handleExceed"
-                  accept="image/png, image/jpeg">
-                  <img v-if="temp.image" :src="temp.image" class="avatar">
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
-                <p>Click to upload image.</p>
-              </el-form-item>
-            </div>
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+            <el-form-item label="Address" prop="address">
+              <el-input v-model="temp.address" />
+            </el-form-item>
+            <el-form-item label="Landmark" prop="landmark">
+              <el-input v-model="temp.landmark" />
+            </el-form-item>
+            <el-form-item label="City" prop="city">
+              <el-input v-model="temp.city" />
+            </el-form-item>
+            <el-form-item label="State" prop="state">
+              <el-input v-model="temp.state" />
+            </el-form-item>
+            <el-form-item label="Pincode" prop="pincode">
+              <el-input v-model="temp.pincode" />
+            </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTestimonialVisible = false">
+        <el-button @click="dialogAddressesVisible = false">
           Cancel
         </el-button>
         <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
@@ -156,32 +156,21 @@
 
 <script>
 import {
-  fetchList,
-  fetchTestimonial,
-  deleteTestimonial,
-  createTestimonial,
-  updateTestimonial
-} from "@/api/admin/testimonials";
+  fetchAddresses,
+  deleteAddress,
+  createAddress,
+  updateAddress
+} from "@/api/user/addresses";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "testimonials",
+  name: "addresses",
   components: { Pagination,Tinymce },
   directives: { waves },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        1: "success",
-        draft: "info",
-        0: "danger"
-      };
-
-      return statusMap[status];
-    }
-  },
+  
   data() {
     return {
       tableKey: 0,
@@ -194,29 +183,34 @@ export default {
         search:undefined,
         sort: "+id"
       },
-      fileList:[],
-      file:undefined,
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
         id:undefined,
-        name: undefined,
-        description:undefined,
-        image:undefined,
-        subtitle:undefined,
+        full_name: undefined,
+        mobile_number:undefined,
+        pincode:undefined,
+        address:undefined,
+        landmark:undefined,
+        city:undefined,
+        state:undefined,
       },
 
-      dialogTestimonialVisible:false,
+      dialogAddressesVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
-         description: [{ required: true, message: 'Description is required', trigger: 'blur' }]
+         full_name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+         mobile_number: [{ required: true, message: 'Mobile Number is required', trigger: 'blur' }],
+         pincode: [{ required: true, message: 'Pincode is required', trigger: 'blur' }],
+         address: [{ required: true, message: 'Address is required', trigger: 'blur' }],
+         city: [{ required: true, message: 'City is required', trigger: 'blur' }],
+         state: [{ required: true, message: 'State is required', trigger: 'blur' }],
       },
       downloadLoading: false,
       buttonLoading: false
@@ -226,22 +220,10 @@ export default {
     this.getList();
   },
   methods: {
-    handleChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.file=f.raw      
-    },
-    handleRemove(file, fileList) {
-       this.file=undefined;
-       this.fileList=[];
-    },
-    handleExceed(files, fileList) {
-      this.$message.warning(`You can not select more than one file, please remove first.`);
-    },
+   
     getList() {
       this.listLoading = true;
-      fetchList(this.listQuery).then(response => {
+      fetchAddresses(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
@@ -253,36 +235,23 @@ export default {
       this.listQuery.page = 1;
       this.getList();
     },
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
-    },
-    sortByID(order) {
-      if (order === "ascending") {
-        this.listQuery.sort = "+id";
-      } else {
-        this.listQuery.sort = "-id";
-      }
-      this.handleFilter();
-    },
     resetTemp() {
       this.temp = {
-        id:undefined,      
-        name: undefined,
-        description:undefined,
-        image:undefined,
-        subtitle:undefined,
+        id:undefined,
+        full_name: undefined,
+        mobile_number:undefined,
+        pincode:undefined,
+        address:undefined,
+        landmark:undefined,
+        city:undefined,
+        state:undefined,
       };
-      this.file=undefined
-      this.fileList=[];
     },
     handleCreate() {
-      this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogTestimonialVisible = true;
+      this.dialogTitle = "Add Address";
+      this.dialogAddressesVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
@@ -291,22 +260,11 @@ export default {
       this.buttonLoading=true;
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          var form = new FormData();
-          let form_data=this.temp;
+          
 
-          for ( var key in form_data ) {
-            if(form_data[key] !== undefined && form_data[key] !== null){
-              form.append(key, form_data[key]);
-            }
-          }
-
-          if(this.fileList){
-            form.append('file', this.file);
-          } 
-
-          createTestimonial(form).then((data) => {
-            this.list.unshift(data.data);
-            this.dialogTestimonialVisible = false;
+          createAddress(this.temp).then((data) => {
+            this.getList();
+            this.dialogAddressesVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -321,12 +279,12 @@ export default {
       this.buttonLoading=false;
     },
     handleEdit(row) {
-      this.fileList=[];
-      this.file=undefined;
+     
       this.temp = Object.assign({}, row); // copy obj
 
       this.dialogStatus = "update";
-      this.dialogTestimonialVisible = true;
+      this.dialogTitle = "Update Address";
+      this.dialogAddressesVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
@@ -336,28 +294,12 @@ export default {
       
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-          var form = new FormData();
+         
           const tempData = Object.assign({}, this.temp);
 
-          for ( var key in tempData ) {
-            if(tempData[key] !== undefined && tempData[key] !== null){
-              form.append(key, tempData[key]);
-            }
-          }
-
-          if(this.fileList){
-            form.append('file', this.file);
-          }          
-   
-          updateTestimonial(form).then((data) => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v);
-                this.list.splice(index, 1, data.data);
-                break;
-              }
-            }
-            this.dialogTestimonialVisible = false;
+          updateAddress(tempData).then((data) => {
+            this.getList();
+            this.dialogAddressesVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -372,17 +314,31 @@ export default {
       this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteTestimonial(row.id).then((data) => {
-            this.dialogTestimonialVisible = false;
-            this.$notify({
-                title: "Success",
-                message: data.message,
-                type: "success",
-                duration: 2000
-            });
-            const index = this.list.indexOf(row);
-            this.list.splice(index, 1);
+        deleteAddress(row.id).then((data) => {
+          this.dialogAddressesVisible = false;
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          const index = this.list.indexOf(row);
+          this.list.splice(index, 1);
         });
+    },    
+    sortChange(data) {
+      const { prop, order } = data;
+      if (prop === "id") {
+        this.sortByID(order);
+      }
+    },
+    sortByID(order) {
+      if (order === "ascending") {
+        this.listQuery.sort = "+id";
+      } else {
+        this.listQuery.sort = "-id";
+      }
+      this.handleFilter();
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;

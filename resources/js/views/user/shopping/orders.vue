@@ -107,6 +107,11 @@
           <el-tag :type="row.delivery_status | statusFilter">{{ row.delivery_status }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="Payment Status" min-width="140px"align="center">
+        <template slot-scope="{row}">
+          <el-tag :type="row.payment_status | paymentStatusFilter">{{ row.payment_status }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="Payment Mode" min-width="140px"align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.payment_mode | statusFilter">{{ row.payment_mode }}</el-tag>
@@ -141,8 +146,8 @@
                    
                     <div class="item"  v-for="product in temp.products" :key="product.id">
                       
-                      <div class="image">
-                        <img :src="product.product.cover_image_thumbnail" alt="" style="max-height: 50px;max-width: 50px;" />
+                      <div class="image" v-lazy-container="{ selector: 'img' }">
+                        <img :data-src="product.product.cover_image_thumbnail"  data-loading="images/fallback-product.png" alt="" style="max-height: 50px;max-width: 50px;" />
                       </div>
                    
                       <div class="description">
@@ -296,6 +301,15 @@ export default {
         'Order Dispached': "warning",
         'Order Delivered': "success",                
         'Order Cancelled': "danger"
+      };
+
+      return statusMap[status];
+    },
+    paymentStatusFilter(status) {
+      const statusMap = {
+        'Success': "success",
+        'Processing': "warning",
+        'Failed': "danger"
       };
 
       return statusMap[status];

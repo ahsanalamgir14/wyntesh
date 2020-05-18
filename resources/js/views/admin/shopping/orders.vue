@@ -157,8 +157,8 @@
                    
                     <div class="item"  v-for="product in temp.products" :key="product.id">
                       
-                      <div class="image">
-                        <img :src="product.product.cover_image_thumbnail" alt="" style="max-height: 50px;max-width: 50px;" />
+                      <div class="image" v-lazy-container="{ selector: 'img' }">
+                        <img :data-src="product.product.cover_image_thumbnail"  data-loading="images/fallback-product.png" alt="" style="max-height: 50px;max-width: 50px;" />
                       </div>
                    
                       <div class="description">

@@ -31,8 +31,9 @@ class CreateOrdersTable extends Migration
             $table->string('delivery_status',32)->nullable();
             $table->decimal('pv', 8, 2)->default(0)->nullable();
             $table->string('remarks',1024)->nullable();
-            $table->integer('billing_address_id')->nullable();
+            $table->integer('billing_address_id')->nullable();            
             $table->integer('shipping_address_id');
+            $table->boolean('is_package')->default();
             $table->timestamps();
             $table->softDeletes();
         });

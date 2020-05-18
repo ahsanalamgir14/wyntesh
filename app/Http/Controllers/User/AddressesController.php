@@ -77,9 +77,9 @@ class AddressesController extends Controller
         $Address->mobile_number=$request->mobile_number;
         $Address->pincode=$request->pincode;
         $Address->address=$request->address;
-        $Address->landmark=$landmark;
-        $Address->city=$city;
-        $Address->state=$state;
+        $Address->landmark=$request->landmark;
+        $Address->city=$request->city;
+        $Address->state=$request->state;
         $Address->user_id=$User->id;
         $Address->save();
 
@@ -111,9 +111,9 @@ class AddressesController extends Controller
             $Address->mobile_number=$request->mobile_number;
             $Address->pincode=$request->pincode;
             $Address->address=$request->address;
-            $Address->landmark=$landmark;
-            $Address->city=$city;
-            $Address->state=$state;
+            $Address->landmark=$request->landmark;
+            $Address->city=$request->city;
+            $Address->state=$request->state;
             $Address->user_id=$User->id;
             $Address->save();
             

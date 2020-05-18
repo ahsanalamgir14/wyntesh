@@ -71,11 +71,15 @@
             :loading="buttonLoading"
             @click="handleDelete(row)"
           ></el-button> -->
-          <el-button icon="el-icon-turn-off"
-            circle v-if="row.is_active!=1" type="info" @click="handleModifyStatus(row,1)">
-          </el-button>
-          <el-button icon="el-icon-open" circle v-if="row.is_active!=0" type="success" @click="handleModifyStatus(row,0)">
-          </el-button>
+          <el-tooltip content="Unblock" placement="top">
+            <el-button icon="el-icon-check"
+              circle v-if="row.is_blocked==1" type="success" @click="handleModifyStatus(row,0)">
+            </el-button>
+          </el-tooltip>
+          <el-tooltip content="Block" placement="top">
+            <el-button icon="el-icon-close" circle v-if="row.is_blocked==0" type="danger" @click="handleModifyStatus(row,1)">
+            </el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
        <el-table-column label="ID" width="100px">
@@ -116,6 +120,12 @@
        <el-table-column label="Status" class-name="status-col" width="100">
         <template slot-scope="{row}">
           <el-tag :type="row.is_active | statusFilter">{{ row.is_active?'Active':'Deactive' }}</el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Status" class-name="status-col" width="100">
+        <template slot-scope="{row}">
+          <el-tag :type="row.is_blocked | statusFilter">{{ row.is_blocked?'Yes':'No' }}</el-tag>
         </template>
       </el-table-column>
 
@@ -189,13 +199,15 @@
                 </el-form-item>
 
                 <el-form-item label="Gender" prop="gender">
-                  <el-radio-group v-model="temp.gender">
-                    <el-radio label="m">Male</el-radio>
-                    <el-radio label="f">Female</el-radio>
+                  <br>
+                  <el-radio-group  v-model="temp.gender">
+                    <el-radio label="m" border>Male</el-radio>
+                    <el-radio label="f" border>Female</el-radio>
                   </el-radio-group>
                 </el-form-item>
 
                 <el-form-item label="DOB" prop="dob">
+                  <br>
                   <el-date-picker
                     v-model="temp.dob"
                     type="date"
@@ -327,17 +339,17 @@ export default {
       this.getList();
     },
     handleModifyStatus(row, status) {
-      let data={'id':row.id,'is_active':status};
+      let data={'id':row.id,'is_blocked':status};
       changeUserStatus(data).then((response) => {
         this.$notify({
           title: "Success",
-          message: "Status changed Successfully",
+          message: response.message,
           type: "success",
           duration: 2000
         })
       })
 
-      row.is_active = status;
+      row.is_blocked = status;
     },
     sortChange(data) {
       const { prop, order } = data;

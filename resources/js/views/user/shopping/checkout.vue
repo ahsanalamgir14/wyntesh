@@ -36,7 +36,7 @@
              
               <el-input style="width: 80px;" v-model="product.qty" @change="updateCartQty(product.product_id,product.qty)" type="number"  min="1"  :max="product.products.stock" />
             </div>
-         
+            <div class="total-price">{{product.products.pv*product.qty}} PV</div>
             <div class="total-price">₹ {{product.products.retail_amount*product.qty}}</div>
           </div>
         </div>
@@ -77,6 +77,12 @@
             <div class="cal-amount"><span>₹ {{temp.discount}}</span></div>
           </div>
           <div class="calculations">
+            <div class="cal-title">
+              <span>Total PV</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.pv}}</span></div>
+          </div>
+          <div class="calculations">
             <div class="cal-grand">
               <span>Grand Total</span>
             </div>         
@@ -109,7 +115,7 @@
           class="filter-item"
           style="margin-right: 10px;float: right;"
           type="success"   
-           @click="$router.push('/addresses/add')"     
+           @click="$router.push('/my/addresses')"     
           ><i class="fas fa-plus"></i> Add Address</el-button>      
       </div>
       <el-form ref="orderForm" :rules="orderRules" :model="temp"  >
@@ -327,6 +333,7 @@ export default {
         grand_total:0,
         shipping_address_id:undefined,
         billing_address_id:undefined,
+        pv:0,
         payment_mode:1,
 
       },
@@ -427,6 +434,7 @@ export default {
           this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
           this.temp.discount+=parseFloat(cart.products.discount_amount)*parseInt(cart.qty);
+          this.temp.pv+=parseFloat(cart.products.pv)*parseInt(cart.qty);
           this.temp.grand_total=this.temp.subtotal+this.temp.total_gst+this.temp.shipping+this.temp.admin-this.temp.discount;
         });  
     },
@@ -437,6 +445,7 @@ export default {
         shipping:0,
         admin:0,
         discount:0,
+        pv:0,
         grand_total:0,
 
       };
@@ -676,7 +685,7 @@ body {
 /* Product Quantity */
 .quantity {
   padding-top: 10px;
-  margin-right: 60px;
+  margin-right: 10px;
 }
 .quantity input {
   -webkit-appearance: none;

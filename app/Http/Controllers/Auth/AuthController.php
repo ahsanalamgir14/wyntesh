@@ -74,6 +74,7 @@ class AuthController extends Controller
             'gender'=>$request->gender,
             'dob'=>$request->dob,
             'is_active'=>1,
+            'is_blocked'=>0,
             'verified_at'=>null
         ]);
 
@@ -115,8 +116,8 @@ class AuthController extends Controller
                 }
             }
 
-            if($user->is_active==0){
-                return response()->json(['status'=>false,'message' => 'You are deactivated, kindly contact admin.'], 401);   
+            if($user->is_blocked==1){
+                return response()->json(['status'=>false,'message' => 'You are blocked, kindly contact admin.'], 401);   
             } 
             return $this->respondWithToken($token);
         }else{

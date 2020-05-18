@@ -45,19 +45,21 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="200" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="150px" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button
             type="primary"
             :loading="buttonLoading"
-            size="mini"
+            icon="el-icon-edit"
+            circle
             @click="handleEdit(row)"
-          ><i class="fas fa-edit"></i></el-button>
+          ></el-button>
           <el-button
-              size="mini"
+              icon="el-icon-delete"
+              circle
               type="danger"
               @click="deleteData(row)"
-          ><i class="fas fa-trash"></i></el-button>
+          ></el-button>
         </template>
       </el-table-column>
       <el-table-column label="Title" min-width="150px">
@@ -108,7 +110,7 @@
             </el-form-item>
 
             <el-form-item label="Description" prop="description">
-              <tinymce menubar="" v-model="temp.description" :imageUploadButton="false"  :height="150" />
+              <tinymce v-model="temp.description"  :imageUploadButton="false" menubar="format" :toolbar="tools" id="description" ref="description" :height="50" />
             </el-form-item>
 
             <el-form-item label="Date" prop="date">
@@ -175,15 +177,13 @@ import {
   createNews,
   updateNews
 } from "@/api/admin/newses";
-import waves from "@/directive/waves"; // waves directive
+import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
+import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
-import axios from "axios";
-
 export default {
-  name: "ComplexTable",
+  name: "news",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -199,6 +199,7 @@ export default {
   },
   data() {
     return {
+      tools:[''],
       tableKey: 0,
       list: null,
       total: 0,
@@ -306,6 +307,7 @@ export default {
       this.dialogNewsVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
+        this.$refs.description.setContent("");
       });
     },
     createData() {

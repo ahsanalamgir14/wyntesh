@@ -179,9 +179,14 @@ class UserAndRoleController extends Controller
         $User=User::find($request->id);
 
         if($User){
-            $User->is_active=$request->is_active;
+            $User->is_blocked=$request->is_blocked;
             $User->save();
-            $response = array('status' => true,'message'=>'User status changed successfully');
+            if($request->is_blocked){
+                $message='User blocked successfully.';
+            }else{
+                $message='User unblocked successfully.';                
+            }
+            $response = array('status' => true,'message'=>$message);
             return response()->json($response, 200);
         }else{
             $response = array('status' => false,'message'=>'User not found');

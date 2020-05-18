@@ -26,13 +26,13 @@
               <el-form-item label="GST %" prop="gst_rate">
                 <el-input type="number" min="0" v-model="temp.gst_rate" />
               </el-form-item>
-              <el-form-item label="Base Cost" prop="cost_base">
+              <el-form-item label="Base Price" prop="cost_base">
                 <el-input type="number" @blur="calculateFinalCostPrice()" min="1" v-model="temp.cost_base" />
               </el-form-item>                
-              <el-form-item label="GST on Base cost" prop="cost_gst">
+              <el-form-item label="GST on Base Price" prop="cost_gst">
                 <el-input type="number" min="1" v-model="temp.cost_gst" />
               </el-form-item>
-              <el-form-item label="Total Base cost" prop="cost_amount">
+              <el-form-item label="Total Base Price" prop="cost_amount">
                 <el-input type="number" min="1" v-model="temp.cost_amount" />
               </el-form-item>
               
@@ -41,13 +41,13 @@
               <el-form-item label="Stock" prop="stock">
                 <el-input type="number" min="1" v-model="temp.stock" />
               </el-form-item> 
-              <el-form-item label="DP Cost" prop="dp_base">
+              <el-form-item label="Distributor Price" prop="dp_base">
                 <el-input type="number" min="1" @blur="calculateFinalDPPrice()" v-model="temp.dp_base" />
               </el-form-item>                
-              <el-form-item label="GST on DP " prop="dp_gst">
+              <el-form-item label="GST on Distributor Price " prop="dp_gst">
                 <el-input type="number" min="1" v-model="temp.dp_gst" />
               </el-form-item>
-              <el-form-item label="Total DP" prop="dp_amount">
+              <el-form-item label="Total Distributor Price" prop="dp_amount">
                 <el-input type="number" min="1" v-model="temp.dp_amount" />
               </el-form-item>
               
@@ -56,7 +56,7 @@
               <el-form-item label="PV" prop="pv">
                 <el-input type="number" min="0" v-model="temp.pv" />
               </el-form-item>
-              <el-form-item label="Retail Cost" prop="retail_base">
+              <el-form-item label="Retail Price" prop="retail_base">
                 <el-input type="number" min="1" @blur="calculateFinalRetailPrice()" v-model="temp.retail_base" />
               </el-form-item>                
               <el-form-item label="GST on Retail price" prop="retail_gst">

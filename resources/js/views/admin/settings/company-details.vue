@@ -90,6 +90,25 @@
             </div>
           </el-row>
         </el-tab-pane>
+        <el-tab-pane label="Settings">
+          <el-row :gutter="20">
+            <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
+              <el-form-item label="TDS Percentage" prop="tds_percentage">
+                <el-input type="number" v-model="temp.tds_percentage" />
+              </el-form-item>
+              
+            </el-col>
+          </el-row>
+          <el-row >
+            <hr>
+            <div style="float: right;margin-top:10px;">
+              <el-button
+                type="success"
+                @click="handleSaveSettings"
+              >Save</el-button>
+            </div>
+          </el-row>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
   </div>
@@ -101,15 +120,8 @@ import {
   saveCompanySettings,
 } from "@/api/admin/settings";
 
-import waves from "@/directive/waves"; 
-import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination";
-import axios from "axios";
-
 export default {
   name: "Settings",
-  components: { Pagination },
-  directives: { waves },
   data() {
     return {
       temp: {
@@ -131,9 +143,12 @@ export default {
         youtube_link:undefined,
         instagram_link:undefined,
         gplus_link:undefined,
-        twitter_link:undefined,        
+        twitter_link:undefined,  
+        tds_percentage:undefined,
+              
 
       },
+      tds_percentage:undefined,
       rules: {
         company_name: [
           { required: true, message: "Company Name is required.", trigger: "blur" }
@@ -185,6 +200,9 @@ export default {
         ],
         instagram_link: [
           { required: true, message: "Instagram link is required.", trigger: "blur" }
+        ],
+        tds_percentage: [
+          { required: true, message: "TDS Percentage is required.", trigger: "blur" }
         ],
 
 

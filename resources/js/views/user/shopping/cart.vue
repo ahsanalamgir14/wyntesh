@@ -26,8 +26,8 @@
               ></el-button>
             </div>
          
-            <div class="image">
-              <img :src="product.products.cover_image_thumbnail" alt="" style="max-height: 78px;max-width: 78px;" />
+            <div class="image" v-lazy-container="{ selector: 'img' }">
+              <img :data-src="product.products.cover_image_thumbnail"  data-loading="images/fallback-product.png" alt="" style="max-height: 78px;max-width: 78px;" />
             </div>
          
             <div class="description">

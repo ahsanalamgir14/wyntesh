@@ -28,6 +28,7 @@ class CreateUsersTable extends Migration {
 			$table->dateTime('last_login')->nullable();
 			$table->dateTime('verified_at')->nullable();
 			$table->boolean('is_active')->default(1);
+			$table->boolean('is_blocked')->default(0);
 			$table->string('google')->nullable();
 			$table->text('verification_code', 65535)->nullable();
 			$table->string('remember_token', 100)->nullable();

@@ -523,10 +523,10 @@ export const asyncRoutes = [
   {
     path: '/my',
     component: Layout,
-    name: 'Manage',
+    name: 'My Account',
     meta: {
-      title: 'Manage',
-      icon: 'fas fa-user',
+      title: 'My Account',
+      icon: 'fas fa-user-circle',
       roles: ['user'],
       color:'color:#DC7633'
     },
@@ -537,6 +537,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/profile/Profile'),
         name: 'Profile & KYC',
         meta: { title: 'Profile & KYC', icon: 'fas fa-user', color:'color:#FF5733', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'addresses',
+        component: () => import('@/views/user/profile/addresses'),
+        name: 'Addresses',
+        meta: { title: 'Addresses', icon: 'fas fa-map-marked-alt', color:'color:#C39BD3', affix: true, roles: ['user'] }
       },
     ]
   },
@@ -560,20 +566,20 @@ export const asyncRoutes = [
       },
       {
         path: 'geneology',
-        component: () => import('@/views/user/geneology/index'),
+        component: () => import('@/views/user/network/my-genealogy'),
         name: 'Geneology',
         meta: { title: 'Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
       },
       {
         path: 'geneology/member/:id',
-        component: () => import('@/views/user/geneology/member'),
+        component: () => import('@/views/user/network/member-genealogy'),
         name: 'Member Geneology',
         hidden:true,
         meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['user'] }
       },
       {
         path: 'downlines',
-        component: () => import('@/views/user/reports/downlines'),
+        component: () => import('@/views/user/network/downlines'),
         name: 'Downlines',
         meta: { title: 'Downlines', icon: 'fas fa-user-friends', color:'color:#DC7633', affix: true, roles: ['user'] }
       }

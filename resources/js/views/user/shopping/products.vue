@@ -27,8 +27,8 @@
       </el-select>
     </div>
   
-    <el-row>
-      <el-col  :xs="24" :sm="24" :md="5" :lg="5" :xl="5" :span="8" v-for="product in list" :key="product.id" style="margin-right: 10px;">
+    <el-row :gutter="10">
+      <el-col  :xs="24" :sm="24" :md="6" :lg="6" :xl="6"  v-for="product in list" :key="product.id" style="">
         <el-card :body-style="{ padding: '0px' }" >
           <div style="background-color: #fff;">
             <center>
@@ -49,7 +49,7 @@
                 {{product.qty_unit}}</span>
               </el-col>
             </el-row>
-            <div class="clearfix" style="margin:0 auto;width: 60%;margin-top: 20px;">
+            <div class="clearfix" style="margin:0 auto;width: 50%;margin-top: 20px;">
               <center>
                 <el-button v-if="!cartProducts.includes(product.id)" type="warning" @click="addToCart(product.id)" :loading="buttonLoading" class="button" icon="el-icon-shopping-cart-2" size="mini">Add to cart</el-button>
 

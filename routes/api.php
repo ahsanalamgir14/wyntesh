@@ -67,6 +67,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
    
     Route::get('geneology', 'MembersController@myGeneology');
     Route::get('geneology/member/{id}', 'MembersController@myMemberGeneology');
+    Route::get('downlines', 'MembersController@getDownlines');
 
     Route::get('pending-pin-requests', 'PinsController@myPendingPinRequests');
     Route::get('approved-pin-requests', 'PinsController@myApprovedPinRequests');

@@ -85,7 +85,7 @@ class MembersController extends Controller
 
     public function myGeneology(){
         $id=JWTAuth::user()->id;
-        $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('user_id',$id)->first();
+        $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->where('user_id',$id)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
         return response()->json($response, 200);  
     }
@@ -99,7 +99,7 @@ class MembersController extends Controller
             $tempMember=Member::where('user_id',$User->id)->first();            
             $pathArray=(explode("/",$tempMember->path));            
             if(in_array($my_member_id,$pathArray)){
-                $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('user_id',$User->id)->first();
+                $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->where('user_id',$User->id)->first();
                 $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
                 return response()->json($response, 200);      
             }else{
@@ -334,7 +334,85 @@ class MembersController extends Controller
         
         $response = array('status' => true,'message'=>'Member added successfully. Member ID is - '.$User->username);
         return response()->json($response, 200);
-    }  
+    } 
+
+    // Users
+    public function getDownlines(Request $request)
+    {
+        $User=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $is_active=$request->is_active;
+        $date_range=$request->date_range;
+        
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $memberIds=$this->getChildsOfParent($User->member->id);
+
+        if(!$search && !$date_range){
+            $Members=Member::select();
+            $Members=$Members->whereIn('id',$memberIds);
+
+            if($is_active!='all'){
+                $Members=$Members->whereHas('user', function($q)use($is_active){
+                    $q->where('is_active', $is_active);
+                });
+            }
+
+            $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
+        }else{
+            $Members=Member::select();
+            $Members=$Members->whereIn('id',$memberIds);
+
+            $Members=$Members->where(function ($query)use($search) {
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('name','like','%'.$search.'%');
+                });
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('contact','like','%'.$search.'%');
+                });
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('email','like','%'.$search.'%');
+                });
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($date_range){
+                $Members=$Members->whereDate('created_at','>=', $date_range[0]);
+                $Members=$Members->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            if($is_active!='all'){
+                $Members=$Members->whereHas('user', function($q)use($is_active){
+                    $q->where('is_active', $is_active);
+                });
+            }
+       
+            $Members=$Members->with('parent','sponsor','user')->orderBy('id',$sort)->paginate($limit);
+            
+        }
+
+        
+       
+       $response = array('status' => true,'message'=>"Members retrieved.",'data'=>$Members);
+            return response()->json($response, 200);
+    } 
 
     public function generateMemberID(){
         $member_id=mt_rand(100000, 999999);
@@ -354,6 +432,16 @@ class MembersController extends Controller
             ));
 
         return $results;
+    }
+
+    public function getChildsOfParent($parent){
+        $results = DB::select("select id from (select * from members order by parent_id, id) members, (select @pv := :parent) initialisation where find_in_set(parent_id, @pv) > 0 and @pv := concat(@pv, ',', id )", 
+            array(
+                    'parent' => $parent,
+            ));
+        $ids = array_column($results, 'id');
+
+        return $ids;
     }
 
 }

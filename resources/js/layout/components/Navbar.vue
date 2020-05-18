@@ -85,7 +85,9 @@ export default {
     }
   },
   created(){
-    this.updateCartCount();
+    if(this.roles.includes('user')){
+      this.updateCartCount();  
+    }    
   },
   mounted() {
       this.$events.$on("update-cart-count", () => this.updateCartCount());
