@@ -58,6 +58,62 @@
           </div>
         </div>
       </el-col>
+      <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel gr5" @click="handleSetLineChartData('shoppings')">
+          <div class="card-panel-icon-wrapper icon-shopping">
+            <i class="fas fa-tag card-panel-icon"  ></i>
+          </div>
+          <div class="card-panel-description">
+            
+            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <div class="card-panel-text">
+              Used Pins
+            </div>
+          </div>
+        </div>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel gr6" @click="handleSetLineChartData('shoppings')">
+          <div class="card-panel-icon-wrapper icon-shopping">
+            <i class="fas fa-tag card-panel-icon"  ></i>
+          </div>
+          <div class="card-panel-description">
+            
+            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <div class="card-panel-text">
+              Unused Pins
+            </div>
+          </div>
+        </div>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel gr7" @click="handleSetLineChartData('shoppings')">
+          <div class="card-panel-icon-wrapper icon-shopping">
+            <i class="fas fa-images card-panel-icon"  ></i>
+          </div>
+          <div class="card-panel-description">
+            
+            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <div class="card-panel-text">
+              Pending KYCs
+            </div>
+          </div>
+        </div>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel gr8" @click="handleSetLineChartData('shoppings')">
+          <div class="card-panel-icon-wrapper icon-shopping">
+            <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
+          </div>
+          <div class="card-panel-description">
+            
+            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <div class="card-panel-text">
+              Inquiries
+            </div>
+          </div>
+        </div>
+      </el-col> -->
     </el-row>
 
     <el-row :gutter="10">      
@@ -141,7 +197,7 @@ export default {
 
 <style lang="scss" scoped>
 .dashboard-editor-container {
-  padding: 32px;
+  padding: 20px;
   background-color: rgb(240, 242, 245);
   position: relative;
 
@@ -166,8 +222,7 @@ export default {
 }
 
 .panel-group {
-  margin-top: 18px;
-
+  
   .card-panel-col {
     margin-bottom: 32px;
   }

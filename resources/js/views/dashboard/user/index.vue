@@ -136,7 +136,7 @@ export default {
 
 <style lang="scss" scoped>
 .dashboard-editor-container {
-  padding: 32px;
+  padding: 20px;
   background-color: rgb(240, 242, 245);
   position: relative;
 
@@ -162,8 +162,7 @@ export default {
 
 
 .panel-group {
-  margin-top: 18px;
-
+  
   .card-panel-col {
     margin-bottom: 32px;
   }
