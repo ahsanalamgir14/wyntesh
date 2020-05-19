@@ -130,7 +130,7 @@
       </el-table-column>
       <el-table-column label="Payment Mode" min-width="140px"align="center">
         <template slot-scope="{row}">
-          <el-tag :type="row.payment_mode | statusFilter">{{ row.payment_mode }}</el-tag>
+          <el-tag :type="row.payment_mode?row.payment_mode.name:'' | statusFilter">{{ row.payment_mode.name }}</el-tag>
         </template>
       </el-table-column>
     </el-table>
@@ -152,7 +152,7 @@
                 <el-col  :xs="24" :sm="24" :md="16" :lg="16" :xl="16" >
                   <div class="shopping-cart">
                     <div class="title">
-                      Items
+                      Products/Packages
                     </div>
                    
                     <div class="item"  v-for="product in temp.products" :key="product.id">
@@ -171,6 +171,24 @@
                       </div>
                    
                       <div class="total-price">₹ {{product.final_amount}}</div>
+                    </div>
+
+                    <div class="item"  v-for="pack in temp.packages" :key="pack.id">
+                      
+                      <div class="image" v-lazy-container="{ selector: 'img' }">
+                        <img :data-src="pack.package.image"  data-loading="images/fallback-product.png" data-error="images/fallback-product.png" alt="" style="max-height: 50px;max-width: 50px;" />
+                      </div>
+                   
+                      <div class="description">
+                        <span>{{pack.package.name}}</span>
+                      </div>
+                   
+                      <div class="quantity">
+                       
+                        <el-input style="width: 80px;" disabled v-model="pack.qty"  />
+                      </div>
+                   
+                      <div class="total-price">₹ {{pack.final_amount}}</div>
                     </div>
                   </div>
                 </el-col>

@@ -118,7 +118,7 @@
 import CountTo from 'vue-count-to'
 import {
   dashboardStats
-} from "@/api/admin/settings";
+} from "@/api/admin/dashboard";
 
 export default {
   components: {

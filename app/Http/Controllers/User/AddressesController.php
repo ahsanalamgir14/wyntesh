@@ -81,7 +81,12 @@ class AddressesController extends Controller
         $Address->city=$request->city;
         $Address->state=$request->state;
         $Address->user_id=$User->id;
+        $Address->is_default=$request->is_default?1:0;
         $Address->save();
+
+        if($request->is_default){
+            Address::where('id','!=',$Address->id)->where('user_id',$User->id)->update(array('is_default' => 0));
+        }
 
         $response = array('status' => true,'message'=>'Address created successfully.','data'=>$Address);
         return response()->json($response, 200);
@@ -115,7 +120,12 @@ class AddressesController extends Controller
             $Address->city=$request->city;
             $Address->state=$request->state;
             $Address->user_id=$User->id;
+            $Address->is_default=$request->is_default?1:0;
             $Address->save();
+
+            if($request->is_default){
+                Address::where('id','!=',$Address->id)->where('user_id',$User->id)->update(array('is_default' => 0));
+            }
             
             $response = array('status' => true,'message'=>'Address updated successfully.','data'=>$Address);
             return response()->json($response, 200);

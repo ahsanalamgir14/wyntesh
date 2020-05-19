@@ -23,6 +23,11 @@ class Order extends Model {
         return $this->hasMany('App\Models\User\OrderProduct')->with('product:id,name,product_number,pv,qty,qty_unit,retail_amount,retail_base,retail_gst,shipping_fee,gst_rate,discount_amount,discount_rate,cover_image_thumbnail,brand_name');
     }
 
+    public function packages()
+    {
+        return $this->hasMany('App\Models\User\OrderPackage')->with('package:id,name,package_code,image,base_amount,gst_rate,gst_amount,net_amount,pv');
+    }
+
     public function logs()
     {
         return $this->hasMany('App\Models\User\DeliveryLog');
@@ -31,6 +36,11 @@ class Order extends Model {
     public function billing_address()
     {
         return $this->belongsTo('App\Models\User\Address','billing_address_id');
+    }
+
+    public function payment_mode()
+    {
+        return $this->belongsTo('App\Models\Superadmin\PaymentMode','payment_mode');
     }
 
     public function shipping_address()

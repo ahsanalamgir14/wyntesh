@@ -163,20 +163,26 @@ export const asyncRoutes = [
         meta: { title: 'Members', icon: 'fas fa-user', color:'color:#EE7642', affix: true, roles: ['admin'] }
       },
       {
+        path: 'activate',
+        component: () => import('@/views/admin/network/activate-accounts'),
+        name: 'Activate IDs',
+        meta: { title: 'Activate IDs', icon: 'fas fa-check-circle', color:'color:#42f560', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'add',
-        component: () => import('@/views/admin/members/add'),
+        component: () => import('@/views/admin/network/members/add'),
         name: 'Add Members',
         meta: { title: 'Add Members', icon: 'fas fa-plus', color:'color:#EE7642', affix: true, roles: ['admin'] }
       },
       {
         path: 'geneology',
-        component: () => import('@/views/admin/geneology/index'),
+        component: () => import('@/views/admin/network/geneology/index'),
         name: 'Geneology',
         meta: { title: 'Geneology', icon: 'fas fa-sitemap', color:'color:#854CE2', affix: true, roles: ['admin','superadmin'] }
       },
       {
         path: 'geneology/member/:id',
-        component: () => import('@/views/admin/geneology/member'),
+        component: () => import('@/views/admin/network/geneology/member'),
         name: 'Member Geneology',
         hidden:true,
         meta: { title: 'Member Geneology', icon: 'fas fa-sitemap', color:'color:#C39BD3', affix: true, roles: ['admin','superadmin'] }
@@ -534,13 +540,19 @@ export const asyncRoutes = [
     children: [
       {
         path: 'profile',
-        component: () => import('@/views/user/profile/Profile'),
+        component: () => import('@/views/user/account/Profile'),
         name: 'Profile & KYC',
         meta: { title: 'Profile & KYC', icon: 'fas fa-user', color:'color:#FF5733', affix: true, roles: ['user'] }
       },
       {
+        path: 'activate',
+        component: () => import('@/views/user/account/activate-account'),
+        name: 'Activate ID',
+        meta: { title: 'Activate ID', icon: 'fas fa-check-circle', color:'color:#42f560', affix: true, roles: ['user'] }
+      },
+      {
         path: 'addresses',
-        component: () => import('@/views/user/profile/addresses'),
+        component: () => import('@/views/user/account/addresses'),
         name: 'Addresses',
         meta: { title: 'Addresses', icon: 'fas fa-map-marked-alt', color:'color:#C39BD3', affix: true, roles: ['user'] }
       },
@@ -560,7 +572,7 @@ export const asyncRoutes = [
     children: [     
       {
         path: 'add',
-        component: () => import('@/views/admin/members/add'),
+        component: () => import('@/views/admin/network/members/add'),
         name: 'Add Member',
         meta: { title: 'Add Member', icon: 'fas fa-plus', color:'color:#EE7642', affix: true, roles: ['user'] }
       },

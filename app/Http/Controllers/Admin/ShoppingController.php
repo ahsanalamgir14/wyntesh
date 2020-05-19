@@ -9,8 +9,15 @@ use App\Models\User\Cart;
 use App\Models\User\Order;
 use App\Models\User\OrderProduct;
 use App\Models\User\DeliveryLog;
+use App\Models\User\OrderPackage;
+use App\Models\Admin\Pin;
+use App\Models\Superadmin\TransactionType;
+use App\Models\Superadmin\PaymentMode;
+use App\Models\User\Address;
+use App\Models\User\User;
 use Validator;
 use JWTAuth;
+use Carbon\Carbon;
 
 class ShoppingController extends Controller
 {
@@ -40,7 +47,7 @@ class ShoppingController extends Controller
 
         if(!$search && !$date_range ){           
             $Orders=Order::select();
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name');
+            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->where('delivery_status','Order Created');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }else{
@@ -60,7 +67,7 @@ class ShoppingController extends Controller
 
             $Orders=$Orders->where('delivery_status','Order Created');
 
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name');
+            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
@@ -94,7 +101,7 @@ class ShoppingController extends Controller
 
         if(!$search && !$date_range && !$delivery_status){           
             $Orders=Order::select();
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name');
+            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }else{
             $Orders=Order::select();
@@ -116,7 +123,7 @@ class ShoppingController extends Controller
                 $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
             }
 
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name');
+            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
@@ -157,6 +164,106 @@ class ShoppingController extends Controller
             $response = array('status' => false,'message'=>'Order not found');
             return response()->json($response, 404);
         }
+    }
+
+    public function placePackageOrder(Request $request){
+        $validate = Validator::make($request->all(), [ 
+            'pin_number' => "required",
+            'member_id'=>"required"
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $User=JWTAuth::user();
+
+        $Pin= Pin::where('pin_number',$request->pin_number)->first();
+        $User=User::where('username',$request->member_id)->first();
+
+        if(!$Pin){
+            $response = array('status' => false,'message'=>'Pin not found');
+            return response()->json($response, 404);
+        }
+
+        if(!$User){
+            $response = array('status' => false,'message'=>'Member not found');
+            return response()->json($response, 404);
+        }
+
+        if($Pin->used_by && $Pin->used_at){
+            $response = array('status' => false,'message'=>'Pin is already used.');
+            return response()->json($response, 400);
+        }
+
+
+        $subtotal=$Pin->base_amount;
+        $total_gst=$Pin->tax_amount;
+        $shipping=0;
+        $admin=0;
+        $discount=0;
+        $grand_total=$Pin->total_amount;
+        $pv=$Pin->package->pv;
+
+        $PaymentMode=PaymentMode::where('name','Pin')->first();
+        $Address=Address::where('user_id',$User->id)->where('is_default',1)->first();
+
+        $order_no = substr(str_shuffle("01234012345678900123456789123456012345678978956789"), 0, 10);
+
+        if($PaymentMode){
+
+            $Order=new Order;
+            $Order->order_no=$order_no;
+            $Order->user_id=$User->id;
+            $Order->amount=$subtotal;
+            $Order->discount=$discount;
+            $Order->gst=$total_gst;
+            $Order->shipping_fee=$shipping;
+            $Order->admin_fee=$admin;
+            $Order->final_amount=$grand_total;
+            $Order->pv=$pv;
+            $Order->payment_status='Success';            
+            $Order->payment_mode=$PaymentMode->id;
+            $Order->shipping_address_id=$Address?$Address->id:null;
+            $Order->billing_address_id=$Address?$Address->id:null;
+            $Order->delivery_status='Order Created';
+            $Order->save();
+
+            $OrderPackage=new OrderPackage;
+            $OrderPackage->order_id=$Order->id;
+            $OrderPackage->package_id=$Pin->package->id;
+            $OrderPackage->amount=$Pin->package->base_amount;
+            $OrderPackage->gst=$Pin->package->gst_amount;
+            $OrderPackage->gst_rate=$Pin->package->gst_rate;
+            $OrderPackage->shipping_fee=0;
+            $OrderPackage->admin_fee=0;
+            $OrderPackage->discount=0;
+            $OrderPackage->final_amount=$Pin->package->net_amount;
+            $OrderPackage->pv=$Pin->package->pv;
+            $OrderPackage->qty=1;
+            $OrderPackage->save();
+
+            $DeliveryLog=new DeliveryLog;
+            $DeliveryLog->order_id=$Order->id;
+            $DeliveryLog->delivery_status='Order Created';
+            $DeliveryLog->save();
+
+            $Pin->used_by=$User->id;
+            $Pin->used_at=Carbon::now();
+            $Pin->status='Used';
+            $Pin->save();
+
+            $User->is_active=1;
+            $User->save();
+            
+            $response = array('status' => true,'message'=>'Account activated successfully');
+            return response()->json($response, 200);
+
+        }else{
+            $response = array('status' => false,'message'=>'Payment mode Pin not found, contact admin.');
+            return response()->json($response, 400);
+        }        
     }
 
 }

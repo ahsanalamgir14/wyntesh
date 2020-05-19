@@ -342,6 +342,61 @@ class PinsController extends Controller
             return response()->json($response, 200);
     }
 
+    public function getMyUsedPins(Request $request)
+    {
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $package_id=$request->package_id;
+        $date_range=$request->date_range;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search &&  !$package_id && !$date_range){           
+            $Pins=Pin::select();
+            $Pins=$Pins->where('used_by',$user->id);
+            $Pins=$Pins->with('package');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $Pins=Pin::select();
+            
+            if($search){
+                $Pins=$Pins->where(function ($query)use($search) {
+                    $query=$query->orWhere('pin_number',$search);
+                });    
+            }
+            
+            if($package_id){
+                $Pins=$Pins->where('package_id',$package_id);
+            }
+
+            if($date_range){
+                $Pins=$Pins->whereDate('used_at','>=', $date_range[0]);
+                $Pins=$Pins->whereDate('used_at','<=', $date_range[1]);
+            }
+
+            $Pins=$Pins->where('used_by',$user->id);
+            $Pins=$Pins->with('package');
+            $Pins=$Pins->orderBy('id',$sort)->paginate($limit);
+        }
+       $response = array('status' => true,'message'=>"Pins retrieved.",'data'=>$Pins);
+            return response()->json($response, 200);
+    }
+
     public function transferPinsToMember(Request $request)
     {
         $user=JWTAuth::user();
@@ -494,6 +549,23 @@ class PinsController extends Controller
         return response()->json($response, 200);
     }
 
+    public function checkPin($pin_number)
+    {
+        $Pin= Pin::where('pin_number',$pin_number)->first();
+        if($Pin){
+            if($Pin->used_by && $Pin->used_at){
+                $response = array('status' => false,'message'=>'Pin is already used.');
+                return response()->json($response, 400);
+            }
+
+            $response = array('status' => true,'message'=>'Pin is available','package'=>$Pin->package->name);             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Pin not found');
+            return response()->json($response, 404);
+        }      
+    }
+
    
     /**
      * Remove the specified resource from storage.
@@ -511,7 +583,7 @@ class PinsController extends Controller
             $response = array('status' => true,'message'=>'Pin request successfully deleted.');             
             return response()->json($response, 200);
         }else{
-            $response = array('status' => false,'message'=>'Pin request not found','data' => array());
+            $response = array('status' => false,'message'=>'Pin request not found');
             return response()->json($response, 404);
         }
 

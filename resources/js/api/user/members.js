@@ -81,3 +81,10 @@ export function getDownlines(query) {
     params: query
   })
 }
+
+export function getAccountStatus(id) {
+  return request({
+    url: '/user/account/status',
+    method: 'get'
+  })
+}

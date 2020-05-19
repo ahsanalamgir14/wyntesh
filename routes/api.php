@@ -55,6 +55,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::get('profile', 'MembersController@getProfile');
     Route::post('profile', 'MembersController@updateProfile');
+    Route::get('account/status', 'MembersController@getAccuntStatus');
 
     Route::post('tickets', '\App\Http\Controllers\Admin\SupportController@createTicket');    
     Route::get('tickets/opened', '\App\Http\Controllers\Admin\SupportController@getMyOpened');
@@ -69,6 +70,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('geneology/member/{id}', 'MembersController@myMemberGeneology');
     Route::get('downlines', 'MembersController@getDownlines');
 
+
     Route::get('pending-pin-requests', 'PinsController@myPendingPinRequests');
     Route::get('approved-pin-requests', 'PinsController@myApprovedPinRequests');
     Route::get('rejected-pin-requests', 'PinsController@myRejectedPinRequests');
@@ -79,6 +81,9 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('unused/my/pins', 'PinsController@getNotUsedPins');
     Route::post('pins/transfer', 'PinsController@transferPinsToMember');
     Route::get('pins/transfer-log', 'PinsController@getPinTransferLog');
+    Route::get('account/pins/used', 'PinsController@getMyUsedPins');
+    Route::get('pin/check/{pin}', 'PinsController@checkPin');
+    Route::post('account/pin/activation', 'ShoppingController@placePackageOrder');
 
     Route::get('withdrawal-requests', 'WalletController@withdrawalRequests');
     Route::post('withdrawal-requests', 'WalletController@createWithdrawal');
@@ -132,7 +137,7 @@ Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user
 Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','namespace'=>'Admin'], function($router)
 {   
  
-    Route::get('stats', 'SettingsController@stats');
+    Route::get('stats', 'DashboardController@stats');
     Route::post('settings','SettingsController@updateCompanyDetails');
     Route::get('settings','SettingsController@getSettings');
     Route::get('settings/company','SettingsController@getCompanySettings');
@@ -218,6 +223,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('unused/pins', 'PinsController@getNotUsedPins');
     Route::post('pins/transfer', 'PinsController@transferPinsToMember');
     Route::get('pins/transfer-log', 'PinsController@getPinTransferLog');
+    Route::get('member/pins/used', 'PinsController@getMemberUsedPins');
+    Route::get('pin/check/{pin}', 'PinsController@checkPin');
+    Route::post('member/pin/activation', 'ShoppingController@placePackageOrder');
 
     Route::get('withdrawal-requests', 'WalletController@withdrawalRequests');
     Route::delete('withdrawal-requests/{id}/delete', 'WalletController@destroy');

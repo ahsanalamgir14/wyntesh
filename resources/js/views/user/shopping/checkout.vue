@@ -462,6 +462,7 @@ export default {
             this.step=2;
             this.processStatus='success';
             this.order_no=response.data.order_no;
+            this.$events.fire('update-cart-count');
             this.$notify({
               title: "Success",
               message: response.message,

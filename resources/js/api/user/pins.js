@@ -60,6 +60,21 @@ export function fetchPinTransferLog(query) {
   })
 }
 
+export function getMyUsedPins(query) {
+  return request({
+    url: '/user/account/pins/used',
+    method: 'get',
+    params: query
+  })
+}
+
+export function checkPin(pin) {
+  return request({
+    url: '/user/pin/check/'+pin,
+    method: 'get'
+  })
+}
+
 export function createPinRequest(data) {
   return request({
     url: '/user/pin-requests',
@@ -80,5 +95,13 @@ export function deletePinRequest(id) {
   return request({
     url: '/user/pin-requests/'+id+'/delete',
     method: 'delete'
+  })
+}
+
+export function activatePinAccount(data) {
+  return request({
+    url: '/user/account/pin/activation',
+    method: 'post',
+    data
   })
 }

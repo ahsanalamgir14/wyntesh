@@ -119,8 +119,12 @@
             <el-form-item label="Full Name" prop="full_name">
               <el-input v-model="temp.full_name" />
             </el-form-item>
-             <el-form-item label="Mobile Number" prop="mobile_number">
+            <el-form-item label="Mobile Number" prop="mobile_number">
               <el-input v-model="temp.mobile_number" />
+            </el-form-item>
+            <el-form-item label="Default ?" prop="is_default">
+              <br>
+              <el-checkbox v-model="temp.is_default" label="Default Address ?" border></el-checkbox>
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
@@ -196,6 +200,7 @@ export default {
         landmark:undefined,
         city:undefined,
         state:undefined,
+        is_default:true
       },
 
       dialogAddressesVisible:false,
@@ -245,6 +250,7 @@ export default {
         landmark:undefined,
         city:undefined,
         state:undefined,
+        is_default:true
       };
     },
     handleCreate() {
@@ -281,7 +287,7 @@ export default {
     handleEdit(row) {
      
       this.temp = Object.assign({}, row); // copy obj
-
+      this.temp.is_default=this.temp.is_default?true:false;
       this.dialogStatus = "update";
       this.dialogTitle = "Update Address";
       this.dialogAddressesVisible = true;
@@ -295,7 +301,8 @@ export default {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
          
-          const tempData = Object.assign({}, this.temp);
+          let tempData = Object.assign({}, this.temp);
+          tempData.is_default=tempData.is_default?1:0;
 
           updateAddress(tempData).then((data) => {
             this.getList();

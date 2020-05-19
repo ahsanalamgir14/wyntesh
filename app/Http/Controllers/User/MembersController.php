@@ -25,6 +25,13 @@ class MembersController extends Controller
         $Member=User::with('kyc')->find($id);
         $response = array('status' => true,'message'=>'Profile data recieved.','data' => $Member);
         return response()->json($response, 200);
+    }
+
+    public function getAccuntStatus()
+    {   
+        $User=JWTAuth::user();
+        $response = array('status' => true,'message'=>'Account status recieved.','is_active' => $User->is_active);
+        return response()->json($response, 200);
     } 
 
     public function checkSponsorCode($code)

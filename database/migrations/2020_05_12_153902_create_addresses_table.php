@@ -23,6 +23,7 @@ class CreateAddressesTable extends Migration
             $table->string('landmark', 64)->nullable();
             $table->string('city', 64)->nullable();
             $table->string('state', 64)->nullable();
+            $table->boolean('is_default')->default(0);
             $table->timestamps();
         });
     }

@@ -88,3 +88,26 @@ export function generatePin(data) {
     data
   })
 }
+
+export function getMemberUsedPins(query) {
+  return request({
+    url: '/admin/member/pins/used',
+    method: 'get',
+    params: query
+  })
+}
+
+export function checkPin(pin) {
+  return request({
+    url: '/admin/pin/check/'+pin,
+    method: 'get'
+  })
+}
+
+export function activatePinAccount(data) {
+  return request({
+    url: '/admin/member/pin/activation',
+    method: 'post',
+    data
+  })
+}

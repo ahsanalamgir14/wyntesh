@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard-editor-container">
     
-  <el-row :gutter="40" class="panel-group">
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" >
-        <div class="card-panel-icon-wrapper " style="color: #F39C12;">
+  <el-row :gutter="10" class="panel-group">
+    <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel gr1" >
+        <div class="card-panel-icon-wrapper " >
           <i class="fas fa-users card-panel-icon"  ></i>
         </div>
         <div class="card-panel-description">
@@ -16,9 +16,9 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" >
+      <div class="card-panel gr2" >
         <div class="card-panel-icon-wrapper icon-message">
-          <i class="fas fa-wallet card-panel-icon" style="color: #27AE60;" ></i>
+          <i class="fas fa-wallet card-panel-icon"  ></i>
         </div>
         <div class="card-panel-description">
           
@@ -30,9 +30,9 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" >
+      <div class="card-panel gr3" >
         <div class="card-panel-icon-wrapper icon-money">
-          <i class="fas fa-rupee-sign card-panel-icon"  style="color: #F5B041;"></i>
+          <i class="fas fa-rupee-sign card-panel-icon"  ></i>
         </div>
         <div class="card-panel-description">
           
@@ -44,9 +44,9 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" >
+      <div class="card-panel gr4" >
         <div class="card-panel-icon-wrapper icon-shopping">
-          <i class="fas fa-rupee-sign card-panel-icon"  style="color: #40c9c6;"></i>
+          <i class="fas fa-rupee-sign card-panel-icon"  ></i>
         </div>
         <div class="card-panel-description">
           
@@ -56,9 +56,53 @@
           </div>
         </div>
       </div>
+    </el-col> -->
+
+    
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel gr7" >
+        <div class="card-panel-icon-wrapper icon-message">
+          <i class="fas fa-wallet card-panel-icon"  ></i>
+        </div>
+        <div class="card-panel-description">
+          
+          <count-to :start-val="0" :end-val="dashboardStats.courses" :duration="3000" class="card-panel-num" />
+          <div class="card-panel-text">
+            Total Withdrawals
+          </div>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel gr20" >
+        <div class="card-panel-icon-wrapper icon-money">
+          <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+        </div>
+        <div class="card-panel-description">
+          
+          <count-to :start-val="0" :end-val="dashboardStats.topics" :duration="3200" class="card-panel-num" />
+          <div class="card-panel-text">
+            Total Purchase
+          </div>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel gr2" >
+        <div class="card-panel-icon-wrapper icon-shopping">
+          <i class="fas fa-tag card-panel-icon"  ></i>
+        </div>
+        <div class="card-panel-description">
+          
+          <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+          <div class="card-panel-text">
+            Pins Available
+          </div>
+        </div>
+      </div>
     </el-col>
   </el-row>
-    <div ><p style="margin-top:350px;"></p></div>
+  <div ><p style="margin-top:350px;"></p></div>
 
     <!-- <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
@@ -130,9 +174,9 @@ export default {
     font-size: 12px;
     position: relative;
     overflow: hidden;
-    color: #666;
-    background: #fff;
-    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
+    color: #fff;
+    border-radius: 10px;
+    border:1px solid #ccc;
 
     .card-panel-icon-wrapper {
       float: left;
@@ -150,6 +194,7 @@ export default {
       padding:5px;
       height: 35px;
       width: 45px;
+      color:#fff
     }
     @media (min-width:550px) {
       .card-panel-description {
@@ -161,7 +206,7 @@ export default {
 
         .card-panel-text {
           line-height: 25px;
-          color: rgba(0, 0, 0, 0.45);
+          color: #fff;
           font-size: 14px;
           display: block;
           margin-top: 5px;
@@ -186,7 +231,7 @@ export default {
           text-align: center;
         .card-panel-text {
           line-height: 20px;
-          color: rgba(0, 0, 0, 0.45);
+          color: #fff;
           font-size: 10px;
         }
 
@@ -208,6 +253,106 @@ export default {
       float: none !important;
     }
   }
+}
+
+.gr1{
+  background: rgb(33,147,176);
+  background: linear-gradient(60deg, rgba(33,147,176,1) 50%, rgba(109,213,237,1) 100%);
+}
+
+.gr2{
+  background: rgb(204,43,94);
+  background: linear-gradient(60deg, rgba(204,43,94,1) 34%, rgba(117,58,136,1) 86%);
+}
+
+.gr3{
+  background: rgb(66,39,90);
+  background: linear-gradient(60deg, rgba(66,39,90,1) 34%, rgba(115,75,109,1) 86%);
+}
+
+.gr4{
+  background: rgb(44,62,80);
+  background: linear-gradient(60deg, rgba(44,62,80,1) 39%, rgba(189,195,199,1) 100%);
+}
+
+.gr5{
+  background: rgb(222,98,98);
+  background: linear-gradient(60deg, rgba(222,98,98,1) 39%, rgba(255,184,140,1) 100%);
+}
+
+.gr6{
+  background: rgb(72,177,191);
+  background: linear-gradient(60deg, rgba(72,177,191,1) 50%, rgba(6,190,182,1) 69%);
+}
+
+.gr7{
+  background: rgb(221,67,86);
+  background: linear-gradient(60deg, rgba(221,67,86,1) 40%, rgba(244,92,67,1) 81%);
+}
+
+.gr8{
+  background: rgb(97,67,133);
+  background: linear-gradient(60deg, rgba(97,67,133,1) 40%, rgba(81,99,149,1) 81%);
+}
+
+.gr9{
+  background: rgb(239,98,159);
+  background: linear-gradient(60deg, rgba(239,98,159,1) 40%, rgba(238,205,163,1) 81%);
+}
+
+.gr10{
+  background: rgb(2,170,176);
+  background: linear-gradient(60deg, rgba(2,170,176,1) 57%, rgba(0,205,172,1) 81%);
+}
+
+.gr11{
+  background: rgb(0,4,40);
+  background: linear-gradient(60deg, rgba(0,4,40,1) 0%, rgba(0,78,146,1) 77%);
+}
+
+.gr12{
+  background: rgb(123,67,151);
+  background: linear-gradient(60deg, rgba(123,67,151,1) 0%, rgba(220,36,48,1) 77%);
+}
+
+.gr13{
+  background: rgb(24,90,157);
+  background: linear-gradient(60deg, rgba(24,90,157,1) 0%, rgba(67,206,162,1) 77%);
+}
+
+.gr14{
+  background: rgb(69,104,220);
+  background: linear-gradient(60deg, rgba(69,104,220,1) 0%, rgba(176,106,179,1) 77%);
+}
+
+.gr15{
+  background: rgb(25,84,123);
+  background: linear-gradient(60deg, rgba(25,84,123,1) 25%, rgba(255,216,155,1) 87%);
+}
+
+.gr16{
+  background: rgb(58,28,113);
+  background: linear-gradient(60deg, rgba(58,28,113,1) 0%, rgba(215,109,119,1) 71%, rgba(255,175,123,1) 96%);
+}
+
+.gr17{
+  background: rgb(54,209,220);
+  background: linear-gradient(60deg, rgba(54,209,220,1) 0%, rgba(91,134,229,1) 71%);
+}
+
+.gr18{
+  background: rgb(195,55,100);
+  background: linear-gradient(60deg, rgba(195,55,100,1) 0%, rgba(29,38,113,1) 71%);
+}
+
+.gr19{
+  background: rgb(170,7,107);
+  background: linear-gradient(60deg, rgba(170,7,107,1) 0%, rgba(97,4,95,1) 71%);
+}
+
+.gr20{
+  background: rgb(43,88,118);
+  background: linear-gradient(60deg, rgba(43,88,118,1) 35%, rgba(78,67,118,1) 66%);
 }
 
 </style>
