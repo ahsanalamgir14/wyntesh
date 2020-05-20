@@ -23,13 +23,25 @@ export default {
       type: String,
       default: '300px',
     },
+    chartData: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
       chart: null,
     };
   },
-  mounted() {
+  watch: {
+    chartData: {
+      deep: true,
+      handler(val) {        
+        this.setOptions(val);
+      },
+    },
+  },
+  mounted() {   
     this.initChart();
     this.__resizeHandler = debounce(() => {
       if (this.chart) {
@@ -47,9 +59,7 @@ export default {
     this.chart = null;
   },
   methods: {
-    initChart() {
-      this.chart = echarts.init(this.$el, 'macarons');
-
+    setOptions({ labels, data, title, color } = {}) {
       this.chart.setOption({
         tooltip: {
           trigger: 'axis',
@@ -58,15 +68,14 @@ export default {
           },
         },
         grid: {
-          top: 10,
-          left: '2%',
-          right: '2%',
-          bottom: '3%',
+          left: '4%',
+          right: '4%',
+          bottom: '4%',
           containLabel: true,
         },
         xAxis: [{
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: labels,
           axisTick: {
             alignWithLabel: true,
           },
@@ -77,29 +86,32 @@ export default {
             show: false,
           },
         }],
+        legend: {
+          left: 'center',
+          top: '0',
+          data: [title],
+        },
+        color: color,
         series: [{
-          name: 'pageA',
+          name: title,
           type: 'bar',
           stack: 'vistors',
-          barWidth: '60%',
-          data: [79, 52, 200, 334, 390, 330, 220],
+          barWidth: '40%',
+          data: data,
+          showBackground: true,
+          backgroundStyle: {
+              color: 'rgba(220, 220, 220, 0.8)'
+          },
           animationDuration,
-        }, {
-          name: 'pageB',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: [80, 52, 200, 334, 390, 330, 220],
-          animationDuration,
-        }, {
-          name: 'pageC',
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '60%',
-          data: [30, 52, 200, 334, 390, 330, 220],
-          animationDuration,
-        }],
+        }, ],
       });
+    },
+
+    initChart() {
+
+      this.chart = echarts.init(this.$el, 'macarons');
+      this.setOptions(this.chartData);
+      
     },
   },
 };

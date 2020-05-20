@@ -138,6 +138,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 {   
  
     Route::get('stats', 'DashboardController@stats');
+    Route::get('order/stats', 'DashboardController@orderStats');
+    Route::get('activation/stats', 'DashboardController@pinActivations');
+
     Route::post('settings','SettingsController@updateCompanyDetails');
     Route::get('settings','SettingsController@getSettings');
     Route::get('settings/company','SettingsController@getCompanySettings');

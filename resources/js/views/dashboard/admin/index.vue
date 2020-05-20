@@ -22,7 +22,7 @@
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="dashboardStats.topics" :duration="3200" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="dashboardStats.inactive_users" :duration="3200" class="card-panel-num" />
             <div class="card-panel-text">
               Inactive Members
             </div>
@@ -36,7 +36,7 @@
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="dashboardStats.courses" :duration="3000" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="dashboardStats.total_orders" :duration="3000" class="card-panel-num" />
             <div class="card-panel-text">
               Total Orders
             </div>
@@ -45,27 +45,27 @@
       </el-col>
       
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr14" @click="handleSetLineChartData('shoppings')">
+        <div class="card-panel gr14" >
           <div class="card-panel-icon-wrapper icon-shopping">
             <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="dashboardStats.tickets" :duration="3600" class="card-panel-num" />
             <div class="card-panel-text">
               Support Tickets
             </div>
           </div>
         </div>
       </el-col>
-      <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr5" @click="handleSetLineChartData('shoppings')">
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel gr5" >
           <div class="card-panel-icon-wrapper icon-shopping">
             <i class="fas fa-tag card-panel-icon"  ></i>
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="dashboardStats.used_pin" :duration="3600" class="card-panel-num" />
             <div class="card-panel-text">
               Used Pins
             </div>
@@ -73,13 +73,13 @@
         </div>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr6" @click="handleSetLineChartData('shoppings')">
+        <div class="card-panel gr6" >
           <div class="card-panel-icon-wrapper icon-shopping">
             <i class="fas fa-tag card-panel-icon"  ></i>
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="dashboardStats.unused_pin" :duration="3600" class="card-panel-num" />
             <div class="card-panel-text">
               Unused Pins
             </div>
@@ -87,13 +87,13 @@
         </div>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr7" @click="handleSetLineChartData('shoppings')">
+        <div class="card-panel gr7" >
           <div class="card-panel-icon-wrapper icon-shopping">
             <i class="fas fa-images card-panel-icon"  ></i>
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="dashboardStats.pending_kyc" :duration="3600" class="card-panel-num" />
             <div class="card-panel-text">
               Pending KYCs
             </div>
@@ -101,85 +101,70 @@
         </div>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr8" @click="handleSetLineChartData('shoppings')">
+        <div class="card-panel gr8" >
           <div class="card-panel-icon-wrapper icon-shopping">
             <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
           </div>
           <div class="card-panel-description">
             
-            <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="dashboardStats.inquiries" :duration="3600" class="card-panel-num" />
             <div class="card-panel-text">
               Inquiries
             </div>
           </div>
         </div>
-      </el-col> -->
+      </el-col>
     </el-row>
 
     <el-row :gutter="10">      
-      <el-col :span="12"></el-col>
+      <el-col :span="12">        
+        <el-card shadow="never">
+          <bar-chart :chartData="orderData" ></bar-chart>
+        </el-card>
+      </el-col>
+      <el-col :span="12">        
+        <el-card shadow="never">
+          <line-chart :chartData="activationData" ></line-chart>
+        </el-card>
+      </el-col>
     </el-row>
-
-    <div ><p style="margin-top:350px;"></p></div>
 
   </div>
 </template>
 
 <script>
-import GithubCorner from '@/components/GithubCorner'
-import PanelGroup from './components/PanelGroup'
-import LineChart from './components/LineChart'
-import RaddarChart from './components/RaddarChart'
-import PieChart from './components/PieChart'
-import BarChart from './components/BarChart'
-import TodoList from './components/TodoList'
-import BoxCard from './components/BoxCard'
+
 import CountTo from 'vue-count-to'
+import BarChart from './components/BarChart'
+import LineChart from './components/LineChart'
+import { dashboardStats,pastOrderStats,pastActivations } from "@/api/admin/dashboard";
 
-import {
-  dashboardStats
-} from "@/api/admin/dashboard";
 
-const lineChartData = {
-  newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145]
-  },
-  messages: {
-    expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData: [180, 160, 151, 106, 145, 150, 130]
-  },
-  purchases: {
-    expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [120, 90, 100, 138, 142, 130, 130]
-  },
-  shoppings: {
-    expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData: [120, 82, 91, 154, 162, 140, 130]
-  }
-}
 
 export default {
   name: 'DashboardAdmin',
   components: {
-    GithubCorner,
-    PanelGroup,
-    LineChart,
-    RaddarChart,
-    PieChart,
+    CountTo,
     BarChart,
-    TodoList,
-    BoxCard,
-    CountTo
+    LineChart
   },
   data() {
     return {
       dashboardStats:{},
-      lineChartData: lineChartData.newVisitis
+      orderData:{},
+      activationData:{},
+      barSum:[],
     }
   },
-  created() {
+  async created() {
     this.getDashboardStats();
+    await pastOrderStats().then(response => {
+      this.orderData = { labels:response.orders.map(function (el) { return el.date; }), data:response.orders.map(function (el) { return el.sum; }), title:'Orders', color:'#e39c39' };
+    });
+    await pastActivations().then(response => {
+      this.activationData = { labels:response.activations.map(function (el) { return el.date; }), data:response.activations.map(function (el) { return el.count; }), title:'Activations', color:'#60c402' };
+    });
+
   },
   methods: {
     getDashboardStats(){
@@ -188,9 +173,6 @@ export default {
       });
     },
 
-    handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
-    }
   }
 }
 </script>

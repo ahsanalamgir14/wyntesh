@@ -7,6 +7,8 @@ import echarts from 'echarts';
 require('echarts/theme/macarons'); // echarts theme
 import { debounce } from '@/utils';
 
+const animationDuration = 6000;
+
 export default {
   props: {
     className: {
@@ -19,11 +21,7 @@ export default {
     },
     height: {
       type: String,
-      default: '350px',
-    },
-    autoResize: {
-      type: Boolean,
-      default: true,
+      default: '300px',
     },
     chartData: {
       type: Object,
@@ -33,126 +31,90 @@ export default {
   data() {
     return {
       chart: null,
-      sidebarElm: null,
     };
   },
   watch: {
     chartData: {
       deep: true,
-      handler(val) {
+      handler(val) {        
         this.setOptions(val);
       },
     },
   },
-  mounted() {
+  mounted() {   
     this.initChart();
-    if (this.autoResize) {
-      this.__resizeHandler = debounce(() => {
-        if (this.chart) {
-          this.chart.resize();
-        }
-      }, 100);
-      window.addEventListener('resize', this.__resizeHandler);
-    }
-
-    // Monitor the sidebar changes
-    this.sidebarElm = document.getElementsByClassName('sidebar-container')[0];
-    this.sidebarElm && this.sidebarElm.addEventListener('transitionend', this.sidebarResizeHandler);
+    this.__resizeHandler = debounce(() => {
+      if (this.chart) {
+        this.chart.resize();
+      }
+    }, 100);
+    window.addEventListener('resize', this.__resizeHandler);
   },
   beforeDestroy() {
     if (!this.chart) {
       return;
     }
-    if (this.autoResize) {
-      window.removeEventListener('resize', this.__resizeHandler);
-    }
-
-    this.sidebarElm && this.sidebarElm.removeEventListener('transitionend', this.sidebarResizeHandler);
-
+    window.removeEventListener('resize', this.__resizeHandler);
     this.chart.dispose();
     this.chart = null;
   },
   methods: {
-    sidebarResizeHandler(e) {
-      if (e.propertyName === 'width') {
-        this.__resizeHandler();
-      }
-    },
-    setOptions({ expectedData, actualData } = {}) {
+    setOptions({ labels, data, title, color } = {}) {
       this.chart.setOption({
-        xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-          boundaryGap: false,
-          axisTick: {
-            show: false,
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { // Axis indicator, axis trigger is valid
+            type: 'shadow', // The default is a straight line, which can be selected as: 'line' | 'shadow'
           },
         },
         grid: {
-          left: 10,
-          right: 10,
-          bottom: 20,
-          top: 30,
+          left: '4%',
+          right: '4%',
+          bottom: '4%',
           containLabel: true,
         },
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
+        xAxis: [{
+          type: 'category',
+          data: labels,
+          axisTick: {
+            alignWithLabel: true,
           },
-          padding: [5, 10],
-        },
-        yAxis: {
+        }],
+        yAxis: [{
+          type: 'value',
           axisTick: {
             show: false,
           },
-        },
+        }],
         legend: {
-          data: ['expected', 'actual'],
+          left: 'center',
+          top: '0',
+          data: [title],
         },
-        series: [
-          {
-            name: 'expected',
-            itemStyle: {
+        color: color,
+        series: [{
+          name: title,
+          type: 'line',
+          data: data,
+          itemStyle: {
               normal: {
-                color: '#FF005A',
+                color: color,
                 lineStyle: {
-                  color: '#FF005A',
+                  color: color,
                   width: 2,
                 },
               },
-            },
-            smooth: true,
-            type: 'line',
-            data: expectedData,
-            animationDuration: 2800,
-            animationEasing: 'cubicInOut',
           },
-          {
-            name: 'actual',
-            smooth: true,
-            type: 'line',
-            itemStyle: {
-              normal: {
-                color: '#3888fa',
-                lineStyle: {
-                  color: '#3888fa',
-                  width: 2,
-                },
-                areaStyle: {
-                  color: '#f3f8ff',
-                },
-              },
-            },
-            data: actualData,
-            animationDuration: 2800,
-            animationEasing: 'quadraticOut',
-          },
-        ],
+          animationDuration: 2800,
+        }, ],
       });
     },
+
     initChart() {
+
       this.chart = echarts.init(this.$el, 'macarons');
       this.setOptions(this.chartData);
+      
     },
   },
 };
