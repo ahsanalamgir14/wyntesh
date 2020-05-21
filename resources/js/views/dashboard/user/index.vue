@@ -1,6 +1,7 @@
 <template>
   <div class="dashboard-editor-container">
     <el-alert
+    v-if="notice.is_active"
     style="margin-bottom: 10px;"
     :title="notice.title"
     type="success"
@@ -227,7 +228,8 @@ export default {
       transitions:[],
       notice:{
         title:undefined,
-        description:undefined
+        description:undefined,
+        is_active:0
       },
       temp:{
           id: undefined,
