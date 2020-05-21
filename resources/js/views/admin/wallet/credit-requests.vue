@@ -249,6 +249,8 @@ export default {
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
+      }).catch((er)=>{
+        this.listLoading = false;
       });
     },
     getConfig() {      

@@ -19,35 +19,7 @@ class SettingsController extends Controller
         $tempImage = tempnam(sys_get_temp_dir(), $filename);
         copy($request->file, $tempImage);
         return response()->download($tempImage, $filename);
-    }
-
-    public function stats(){
-        $courses=1;
-        $users=User::count();
-        $quizzes=1;
-        $topics=1;
-
-        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('courses'=>$courses,'users'=>$users,'quizzes'=>$quizzes,'topics'=>$topics));             
-        return response()->json($response, 200);
-
-    }
-
-    public function franchiseStats(){
-        $user_id=JWTAuth::user()->id;
-        $balance=0;
-        $coupons=1;
-        $commission=1;
-        $franchises=1;
-        $balance_latest=Ledger::where('user_id',$user_id)->latest('id')->first();
-
-        if($balance_latest){
-            $balance=$balance_latest->balance;
-        }
-
-        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('franchises'=>$franchises,'coupons'=>$coupons,'balance'=>$balance,'commission'=>$commission));             
-        return response()->json($response, 200);
-
-    }
+    }   
 
     public function get()
     {

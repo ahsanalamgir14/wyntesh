@@ -45,18 +45,23 @@ class DashboardController extends Controller
         $od=[];
 
         for ($i=7; $i >= 1 ; $i--) {
-        	foreach ($orders as $order) {
-        	 	if($order->date==Carbon::now()->subDays($i)->format('Y-m-d') ){
-        	 		$od[$i]['date']=Carbon::parse($order->date)->format('m-d');
-        	 		$od[$i]['sum']=floor($order->sum);
-        		}else{
-        			if(!isset($od[$i])){
-        				$od[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
-        				$od[$i]['sum']=0;
-        			}
-        			
-        		}
-        	 }         	
+            if(count($orders)){
+            	foreach ($orders as $order) {
+            	 	if($order->date==Carbon::now()->subDays($i)->format('Y-m-d') ){
+            	 		$od[$i]['date']=Carbon::parse($order->date)->format('m-d');
+            	 		$od[$i]['sum']=floor($order->sum);
+            		}else{
+            			if(!isset($od[$i])){
+            				$od[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+            				$od[$i]['sum']=0;
+            			}
+            			
+            		}
+            	 }
+            }else{
+                $od[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+                $od[$i]['sum']=0;
+            }         	
         }
         $order=[];
         foreach ($od as $o) {
@@ -79,18 +84,23 @@ class DashboardController extends Controller
         $ar=[];
 
         for ($i=7; $i >= 1 ; $i--) {
-        	foreach ($pins as $pin) {
-        	 	if($pin->date==Carbon::now()->subDays($i)->format('Y-m-d') ){
-        	 		$ar[$i]['date']=Carbon::parse($pin->date)->format('m-d');
-        	 		$ar[$i]['count']=floor($pin->count);
-        		}else{
-        			if(!isset($ar[$i])){
-        				$ar[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
-        				$ar[$i]['count']=0;
-        			}
-        			
-        		}
-        	 }         	
+            if(count($pins)){
+            	foreach ($pins as $pin) {
+            	 	if($pin->date==Carbon::now()->subDays($i)->format('Y-m-d') ){
+            	 		$ar[$i]['date']=Carbon::parse($pin->date)->format('m-d');
+            	 		$ar[$i]['count']=floor($pin->count);
+            		}else{
+            			if(!isset($ar[$i])){
+            				$ar[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+            				$ar[$i]['count']=0;
+            			}
+            			
+            		}
+            	 }
+            }else{
+                $ar[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+                $ar[$i]['count']=0;
+            }         	
         }
 
         $activations=[];

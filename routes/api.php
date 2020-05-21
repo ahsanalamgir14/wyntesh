@@ -52,6 +52,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 {   
   
     Route::get('settings','SettingsController@getMemberSettings');
+    Route::get('notice', '\App\Http\Controllers\Admin\NoticesController@get');
 
     Route::get('stats', 'DashboardController@stats');
     Route::get('payout/stats', 'DashboardController@payoutStats');
@@ -150,6 +151,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('settings','SettingsController@updateCompanyDetails');
     Route::get('settings','SettingsController@getSettings');
     Route::get('settings/company','SettingsController@getCompanySettings');
+
+    Route::post('notice','NoticesController@save');
+    Route::get('notice','NoticesController@get');
 
     Route::get('users', 'UserAndRoleController@getUsers');
     Route::post('user','UserAndRoleController@createUser');

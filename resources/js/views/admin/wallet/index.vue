@@ -464,7 +464,7 @@ export default {
   },
   methods: {
     getList() {
-      this.listLoading = false;     
+      this.listLoading = true;     
       fetchWithdrawalRequests(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
@@ -472,6 +472,8 @@ export default {
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
+      }).catch((er)=>{
+        this.listLoading = false;
       });
     },
     getSettings() {      

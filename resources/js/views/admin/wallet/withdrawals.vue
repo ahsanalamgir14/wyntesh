@@ -201,7 +201,7 @@ export default {
   },
   methods: {
     getList() {
-      this.listLoading = false;
+      this.listLoading = true;
      
       fetchWithdrawals(this.listQuery).then(response => {
         this.list = response.data.data;
@@ -209,6 +209,8 @@ export default {
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
+      }).catch((er)=>{
+        this.listLoading = false;
       });
    
     },

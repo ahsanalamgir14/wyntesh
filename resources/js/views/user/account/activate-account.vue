@@ -215,13 +215,15 @@ export default {
   },
   methods: {
     getList() {
-      this.listLoading = false;     
+      this.listLoading = true;     
       getMyUsedPins(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
+      }).catch((er)=>{
+        this.listLoading = false;
       });
     },
     getAccountStatus(){

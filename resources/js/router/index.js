@@ -436,6 +436,12 @@ export const asyncRoutes = [
     hidden: false,
     children: [
       {
+        path: 'notice',
+        component: () => import('@/views/admin/settings/notices'),
+        name: 'Notice',
+        meta: { title: 'Notice', icon: 'fas fa-speaker', color:'color:#FF5733', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'news-and-updates',
         component: () => import('@/views/admin/newses/index'),
         name: 'News & Updates',

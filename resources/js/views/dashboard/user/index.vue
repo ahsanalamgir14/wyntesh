@@ -1,6 +1,13 @@
 <template>
   <div class="dashboard-editor-container">
-    
+    <el-alert
+    style="margin-bottom: 10px;"
+    :title="notice.title"
+    type="success"
+    :description="notice.description"
+    show-icon>
+  </el-alert>
+
     <el-row :gutter="10" >      
       <el-col :xs="24" :sm="24" :md="6" :lg="6" >
         <el-card style="margin-bottom: 5px;" shadow="never">
@@ -196,6 +203,7 @@ import LineChart from './components/LineChart';
 import CountTo from 'vue-count-to';
 import { parseTime } from "@/utils";
 import { getProfile } from "@/api/user/members";
+import { getNotice } from "@/api/user/notices";
 import { dashboardStats,payoutStats,downlineStats,latestDownlines,latestTransactions } from "@/api/user/dashboard";
 
 
@@ -217,6 +225,10 @@ export default {
       referral_link:'',
       downlines:[],
       transitions:[],
+      notice:{
+        title:undefined,
+        description:undefined
+      },
       temp:{
           id: undefined,
           name: undefined,
@@ -256,6 +268,10 @@ export default {
 
     await latestDownlines().then(response => {
       this.downlines = response.data;
+    });
+
+    await getNotice().then(response => {
+      this.notice = response.data;
     });
 
     await latestTransactions().then(response => {
