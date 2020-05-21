@@ -117,12 +117,12 @@
     </el-row>
 
     <el-row :gutter="10">      
-      <el-col :span="12">        
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
         <el-card shadow="never">
           <bar-chart :chartData="orderData" ></bar-chart>
         </el-card>
       </el-col>
-      <el-col :span="12">        
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
         <el-card shadow="never">
           <line-chart :chartData="activationData" ></line-chart>
         </el-card>

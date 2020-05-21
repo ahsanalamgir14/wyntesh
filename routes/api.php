@@ -53,6 +53,12 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
   
     Route::get('settings','SettingsController@getMemberSettings');
 
+    Route::get('stats', 'DashboardController@stats');
+    Route::get('payout/stats', 'DashboardController@payoutStats');
+    Route::get('downline/stats', 'DashboardController@downlineStats');
+    Route::get('downline/latest', 'DashboardController@latestDownlines');
+    Route::get('transactions/latest', 'DashboardController@latestTransactions');
+
     Route::get('profile', 'MembersController@getProfile');
     Route::post('profile', 'MembersController@updateProfile');
     Route::get('account/status', 'MembersController@getAccuntStatus');

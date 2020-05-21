@@ -94,15 +94,18 @@ export default {
         color: color,
         series: [{
           name: title,
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '40%',
+          type: 'line',
           data: data,
-          showBackground: true,
-          backgroundStyle: {
-              color: 'rgba(220, 220, 220, 0.8)'
+          itemStyle: {
+              normal: {
+                color: color,
+                lineStyle: {
+                  color: color,
+                  width: 2,
+                },
+              },
           },
-          animationDuration,
+          animationDuration: 2800,
         }, ],
       });
     },

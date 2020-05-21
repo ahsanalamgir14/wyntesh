@@ -1,135 +1,308 @@
 <template>
   <div class="dashboard-editor-container">
     
-  <el-row :gutter="10" class="panel-group">
-    <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel gr1" >
-        <div class="card-panel-icon-wrapper " >
-          <i class="fas fa-users card-panel-icon"  ></i>
-        </div>
-        <div class="card-panel-description">
-            <count-to :start-val="0" :end-val="dashboardStats.users" :duration="2600" class="card-panel-num" />
-          <div class="card-panel-text">
-            Associates
+    <el-row :gutter="10" >      
+      <el-col :xs="24" :sm="24" :md="6" :lg="6" >
+        <el-card style="margin-bottom: 5px;" shadow="never">
+          <div class="user-profile">
+            <div class="user-name text-center">
+              <span style="font-size: 20px;">Welcome</span>
+            </div>
+            <div class="box-center">
+              <div class="user-name text-center" >
+                <span >{{ temp.name }}</span>
+                <br>
+                <div style="margin-top: 10px;">
+                  <el-tag v-if="temp.kyc.verification_status=='verified'" type="success">Verified</el-tag>
+                  <el-tag v-if="temp.kyc.verification_status=='pending'" type="warning">KYC - Pending</el-tag>
+                  <el-tag v-if="temp.kyc.verification_status=='submitted'" type="primary">KYC - Submitted</el-tag>
+                  <el-tag v-if="temp.kyc.verification_status=='rejected'" type="danger">KYC - Rejected</el-tag>
+                </div>
+              </div>
+              <div class="user-role text-center text-muted">
+                <h4 style="margin-bottom:7px ">Joined on</h4>
+                {{ temp.created_at | parseTime('{y}-{m}-{d}') }}
+              </div>
+              <div style="margin-top:10px;">
+                <el-button type="warning" size="mini" round v-clipboard:copy="referral_link" v-clipboard:success="onCopy" >Copy referral link</el-button>
+              </div>                
+            </div>
           </div>
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel gr2" >
-        <div class="card-panel-icon-wrapper icon-message">
-          <i class="fas fa-wallet card-panel-icon"  ></i>
-        </div>
-        <div class="card-panel-description">
-          
-          <count-to :start-val="0" :end-val="dashboardStats.courses" :duration="3000" class="card-panel-num" />
-          <div class="card-panel-text">
-            Wallet Balance
-          </div>
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel gr3" >
-        <div class="card-panel-icon-wrapper icon-money">
-          <i class="fas fa-rupee-sign card-panel-icon"  ></i>
-        </div>
-        <div class="card-panel-description">
-          
-          <count-to :start-val="0" :end-val="dashboardStats.topics" :duration="3200" class="card-panel-num" />
-          <div class="card-panel-text">
-            Expected Payout
-          </div>
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel gr4" >
-        <div class="card-panel-icon-wrapper icon-shopping">
-          <i class="fas fa-rupee-sign card-panel-icon"  ></i>
-        </div>
-        <div class="card-panel-description">
-          
-          <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
-          <div class="card-panel-text">
-            Total Earning
-          </div>
-        </div>
-      </div>
-    </el-col> -->
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="18" :lg="18" >
+        <el-row :gutter="10" class="panel-group">
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <div class="card-panel gr14" >
+              <div class="card-panel-icon-wrapper " >
+                <i class="fas fa-users card-panel-icon"  ></i>
+              </div>
+              <div class="card-panel-description">
+                  <count-to :start-val="0" :end-val="dashboardStats.downlines" :duration="2600" class="card-panel-num" />
+                <div class="card-panel-text">
+                  Downlines
+                </div>
+              </div>
+            </div>
+          </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <div class="card-panel gr2" >
+              <div class="card-panel-icon-wrapper icon-message">
+                <i class="fas fa-wallet card-panel-icon"  ></i>
+              </div>
+              <div class="card-panel-description">
+                
+                <count-to :start-val="0" :end-val="dashboardStats.balance" :duration="3000" class="card-panel-num" />
+                <div class="card-panel-text">
+                  Wallet Balance
+                </div>
+              </div>
+            </div>
+          </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <div class="card-panel gr8" >
+              <div class="card-panel-icon-wrapper icon-money">
+                <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+              </div>
+              <div class="card-panel-description">
+                
+                <count-to :start-val="0" :end-val="dashboardStats.expected_payout" :duration="3200" class="card-panel-num" />
+                <div class="card-panel-text">
+                  Expected Payout
+                </div>
+              </div>
+            </div>
+          </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <div class="card-panel gr17" >
+              <div class="card-panel-icon-wrapper icon-message">
+                <i class="fas fa-wallet card-panel-icon"  ></i>
+              </div>
+              <div class="card-panel-description">
+                
+                <count-to :start-val="0" :end-val="dashboardStats.withdrawals" :duration="3000" class="card-panel-num" />
+                <div class="card-panel-text">
+                  Total Withdrawals
+                </div>
+              </div>
+            </div>
+          </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <div class="card-panel gr7" >
+              <div class="card-panel-icon-wrapper icon-money">
+                <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+              </div>
+              <div class="card-panel-description">
+                
+                <count-to :start-val="0" :end-val="dashboardStats.total_purchase" :duration="3200" class="card-panel-num" />
+                <div class="card-panel-text">
+                  Total Purchase
+                </div>
+              </div>
+            </div>
+          </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <div class="card-panel gr2" >
+              <div class="card-panel-icon-wrapper icon-shopping">
+                <i class="fas fa-tag card-panel-icon"  ></i>
+              </div>
+              <div class="card-panel-description">
+                
+                <count-to :start-val="0" :end-val="dashboardStats.pins_available" :duration="3600" class="card-panel-num" />
+                <div class="card-panel-text">
+                  Pins Available
+                </div>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
+    <el-row :gutter="10" >      
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <bar-chart :chartData="downlineData" ></bar-chart>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <line-chart :chartData="payoutData" ></line-chart>
+        </el-card>
+      </el-col>
+    </el-row>
 
-    
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel gr7" >
-        <div class="card-panel-icon-wrapper icon-message">
-          <i class="fas fa-wallet card-panel-icon"  ></i>
-        </div>
-        <div class="card-panel-description">
-          
-          <count-to :start-val="0" :end-val="dashboardStats.courses" :duration="3000" class="card-panel-num" />
-          <div class="card-panel-text">
-            Total Withdrawals
+    <el-row :gutter="10" style="margin-top: 20px;">      
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <div slot="header" class="clearfix">
+            <span>Latest Downlines</span>            
           </div>
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel gr20" >
-        <div class="card-panel-icon-wrapper icon-money">
-          <i class="fas fa-rupee-sign card-panel-icon"  ></i>
-        </div>
-        <div class="card-panel-description">
-          
-          <count-to :start-val="0" :end-val="dashboardStats.topics" :duration="3200" class="card-panel-num" />
-          <div class="card-panel-text">
-            Total Purchase
+          <el-table
+            :data="downlines"
+            style="width: 100%">
+            <el-table-column label="Name" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.user.name }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="ID" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.user.username }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Joining Date" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.user.created_at | parseTime('{y}-{m}-{d}') }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <div slot="header" class="clearfix">
+            <span>Latest Transactions</span>            
           </div>
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel gr2" >
-        <div class="card-panel-icon-wrapper icon-shopping">
-          <i class="fas fa-tag card-panel-icon"  ></i>
-        </div>
-        <div class="card-panel-description">
-          
-          <count-to :start-val="0" :end-val="dashboardStats.quizzes" :duration="3600" class="card-panel-num" />
-          <div class="card-panel-text">
-            Pins Available
-          </div>
-        </div>
-      </div>
-    </el-col>
-  </el-row>
-  <div ><p style="margin-top:350px;"></p></div>
-
-    <!-- <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
-    </el-row> -->
+          <el-table
+            :data="transitions"
+            style="width: 100%">
+            <el-table-column label="Type" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.transaction.name }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Amount" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.amount }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Date" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
 
 
   </div>
 </template>
 
 <script>
-import BarChart from './components/BarChart'
-import CountTo from 'vue-count-to' 
+import BarChart from './components/BarChart';
+import LineChart from './components/LineChart';
+import CountTo from 'vue-count-to';
+import { parseTime } from "@/utils";
+import { getProfile } from "@/api/user/members";
+import { dashboardStats,payoutStats,downlineStats,latestDownlines,latestTransactions } from "@/api/user/dashboard";
 
+
+import defaultSettings from '@/settings';
+const { baseUrl } = defaultSettings;
 
 export default {
   name: 'DashboardAdmin',
   components: {
     CountTo,
     BarChart,
+    LineChart,
   },
   data() {
     return {
       dashboardStats:{},
+      downlineData:{},
+      payoutData:{},
+      referral_link:'',
+      downlines:[],
+      transitions:[],
+      temp:{
+          id: undefined,
+          name: undefined,
+          username: undefined,
+          email: undefined,
+          password:undefined,
+          contact: undefined,
+          gender: "m",
+          kyc:{
+            address:undefined,
+            pincode:undefined,
+            adhar:undefined,
+            adhar_image:undefined,
+            pan:undefined,
+            pan_image:undefined,
+            pan_cheque:undefined,
+            city:undefined,
+            state:undefined,
+            bank_ac_name:undefined,
+            bank_name:undefined,
+            bank_ac_no:undefined,
+            ifsc:undefined
+          },
+          parent:undefined,
+          comission_from_self:0,
+          comission_from_child:0,
+          dob: undefined,
+          is_active: 0,
+      },
     }
   },
+  async created() {
+    this.getDashboardStats();
+    await downlineStats().then(response => {
+      this.downlineData = { labels:response.downlines.map(function (el) { return el.date; }), data:response.downlines.map(function (el) { return el.count; }), title:'Downlines', color:'#e39c39' };
+    });
+
+    await latestDownlines().then(response => {
+      this.downlines = response.data;
+    });
+
+    await latestTransactions().then(response => {
+      this.transitions = response.data;
+    });
+
+    this.payoutData={labels:['10/2','20/5','30/3','5/5','7/3','8/5',
+      '9/10'],data:[20,25,30,500,60,450,980],title:'Payout'};
+
+    // await payoutStats().then(response => {
+    //   // this.payoutData = { labels:response.activations.map(function (el) { return el.date; }), data:response.activations.map(function (el) { return el.count; }), title:'Activations', color:'#60c402' };
+
+    // });
+    getProfile().then(response => {
+        this.temp = response.data;
+        if(!this.temp.kyc){
+          this.temp.kyc={
+            address:undefined,
+            pincode:undefined,
+            adhar:undefined,
+            pan:undefined,
+            city:undefined,
+            state:undefined,
+            bank_ac_name:undefined,
+            bank_name:undefined,
+            bank_ac_no:undefined,
+            ifsc:undefined
+          }
+        }
+        this.referral_link=baseUrl+'#/register?sponsor_code='+this.temp.username;
+    });
+  },
   methods: {
-   
+    getDashboardStats(){
+      dashboardStats().then(response => {
+        this.dashboardStats = response.stats;
+      });
+    },
+    onCopy(){
+      this.$notify({
+          title: "Copied",
+          message: "Referral link copied successfully.",
+          type: "success",
+          duration: 2000
+        })
+ 
+    },
   }
 }
 </script>
@@ -352,6 +525,31 @@ export default {
 .gr20{
   background: rgb(43,88,118);
   background: linear-gradient(60deg, rgba(43,88,118,1) 35%, rgba(78,67,118,1) 66%);
+}
+
+.user-profile {
+  .user-name {  
+    margin-bottom:5px;  
+    font-size:25px;
+    font-weight: bold;
+  }
+  .box-center {
+    padding-top: 10px;
+  }
+  .user-role {
+    padding-top: 0px;
+    font-weight: 400;
+    font-size: 14px;
+  }
+  .box-social {
+    padding-top: 30px;
+    .el-table {
+      border-top: 1px solid #dfe6ec;
+    }
+  }
+  .user-follow {
+    padding-top: 20px;
+  }
 }
 
 </style>
