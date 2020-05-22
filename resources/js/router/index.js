@@ -79,6 +79,11 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/invoice/:id',
+    component: () => import('@/views/user/shopping/invoice'),
+    hidden:true,
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -439,7 +444,7 @@ export const asyncRoutes = [
         path: 'notice',
         component: () => import('@/views/admin/settings/notices'),
         name: 'Notice',
-        meta: { title: 'Notice', icon: 'fas fa-speaker', color:'color:#FF5733', affix: true, roles: ['admin'] }
+        meta: { title: 'Notice', icon: 'fas fa-bullhorn', color:'color:#FF5733', affix: true, roles: ['admin'] }
       },
       {
         path: 'news-and-updates',
@@ -505,6 +510,33 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/config',
+    component: Layout,
+    name: 'Configrations',
+    redirect: '/config/notice',
+    meta: {
+      title: 'Configrations',
+      icon: 'fas fa-cogs',
+      roles: ['admin'],
+      color:'color:#dd6161'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'notice',
+        component: () => import('@/views/admin/settings/notices'),
+        name: 'Notice',
+        meta: { title: 'Notice', icon: 'fas fa-bullhorn', color:'color:#FF5733', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'welcome-letter',
+        component: () => import('@/views/admin/settings/welcome-letter'),
+        name: 'Welcome Letter',
+        meta: { title: 'Welcome Letter', icon: 'fas fa-handshake', color:'color:#854CE2', affix: true, roles: ['admin'] }
+      }
+    ]
+  },
+  {
     path: '/support',
     component: Layout,
     name: 'Support',
@@ -549,6 +581,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/account/Profile'),
         name: 'Profile & KYC',
         meta: { title: 'Profile & KYC', icon: 'fas fa-user', color:'color:#FF5733', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'welcome-letter',
+        component: () => import('@/views/user/account/welcome-letter'),
+        name: 'Welcome Letter',
+        meta: { title: 'Welcome Letter', icon: 'fas fa-handshake', color:'color:#854CE2', affix: true, roles: ['user'] }
       },
       {
         path: 'activate',
@@ -646,7 +684,8 @@ export const asyncRoutes = [
         component: () => import('@/views/user/shopping/orders'),
         name: 'Orders',
         meta: { title: 'Orders', icon: 'fas fa-truck', color:'color:#35BED1', affix: true, roles: ['user'] }
-      }
+      },
+      
     ]
   },
   {

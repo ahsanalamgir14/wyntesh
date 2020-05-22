@@ -15,6 +15,7 @@ use App\Models\Superadmin\TransactionType;
 use App\Models\Superadmin\PaymentMode;
 use App\Models\User\Address;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\Setting;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
@@ -108,6 +109,26 @@ class ShoppingController extends Controller
         }
         
        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
+        return response()->json($response, 200);
+    }
+
+    public function getOrder($id)
+    {
+        $user=JWTAuth::user();
+
+        $user_details=array('name' => $user->name,'username'=>$user->username );
+        
+        $settings= Setting::orWhere('is_public',1)
+        ->get()->pluck('value', 'key')->toArray();
+
+        $Orders=Order::select();
+        $Orders=$Orders->with('products','shipping_address','packages');
+        $Orders=$Orders->where('id',$id);
+        $Orders=$Orders->where('user_id',$user->id);
+        $Orders=$Orders->first();
+
+        
+       $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders, 'user'=>$user_details,'company_details'=>$settings);
         return response()->json($response, 200);
     }
 

@@ -81,3 +81,10 @@ export function myOrders(query) {
     params: query
   })
 }
+
+export function getOrder(id) {
+  return request({
+    url: '/user/order/'+id,
+    method: 'get'
+  })
+}

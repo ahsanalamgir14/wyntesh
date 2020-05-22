@@ -84,6 +84,13 @@
             icon="el-icon-view"
             @click="handleViewOrder(row)"
           ></el-button>
+          <el-button
+            type="warning"
+            :loading="buttonLoading"
+            circle
+            icon="el-icon-printer"
+            @click="invoice(row.id)"
+          ></el-button>
         </template>
       </el-table-column>
 
@@ -427,6 +434,10 @@ export default {
       this.dialogOrderDetailsVisible=true;
       this.orderTitle='Order #'+row.order_no;
       this.temp=row;
+    },
+    invoice(id){
+      let routeData = this.$router.resolve({path: '/invoice/'+id});
+      window.open(routeData.href, '_blank');
     },
     handleFilter() {
       this.listQuery.page = 1;

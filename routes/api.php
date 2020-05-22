@@ -53,6 +53,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
   
     Route::get('settings','SettingsController@getMemberSettings');
     Route::get('notice', '\App\Http\Controllers\Admin\NoticesController@get');
+    Route::get('welcome-letter', '\App\Http\Controllers\Admin\WelcomeLetterController@get');
 
     Route::get('stats', 'DashboardController@stats');
     Route::get('payout/stats', 'DashboardController@payoutStats');
@@ -126,6 +127,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::post('order/place', 'ShoppingController@placeOrder');
     Route::get('orders', 'ShoppingController@getMyOrders');
+    Route::get('order/{id}', 'ShoppingController@getOrder');
 
 });
 
@@ -154,6 +156,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::post('notice','NoticesController@save');
     Route::get('notice','NoticesController@get');
+
+    Route::post('welcome-letter','WelcomeLetterController@save');
+    Route::get('welcome-letter','WelcomeLetterController@get');
 
     Route::get('users', 'UserAndRoleController@getUsers');
     Route::post('user','UserAndRoleController@createUser');
