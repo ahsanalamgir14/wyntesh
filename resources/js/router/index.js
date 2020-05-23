@@ -440,12 +440,7 @@ export const asyncRoutes = [
     },
     hidden: false,
     children: [
-      {
-        path: 'notice',
-        component: () => import('@/views/admin/settings/notices'),
-        name: 'Notice',
-        meta: { title: 'Notice', icon: 'fas fa-bullhorn', color:'color:#FF5733', affix: true, roles: ['admin'] }
-      },
+      
       {
         path: 'news-and-updates',
         component: () => import('@/views/admin/newses/index'),
@@ -533,6 +528,33 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/settings/welcome-letter'),
         name: 'Welcome Letter',
         meta: { title: 'Welcome Letter', icon: 'fas fa-handshake', color:'color:#854CE2', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'emails',
+        component: () => import('@/views/admin/settings/emails'),
+        name: 'Emails',
+        meta: { title: 'Emails', icon: 'fas fa-envelope', color:'color:#fcb103', affix: true, roles: ['admin'] }
+      }
+    ]
+  },
+  {
+    path: '/marketing',
+    component: Layout,
+    name: 'Marketing',
+    redirect: '/marketing/email-and-message',
+    meta: {
+      title: 'Marketing',
+      icon: 'fas fa-comments-dollar',
+      roles: ['admin'],
+      color:'color:#db03fc'
+    },
+    hidden: false,
+    children: [
+      {
+        path: 'email-and-message',
+        component: () => import('@/views/admin/marketing/email-and-message'),
+        name: 'Send SMS/Email',
+        meta: { title: 'Send SMS/Email', icon: 'fas fa-paper-plane', color:'color:#0398fc', affix: true, roles: ['admin'] }
       }
     ]
   },

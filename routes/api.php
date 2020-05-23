@@ -280,6 +280,16 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('orders/all', 'ShoppingController@getAllOrders');
     Route::post('order/update', 'ShoppingController@updateOrder');
 
+    Route::post('email','EmailsController@create');
+    Route::post('email/update', 'EmailsController@update');
+    Route::get('emails', 'EmailsController@getEmails');
+    Route::get('emails/all', 'EmailsController@getAllEmails');
+    Route::get('email/{id}', 'EmailsController@get');
+    Route::delete('email/{id}/delete', 'EmailsController@delete');
+
+    Route::post('marketing/email/mass', 'MarketingController@sendMassEmail');
+    Route::post('marketing/sms/mass', 'MarketingController@sendMassSMS');
+
 
 });
 

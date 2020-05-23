@@ -13,6 +13,16 @@
         <el-option  key="1201" label="Active" value="1" />
         <el-option  key="1202" label="Deactive" value="0" />
       </el-select>
+      <el-select v-model="listQuery.is_blocked" style="width: 140px" clearable placeholder="Blocked ?" class="filter-item" @change="handleFilter">        
+        <el-option  key="1201" label="Blocked" value="blocked" />
+        <el-option  key="1202" label="Unblocked" value="unblocked" />
+      </el-select>
+      <el-select v-model="listQuery.kyc_status" style="width: 140px" clearable placeholder="KYC Status" class="filter-item" @change="handleFilter">        
+        <el-option  key="1201" label="Pending" value="pending" />
+        <el-option  key="1202" label="Submitted" value="submitted" />
+        <el-option  key="1203" label="Rejected" value="rejected" />
+        <el-option  key="1204" label="Verified" value="verified" />
+      </el-select>
       <el-button
         v-waves
         class="filter-item"
@@ -123,7 +133,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Status" class-name="status-col" width="100">
+      <el-table-column label="Is Blocked" class-name="status-col" width="100">
         <template slot-scope="{row}">
           <el-tag :type="row.is_blocked | statusFilter">{{ row.is_blocked?'Yes':'No' }}</el-tag>
         </template>
@@ -270,7 +280,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 5,
+        limit: 10,
         name: undefined,
         username: undefined,
         email: undefined,
@@ -278,7 +288,7 @@ export default {
         gender: "m",
         dob: undefined,
         is_active: 'all',
-        sort: "+id"
+        sort: "-id"
       },
       statusFilter:'all',
       sortOptions: [

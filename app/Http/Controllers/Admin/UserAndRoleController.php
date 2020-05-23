@@ -24,6 +24,8 @@ class UserAndRoleController extends Controller
         $sort=$request->sort;
         $search=$request->search;
         $is_active=$request->is_active;
+        $kyc_status=$request->kyc_status;
+        $is_blocked=$request->is_blocked;
 
         if(!$page){
             $page=1;
@@ -39,7 +41,7 @@ class UserAndRoleController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search){
+        if(!$search && !$kyc_status && !$is_blocked){
             $users = User::role('user');
 
             if($is_active!='all'){
@@ -48,7 +50,7 @@ class UserAndRoleController extends Controller
 
             $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);    
         }else{
-            DB::enableQueryLog();
+            
             $users=User::select();
 
             $users=$users->where(function ($query)use($search) {
@@ -59,18 +61,26 @@ class UserAndRoleController extends Controller
 
             });
 
-
             if($is_active!='all'){
                 $users=$users->where('is_active',$is_active);    
             }
 
+            if($is_blocked=='blocked'){
+                $users=$users->where('is_blocked',1);    
+            }else{
+                $users=$users->where('is_blocked',0);    
+            }
             
+            if($kyc_status){
+                $users=$users->whereHas('kyc',function($q)use($kyc_status){
+                    $q->where('verification_status',$kyc_status);
+                });    
+            }
+            
+
+
             $users =$users->role('user');
-
-
-
             $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);
-
             
         }
 

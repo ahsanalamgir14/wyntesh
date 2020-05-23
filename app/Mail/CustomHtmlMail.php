@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class UserVerification extends Mailable
+class CustomHtmlMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -16,7 +16,6 @@ class UserVerification extends Mailable
      *
      * @return void
      */
-
     public $html;
     public function __construct($html)
     {

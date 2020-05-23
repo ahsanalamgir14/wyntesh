@@ -7,7 +7,7 @@
             <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
               
               <el-form-item prop="description">
-                <tinymce v-model="temp.description"  :imageUploadButton="true" menubar="" :toolbar="tools" id="conversationMessage" ref="conversationMessage" :value="temp.description" :height="450" />
+                <tinymce v-model="temp.description"  :imageUploadButton="true" menubar="" :toolbar="tools" id="welcomeLetter" ref="welcomeLetter" :value="temp.description" :height="450" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -40,7 +40,7 @@ export default {
     return {
       tools: ['searchreplace bold italic underline strikethrough alignleft aligncenter alignright outdent indent  blockquote', 'hr bullist numlist link image charmap preview  emoticons forecolor backcolor fullscreen'],
       temp: {
-        description:undefined,
+        description:'',
       },
       rules: {
         description: [
@@ -53,6 +53,7 @@ export default {
   created() {
     getWelcomeLetter().then(response => {
       if(response.data){
+        this.$refs.welcomeLetter.setContent(response.data.description);
         this.temp = response.data; 
       }      
     });

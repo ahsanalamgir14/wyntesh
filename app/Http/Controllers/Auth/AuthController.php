@@ -14,7 +14,7 @@ use GuzzleHttp;
 use Config;
 
 use Carbon\Carbon;
-use App\Mail\UserVerification;
+use App\Mail\CustomHtmlMail;
 use App\Models\User\User;
 use App\Models\Admin\Setting;
 
@@ -49,7 +49,7 @@ class AuthController extends Controller
             Here is your account verification link. Click on below link to verify you account. <br><br><a href="'.$account_verification_link.'" target=_blank >Click here to verify Email</a>
         </html>';
 
-        $mail=Mail::to($User->email)->send(new UserVerification($html));
+        $mail=Mail::to($User->email)->send(new CustomHtmlMail($html));
     }
 
     function mailcheck(){
