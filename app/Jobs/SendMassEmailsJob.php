@@ -48,14 +48,15 @@ class SendMassEmailsJob implements ShouldQueue
         $is_failed=0;
 
         foreach ($Users as $User) {
-           // try{
+            try{
+            //$this->JobModel->error=$User->email;
                 $mail=Mail::to($User->email)->send(new CustomHtmlMail($this->Email->description));    
                 
-            // }catch (\Exception $e) {
+            }catch (\Exception $e) {
                 
-            //     $failed_models[]=intval($User->id);
-            //     $is_failed=1;
-            // }
+                $failed_models[]=intval($User->id);
+                $is_failed=1;
+            }
             
         }
 
