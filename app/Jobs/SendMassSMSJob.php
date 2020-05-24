@@ -43,8 +43,7 @@ class SendMassSMSJob implements ShouldQueue
         $is_failed=0;
 
         foreach ($Users as $User) {
-            try{
-            //$this->JobModel->error=$User->email;
+            try{            
                 $Msg = LaravelMsg91::message($User->contact,$this->message);
                 
             }catch (\Exception $e) {
