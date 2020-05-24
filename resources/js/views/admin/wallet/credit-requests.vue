@@ -64,6 +64,7 @@
               circle
               type="warning"
               icon="el-icon-close"
+              :loading="buttonLoading"
               @click="rejectRequest(row)"
               ></el-button>
           </el-tooltip>
@@ -160,8 +161,8 @@
         <el-button @click="dialogAddWalletCreditisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Approve
         </el-button>
       </div>
     </el-dialog>
@@ -286,9 +287,10 @@ export default {
       });
     },
     createData() {
-      this.buttonLoading=true;
+      
       this.$refs["addWalletCreditForm"].validate(valid => {
-        if (valid) {         
+        if (valid) {       
+          this.buttonLoading=true;
           approveCreditRequest(this.temp).then((data) => {
             
             this.dialogAddWalletCreditisible = false;
@@ -301,10 +303,11 @@ export default {
             this.getList();
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     rejectRequest(row) {
 
@@ -317,7 +320,7 @@ export default {
             id:row.id,
             note:value
           };
-
+          this.buttonLoading=true;
           rejectCreditRequest(data).then((res) => {          
             this.$notify({
                 title: "Success",
@@ -325,7 +328,10 @@ export default {
                 type: "success",
                 duration: 2000
             });
+            this.buttonLoading=false;
             this.getList();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
 
         })

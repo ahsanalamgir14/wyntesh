@@ -434,7 +434,7 @@ export default {
     },
     onSubmit() {
       this.updating = true;
-      
+      this.buttonLoading= true;
       var form = new FormData();
       let form_data=this.temp;
 
@@ -451,7 +451,7 @@ export default {
       updateKyc(form).then((response) => {
         this.updating = false;
         this.temp=response.data;
-        
+        this.buttonLoading= false;
 
         this.$notify({
           title: "Success",
@@ -471,7 +471,9 @@ export default {
         this.panfileList=[];
         this.chequefile=undefined
         this.chequefileList=[];
-      })
+      }).catch((res)=>{
+        this.buttonLoading=false;
+      });
     },
    
     handleDownload() {

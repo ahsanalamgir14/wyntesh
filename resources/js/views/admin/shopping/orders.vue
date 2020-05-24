@@ -336,7 +336,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogUpdateOrderVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="updateOrder()">Update</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="updateOrder()">Update</el-button>
       </span>
     </el-dialog>
 
@@ -487,10 +487,12 @@ export default {
     },
     updateOrder(){
       this.$refs["orderUpdateForm"].validate(valid => {
-        if (valid) {          
+        if (valid) {     
+          this.buttonLoading=true;     
           updateOrder(this.order).then((response) => {            
             this.getList();
             this.dialogUpdateOrderVisible = false;
+            this.buttonLoading=false;
             this.resetOrder();
             this.$notify({
               title: "Success",
@@ -498,6 +500,8 @@ export default {
               type: "success",
               duration: 2000
             });
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });

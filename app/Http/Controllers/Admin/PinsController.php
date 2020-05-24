@@ -11,6 +11,7 @@ use App\Models\Admin\Pin;
 use App\Models\Admin\PinRequest;
 use App\Models\Admin\PinTransferLog;
 use App\Models\User\User;
+use App\Models\Admin\Member;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
@@ -548,9 +549,9 @@ class PinsController extends Controller
                 
                 $transfered_from='';
                 if($Pin->owned_by){
-                    $Member=Member::find($Pin->owned_by);
-                    if($Member->id){
-                        $transfered_from=$Member->id;
+                    $Mem=Member::find($Pin->owned_by);
+                    if($Mem->id){
+                        $transfered_from=$Mem->user->id;
                     }else{
                         $transfered_from=$user_id;
                     }

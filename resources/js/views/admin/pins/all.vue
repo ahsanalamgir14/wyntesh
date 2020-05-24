@@ -229,8 +229,8 @@
         <el-button @click="dialogPinGenerateVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="generatePins()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading"  @click="generatePins()">
+          Generate
         </el-button>
       </div>
     </el-dialog>
@@ -418,12 +418,13 @@ export default {
         this.$refs["pinGenerateForm"].clearValidate();
       });
     },
-    generatePins() {
-      this.buttonLoading=true;
+    generatePins() {      
       this.$refs["pinGenerateForm"].validate(valid => {
-        if (valid) {         
+        if (valid) {
+        this.buttonLoading=true;         
           generatePin(this.temp).then((data) => {
             this.dialogPinGenerateVisible = false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -431,12 +432,13 @@ export default {
               duration: 2000
             });
             this.getList();
-            this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
+      
     },  
     handleFilter() {
       this.listQuery.page = 1;

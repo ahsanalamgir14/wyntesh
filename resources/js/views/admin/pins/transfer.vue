@@ -197,7 +197,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogPinTransferVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="transferPins()">Confirm</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading"  @click="transferPins()">Transfer</el-button>
       </span>
     </el-dialog>
 
@@ -330,6 +330,7 @@ export default {
     transferPins(){
       this.$refs["pinTransferForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           let tempData={
             'member_id':this.temp.member_id,
             'pins':this.pinList,
@@ -342,12 +343,15 @@ export default {
             this.temp.member_id='';
             this.temp.member_name='';
             this.temp.note='';
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: response.message,
               type: "success",
               duration: 2000
             });
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });

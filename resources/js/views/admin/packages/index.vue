@@ -188,7 +188,7 @@
         <el-button @click="dialogPackageVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading"  @click="dialogStatus==='create'?createData():updateData()">
           Save
         </el-button>
       </div>
@@ -375,9 +375,12 @@ export default {
     createData() {
       this.$refs["packageForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
+
           createPackage(this.temp).then((response) => {
             this.list.unshift(response.data);
             this.dialogPackageVisible = false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: "Created Successfully",
@@ -385,7 +388,7 @@ export default {
               duration: 2000
             })
           }).catch((res)=>{
-
+            this.buttonLoading=false;
           });
         }
       });
@@ -403,6 +406,7 @@ export default {
       this.$refs["packageForm"].validate(valid => {
         if (valid) {
           const tempData = Object.assign({}, this.temp);
+          this.buttonLoading=true;
           updatePackage(tempData,tempData.id).then((response) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
@@ -411,6 +415,7 @@ export default {
                 break;
               }
             }
+            this.buttonLoading=false;
             this.dialogPackageVisible = false;
             this.$notify({
               title: "Success",
@@ -418,6 +423,8 @@ export default {
               type: "success",
               duration: 2000
             });
+          }).catch((res)=>{
+            this.buttonLoading=false;
           });
         }
       });

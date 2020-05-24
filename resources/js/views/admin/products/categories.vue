@@ -135,8 +135,8 @@
         <el-button @click="dialogCategoryVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="is_updating?updateData():createData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="is_updating?updateData():createData()">
+          Save
         </el-button>
       </div>
     </el-dialog>

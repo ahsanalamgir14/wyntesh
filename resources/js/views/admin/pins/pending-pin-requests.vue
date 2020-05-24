@@ -221,8 +221,8 @@
         <el-button @click="dialogPinGenerateVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Approve
         </el-button>
       </div>
     </el-dialog>
@@ -386,9 +386,10 @@ export default {
       });
     },
     createData() {
-      this.buttonLoading=true;
+      
       this.$refs["pinGenerateForm"].validate(valid => {
-        if (valid) {         
+        if (valid) {
+        this.buttonLoading=true;         
           generatePin(this.temp).then((data) => {
             
             this.dialogPinGenerateVisible = false;
@@ -401,10 +402,11 @@ export default {
             this.getList();
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     rejectRequest(row) {
 

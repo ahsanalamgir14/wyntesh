@@ -69,8 +69,9 @@
 
           <el-button
             type="primary"
-            icon="el-icon-edit"
+            
             circle
+            icon="el-icon-edit"
             :loading="buttonLoading"
             @click="handleEdit(row)"
           ></el-button>
@@ -235,7 +236,7 @@
         <el-button @click="dialogUserVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
+        <el-button  icon="el-icon-finished" :loading="buttonLoading" type="primary" @click="dialogStatus==='create'?createData():updateData()">
           Save
         </el-button>
       </div>
@@ -398,9 +399,11 @@ export default {
     createData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           createUser(this.temp).then((response) => {
             this.list.unshift(response.data);
             this.dialogUserVisible = false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: "Created Successfully",
@@ -408,7 +411,7 @@ export default {
               duration: 2000
             })
           }).catch((res)=>{
-
+            this.buttonLoading=false;
           });
         }
       });
@@ -424,6 +427,7 @@ export default {
     updateData() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           const tempData = Object.assign({}, this.temp);
           updateUser(tempData).then((response) => {
             for (const v of this.list) {
@@ -433,6 +437,7 @@ export default {
                 break;
               }
             }
+            this.buttonLoading=false;
             this.dialogUserVisible = false;
             this.$notify({
               title: "Success",
@@ -440,6 +445,8 @@ export default {
               type: "success",
               duration: 2000
             });
+          }).catch((res)=>{
+            this.buttonLoading=false;
           });
         }
       });

@@ -110,7 +110,7 @@
 
     <el-dialog title="Activate / Upgrade Account" width="40%"  :visible.sync="dialogActivateVisible">
       <el-form ref="formPinApply" :rules="rules" :model="temp">
-        <el-form-item prop="parent_code" label="Member ID">               
+        <el-form-item prop="member_id" label="Member ID">               
           <el-input v-model="temp.member_id" v-on:blur="handleCheckMemberCode()" name="member_id" type="text" auto-complete="on" placeholder="Member ID" />
         </el-form-item>
         <el-form-item prop="member_name" label="Member Name">
@@ -128,7 +128,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogActivateVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleActivate()">Confirm</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading"  @click="handleActivate()">Confirm</el-button>
       </span>
     </el-dialog>
 
@@ -183,6 +183,9 @@ export default {
       },
       dialogActivateVisible:false,
       rules: {
+        member_id: [
+          {  required: true, message: "Member ID is required.", trigger: "blur" }
+        ],
         pin_number: [
           {  required: true, message: "Enter PIN", trigger: "blur" }
         ],
@@ -243,21 +246,26 @@ export default {
       });
     },
     handlePinChange(){
-      checkPin(this.temp.pin_number).then(response => {
-        this.temp.package = response.package;
-      }).catch((err)=>{
-        this.temp.pin_number='';
-        this.temp.package='';
-      });
+      if(this.temp.pin_number){
+        checkPin(this.temp.pin_number).then(response => {
+          this.temp.package = response.package;
+        }).catch((err)=>{
+          this.temp.pin_number='';
+          this.temp.package='';
+        });
+      }
+      
     },
     handleActivate(){
       this.$refs["formPinApply"].validate(valid => {        
         if (valid) {
+          this.buttonLoading=true;
           activatePinAccount(this.temp).then((response) => {
             let temp = Object.assign({}, this.temp);
             this.listQuery.member_id=temp.member_id;
             this.getList();          
             this.resetTemp();
+            this.buttonLoading=false;
             this.dialogActivateVisible = false;
             this.$notify({
               title: "Success",
@@ -266,7 +274,9 @@ export default {
               duration: 2000
             })
 
-          })
+          }).catch((res)=>{
+            this.buttonLoading=false;
+          });
         }
       });
     },

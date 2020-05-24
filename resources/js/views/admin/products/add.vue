@@ -72,6 +72,7 @@
             <div style="float: right;margin-top:10px;">
               <el-button
                 type="success"
+                icon="el-icon-finished" :loading="buttonLoading" 
                 @click="is_updating?updateProduct():addProduct()"
               >Save</el-button>
             </div>
@@ -138,6 +139,7 @@
             <div style="float: right;margin-top:10px;">
               <el-button
                 type="success"
+                icon="el-icon-finished" :loading="buttonLoading" 
                 @click="is_updating?updateProduct():addProduct()"
               >Save</el-button>
             </div>
@@ -192,6 +194,7 @@
             <div style="float: right;margin-top:10px;">
               <el-button
                 type="success"
+                icon="el-icon-finished" :loading="buttonLoading" 
                 @click="is_updating?updateProduct():addProduct()"
               >Save</el-button>
             </div>
@@ -436,6 +439,7 @@ export default {
       this.$refs["productForm"].validate(valid => {
         if (valid) {
           this.loading=true;
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -450,6 +454,7 @@ export default {
           createProduct(form).then((response) => {
             this.temp=response.data;
             this.loading=false;
+            this.buttonLoading=false;
             this.$router.push({ path: '/products/edit', query: { id: response.data.id } });
             this.$notify({
               title: "Success",
@@ -457,6 +462,8 @@ export default {
               type: "success",
               duration: 2000
             });
+          }).catch((res)=>{
+            this.buttonLoading=false;
           });
         }
       });
@@ -465,6 +472,7 @@ export default {
       this.$refs["productForm"].validate(valid => {
         if (valid) {
           this.loading=true;
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -480,6 +488,7 @@ export default {
             this.temp=response.data;
             this.fileList=[];
             this.loading=false;
+            this.buttonLoading=false;
             var keys = [];
             response.data.categories.map(cat => {
                 keys.push(cat.id);
@@ -492,6 +501,8 @@ export default {
               type: "success",
               duration: 2000
             });
+          }).catch((res)=>{
+            this.buttonLoading=false;
           });
         }
       });

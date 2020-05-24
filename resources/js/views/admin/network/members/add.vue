@@ -73,7 +73,7 @@
             </el-col>
           </el-row>           
           <el-form-item class="item-btn">
-            <el-button :loading="loading"  icon="el-icon-position" type="primary"  @click.native.prevent="register">
+            <el-button :loading="buttonLoading"  icon="el-icon-finished" type="primary"  @click.native.prevent="register">
               Add Member
             </el-button>
           </el-form-item>  
@@ -212,8 +212,10 @@ export default {
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.loading = true;
+          this.buttonLoading=true;
           addMember(this.registerForm).then((response) => {
             this.loading=false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: response.message,
@@ -226,6 +228,7 @@ export default {
           })
           .catch((error) => {             
               this.loading = false;
+              this.buttonLoading=false;
               this.getRecaptcha();
             });
         } 

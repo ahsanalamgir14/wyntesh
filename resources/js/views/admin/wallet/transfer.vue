@@ -168,7 +168,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogTransferVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleTransfer()">Confirm</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="handleTransfer()">Transfer</el-button>
       </span>
     </el-dialog>
 
@@ -204,7 +204,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogAddBalanceVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleAddBalance()">Confirm</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="handleAddBalance()">Add Balance</el-button>
       </span>
     </el-dialog>
 
@@ -392,6 +392,7 @@ export default {
         }
 
         if (valid) {
+          this.buttonLoading=true;
           addBalance(this.tempAddBalance).then((response) => {
             this.getList();
             this.resetTempAddBalance();
@@ -402,7 +403,10 @@ export default {
               type: "success",
               duration: 2000
             })
-          })
+            this.buttonLoading=false;
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
         }
       });
     },
@@ -417,6 +421,7 @@ export default {
           return;
         }
         if (valid) {
+          this.buttonLoading=true;
           createTransfer(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
@@ -427,7 +432,10 @@ export default {
               type: "success",
               duration: 2000
             })
-          })
+            this.buttonLoading=false;
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
         }
       });
     },

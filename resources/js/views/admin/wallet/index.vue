@@ -76,6 +76,7 @@
               circle
               type="success"
               icon="el-icon-check"
+              :loading="buttonLoading"
               @click="handleApprove(row)"
               ></el-button>
           </el-tooltip>
@@ -85,6 +86,7 @@
               circle
               type="warning"
               icon="el-icon-close"
+              :loading="buttonLoading"
               @click="rejectRequest(row)"
               ></el-button>
           </el-tooltip>
@@ -94,6 +96,7 @@
               circle
               type="danger"
               icon="el-icon-delete"
+              :loading="buttonLoading"
               @click="deleteRequest(row)"
               ></el-button>
           </el-tooltip>
@@ -193,7 +196,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogApproveVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="approveRequest()">Confirm</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="approveRequest()">Approve</el-button>
       </span>
     </el-dialog>
 
@@ -498,7 +501,7 @@ export default {
             id:row.id,
             note:value
           };
-
+          this.buttonLoading=true;
           rejectWithdrawalRequest(data).then((res) => {          
             this.$notify({
                 title: "Success",
@@ -506,8 +509,11 @@ export default {
                 type: "success",
                 duration: 2000
             });
+            this.buttonLoading=false;
             const index = this.list.indexOf(row);
             this.list.splice(index, 1);
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
       })
     },
@@ -517,7 +523,9 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
+        this.buttonLoading=true;
         deleteWithdrawalRequest(row.id).then((data) => {
+          this.buttonLoading=false;
           this.$notify({
               title: "Success",
               message: data.message,
@@ -526,6 +534,8 @@ export default {
           });
           const index = this.list.indexOf(row);
           this.list.splice(index, 1);
+        }).catch((err)=>{
+          this.buttonLoading=false;
         });
       })
     },
@@ -546,9 +556,11 @@ export default {
         }
        
         if (valid) {
+           this.buttonLoading=true;
           approveWithdrawalRequest(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
+            this.buttonLoading=false;
             this.dialogApproveVisible = false;
             this.$notify({
               title: "Success",
@@ -557,7 +569,9 @@ export default {
               duration: 2000
             })
 
-          })
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
         }
       });
     },
