@@ -392,7 +392,7 @@ export default {
       };
     },
     resetEmail() {
-      this.sms = {
+      this.email = {
         email_id: undefined,
         users: [],
         is_scheduled:0,
