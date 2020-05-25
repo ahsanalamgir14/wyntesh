@@ -15,18 +15,53 @@
     </el-col>
     <el-col  :xs="24" :sm="24" :md="14" :lg="14" :xl="14" >
       <div class="login-container">
-        <el-form ref="forgotPassForm" :model="forgotPassForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+        <el-form ref="resetPasswordForm" :model="resetPasswordForm" :rules="passwordResetRules" class="login-form" auto-complete="on" label-position="left">
           <h3 class="title">
-            Forgot Password
-          </h3>      
+            Reset Password
+          </h3>
           <el-form-item prop="username">
             <span class="svg-container">
               <svg-icon icon-class="user" />
             </span>
-            <el-input v-model="forgotPassForm.username" name="username" type="text" auto-complete="on" placeholder="Enter Username/ID" @keyup.enter.native="handleForgotPassword" />
+            <el-input v-model="resetPasswordForm.username" 
+             @keyup.enter.native="handleResetPassword"
+            name="username" type="text" auto-complete="on" placeholder="Enter Username/ID" />
           </el-form-item>
+          <el-form-item prop="password">
+            <span class="svg-container">
+              <svg-icon icon-class="password" />
+            </span>
+            <el-input
+              v-model="resetPasswordForm.password"LangSelect
+              :type="pwdType"
+              name="password"
+              auto-complete="on"
+              placeholder="Password"
+              @keyup.enter.native="handleResetPassword"
+            />
+            <span class="show-pwd" @click="showPwd">
+              <svg-icon icon-class="eye" />
+            </span>
+          </el-form-item>
+          <el-form-item prop="password_confirmation">
+            <span class="svg-container">
+              <svg-icon icon-class="password" />
+            </span>
+            <el-input
+              v-model="resetPasswordForm.password_confirmation" LangSelect
+              :type="pwdType"
+              name="password"
+              auto-complete="on"
+              placeholder="Confirm Password"
+              @keyup.enter.native="handleResetPassword"
+            />
+            <span class="show-pwd" @click="showPwd">
+              <svg-icon icon-class="eye" />
+            </span>
+          </el-form-item> 
+
           <el-form-item class="item-btn">
-            <el-button :loading="loading"  icon="el-icon-unlock" type="primary"  @click.native.prevent="handleForgotPassword">
+            <el-button :loading="loading"  icon="el-icon-unlock" type="primary"  @click.native.prevent="handleResetPassword">
               Reset Password
             </el-button>
           </el-form-item>  
@@ -43,11 +78,18 @@
 <script>
 import { validEmail } from '@/utils/validate';
 import logo from '@/assets/images/logo.png'
-import { getResetToken } from "@/api/auth";
+import { resetPassword } from "@/api/auth";
 
 export default {
   name: 'Login',
   data() {
+    const validatePass = (rule, value, callback) => {
+      if (value.length < 4) {
+        callback(new Error('Password cannot be less than 4 digits'));
+      } else {
+        callback();
+      }
+    };
     const validateEmail = (rule, value, callback) => {
       if (!validEmail(value)) {
         callback(new Error('Please enter the correct email'));
@@ -57,23 +99,38 @@ export default {
     };
   
     return {
-      forgotPassForm: {
-        username: '',
+      resetPasswordForm: {
+        password: '',
+        token:undefined,
+        username:undefined,
+        password_confirmation:'',
       },
       logo: logo,
-      loginRules: {
-        username: [{ required: true, trigger: 'blur', message:'Username is required.' }],
+      passwordResetRules: {
+        password: [{ required: true, trigger: 'blur',  validator: validatePass }],
+        password_confirmation: [{ required: true, trigger: 'blur',  validator: validatePass }],
+        username: [{ required: true, trigger: 'blur', message:'Username is required.'  }],
       },
       loading: false,
+      pwdType: 'password',
     };
   },
+  created(){
+    this.resetPasswordForm.token=this.$route.query.token
+  },
   methods: {
-   
-    handleForgotPassword() {
-      this.$refs.forgotPassForm.validate(valid => {
+   showPwd() {
+      if (this.pwdType === 'password') {
+        this.pwdType = '';
+      } else {
+        this.pwdType = 'password';
+      }
+    },
+    handleResetPassword() {
+      this.$refs.resetPasswordForm.validate(valid => {
         if (valid) {
           this.loading = true;
-            getResetToken(this.forgotPassForm).then((response) => {
+            resetPassword(this.resetPasswordForm).then((response) => {
             this.$notify({
               title: "Success",
               message: response.message,

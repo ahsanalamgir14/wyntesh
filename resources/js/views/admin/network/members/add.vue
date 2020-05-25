@@ -23,54 +23,65 @@
               
             </el-col>
 
-            <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >  
-              <el-form-item prop="position"  class="radio-btn" label="Position">
-                </br>
-                <el-radio-group v-model="registerForm.position" >                  
-                    <el-radio border label="1">Left</el-radio>
-                    <el-radio border label="2">Right</el-radio>
-                  </el-radio-group>
-              </el-form-item>    
-              <el-form-item prop="name" label="Member Name">             
-                <el-input v-model="registerForm.name" name="name" type="text" auto-complete="on" placeholder="Enter Name." />
-              </el-form-item>
-              <el-form-item prop="email" label="Member Email">               
-                <el-input v-model="registerForm.email" name="email" type="text" auto-complete="on" placeholder="Enter valid email." />
-              </el-form-item>
-              <el-form-item prop="password" label="Password">
-               
-                 <el-input
-                    v-model="registerForm.password" 
-                    :type="pwdType"
-                    name="password"
-                    auto-complete="on"
-                    placeholder="Password"
-                  />
-              </el-form-item>
+
+            <el-col  :xs="24" :sm="24" :md="16" :lg="16" :xl="16" >
+              <el-row :gutter="20">
+                <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >  
+                  <el-form-item prop="position"  class="radio-btn" label="Position">
+                    <br>
+                    <el-radio-group v-model="registerForm.position" >                  
+                        <el-radio border label="1">Leg 1</el-radio>
+                        <el-radio border label="2">Leg 2</el-radio>
+                        <el-radio border label="3">Leg 3</el-radio>
+                        <el-radio border label="4">Leg 4</el-radio>
+                      </el-radio-group>
+                  </el-form-item>    
+                  
+                </el-col>
+                <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >      
+                  <el-form-item prop="name" label="Member Name">             
+                    <el-input v-model="registerForm.name" name="name" type="text" auto-complete="on" placeholder="Enter Name." />
+                  </el-form-item>
+                  <el-form-item prop="email" label="Member Email">               
+                    <el-input v-model="registerForm.email" name="email" type="text" auto-complete="on" placeholder="Enter valid email." />
+                  </el-form-item>
+                  <el-form-item prop="password" label="Password">
+                   
+                     <el-input
+                        v-model="registerForm.password" 
+                        :type="pwdType"
+                        name="password"
+                        auto-complete="on"
+                        placeholder="Password"
+                      />
+                  </el-form-item>
+                </el-col>
+                <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >      
+                  <el-form-item prop="gender"  class="radio-btn" label="Gender">
+                    </br>
+                    <el-radio-group v-model="registerForm.gender">
+                        <el-radio border label="m">Male</el-radio>
+                        <el-radio border label="f">Female</el-radio>
+                      </el-radio-group>
+                  </el-form-item>
+                  <el-form-item prop="dob" class="dob-input" label="Date of Birth">
+                    </br>
+                    <el-date-picker
+                        v-model="registerForm.dob"
+                        type="date"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        placeholder="Date of birth">
+                      </el-date-picker>
+                  </el-form-item>
+                  <el-form-item prop="contact" label="Contact No">
+                   
+                    <el-input v-model="registerForm.contact" name="contact" type="text" auto-complete="on" placeholder="Enter valid contact." />
+                  </el-form-item>
+                </el-col>
+              </el-row>
             </el-col>
-            <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >      
-              <el-form-item prop="gender"  class="radio-btn" label="Gender">
-                </br>
-                <el-radio-group v-model="registerForm.gender">
-                    <el-radio border label="m">Male</el-radio>
-                    <el-radio border label="f">Female</el-radio>
-                  </el-radio-group>
-              </el-form-item>
-              <el-form-item prop="dob" class="dob-input" label="Date of Birth">
-                </br>
-                <el-date-picker
-                    v-model="registerForm.dob"
-                    type="date"
-                    format="yyyy-MM-dd"
-                    value-format="yyyy-MM-dd"
-                    placeholder="Date of birth">
-                  </el-date-picker>
-              </el-form-item>
-              <el-form-item prop="contact" label="Contact No">
-               
-                <el-input v-model="registerForm.contact" name="contact" type="text" auto-complete="on" placeholder="Enter valid contact." />
-              </el-form-item>
-            </el-col>
+            
           </el-row>           
           <el-form-item class="item-btn">
             <el-button :loading="buttonLoading"  icon="el-icon-finished" type="primary"  @click.native.prevent="register">

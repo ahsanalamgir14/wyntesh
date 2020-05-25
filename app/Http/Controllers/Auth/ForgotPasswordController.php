@@ -35,10 +35,10 @@ class ForgotPasswordController extends Controller
 
     public function getResetToken(Request $request)
     {
-        $this->validate($request, ['email' => 'required|email']);
+        $this->validate($request, ['username' => 'required']);
         
         if ($request->wantsJson()) {
-            $user = User::where('email', $request->input('email'))->first();
+            $user = User::where('username', $request->input('username'))->first();
             if (!$user) {
                 $response = array('status' => false,'message'=>trans('passwords.user'));
                 return response()->json($response, 404);
@@ -48,7 +48,7 @@ class ForgotPasswordController extends Controller
             
             $FRONTEND_URL=env('FRONTEND_URL');
 
-            $password_reset_link=$FRONTEND_URL.'/#/reset-password/'.$token;
+            $password_reset_link=$FRONTEND_URL.'/#/reset-password?token='.$token;
 
             $html='<html>
                 Hi, '.$user->name.'<br><br>
@@ -59,7 +59,7 @@ class ForgotPasswordController extends Controller
             </html>';
 
             Mail::send('emails.general',["html"=>$html] , function($message) use ($request,$user){
-                $message->to($request->email, $user->name)
+                $message->to($user->email, $user->name)
                 ->subject(env('APP_NAME').': Password Reset');
             });
 

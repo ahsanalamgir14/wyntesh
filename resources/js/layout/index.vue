@@ -12,22 +12,20 @@
       </right-panel>
     </div>
     <el-dialog title="Change Password" width="300px" :visible.sync="dialogChangePassword">
-      <el-row>
-        
-              <el-form ref="dataForm" :rules="rules" :model="temp">
-                <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
-                  <el-form-item label="New Password" prop="password">
-                    <el-input type="password" v-model="temp.password" />
-                  </el-form-item>
-                </el-col>
-
-              </el-form>
-        </el-row>
+      <el-row>        
+        <el-form ref="dataForm" :rules="rules" :model="temp" >
+          <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+            <el-form-item label="New Password" prop="password">
+              <el-input type="password" v-model="temp.password" @keyup.enter.native="handleChangePassword"/>
+            </el-form-item>
+          </el-col>
+        </el-form>
+      </el-row>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogChangePassword = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="handleChangePassword()">
+        <el-button type="primary" @click="handleChangePassword()" @click.native.prevent="handleChangePassword">
           Change Password
         </el-button>
       </div>

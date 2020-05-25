@@ -16,9 +16,17 @@ export function changePassword(data) {
   })
 }
 
-export function resetPassword(data) {
+export function getResetToken(data) {
   return request({
     url: '/auth/password/email',
+    method: 'post',
+    data
+  })
+}
+
+export function resetPassword(data) {
+  return request({
+    url: '/auth/password/reset',
     method: 'post',
     data
   })

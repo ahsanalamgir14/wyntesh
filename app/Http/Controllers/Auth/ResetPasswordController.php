@@ -39,6 +39,22 @@ class ResetPasswordController extends Controller
         $this->middleware('guest');
     }
 
+    protected function rules()
+    {
+        return [
+            'token' => 'required',
+            'username' => 'required',
+            'password' => 'required|confirmed|min:4',
+        ];
+    }
+
+    protected function credentials(Request $request)
+    {
+        return $request->only(
+            'username', 'password', 'password_confirmation', 'token'
+        );
+    }
+
     public function reset(Request $request)
     {
         $this->validate($request, $this->rules(), $this->validationErrorMessages());
