@@ -526,6 +526,8 @@ export default {
                 this.$refs["formCreateConversation"].clearValidate();
                 this.$refs.conversationMessage.setContent("");
               });
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
@@ -546,6 +548,8 @@ export default {
               type: "success",
               duration: 2000
             });
+            this.buttonLoading=false;
+          }).catch((err)=>{
             this.buttonLoading=false;
           });
         })

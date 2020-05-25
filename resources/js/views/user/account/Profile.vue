@@ -72,7 +72,7 @@
                 </el-col>
               </el-row>
               <el-form-item>
-                <el-button type="primary"  :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                <el-button type="primary"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
                   Update
                 </el-button>
               </el-form-item>
@@ -120,7 +120,7 @@
                 </el-col>
               </el-row>
               <el-form-item>
-                <el-button type="primary" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                <el-button type="primary"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
                   Update
                 </el-button>
               </el-form-item>
@@ -206,10 +206,10 @@
                 </el-col>
               </el-row>
               <el-form-item style="margin-top:20px;">
-                <el-button type="primary" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
                   Update
                 </el-button>
-                 <el-button type="success" :disabled="temp.kyc.verification_status=='submitted'" @click="submitVerification">
+                 <el-button type="success"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="submitVerification">
                   {{temp.kyc.verification_status=='submitted'?'Submitted for apporval': 'Submit for verification'}}
                 </el-button>
               </el-form-item>
@@ -235,6 +235,7 @@ export default {
     return {
       activeActivity: 'details',
       updating: false,
+      buttonLoading:false,
       referral_link:'',
       adharfileList:[],
       adharfile:undefined,
@@ -348,7 +349,8 @@ export default {
     },
     onSubmit() {
       this.updating = true;
-      
+      this.buttonLoading=true;
+
       var form = new FormData();
       let form_data=this.temp;
 
@@ -369,6 +371,7 @@ export default {
 
       updateProfile(form).then((response) => {
         this.updating = false;
+        this.buttonLoading=false;
         this.temp=response.data;
         this.$notify({
           title: "Success",
@@ -382,7 +385,10 @@ export default {
         this.panfileList=[];
         this.chequefile=undefined
         this.chequefileList=[];
-      })
+      }).catch((err)=>{
+        this.updating = false;
+        this.buttonLoading=false;
+      });
     },
   },
 };

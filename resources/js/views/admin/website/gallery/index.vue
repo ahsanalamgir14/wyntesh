@@ -64,24 +64,16 @@
       </el-table-column>
       <el-table-column label="Title" min-width="150px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
+          <span  >{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Subtitle" width="150px" >
-        <template slot-scope="{row}">
-          <span>{{ row.subtitle }}</span>
-        </template>
-      </el-table-column>
-       <el-table-column label="Image" min-width="150px">
+
+      <el-table-column label="Image" min-width="150px">
         <template slot-scope="{row}">
           <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
         </template>
-      </el-table-column>  
-      <el-table-column label="Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.date }}</span>
-        </template>
       </el-table-column>
+
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -97,47 +89,33 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px" :visible.sync="dialogNewsVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp"  style="">
-        <el-row :gutter="20">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogGalleryVisible">
+      <el-form ref="dataForm" :rules="rules" :model="temp" style="">
+        <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
             <el-form-item label="Title" prop="title">
               <el-input v-model="temp.title" />
             </el-form-item>
-
-            <el-form-item label="Subtitle" prop="subtitle">
-              <el-input v-model="temp.subtitle" />
-            </el-form-item>
-
-            <el-form-item label="Description" prop="description">
-              <tinymce v-model="temp.description"  :imageUploadButton="false" menubar="format" :toolbar="tools" id="description" ref="description" :height="50" />
-            </el-form-item>
-
-            <el-form-item label="Date" prop="date">
-              </br>
-              <el-date-picker
-                v-model="temp.date"
-                type="date"
-                format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd"
-                placeholder="End Date">
-              </el-date-picker>
-            </el-form-item>
-
-             <el-form-item label="News Visibility" prop="is_visible">
-              </br>
-              <el-switch
-                v-model="temp.is_visible"
-                active-text="Visible"
-                inactive-text="Not visible">
-              </el-switch>
+            <el-form-item label="Tags" prop="tags">
+            </br>
+              <el-select v-model="temp.tags" multiple clearable placeholder="Tags">
+                <el-option
+                  v-for="tag in tagList"
+                  :key="tag.value"
+                  :label="tag.label"
+                  :value="tag.value"
+                  style="width: 100%"
+                  >
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
             <div class="img-upload">
-              <el-form-item  prop="image" label="Image">
+              <el-form-item  prop="image">
+                <label for="Image">Image</label>
                 <el-upload
-                  class="avatar-uploader skeleton"
+                  class="avatar-uploader"
                   action="#"
                    ref="upload"
                   :show-file-list="true"
@@ -151,18 +129,18 @@
                   <img v-if="temp.image" :src="temp.image" class="avatar">
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
-                <p>Click on image to select.</p>
+                <p>Click to upload image.</p>
               </el-form-item>
             </div>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogNewsVisible = false">
+        <el-button @click="dialogGalleryVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -172,18 +150,18 @@
 <script>
 import {
   fetchList,
-  fetchNews,
-  deleteNews,
-  createNews,
-  updateNews
-} from "@/api/admin/newses";
-import waves from "@/directive/waves"; 
+  fetchGallery,
+  deleteGallery,
+  createGallery,
+  updateGallery
+} from "@/api/admin/gallery";
+import waves from "@/directive/waves";
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "news",
+  name: "gallery",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -199,7 +177,6 @@ export default {
   },
   data() {
     return {
-      tools:[''],
       tableKey: 0,
       list: null,
       total: 0,
@@ -208,11 +185,7 @@ export default {
         page: 1,
         limit: 5,
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
         image:undefined,
-        is_visible: 0,
         sort: "+id"
       },
       fileList:[],
@@ -222,23 +195,36 @@ export default {
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
+        id:undefined,
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        image:undefined,
+        tags:[]
       },
 
-      dialogNewsVisible:false,
+      dialogGalleryVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
+      tagList: [{
+        value: 'Seminar',
+        label: 'Seminar'
+      }, {
+        value: 'Anual Event',
+        label: 'Anual Event'
+      }, {
+        value: 'General',
+        label: 'General'
+      }, {
+        value: 'Social Activity',
+        label: 'Social Activity'
+      }, {
+        value: 'Promotion',
+        label: 'Promotion'
+      }],
       rules: {
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }],
-        date: [{  required: true, message: 'Date is required', trigger: 'blur' }]
+        // file: [{ required: true, message: 'Image is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -291,29 +277,26 @@ export default {
     },
     resetTemp() {
       this.temp = {
+        id:undefined,
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
         image:undefined
       };
       this.file=undefined
       this.fileList=[];
     },
     handleCreate() {
+      this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogNewsVisible = true;
+      this.dialogGalleryVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
-        this.$refs.description.setContent("");
       });
     },
-    createData() {
-      this.buttonLoading=true;
+    createData() {      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -323,11 +306,18 @@ export default {
             }
           }
 
-          form.append('image', this.file);
+          if(!this.file){
+            this.$message.error('Image is required.');
+            return;
+          }
 
-          createNews(form).then((data) => {
+          if(this.fileList){
+            form.append('file', this.file);
+          } 
+
+          createGallery(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogNewsVisible = false;
+            this.dialogGalleryVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -336,30 +326,27 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
       this.fileList=[];
       this.file=undefined;
       this.temp = Object.assign({}, row); // copy obj
-      if(row.is_visible==1){
-        this.temp.is_visible=true
-      }else{
-        this.temp.is_visible=false
-      }
+      this.temp.tags = row.tags.split(',');
       this.dialogStatus = "update";
-      this.dialogNewsVisible = true;
+      this.dialogGalleryVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     updateData() {
-      this.buttonLoading=true;
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           const tempData = Object.assign({}, this.temp);
 
@@ -369,10 +356,11 @@ export default {
             }
           }
 
-          form.append('image', this.file);
-
-          
-          updateNews(form).then((data) => {
+          if(this.fileList){
+            form.append('file', this.file);
+          }          
+   
+          updateGallery(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -380,7 +368,7 @@ export default {
                 break;
               }
             }
-            this.dialogNewsVisible = false;
+            this.dialogGalleryVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -389,14 +377,15 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteNews(row.id).then((data) => {
-            this.dialogNewsVisible = false;
+        deleteGallery(row.id).then((data) => {
+            this.dialogGalleryVisible = false;
             this.$notify({
                 title: "Success",
                 message: data.message,
@@ -420,13 +409,12 @@ export default {
 </script>
 
 <style scoped>
-
-.avatar-uploader-icon {
-    line-height: 178px;
-}
-
 .el-drawer__body {
   padding: 20px;
+}
+
+.el-select {
+    width: 100%;
 }
 .pagination-container {
   margin-top: 5px;

@@ -64,24 +64,31 @@
       </el-table-column>
       <el-table-column label="Title" min-width="150px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
+          <span  >{{ row.title }}</span>
         </template>
       </el-table-column>
-       <el-table-column label="Image" min-width="150px">
+      <el-table-column label="Subtitle" min-width="150px">
+        <template slot-scope="{row}">
+          <span  >{{ row.subtitle }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="CTA Text" min-width="150px">
+        <template slot-scope="{row}">
+          <span  >{{ row.cta_text }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="CTA Link" min-width="150px">
+        <template slot-scope="{row}">
+          <span  >{{ row.cta_link }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Image" min-width="150px">
         <template slot-scope="{row}">
           <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
         </template>
       </el-table-column>
-      <el-table-column label="Subtitle" width="150px" align="">
-        <template slot-scope="{row}">
-          <span>{{ row.subtitle }}</span>
-        </template>
-      </el-table-column>  
-      <el-table-column label="Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.date }}</span>
-        </template>
-      </el-table-column>
+
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -97,45 +104,21 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogAchieverVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp"  >
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogSliderVisible">
+      <el-form ref="dataForm" :rules="rules" :model="temp" style="">
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
             <el-form-item label="Title" prop="title">
               <el-input v-model="temp.title" />
             </el-form-item>
-
             <el-form-item label="Subtitle" prop="subtitle">
               <el-input v-model="temp.subtitle" />
             </el-form-item>
-
-            <el-form-item label="Description" prop="description">
-              <el-input
-                  type="textarea"
-                  :rows="4"
-                  placeholder="Description"
-                  v-model="temp.description">
-                </el-input>
+            <el-form-item label="CTA Text" prop="cta_text">
+              <el-input v-model="temp.cta_text" />
             </el-form-item>
-
-            <el-form-item label="Date" prop="date">
-               </br>
-              <el-date-picker
-                v-model="temp.date"
-                type="date"
-                format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd"
-                placeholder="End Date">
-              </el-date-picker>
-            </el-form-item>
-
-             <el-form-item label="Achiever Visibility" prop="is_visible">
-              </br>
-              <el-switch
-                v-model="temp.is_visible"
-                active-text="Visible"
-                inactive-text="Not visible">
-              </el-switch>
+            <el-form-item label="CTA Link" prop="cta_link">
+              <el-input v-model="temp.cta_link" />
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
@@ -164,11 +147,11 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogAchieverVisible = false">
+        <el-button @click="dialogSliderVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -178,18 +161,18 @@
 <script>
 import {
   fetchList,
-  fetchAchiever,
-  deleteAchiever,
-  createAchiever,
-  updateAchiever
-} from "@/api/admin/achievers";
+  fetchSlider,
+  deleteSlider,
+  createSlider,
+  updateSlider
+} from "@/api/admin/sliders";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "achievers",
+  name: "sliders",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -212,12 +195,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        image:undefined,
-        is_visible: 0,
+        search:undefined,
         sort: "+id"
       },
       fileList:[],
@@ -227,23 +205,22 @@ export default {
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
+        id:undefined,
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        subtitle:undefined,
+        cta_text:undefined,
+        cta_link:undefined,
+        image:undefined,
       },
 
-      dialogAchieverVisible:false,
+      dialogSliderVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }],
-        date: [{  required: true, message: 'Date is required', trigger: 'blur' }]
+        // file: [{ required: true, message: 'Image is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -296,12 +273,12 @@ export default {
     },
     resetTemp() {
       this.temp = {
+        id:undefined,
         title: undefined,
-        subtitle: undefined,
-        description:undefined,
-        date: undefined,
-        is_visible: false,
-        image:undefined
+        subtitle:undefined,
+        cta_text:undefined,
+        cta_link:undefined,
+        image:undefined,
       };
       this.file=undefined
       this.fileList=[];
@@ -310,15 +287,15 @@ export default {
       this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogAchieverVisible = true;
+      this.dialogSliderVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
-    createData() {
-      this.buttonLoading=true;
+    createData() {      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -328,43 +305,48 @@ export default {
             }
           }
 
-          form.append('image', this.file);
+          if(!this.file){
+            this.$message.error('Image is required.');
+            return;
+          }
 
-          createAchiever(form).then((data) => {
+          if(this.fileList){
+            form.append('file', this.file);
+          } 
+
+          createSlider(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogAchieverVisible = false;
+            this.dialogSliderVisible = false;
             this.$notify({
               title: "Success",
-              message: "Created Successfully",
+              message: data.message,
               type: "success",
               duration: 2000
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
       this.fileList=[];
       this.file=undefined;
       this.temp = Object.assign({}, row); // copy obj
-      if(row.is_visible==1){
-        this.temp.is_visible=true
-      }else{
-        this.temp.is_visible=false
-      }
+
       this.dialogStatus = "update";
-      this.dialogAchieverVisible = true;
+      this.dialogSliderVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     updateData() {
-      this.buttonLoading=true;
+      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           const tempData = Object.assign({}, this.temp);
 
@@ -374,10 +356,11 @@ export default {
             }
           }
 
-          form.append('image', this.file);
-
-          
-          updateAchiever(form).then((data) => {
+          if(this.fileList){
+            form.append('file', this.file);
+          }          
+   
+          updateSlider(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -385,26 +368,27 @@ export default {
                 break;
               }
             }
-            this.dialogAchieverVisible = false;
+            this.dialogSliderVisible = false;
             this.$notify({
               title: "Success",
-              message: "Update Successfully",
+              message: data.message,
               type: "success",
               duration: 2000
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteAchiever(row.id).then((data) => {
-            this.dialogAchieverVisible = false;
+        deleteSlider(row.id).then((data) => {
+            this.dialogSliderVisible = false;
             this.$notify({
                 title: "Success",
-                message: "Delete Successfully",
+                message: data.message,
                 type: "success",
                 duration: 2000
             });

@@ -67,12 +67,21 @@
           <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Visibility" class-name="status-col" width="100">
+       <el-table-column label="Image" min-width="150px">
         <template slot-scope="{row}">
-          <el-tag :type="row.is_visible | statusFilter">{{ row.is_visible?'Visible':'Invisible' }}</el-tag>
+          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
         </template>
       </el-table-column>
-
+      <el-table-column label="Subtitle" width="150px" align="">
+        <template slot-scope="{row}">
+          <span>{{ row.subtitle }}</span>
+        </template>
+      </el-table-column>  
+      <el-table-column label="Date" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.date }}</span>
+        </template>
+      </el-table-column>
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -88,36 +97,51 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogDownloadVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" style="">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogAchieverVisible">
+      <el-form ref="dataForm" :rules="rules" :model="temp"  >
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
             <el-form-item label="Title" prop="title">
               <el-input v-model="temp.title" />
             </el-form-item>
 
-             <el-form-item label="Download Type" prop="registration">
-                <el-select v-model="temp.download_type" style="width:100%" placeholder="Download Type">
-                  <el-option value='url' label="URL"></el-option>
-                  <el-option value='upload' label="Upload"></el-option>
-                </el-select>
-              </el-form-item>
-
-            <el-form-item v-if="temp.download_type=='url' ||(temp.url && dialogStatus=='edit') " label="URL" prop="URL">
-               <el-input v-model="temp.url" />
+            <el-form-item label="Subtitle" prop="subtitle">
+              <el-input v-model="temp.subtitle" />
             </el-form-item>
 
-            <el-form-item label="Download Visible?" prop="is_visible">
-              <el-select v-model="temp.is_visible" style="width:100%" placeholder="Download Visible?">
-                <el-option value=1 label="Yes"></el-option>
-                <el-option value=0 label="No"></el-option>
-              </el-select>
+            <el-form-item label="Description" prop="description">
+              <el-input
+                  type="textarea"
+                  :rows="4"
+                  placeholder="Description"
+                  v-model="temp.description">
+                </el-input>
+            </el-form-item>
+
+            <el-form-item label="Date" prop="date">
+               </br>
+              <el-date-picker
+                v-model="temp.date"
+                type="date"
+                format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd"
+                placeholder="End Date">
+              </el-date-picker>
+            </el-form-item>
+
+             <el-form-item label="Achiever Visibility" prop="is_visible">
+              </br>
+              <el-switch
+                v-model="temp.is_visible"
+                active-text="Visible"
+                inactive-text="Not visible">
+              </el-switch>
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
-            <div class="img-upload" v-if="temp.download_type=='upload'">
-              <el-form-item  prop="file">
-                <label for="file" >File</label>
+            <div class="img-upload">
+              <el-form-item  prop="image">
+                <label for="Image">Image</label>
                 <el-upload
                   class="avatar-uploader"
                   action="#"
@@ -129,22 +153,22 @@
                   :limit="3"
                   :file-list="fileList"
                   :on-exceed="handleExceed"
-                  >
-                  <!-- <img v-if="temp.file" :src="temp.image" class="avatar"> -->
-                  <i class="el-icon-plus avatar-uploader-icon"></i>
+                  accept="image/png, image/jpeg">
+                  <img v-if="temp.image" :src="temp.image" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
-                <p>Click to upload file.</p>
+                <p>Click to upload image.</p>
               </el-form-item>
             </div>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDownloadVisible = false">
+        <el-button @click="dialogAchieverVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -154,18 +178,18 @@
 <script>
 import {
   fetchList,
-  fetchDownload,
-  deleteDownload,
-  createDownload,
-  updateDownload
-} from "@/api/admin/downloads";
+  fetchAchiever,
+  deleteAchiever,
+  createAchiever,
+  updateAchiever
+} from "@/api/admin/achievers";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "downloads",
+  name: "achievers",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -189,8 +213,11 @@ export default {
         page: 1,
         limit: 5,
         title: undefined,
-        url:undefined,
-        is_visible: "1",
+        subtitle: undefined,
+        description:undefined,
+        date: undefined,
+        image:undefined,
+        is_visible: 0,
         sort: "+id"
       },
       fileList:[],
@@ -201,19 +228,22 @@ export default {
       ],
       temp: {
         title: undefined,
-        is_visible: "1",
-        download_type:'upload',
-        url:undefined
+        subtitle: undefined,
+        description:undefined,
+        date: undefined,
+        is_visible: false,
+        image:undefined
       },
 
-      dialogDownloadVisible:false,
+      dialogAchieverVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        title: [{ required: true, message: 'title is required', trigger: 'blur' }],
+        date: [{  required: true, message: 'Date is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -266,11 +296,12 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id: undefined,
         title: undefined,
-        is_visible: "1",
-        download_type:'upload',
-        url:undefined
+        subtitle: undefined,
+        description:undefined,
+        date: undefined,
+        is_visible: false,
+        image:undefined
       };
       this.file=undefined
       this.fileList=[];
@@ -279,15 +310,16 @@ export default {
       this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogDownloadVisible = true;
+      this.dialogAchieverVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     createData() {
-      this.buttonLoading=true;
+      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -297,45 +329,45 @@ export default {
             }
           }
 
-          form.append('file', this.file);
+          form.append('image', this.file);
 
-          createDownload(form).then((data) => {
+          createAchiever(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogDownloadVisible = false;
+            this.dialogAchieverVisible = false;
             this.$notify({
               title: "Success",
-              message: data.message,
+              message: "Created Successfully",
               type: "success",
               duration: 2000
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
       this.fileList=[];
       this.file=undefined;
-      row.download_type='url';
       this.temp = Object.assign({}, row); // copy obj
       if(row.is_visible==1){
-        this.temp.is_visible="1"
+        this.temp.is_visible=true
       }else{
-        this.temp.is_visible="0"
+        this.temp.is_visible=false
       }
-
       this.dialogStatus = "update";
-      this.dialogDownloadVisible = true;
+      this.dialogAchieverVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     updateData() {
-      this.buttonLoading=true;
+      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           const tempData = Object.assign({}, this.temp);
 
@@ -345,10 +377,10 @@ export default {
             }
           }
 
-          form.append('file', this.file);
+          form.append('image', this.file);
 
           
-          updateDownload(form).then((data) => {
+          updateAchiever(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -356,26 +388,28 @@ export default {
                 break;
               }
             }
-            this.dialogDownloadVisible = false;
+            this.dialogAchieverVisible = false;
             this.$notify({
               title: "Success",
-              message: data.message,
+              message: "Update Successfully",
               type: "success",
               duration: 2000
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
+      
     },
     deleteData(row) {
-        deleteDownload(row.id).then((data) => {
-            this.dialogDownloadVisible = false;
+        deleteAchiever(row.id).then((data) => {
+            this.dialogAchieverVisible = false;
             this.$notify({
                 title: "Success",
-                message: data.message,
+                message: "Delete Successfully",
                 type: "success",
                 duration: 2000
             });

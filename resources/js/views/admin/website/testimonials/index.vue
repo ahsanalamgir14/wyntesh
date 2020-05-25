@@ -62,9 +62,9 @@
           ></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Title" min-width="150px">
+      <el-table-column label="Name" min-width="150px">
         <template slot-scope="{row}">
-          <span  >{{ row.title }}</span>
+          <span  >{{ row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Subtitle" min-width="150px">
@@ -72,17 +72,11 @@
           <span  >{{ row.subtitle }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="CTA Text" min-width="150px">
+      <el-table-column label="Description" min-width="270px">
         <template slot-scope="{row}">
-          <span  >{{ row.cta_text }}</span>
+          <span  >{{ row.description }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="CTA Link" min-width="150px">
-        <template slot-scope="{row}">
-          <span  >{{ row.cta_link }}</span>
-        </template>
-      </el-table-column>
-
       <el-table-column label="Image" min-width="150px">
         <template slot-scope="{row}">
           <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
@@ -104,21 +98,23 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogSliderVisible">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogTestimonialVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" style="">
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
-            <el-form-item label="Title" prop="title">
-              <el-input v-model="temp.title" />
+            <el-form-item label="Name" prop="name">
+              <el-input v-model="temp.name" />
             </el-form-item>
-            <el-form-item label="Subtitle" prop="subtitle">
+             <el-form-item label="Subtitle" prop="subtitle">
               <el-input v-model="temp.subtitle" />
             </el-form-item>
-            <el-form-item label="CTA Text" prop="cta_text">
-              <el-input v-model="temp.cta_text" />
-            </el-form-item>
-            <el-form-item label="CTA Link" prop="cta_link">
-              <el-input v-model="temp.cta_link" />
+            <el-form-item label="Description" prop="description">
+              <el-input
+                type="textarea"
+                :rows="3"
+                placeholder="Description"
+                v-model="temp.description">
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
@@ -147,11 +143,11 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogSliderVisible = false">
+        <el-button @click="dialogTestimonialVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -161,18 +157,18 @@
 <script>
 import {
   fetchList,
-  fetchSlider,
-  deleteSlider,
-  createSlider,
-  updateSlider
-} from "@/api/admin/sliders";
+  fetchTestimonial,
+  deleteTestimonial,
+  createTestimonial,
+  updateTestimonial
+} from "@/api/admin/testimonials";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "sliders",
+  name: "testimonials",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -206,21 +202,21 @@ export default {
       ],
       temp: {
         id:undefined,
-        title: undefined,
-        subtitle:undefined,
-        cta_text:undefined,
-        cta_link:undefined,
+        name: undefined,
+        description:undefined,
         image:undefined,
+        subtitle:undefined,
       },
 
-      dialogSliderVisible:false,
+      dialogTestimonialVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-        // file: [{ required: true, message: 'Image is required', trigger: 'blur' }]
+         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+         description: [{ required: true, message: 'Description is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -273,12 +269,11 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id:undefined,
-        title: undefined,
-        subtitle:undefined,
-        cta_text:undefined,
-        cta_link:undefined,
+        id:undefined,      
+        name: undefined,
+        description:undefined,
         image:undefined,
+        subtitle:undefined,
       };
       this.file=undefined
       this.fileList=[];
@@ -287,15 +282,15 @@ export default {
       this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogSliderVisible = true;
+      this.dialogTestimonialVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
-    createData() {
-      this.buttonLoading=true;
+    createData() {      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -305,18 +300,13 @@ export default {
             }
           }
 
-          if(!this.file){
-            this.$message.error('Image is required.');
-            return;
-          }
-
           if(this.fileList){
             form.append('file', this.file);
           } 
 
-          createSlider(form).then((data) => {
+          createTestimonial(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogSliderVisible = false;
+            this.dialogTestimonialVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -325,10 +315,11 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
       this.fileList=[];
@@ -336,16 +327,15 @@ export default {
       this.temp = Object.assign({}, row); // copy obj
 
       this.dialogStatus = "update";
-      this.dialogSliderVisible = true;
+      this.dialogTestimonialVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     updateData() {
-      this.buttonLoading=false;
-      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           const tempData = Object.assign({}, this.temp);
 
@@ -359,7 +349,7 @@ export default {
             form.append('file', this.file);
           }          
    
-          updateSlider(form).then((data) => {
+          updateTestimonial(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -367,7 +357,7 @@ export default {
                 break;
               }
             }
-            this.dialogSliderVisible = false;
+            this.dialogTestimonialVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -376,14 +366,15 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteSlider(row.id).then((data) => {
-            this.dialogSliderVisible = false;
+        deleteTestimonial(row.id).then((data) => {
+            this.dialogTestimonialVisible = false;
             this.$notify({
                 title: "Success",
                 message: data.message,

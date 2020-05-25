@@ -115,8 +115,8 @@
         <el-button @click="dialogEmailsVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -281,14 +281,11 @@ export default {
         this.$refs["emailForm"].clearValidate();
       });
     },
-    updateData() {
-      this.buttonLoading=true;
+    updateData() {      
       this.$refs["emailForm"].validate(valid => {
         if (valid) {
-         
+          this.buttonLoading=true;         
           const tempData = Object.assign({}, this.temp);
-
-          
           updateEmail(tempData).then((data) => {
            this.getList();
             this.dialogEmailsVisible = false;
@@ -300,10 +297,11 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
         deleteEmail(row.id).then((data) => {

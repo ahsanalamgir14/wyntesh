@@ -121,7 +121,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogActivateVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleActivate()">Confirm</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="handleActivate()">Activate/Upgrade</el-button>
       </span>
     </el-dialog>
 
@@ -242,11 +242,13 @@ export default {
     handleActivate(){
       this.$refs["formPinApply"].validate(valid => {        
         if (valid) {
+          this.buttonLoading=true;
           activatePinAccount(this.temp).then((response) => {
             this.getList();
             this.getAccountStatus();
             this.resetTemp();
             this.dialogActivateVisible = false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: response.message,
@@ -254,7 +256,9 @@ export default {
               duration: 2000
             })
 
-          })
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
         }
       });
     },

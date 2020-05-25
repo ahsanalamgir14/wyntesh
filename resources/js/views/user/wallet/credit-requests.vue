@@ -161,7 +161,7 @@
         <el-button @click="dialogWalletCreditRequestVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
           Confirm
         </el-button>
       </div>
@@ -230,6 +230,7 @@ export default {
         amount: [{  required: true, message: 'Amount is required', trigger: 'blur' }],
         payment_mode: [{  required: true, message: 'Payment mode is required', trigger: 'blur' }],
         reference: [{  required: true, message: 'Payment reference no is required', trigger: 'blur' }],
+        bank_id: [{  required: true, message: 'Select Bank', trigger: 'blur' }],
       },
       downloadLoading: false,
       buttonLoading: false
@@ -280,9 +281,9 @@ export default {
       });
     },
     createData() {
-      this.buttonLoading=true;
       this.$refs["walletCreditRequestForm"].validate(valid => {
-        if (valid) {         
+        if (valid) {     
+          this.buttonLoading=true;    
           createCreditRequest(this.temp).then((data) => {
             this.list.unshift(data.data);
             this.dialogWalletCreditRequestVisible = false;
@@ -294,10 +295,11 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
       this.$confirm('Are you sure you want to delete Wallet Credit Request?', 'Warning', {
@@ -305,8 +307,10 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
+        this.buttonLoading=true;
         deletePinRequest(row.id).then((data) => {
           this.dialogWalletCreditRequestVisible = false;
+          this.buttonLoading=false;
           this.$notify({
               title: "Success",
               message: data.message,
@@ -315,6 +319,8 @@ export default {
           });
           const index = this.list.indexOf(row);
           this.list.splice(index, 1);
+        }).catch((err)=>{
+          this.buttonLoading=false;
         });
       })        
     },

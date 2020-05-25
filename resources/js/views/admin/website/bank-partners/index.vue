@@ -62,23 +62,37 @@
           ></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Title" min-width="150px">
+      <el-table-column label="Name" width="150px">
         <template slot-scope="{row}">
-          <span  >{{ row.title }}</span>
+          <span  >{{ row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Branch Name" width="270px">
+        <template slot-scope="{row}">
+          <span  >{{ row.branch_name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Account Type" width="150px">
+        <template slot-scope="{row}">
+          <span  >{{ row.account_type }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Account Holder Name" width="180px">
+        <template slot-scope="{row}">
+          <span  >{{ row.account_holder_name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Account No." width="160px">
+        <template slot-scope="{row}">
+          <span  >{{ row.account_number }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="IFSC Code" width="160px">
+        <template slot-scope="{row}">
+          <span  >{{ row.ifsc }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Image" min-width="150px">
-        <template slot-scope="{row}">
-          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
-        </template>
-      </el-table-column>
-
-       <el-table-column label="Created at" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
     </el-table>
 
     <pagination
@@ -89,26 +103,32 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogGalleryVisible">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogBankPartnerVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" style="">
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
-            <el-form-item label="Title" prop="title">
-              <el-input v-model="temp.title" />
+            <el-form-item label="Name" prop="name">
+              <el-input v-model="temp.name" />
             </el-form-item>
-            <el-form-item label="Tags" prop="tags">
-            </br>
-              <el-select v-model="temp.tags" multiple clearable placeholder="Tags">
-                <el-option
-                  v-for="tag in tagList"
-                  :key="tag.value"
-                  :label="tag.label"
-                  :value="tag.value"
-                  style="width: 100%"
-                  >
-                </el-option>
+             <el-form-item label="Branch Name" prop="branch_name">
+              <el-input v-model="temp.branch_name" />
+            </el-form-item>
+            <el-form-item label="Account Type" prop="account_type">
+              <el-select v-model="temp.account_type" style="width:100%" placeholder="Account Type">
+                <el-option value="Saving" label="Saving"></el-option>
+                <el-option value="Current" label="Current"></el-option>
               </el-select>
             </el-form-item>
+             <el-form-item label="Account Holder Name" prop="account_holder_name">
+              <el-input v-model="temp.account_holder_name" />
+            </el-form-item>
+             <el-form-item label="Account Number" prop="account_number">
+              <el-input v-model="temp.account_number" />
+            </el-form-item>
+             <el-form-item label="IFSC" prop="ifsc">
+              <el-input v-model="temp.ifsc" />
+            </el-form-item>
+            
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
             <div class="img-upload">
@@ -136,11 +156,11 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogGalleryVisible = false">
+        <el-button @click="dialogBankPartnerVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -150,18 +170,18 @@
 <script>
 import {
   fetchList,
-  fetchGallery,
-  deleteGallery,
-  createGallery,
-  updateGallery
-} from "@/api/admin/gallery";
+  fetchBankPartner,
+  deleteBankPartner,
+  createBankPartner,
+  updateBankPartner
+} from "@/api/admin/bank-partners";
 import waves from "@/directive/waves";
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "gallery",
+  name: "bank-partners",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -184,8 +204,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        title: undefined,
-        image:undefined,
+        search:undefined,
         sort: "+id"
       },
       fileList:[],
@@ -196,35 +215,27 @@ export default {
       ],
       temp: {
         id:undefined,
-        title: undefined,
+        branch_name: undefined,
+        account_type:undefined,
+        account_holder_name:undefined,
+        account_number:undefined,
+        ifsc:undefined,
         image:undefined,
-        tags:[]
       },
 
-      dialogGalleryVisible:false,
+      dialogBankPartnerVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
-      tagList: [{
-        value: 'Seminar',
-        label: 'Seminar'
-      }, {
-        value: 'Anual Event',
-        label: 'Anual Event'
-      }, {
-        value: 'General',
-        label: 'General'
-      }, {
-        value: 'Social Activity',
-        label: 'Social Activity'
-      }, {
-        value: 'Promotion',
-        label: 'Promotion'
-      }],
       rules: {
-        // file: [{ required: true, message: 'Image is required', trigger: 'blur' }]
+         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+         branch_name: [{ required: true, message: 'Branch name is required', trigger: 'blur' }],
+         account_type: [{ required: true, message: 'Account Type required', trigger: 'blur' }],
+         account_holder_name: [{ required: true, message: 'Account holder name is required', trigger: 'blur' }],
+         account_number: [{ required: true, message: 'A/C No is required', trigger: 'blur' }],
+
       },
       downloadLoading: false,
       buttonLoading: false
@@ -278,8 +289,12 @@ export default {
     resetTemp() {
       this.temp = {
         id:undefined,
-        title: undefined,
-        image:undefined
+        branch_name: undefined,
+        account_type:undefined,
+        account_holder_name:undefined,
+        account_number:undefined,
+        ifsc:undefined,
+        image:undefined,
       };
       this.file=undefined
       this.fileList=[];
@@ -288,15 +303,15 @@ export default {
       this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogGalleryVisible = true;
+      this.dialogBankPartnerVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
-    createData() {
-      this.buttonLoading=true;
+    createData() {     
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -306,18 +321,13 @@ export default {
             }
           }
 
-          if(!this.file){
-            this.$message.error('Image is required.');
-            return;
-          }
-
           if(this.fileList){
             form.append('file', this.file);
           } 
 
-          createGallery(form).then((data) => {
+          createBankPartner(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogGalleryVisible = false;
+            this.dialogBankPartnerVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -326,27 +336,27 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
       this.fileList=[];
       this.file=undefined;
       this.temp = Object.assign({}, row); // copy obj
-      this.temp.tags = row.tags.split(',');
+
       this.dialogStatus = "update";
-      this.dialogGalleryVisible = true;
+      this.dialogBankPartnerVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     updateData() {
-      this.buttonLoading=false;
-      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           const tempData = Object.assign({}, this.temp);
 
@@ -360,7 +370,7 @@ export default {
             form.append('file', this.file);
           }          
    
-          updateGallery(form).then((data) => {
+          updateBankPartner(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -368,7 +378,7 @@ export default {
                 break;
               }
             }
-            this.dialogGalleryVisible = false;
+            this.dialogBankPartnerVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -377,14 +387,15 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteGallery(row.id).then((data) => {
-            this.dialogGalleryVisible = false;
+        deleteBankPartner(row.id).then((data) => {
+            this.dialogBankPartnerVisible = false;
             this.$notify({
                 title: "Success",
                 message: data.message,
@@ -410,10 +421,6 @@ export default {
 <style scoped>
 .el-drawer__body {
   padding: 20px;
-}
-
-.el-select {
-    width: 100%;
 }
 .pagination-container {
   margin-top: 5px;

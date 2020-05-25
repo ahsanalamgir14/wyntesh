@@ -155,7 +155,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogWithdrawVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleWithdraw()">Confirm</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="handleWithdraw()">Withdraw</el-button>
       </span>
     </el-dialog>
 
@@ -305,10 +305,12 @@ export default {
           return;
         }
         if (valid) {
+           this.buttonLoading=true;
           createWithdrawalRequest(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
             this.dialogWithdrawVisible = false;
+             this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: "Withdrawal Created Successfully",
@@ -316,7 +318,9 @@ export default {
               duration: 2000
             })
 
-          })
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
         }
       });
     },

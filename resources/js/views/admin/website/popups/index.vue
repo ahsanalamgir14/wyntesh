@@ -62,37 +62,46 @@
           ></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Name" width="150px">
+      <el-table-column label="Title" min-width="350px">
         <template slot-scope="{row}">
-          <span  >{{ row.name }}</span>
+          <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Branch Name" width="270px">
+      <el-table-column label="Subtitle" width="170px" align="left">
         <template slot-scope="{row}">
-          <span  >{{ row.branch_name }}</span>
+          <span>{{ row.subtitle }}</span>
+        </template>
+      </el-table-column> 
+       <el-table-column label="Image" min-width="150px">
+        <template slot-scope="{row}">
+          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
+        </template>
+      </el-table-column> 
+      <el-table-column label="From time" width="170px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.from_time }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Account Type" width="150px">
+      <el-table-column label="To time" width="170px" align="center">
         <template slot-scope="{row}">
-          <span  >{{ row.account_type }}</span>
+          <span>{{ row.to_time }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Account Holder Name" width="180px">
+      <el-table-column label="CTA Text" min-width="150px">
         <template slot-scope="{row}">
-          <span  >{{ row.account_holder_name }}</span>
+          <span  >{{ row.cta_text }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Account No." width="160px">
+      <el-table-column label="CTA Link" min-width="150px">
         <template slot-scope="{row}">
-          <span  >{{ row.account_number }}</span>
+          <span  >{{ row.cta_link }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="IFSC Code" width="160px">
+       <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
-          <span  >{{ row.ifsc }}</span>
+          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-
     </el-table>
 
     <pagination
@@ -103,37 +112,75 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogBankPartnerVisible">
+    <el-dialog :title="textMap[dialogStatus]" width="70%" top="30px"  :visible.sync="dialogPopupVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" style="">
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
-            <el-form-item label="Name" prop="name">
-              <el-input v-model="temp.name" />
+            <el-form-item label="Title" prop="title">
+              <el-input v-model="temp.title" />
             </el-form-item>
-             <el-form-item label="Branch Name" prop="branch_name">
-              <el-input v-model="temp.branch_name" />
+
+            <el-form-item label="Subtitle" prop="subtitle">
+              <el-input v-model="temp.subtitle" />
             </el-form-item>
-            <el-form-item label="Account Type" prop="account_type">
-              <el-select v-model="temp.account_type" style="width:100%" placeholder="Account Type">
-                <el-option value="Saving" label="Saving"></el-option>
-                <el-option value="Current" label="Current"></el-option>
-              </el-select>
-            </el-form-item>
-             <el-form-item label="Account Holder Name" prop="account_holder_name">
-              <el-input v-model="temp.account_holder_name" />
-            </el-form-item>
-             <el-form-item label="Account Number" prop="account_number">
-              <el-input v-model="temp.account_number" />
-            </el-form-item>
-             <el-form-item label="IFSC" prop="ifsc">
-              <el-input v-model="temp.ifsc" />
-            </el-form-item>
-            
+             <el-form-item label="Description" prop="description">
+                <el-input
+                  type="textarea"
+                  :rows="4"
+                  placeholder="Description"
+                  v-model="temp.description">
+                </el-input>
+              </el-form-item>
+             <el-row :gutter="20">
+             
+              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+                  <el-form-item label="From Time" prop="from_time">
+                    </br>
+                    <el-date-picker
+                      v-model="temp.from_time"
+                      type="datetime"
+                      width="100%"
+                      format="yyyy-MM-dd hh:mm:ss"
+                      value-format="yyyy-MM-dd hh:mm:ss"
+                      placeholder="From Time">
+                    </el-date-picker>
+                  </el-form-item>
+
+                  <el-form-item label="To Time" prop="to_time">
+                    </br>
+                    <el-date-picker
+                      v-model="temp.to_time"
+                      type="datetime"
+                      format="yyyy-MM-dd hh:mm:ss"
+                      value-format="yyyy-MM-dd hh:mm:ss"
+                      placeholder="To Time">
+                    </el-date-picker>
+                  </el-form-item>
+
+                   <el-form-item label="Popup Visibility" prop="is_visible">
+                    </br>
+                    <el-switch
+                      v-model="temp.is_visible"
+                      active-text="Visible"
+                      inactive-text="Not visible">
+                    </el-switch>
+                  </el-form-item>
+              </el-col>
+               <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+               
+                 <el-form-item label="CTA Text" prop="cta_text">
+                  <el-input v-model="temp.cta_text" />
+                </el-form-item>
+                <el-form-item label="CTA Link" prop="cta_link">
+                  <el-input v-model="temp.cta_link" />
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
             <div class="img-upload">
               <el-form-item  prop="image">
-                <label for="Image">Image</label>
+                <label for="Image" >Image</label>
                 <el-upload
                   class="avatar-uploader"
                   action="#"
@@ -156,11 +203,11 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogBankPartnerVisible = false">
+        <el-button @click="dialogPopupVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -170,18 +217,18 @@
 <script>
 import {
   fetchList,
-  fetchBankPartner,
-  deleteBankPartner,
-  createBankPartner,
-  updateBankPartner
-} from "@/api/admin/bank-partners";
-import waves from "@/directive/waves";
+  fetchPopup,
+  deletePopup,
+  createPopup,
+  updatePopup
+} from "@/api/admin/popups";
+import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "bank-partners",
+  name: "popups",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -204,7 +251,13 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        search:undefined,
+        title: undefined,
+        subtitle: undefined,
+        description:undefined,
+        from_time: undefined,
+        to_time:undefined,
+        image:undefined,
+        is_visible: 0,
         sort: "+id"
       },
       fileList:[],
@@ -214,28 +267,26 @@ export default {
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
-        id:undefined,
-        branch_name: undefined,
-        account_type:undefined,
-        account_holder_name:undefined,
-        account_number:undefined,
-        ifsc:undefined,
+        title: undefined,
+        subtitle: undefined,
+        description:undefined,
+        from_time: undefined,
+        to_time:undefined,
+        is_visible: false,
         image:undefined,
+        cta_link:undefined,
+        cta_text:undefined
       },
 
-      dialogBankPartnerVisible:false,
+      dialogPopupVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
-         branch_name: [{ required: true, message: 'Branch name is required', trigger: 'blur' }],
-         account_type: [{ required: true, message: 'Account Type required', trigger: 'blur' }],
-         account_holder_name: [{ required: true, message: 'Account holder name is required', trigger: 'blur' }],
-         account_number: [{ required: true, message: 'A/C No is required', trigger: 'blur' }],
-
+        title: [{ required: true, message: 'title is required', trigger: 'blur' }],
+        date: [{  required: true, message: 'Date is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -288,13 +339,15 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id:undefined,
-        branch_name: undefined,
-        account_type:undefined,
-        account_holder_name:undefined,
-        account_number:undefined,
-        ifsc:undefined,
+        title: undefined,
+        subtitle: undefined,
+        description:undefined,
+        from_time: undefined,
+        to_time:undefined,
+        is_visible: false,
         image:undefined,
+        cta_link:undefined,
+        cta_text:undefined
       };
       this.file=undefined
       this.fileList=[];
@@ -303,15 +356,15 @@ export default {
       this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogBankPartnerVisible = true;
+      this.dialogPopupVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
-    createData() {
-      this.buttonLoading=true;
+    createData() {      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -321,42 +374,44 @@ export default {
             }
           }
 
-          if(this.fileList){
-            form.append('file', this.file);
-          } 
+          form.append('image', this.file);
 
-          createBankPartner(form).then((data) => {
+          createPopup(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogBankPartnerVisible = false;
+            this.dialogPopupVisible = false;
             this.$notify({
               title: "Success",
-              message: data.message,
+              message: "Created Successfully",
               type: "success",
               duration: 2000
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
       this.fileList=[];
       this.file=undefined;
       this.temp = Object.assign({}, row); // copy obj
-
+      if(row.is_visible==1){
+        this.temp.is_visible=true
+      }else{
+        this.temp.is_visible=false
+      }
       this.dialogStatus = "update";
-      this.dialogBankPartnerVisible = true;
+      this.dialogPopupVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
-    updateData() {
-      this.buttonLoading=false;
-      
+    updateData() {      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           const tempData = Object.assign({}, this.temp);
 
@@ -366,11 +421,10 @@ export default {
             }
           }
 
-          if(this.fileList){
-            form.append('file', this.file);
-          }          
-   
-          updateBankPartner(form).then((data) => {
+          form.append('image', this.file);
+
+          
+          updatePopup(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -378,26 +432,27 @@ export default {
                 break;
               }
             }
-            this.dialogBankPartnerVisible = false;
+            this.dialogPopupVisible = false;
             this.$notify({
               title: "Success",
-              message: data.message,
+              message: "Update Successfully",
               type: "success",
               duration: 2000
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteBankPartner(row.id).then((data) => {
-            this.dialogBankPartnerVisible = false;
+        deletePopup(row.id).then((data) => {
+            this.dialogPopupVisible = false;
             this.$notify({
                 title: "Success",
-                message: data.message,
+                message: "Delete Successfully",
                 type: "success",
                 duration: 2000
             });

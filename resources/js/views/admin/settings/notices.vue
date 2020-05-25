@@ -30,6 +30,7 @@
             <div style="float: right;margin-top:10px;">
               <el-button
                 type="success"
+                icon="el-icon-finished" :loading="buttonLoading"
                 @click="handleSaveNotice"
               >Save</el-button>
             </div>
@@ -79,14 +80,18 @@ export default {
     handleSaveNotice() {
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           saveNotice(this.temp).then((response) => {
             this.temp=response.data;
             this.temp.is_active=this.temp.is_active==1?true:false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: response.message,
               type: "success",
               duration: 2000
+            }).catch((err)=>{
+              this.buttonLoading=false;
             });
           });
         }

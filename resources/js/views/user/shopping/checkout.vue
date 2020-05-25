@@ -499,6 +499,8 @@ export default {
           type: "success",
           duration: 2000
         });            
+      }).catch((error)=>{
+        this.buttonLoading=false;  
       });      
     },
     handleFilter() {

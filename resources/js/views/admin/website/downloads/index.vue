@@ -62,24 +62,14 @@
           ></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Name" min-width="150px">
+      <el-table-column label="Title" min-width="150px">
         <template slot-scope="{row}">
-          <span  >{{ row.name }}</span>
+          <span class="link-type" @click="handleEdit(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Subtitle" min-width="150px">
+      <el-table-column label="Visibility" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <span  >{{ row.subtitle }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Description" min-width="270px">
-        <template slot-scope="{row}">
-          <span  >{{ row.description }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Image" min-width="150px">
-        <template slot-scope="{row}">
-          <a :href="row.image" class="link-type" type="primary" target="_blank">View Image</a>
+          <el-tag :type="row.is_visible | statusFilter">{{ row.is_visible?'Visible':'Invisible' }}</el-tag>
         </template>
       </el-table-column>
 
@@ -98,29 +88,36 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogTestimonialVisible">
+    <el-dialog :title="textMap[dialogStatus]" width="60%" top="30px"  :visible.sync="dialogDownloadVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" style="">
         <el-row>
           <el-col  :xs="24" :sm="12" :md="16" :lg="16" :xl="16" >
-            <el-form-item label="Name" prop="name">
-              <el-input v-model="temp.name" />
+            <el-form-item label="Title" prop="title">
+              <el-input v-model="temp.title" />
             </el-form-item>
-             <el-form-item label="Subtitle" prop="subtitle">
-              <el-input v-model="temp.subtitle" />
+
+             <el-form-item label="Download Type" prop="registration">
+                <el-select v-model="temp.download_type" style="width:100%" placeholder="Download Type">
+                  <el-option value='url' label="URL"></el-option>
+                  <el-option value='upload' label="Upload"></el-option>
+                </el-select>
+              </el-form-item>
+
+            <el-form-item v-if="temp.download_type=='url' ||(temp.url && dialogStatus=='edit') " label="URL" prop="URL">
+               <el-input v-model="temp.url" />
             </el-form-item>
-            <el-form-item label="Description" prop="description">
-              <el-input
-                type="textarea"
-                :rows="3"
-                placeholder="Description"
-                v-model="temp.description">
-              </el-input>
+
+            <el-form-item label="Download Visible?" prop="is_visible">
+              <el-select v-model="temp.is_visible" style="width:100%" placeholder="Download Visible?">
+                <el-option value=1 label="Yes"></el-option>
+                <el-option value=0 label="No"></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col  :xs="24" :sm="12" :md="16" :lg="8" :xl="8">
-            <div class="img-upload">
-              <el-form-item  prop="image">
-                <label for="Image">Image</label>
+            <div class="img-upload" v-if="temp.download_type=='upload'">
+              <el-form-item  prop="file">
+                <label for="file" >File</label>
                 <el-upload
                   class="avatar-uploader"
                   action="#"
@@ -132,22 +129,22 @@
                   :limit="3"
                   :file-list="fileList"
                   :on-exceed="handleExceed"
-                  accept="image/png, image/jpeg">
-                  <img v-if="temp.image" :src="temp.image" class="avatar">
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                  >
+                  <!-- <img v-if="temp.file" :src="temp.image" class="avatar"> -->
+                  <i class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
-                <p>Click to upload image.</p>
+                <p>Click to upload file.</p>
               </el-form-item>
             </div>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTestimonialVisible = false">
+        <el-button @click="dialogDownloadVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -157,18 +154,18 @@
 <script>
 import {
   fetchList,
-  fetchTestimonial,
-  deleteTestimonial,
-  createTestimonial,
-  updateTestimonial
-} from "@/api/admin/testimonials";
+  fetchDownload,
+  deleteDownload,
+  createDownload,
+  updateDownload
+} from "@/api/admin/downloads";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import Tinymce from '@/components/Tinymce'
 
 export default {
-  name: "testimonials",
+  name: "downloads",
   components: { Pagination,Tinymce },
   directives: { waves },
   filters: {
@@ -191,7 +188,9 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        search:undefined,
+        title: undefined,
+        url:undefined,
+        is_visible: "1",
         sort: "+id"
       },
       fileList:[],
@@ -201,22 +200,20 @@ export default {
         { label: "ID Descending", key: "-id" }
       ],
       temp: {
-        id:undefined,
-        name: undefined,
-        description:undefined,
-        image:undefined,
-        subtitle:undefined,
+        title: undefined,
+        is_visible: "1",
+        download_type:'upload',
+        url:undefined
       },
 
-      dialogTestimonialVisible:false,
+      dialogDownloadVisible:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
         create: "Create"
       },
       rules: {
-         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
-         description: [{ required: true, message: 'Description is required', trigger: 'blur' }]
+        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       buttonLoading: false
@@ -269,11 +266,11 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id:undefined,      
-        name: undefined,
-        description:undefined,
-        image:undefined,
-        subtitle:undefined,
+        id: undefined,
+        title: undefined,
+        is_visible: "1",
+        download_type:'upload',
+        url:undefined
       };
       this.file=undefined
       this.fileList=[];
@@ -282,15 +279,16 @@ export default {
       this.fileList=[];
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogTestimonialVisible = true;
+      this.dialogDownloadVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
     createData() {
-      this.buttonLoading=true;
+      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           let form_data=this.temp;
 
@@ -300,13 +298,11 @@ export default {
             }
           }
 
-          if(this.fileList){
-            form.append('file', this.file);
-          } 
+          form.append('file', this.file);
 
-          createTestimonial(form).then((data) => {
+          createDownload(form).then((data) => {
             this.list.unshift(data.data);
-            this.dialogTestimonialVisible = false;
+            this.dialogDownloadVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -315,27 +311,33 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
       this.fileList=[];
       this.file=undefined;
+      row.download_type='url';
       this.temp = Object.assign({}, row); // copy obj
+      if(row.is_visible==1){
+        this.temp.is_visible="1"
+      }else{
+        this.temp.is_visible="0"
+      }
 
       this.dialogStatus = "update";
-      this.dialogTestimonialVisible = true;
+      this.dialogDownloadVisible = true;
       this.$nextTick(() => {
         this.$refs["dataForm"].clearValidate();
       });
     },
-    updateData() {
-      this.buttonLoading=false;
-      
+    updateData() {      
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
+          this.buttonLoading=true;
           var form = new FormData();
           const tempData = Object.assign({}, this.temp);
 
@@ -345,11 +347,10 @@ export default {
             }
           }
 
-          if(this.fileList){
-            form.append('file', this.file);
-          }          
-   
-          updateTestimonial(form).then((data) => {
+          form.append('file', this.file);
+
+          
+          updateDownload(form).then((data) => {
             for (const v of this.list) {
               if (v.id === this.temp.id) {
                 const index = this.list.indexOf(v);
@@ -357,7 +358,7 @@ export default {
                 break;
               }
             }
-            this.dialogTestimonialVisible = false;
+            this.dialogDownloadVisible = false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -366,14 +367,15 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
-        deleteTestimonial(row.id).then((data) => {
-            this.dialogTestimonialVisible = false;
+        deleteDownload(row.id).then((data) => {
+            this.dialogDownloadVisible = false;
             this.$notify({
                 title: "Success",
                 message: data.message,

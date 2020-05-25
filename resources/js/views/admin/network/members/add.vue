@@ -163,6 +163,7 @@ export default {
       loading: false,
       pwdType: 'password',
       redirect: undefined,
+      buttonLoading:false,
     };
   },
   methods: {

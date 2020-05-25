@@ -162,7 +162,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogTransferVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleTransfer()">Confirm</el-button>
+        <el-button type="primary"  icon="el-icon-finished" :loading="buttonLoading" @click="handleTransfer()">Transfer</el-button>
       </span>
     </el-dialog>
 
@@ -308,17 +308,21 @@ export default {
           return;
         }
         if (valid) {
+          this.buttonLoading=true;
           createTransfer(this.temp).then((response) => {
             this.getList();
             this.resetTemp();
             this.dialogTransferVisible = false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: response.message,
               type: "success",
               duration: 2000
             })
-          })
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
         }
       });
     },

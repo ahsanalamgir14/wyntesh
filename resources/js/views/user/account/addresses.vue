@@ -150,8 +150,8 @@
         <el-button @click="dialogAddressesVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
         </el-button>
       </div>
     </el-dialog>
@@ -263,14 +263,14 @@ export default {
       });
     },
     createData() {
-      this.buttonLoading=true;
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
           
-
+          this.buttonLoading=true;
           createAddress(this.temp).then((data) => {
             this.getList();
             this.dialogAddressesVisible = false;
+            this.buttonLoading=false;
             this.$notify({
               title: "Success",
               message: data.message,
@@ -279,10 +279,11 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     handleEdit(row) {
      
@@ -296,11 +297,10 @@ export default {
       });
     },
     updateData() {
-      this.buttonLoading=false;
       
       this.$refs["dataForm"].validate(valid => {
         if (valid) {
-         
+          this.buttonLoading=true;
           let tempData = Object.assign({}, this.temp);
           tempData.is_default=tempData.is_default?1:0;
 
@@ -315,10 +315,11 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
         deleteAddress(row.id).then((data) => {

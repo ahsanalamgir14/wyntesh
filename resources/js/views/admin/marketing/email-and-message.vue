@@ -190,7 +190,7 @@
         <el-button @click="dialogSendSMSVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="sendSMS()">
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="sendSMS()">
           Send
         </el-button>
       </div>
@@ -217,7 +217,7 @@
         <el-button @click="dialogSendEmailsVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="sendEmails()">
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="sendEmails()">
           Send
         </el-button>
       </div>
@@ -343,9 +343,10 @@ export default {
             this.$message.error('Users are not selected, please select users.');
             return;
           }
-
+          this.buttonLoading=true;
           sendMassSMS(this.sms).then((response) => {
             this.dialogSendSMSVisible = false;
+            this.buttonLoading=false;
             this.resetSMS();
             this.$refs.usersTable.clearSelection();
             this.$notify({
@@ -355,7 +356,7 @@ export default {
               duration: 2000
             })
           }).catch((res)=>{
-
+            this.buttonLoading=false;
           });
         }
       });
@@ -367,8 +368,10 @@ export default {
             this.$message.error('Users are not selected, please select users.');
             return;
           }
+          this.buttonLoading=true;
           sendMassEmail(this.email).then((response) => {
             this.dialogSendEmailsVisible = false;
+            this.buttonLoading=false;
             this.resetEmail();
             this.$refs.usersTable.clearSelection();
             this.$notify({
@@ -378,7 +381,7 @@ export default {
               duration: 2000
             })
           }).catch((res)=>{
-
+            this.buttonLoading=false;
           });
         }
       });
@@ -402,23 +405,6 @@ export default {
     },
     handleSelectionChange(val) {
       this.selected = val.map(a => a.id);
-    },
-    createData() {
-      this.$refs["smsForm"].validate(valid => {
-        if (valid) {
-          sendSMS(this.temp).then((response) => {
-            this.dialogSendSMSVisible = false;
-            this.$notify({
-              title: "Success",
-              message:response.message,
-              type: "success",
-              duration: 2000
-            })
-          }).catch((res)=>{
-
-          });
-        }
-      });
     },
     sortChange(data) {
       const { prop, order } = data;

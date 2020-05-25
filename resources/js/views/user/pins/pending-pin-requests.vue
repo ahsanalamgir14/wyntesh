@@ -196,8 +196,8 @@
         <el-button @click="dialogPinRequestVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
+        <el-button type="primary" icon="el-icon-plus" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Create
         </el-button>
       </div>
     </el-dialog>
@@ -273,7 +273,7 @@ export default {
         amount: [{  required: true, message: 'Amount is required', trigger: 'blur' }],
         // tax_percentage: [{  required: true, message: 'Tax percentage is required', trigger: 'blur' }],
         // tax_amount: [{  required: true, message: 'Tax amount is required', trigger: 'blur' }],
-        //total_amount: [{  required: true, message: 'Total amount is required', trigger: 'blur' }],
+        bank_id: [{  required: true, message: 'Please select bank.', trigger: 'blur' }],
         payment_mode: [{  required: true, message: 'Payment mode is required', trigger: 'blur' }],
         reference: [{  required: true, message: 'Payment reference no is required', trigger: 'blur' }],
       },
@@ -333,9 +333,10 @@ export default {
       });
     },
     createData() {
-      this.buttonLoading=true;
+      
       this.$refs["pinRequestForm"].validate(valid => {
-        if (valid) {         
+        if (valid) {    
+          this.buttonLoading=true;     
           createPinRequest(this.temp).then((data) => {
             this.list.unshift(data.data);
             this.dialogPinRequestVisible = false;
@@ -347,10 +348,11 @@ export default {
             });
             this.buttonLoading=false;
             this.resetTemp();
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
-      this.buttonLoading=false;
     },
     deleteData(row) {
       this.$confirm('Are you sure you want to delete PIN Request?', 'Warning', {

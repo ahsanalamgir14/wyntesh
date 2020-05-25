@@ -274,7 +274,7 @@
 <script>
 import { fetchOpenedList, fetchClosedList, openSupportTicket, closeUserSupportTicket, getAdminConversations,
   addAdminConversationMessage,
- } from "@/api/user/support";
+ } from "@/api/admin/support";
 import avatar from '@/assets/images/avatar.png'
 import support from '@/assets/images/support.png'
 
@@ -466,11 +466,13 @@ export default {
               this.conversations = response.data;
             });
 
-              this.buttonLoading=false;
-              this.$nextTick(() => {
-                this.$refs["formCreateConversation"].clearValidate();
-                this.$refs.conversationMessage.setContent("");
-              });
+            this.buttonLoading=false;
+            this.$nextTick(() => {
+              this.$refs["formCreateConversation"].clearValidate();
+              this.$refs.conversationMessage.setContent("");
+            });
+          }).catch((res)=>{
+            this.buttonLoading=false;
           });
         }
       });
@@ -491,6 +493,8 @@ export default {
               type: "success",
               duration: 2000
             });
+            this.buttonLoading=false;
+          }).catch((res)=>{
             this.buttonLoading=false;
           });
         })
