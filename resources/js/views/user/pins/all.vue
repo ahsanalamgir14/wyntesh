@@ -18,12 +18,15 @@
           :value="item.id">
         </el-option>
       </el-select>
-      
-      <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
-        <el-option label="Used" value="Used"></el-option>
-        <el-option label="Not Used" value="Not Used"></el-option>
-      </el-select>
 
+      <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
+        <el-option
+          v-for="item in pin_statuses"
+          :key="item.name"
+          :label="item.name"
+          :value="item.name">
+        </el-option>
+      </el-select>
 
       <el-button
         v-waves
@@ -135,7 +138,7 @@
 
 <script>
 import { fetchMyPins, deletePinRequest } from "@/api/user/pins";
-import { getPackages } from "@/api/user/config";
+import { getPackages, getStatuesAll } from "@/api/user/config";
 
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -162,6 +165,7 @@ export default {
       list: [],
       total: 0,
       listLoading: false,
+      pin_statuses:[],
       listQuery: {
         page: 1,
         limit: 5,
@@ -206,6 +210,9 @@ export default {
     getConfig() {      
       getPackages().then(response => {
         this.packages = response.data;
+      });
+      getStatuesAll('pins').then(response => {
+        this.pin_statuses = response.data;
       });
     },    
     resetTemp() {

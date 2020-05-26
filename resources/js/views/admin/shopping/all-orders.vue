@@ -344,6 +344,7 @@
 
 <script>
 import { getAllOrders, updateOrder } from "@/api/admin/shopping";
+import { getStatuesAll } from "@/api/admin/config";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
@@ -395,26 +396,7 @@ export default {
         tracking_no:undefined,
         remarks:undefined,
       },
-      deleveryStatuses:[
-        {
-          name:'Order Created',
-        },
-        {
-          name:'Order Confirmed',
-        },
-        {
-          name:'Order Prepared',
-        },
-        {
-          name:'Order Dispached',
-        },
-        {
-          name:'Order Delivered',
-        },
-        {
-          name:'Order Cancelled',
-        }
-      ],
+      deleveryStatuses:[],
       downloadLoading: false,
       buttonLoading: false,
       dialogOrderDetailsVisible:false, 
@@ -455,6 +437,9 @@ export default {
   },
   created() {
     this.getList();
+    getStatuesAll('orders').then(response => {
+      this.deleveryStatuses = response.data;
+    });
   },
   methods: {
     getList() {

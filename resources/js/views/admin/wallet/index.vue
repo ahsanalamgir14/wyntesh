@@ -10,10 +10,13 @@
         @keyup.enter.native="handleFilter"
       />
 
-      <el-select v-model="listQuery.status" style="width: 140px" clearable placeholder="Status" class="filter-item" @change="handleFilter">
-        <el-option label="Pending" value="Pending" />
-        <el-option label="Approved" value="Approved" />
-        <el-option label="Rejected" value="Rejected" />
+      <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
+        <el-option
+          v-for="item in statuses"
+          :key="item.name"
+          :label="item.name"
+          :value="item.name">
+        </el-option>
       </el-select>
 
       <el-date-picker
@@ -337,6 +340,7 @@ import {
   rejectWithdrawalRequest
 } from "@/api/admin/wallet";
 import { getSettings } from "@/api/admin/settings";
+import { getStatuesAll } from "@/api/admin/config";
 import CountTo from 'vue-count-to'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -417,6 +421,7 @@ export default {
       dialogApproveVisible:false,
       dialogKycVisible:false,
       dialogStatus: "",
+      statuses:[],
       textMap: {
         update: "Edit",
         create: "Create"
@@ -483,6 +488,9 @@ export default {
       getSettings().then(response => {
         this.settings = response.data
         this.temp.tds_percentage=parseFloat(response.data.tds_percentage);
+      });
+      getStatuesAll('credit_requests').then(response => {
+        this.statuses = response.data;
       });
     },
     handleDebitChange(){

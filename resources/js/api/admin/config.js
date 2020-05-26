@@ -1,6 +1,18 @@
 import request from '@/utils/request'
 
-// User Endpoints
+export function getStatuesAll(type) {
+  if(type){
+    return request({
+      url: '/admin/statuses/all?type='+type,
+      method: 'get'
+    })
+  }else{
+    return request({
+      url: '/admin/statuses/all',
+      method: 'get'
+    })
+  }  
+}
 
 export function getPackages() {
   return request({
@@ -21,25 +33,4 @@ export function getTransactionTypes() {
     url: '/user/transaction-types/all',
     method: 'get'
   })
-}
-
-export function getBankPartners() {
-  return request({
-    url: '/user/bank-partners/all',
-    method: 'get'
-  })
-}
-
-export function getStatuesAll(type) {
-  if(type){
-    return request({
-      url: '/user/statuses/all?type='+type,
-      method: 'get'
-    })
-  }else{
-    return request({
-      url: '/user/statuses/all',
-      method: 'get'
-    })
-  }  
 }

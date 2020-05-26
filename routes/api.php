@@ -52,6 +52,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 {   
   
     Route::get('settings','SettingsController@getMemberSettings');
+    Route::get('statuses/all', '\App\Http\Controllers\Superadmin\StatusesController@getAllStatuses');
     Route::get('notice', '\App\Http\Controllers\Admin\NoticesController@get');
     Route::get('welcome-letter', '\App\Http\Controllers\Admin\WelcomeLetterController@get');
 
@@ -153,6 +154,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('settings','SettingsController@updateCompanyDetails');
     Route::get('settings','SettingsController@getSettings');
     Route::get('settings/company','SettingsController@getCompanySettings');
+    Route::get('statuses/all', '\App\Http\Controllers\Superadmin\StatusesController@getAllStatuses');
 
     Route::post('notice','NoticesController@save');
     Route::get('notice','NoticesController@get');
@@ -336,6 +338,11 @@ Route::group(['middleware' => ['jwt.verify','role:superadmin'],'prefix' => 'supe
     Route::post('payment-mode/update', 'PaymentModesController@updatePaymentMode');
     Route::get('payment-modes', 'PaymentModesController@getPaymentModes');
     Route::delete('payment-mode/{id}/delete', 'PaymentModesController@deletePaymentMode');
+
+    Route::post('status','StatusesController@createStatus');
+    Route::post('status/update', 'StatusesController@updateStatus');
+    Route::get('statuses', 'StatusesController@getStatuses');
+    Route::delete('status/{id}/delete', 'StatusesController@deleteStatus');
 
     Route::get('settings','SettingsController@get');
     Route::post('settings','SettingsController@update');

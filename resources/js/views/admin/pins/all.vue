@@ -46,11 +46,15 @@
         ><i class="fas fa-plus"></i> Generate Pins</el-button>
       <br>
       
-      
       <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
-        <el-option label="Used" value="Used"></el-option>
-        <el-option label="Not Used" value="Not Used"></el-option>
+        <el-option
+          v-for="item in pin_statuses"
+          :key="item.name"
+          :label="item.name"
+          :value="item.name">
+        </el-option>
       </el-select>
+
       <el-date-picker
         v-model="listQuery.used_at_date_range"
         class="filter-item"
@@ -240,7 +244,7 @@
 
 <script>
 import { fetchAllPins, generatePin } from "@/api/admin/pins";
-import { getPackages,  } from "@/api/user/config";
+import { getPackages,getStatuesAll  } from "@/api/admin/config";
 import { checkMemberCode } from "@/api/admin/members";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -295,6 +299,7 @@ export default {
       dialogPinGenerateVisible:false,
       dialogTitle:'',
       is_create:true,
+      pin_statuses:[],
       rules: {
         package_id: [{ required: true, message: 'Package is required', trigger: 'blur' }],
         quantity: [{  required: true, message: 'Quantity is required', trigger: 'blur' }],
@@ -352,6 +357,9 @@ export default {
     getConfig() {      
       getPackages().then(response => {
         this.packages = response.data;
+      });
+      getStatuesAll('pins').then(response => {
+        this.pin_statuses = response.data;
       });
     },    
     resetTemp() {

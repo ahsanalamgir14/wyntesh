@@ -23,7 +23,7 @@
             <span class="svg-container">
               <svg-icon icon-class="user" />
             </span>
-            <el-input v-model="forgotPassForm.username" name="username" type="text" auto-complete="on" placeholder="Enter Username/ID" @keyup.enter.native="handleForgotPassword" />
+            <el-input v-model="forgotPassForm.username" name="username" type="text" auto-complete="on" placeholder="Enter Username/ID" @keyup.enter.native="handleForgotPassword"  />
           </el-form-item>
           <el-form-item class="item-btn">
             <el-button :loading="loading"  icon="el-icon-unlock" type="primary"  @click.native.prevent="handleForgotPassword">
@@ -55,6 +55,14 @@ export default {
         callback();
       }
     };
+
+    const validateUsername = (rule, value, callback) => {
+      if (value.length < 2) {
+        callback(new Error('Enter valid username'));
+      } else {
+        callback();
+      }
+    };
   
     return {
       forgotPassForm: {
@@ -62,9 +70,10 @@ export default {
       },
       logo: logo,
       loginRules: {
-        username: [{ required: true, trigger: 'blur', message:'Username is required.' }],
+        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
       },
       loading: false,
+      redirect: undefined,
     };
   },
   methods: {

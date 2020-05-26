@@ -18,11 +18,16 @@
       </el-col>
     </el-row>
     <div class="filter-container">
-      <el-select v-model="listQuery.status" style="width: 140px" clearable placeholder="Status" class="filter-item" @change="handleFilter">
-        <el-option label="Pending" value="Pending" />
-        <el-option label="Approved" value="Approved" />
-        <el-option label="Rejected" value="Rejected" />
+
+      <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
+        <el-option
+          v-for="item in statuses"
+          :key="item.name"
+          :label="item.name"
+          :value="item.name">
+        </el-option>
       </el-select>
+
 
       <el-date-picker
         v-model="dateRangeFilter"
@@ -169,6 +174,8 @@ import {
   createWithdrawalRequest
 } from "@/api/user/wallet";
 import { getSettings } from "@/api/user/settings";
+import { getStatuesAll } from "@/api/user/config";
+
 import CountTo from 'vue-count-to'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -217,6 +224,7 @@ export default {
         final_debit:0,
         note:undefined,
       },
+      statuses:[],
       dialogWithdrawVisible:false,
       dialogStatus: "",
       textMap: {
@@ -286,6 +294,9 @@ export default {
       getSettings().then(response => {
         this.settings = response.data
         this.temp.tds_percent=parseFloat(response.data.tds_percentage);
+      });
+      getStatuesAll('withdrawal_requests').then(response => {
+        this.statuses = response.data;
       });
     },
     handleDebitChange(){

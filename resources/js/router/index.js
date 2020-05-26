@@ -147,6 +147,12 @@ export const asyncRoutes = [
         meta: { title: 'Payment Modes', color:'color:#EE7642', icon: 'fas fa-money-bill-wave', affix: true, roles: ['superadmin'] }
       },
       {
+        path: 'statuses',
+        component: () => import('@/views/superadmin/configs/statuses'),
+        name: 'Statuses',
+        meta: { title: 'Statuses', color:'color:#34ebe1', icon: 'fas fa-info-circle', affix: true, roles: ['superadmin'] }
+      },
+      {
         path: 'packages',
         component: () => import('@/views/admin/packages/index'),
         name: 'Packages',
@@ -607,6 +613,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/account/welcome-letter'),
         name: 'Welcome Letter',
         meta: { title: 'Welcome Letter', icon: 'fas fa-handshake', color:'color:#854CE2', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'id-card',
+        component: () => import('@/views/user/account/id-card'),
+        name: 'ID Card',
+        meta: { title: 'ID Card', icon: 'fas fa-id-card', color:'color:#ff8a05', affix: true, roles: ['user'] }
       },
       {
         path: 'activate',

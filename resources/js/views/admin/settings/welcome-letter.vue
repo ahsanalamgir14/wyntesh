@@ -72,9 +72,9 @@ export default {
               message: response.message,
               type: "success",
               duration: 2000
-            }).catch((err)=>{
-              this.buttonLoading=false;
             });
+          }).catch((err)=>{
+            this.buttonLoading=false;
           });
         }
       });
