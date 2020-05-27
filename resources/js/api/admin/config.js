@@ -34,3 +34,26 @@ export function getTransactionTypes() {
     method: 'get'
   })
 }
+
+export function getNotificationSettings() {
+  return request({
+    url: '/admin/notification-settings',
+    method: 'get'
+  })
+}
+
+export function saveNotificationSettings(data) {
+  return request({
+    url: '/admin/notification-settings',
+    method: 'post',
+    data
+  })
+}
+
+export function createNotificationSettings(data) {
+  return request({
+    url: '/admin/notification-setting/create',
+    method: 'post',
+    data
+  })
+}

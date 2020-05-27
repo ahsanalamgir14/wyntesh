@@ -157,6 +157,12 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/packages/index'),
         name: 'Packages',
         meta: { title: 'Packages', icon: 'fas fa-box', color:'color:#854CE2', affix: true, roles: ['superadmin'] }
+      },
+      {
+        path: 'notifications',
+        component: () => import('@/views/admin/settings/notifications'),
+        name: 'Notifications',
+        meta: { title: 'Notifications', icon: 'fas fa-bell', color:'color:#67eb34', affix: true, roles: ['superadmin'] }
       }
     ]
   },
@@ -538,7 +544,14 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/settings/company-details'),
         name: 'Company Details',
         meta: { title: 'Company Details', icon: 'fas fa-building', color:'color:#63beff', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'notifications',
+        component: () => import('@/views/admin/settings/notifications'),
+        name: 'Notifications',
+        meta: { title: 'Notifications', icon: 'fas fa-bell', color:'color:#67eb34', affix: true, roles: ['admin'] }
       }
+
     ]
   },
   {

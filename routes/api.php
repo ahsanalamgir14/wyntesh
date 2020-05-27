@@ -304,6 +304,10 @@ Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' =>
     Route::post('package/change-status', 'PackagesController@changePackageStatus');
     Route::delete('package/{id}/delete', 'PackagesController@destroy');
 
+    Route::post('notification-setting/create', 'NotificationSettingsController@create');    
+    Route::get('notification-settings', 'NotificationSettingsController@get');
+    Route::post('notification-settings', 'NotificationSettingsController@save');
+
 });
 
 // Superadmin Routes
@@ -346,6 +350,7 @@ Route::group(['middleware' => ['jwt.verify','role:superadmin'],'prefix' => 'supe
 
     Route::get('settings','SettingsController@get');
     Route::post('settings','SettingsController@update');
+
 
     
 });
