@@ -13,11 +13,15 @@ use App\Models\User\OrderPackage;
 use App\Models\Admin\Pin;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Superadmin\PaymentMode;
+use App\Models\Admin\Sale;
+use App\Models\Admin\CompanySetting;
+use App\Models\Admin\ActivationLog;
 use App\Models\User\Address;
 use App\Models\User\User;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
+use App\Events\OrderUpdateEvent;
 
 class ShoppingController extends Controller
 {
@@ -157,6 +161,37 @@ class ShoppingController extends Controller
             $DeliveryLog->delivery_status=$request->delivery_status;
             $DeliveryLog->remarks=$request->remarks;
             $DeliveryLog->save();
+
+            if($request->delivery_status=='Order Confirmed'){
+                $final_amount_company=($Order->final_amount)-($Order->gst)-($Order->shipping_fee)-($Order->admin_fee);
+                $Sale=new Sale;
+                $Sale->member_id=$Order->user->member->id;
+                $Sale->pv=$Order->pv;
+                $Sale->order_id=$Order->id;
+                $Sale->final_amount_company=$final_amount_company;
+                $Sale->save();
+
+                $Order->user->member->current_personal_pv+=$Order->pv;
+                $Order->user->member->total_personal_pv+=$Order->pv;
+                $Order->user->member->save();
+                $minimum_purchase=CompanySetting::getValue('minimum_purchase');
+                if(!$Order->user->is_active){
+                    if($Order->user->member->total_personal_pv>$minimum_purchase){
+                        $Order->user->is_active=1;
+                        $Order->user->save();
+
+                        $ActivationLog=new ActivationLog;
+                        $ActivationLog->user_id=$Order->user->id;
+                        $ActivationLog->is_active=1;
+                        $ActivationLog->by_user=$User->id;
+                        $ActivationLog->remarks='Minimum Purchase Activation.';
+                        $ActivationLog->save();
+
+                    }
+                }
+            }
+
+            event(new OrderUpdateEvent($Order,$Order->user));
 
             $response = array('status' => true,'message'=>'Order updated successfully.');
             return response()->json($response, 200);

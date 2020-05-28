@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\User\Order;
 use App\Models\User\User;
 
-class OrderPlaced
+class OrderPlacedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

@@ -12,7 +12,7 @@ use App\Channels\SmsChannel;
 use RobinCSamuel\LaravelMsg91\Facades\LaravelMsg91;
 use App\Models\Admin\NotificationSetting;
 
-class OrderPlaced extends Notification implements ShouldQueue
+class OrderUpdateNotification extends Notification
 {
     use Queueable;
 
@@ -21,7 +21,6 @@ class OrderPlaced extends Notification implements ShouldQueue
      *
      * @return void
      */
-
     public $order;
     public function __construct(Order $order)
     {
@@ -38,7 +37,7 @@ class OrderPlaced extends Notification implements ShouldQueue
     {
         //return ['mail',SmsChannel::class];
         $channels=[];
-        $NotificationSetting=NotificationSetting::where('alias','order_placed')->first();
+        $NotificationSetting=NotificationSetting::where('alias','order_updated')->first();
         if($NotificationSetting){
             if($NotificationSetting->is_email){
                 $channels[]='mail';
@@ -63,14 +62,14 @@ class OrderPlaced extends Notification implements ShouldQueue
     {
         return (new MailMessage)
                     ->greeting('Hi, '.$this->order->user->name)
-                    ->subject('New Order Placed')
-                    ->line('You have placed order of amount - '.$this->order->final_amount);
+                    ->subject('Order Updated')
+                    ->line('Your order # '.$this->order->order_no.' has been updated to '.$this->order->delivery_status);
     }
 
     public function toSms($notifiable)
     {
         $message='Hi, '.$this->order->user->name.chr(10);
-        $message.='Order has been placed, your order number is #'.$this->order->order_no;
+        $message.='Your order # '.$this->order->order_no.' has been updated to '.$this->order->delivery_status;
         return LaravelMsg91::message($this->order->user->contact,$message);
     }
 

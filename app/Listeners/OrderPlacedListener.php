@@ -2,13 +2,13 @@
 
 namespace App\Listeners;
 
-use App\Events\OrderPlaced;
+use App\Events\OrderPlacedEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\OrderPlaced as OrderPlacedNotification;
 
-class SendOrderPlacedNotification
+class OrderPlacedListener
 {
     /**
      * Create the event listener.
@@ -23,10 +23,10 @@ class SendOrderPlacedNotification
     /**
      * Handle the event.
      *
-     * @param  OrderPlaced  $event
+     * @param  OrderPlacedEvent  $event
      * @return void
      */
-    public function handle(OrderPlaced $event)
+    public function handle(OrderPlacedEvent $event)
     {
         $order=$event->order;
         $user=$event->user;

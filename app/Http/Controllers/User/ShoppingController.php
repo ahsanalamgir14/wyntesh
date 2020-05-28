@@ -19,9 +19,7 @@ use App\Models\Admin\Setting;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
-//use App\Notifications\OrderPlaced;
-use Illuminate\Support\Facades\Notification;
-use App\Events\OrderPlaced;
+use App\Events\OrderPlacedEvent;
 
 class ShoppingController extends Controller
 {
@@ -308,8 +306,7 @@ class ShoppingController extends Controller
             $DeliveryLog->delivery_status='Order Created';
             $DeliveryLog->save();
 
-            //Notification::send($User, new OrderPlaced($Order));
-            event(new OrderPlaced($Order,$User));
+            event(new OrderPlacedEvent($Order,$User));
 
             Cart::where('user_id',$User->id)->delete();
             
