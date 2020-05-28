@@ -21,13 +21,13 @@ class CreatePinRequestsTable extends Migration
             $table->decimal('tax_percentage', 8, 2)->nullable()->default(0);
             $table->decimal('tax_amount', 8, 2)->nullable()->default(0);
             $table->decimal('total_amount', 8, 2)->nullable()->default(0);
-            $table->integer('requested_by');
+            $table->bigInteger('requested_by');
             $table->integer('payment_mode');
             $table->string('reference',512)->nullable();
             $table->integer('bank_id')->nullable();
             $table->string('payment_status',32)->nullable();
             $table->string('status',32)->nullable();
-            $table->integer('approved_by');
+            $table->bigInteger('approved_by');
             $table->timestamp('approved_at')->nullable();
             $table->string('note',2048)->nullable();
             $table->timestamps();

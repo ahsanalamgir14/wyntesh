@@ -15,7 +15,7 @@ class CreateKycTable extends Migration
     {
         Schema::create('kyc', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('member_id');
+            $table->bigInteger('member_id');
             $table->string('address', 2048)->nullable();
             $table->string('pincode', 6)->nullable();            
             $table->string('adhar', 16)->nullable();

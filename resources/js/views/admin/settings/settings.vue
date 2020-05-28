@@ -8,7 +8,7 @@ t<template>
               <el-form-item label="TDS Percentage" prop="tds_percentage">
                 <el-input type="number" v-model="temp.tds_percentage" />
               </el-form-item>
-              <el-form-item label="Minimun Parchase for Activation" prop="minimum_purchase">
+              <el-form-item label="Minimun Parchase for Activation (PV)" prop="minimum_purchase">
                 <el-input type="number" v-model="temp.minimum_purchase" />
               </el-form-item>              
             </el-col>

@@ -15,10 +15,10 @@ class CreateMembersTable extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('user_id');
+            $table->bigInteger('user_id');
             $table->integer('position');
-            $table->integer('sponsor_id')->nullable();
-            $table->integer('parent_id')->nullable();
+            $table->bigInteger('sponsor_id')->nullable();
+            $table->bigInteger('parent_id')->nullable();
             $table->string('path', 2048)->nullable();
             $table->integer('level');
             $table->decimal('wallet_balance', 10, 2)->nullable();

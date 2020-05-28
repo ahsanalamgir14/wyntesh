@@ -25,7 +25,7 @@ class CreateOrderPackagesTable extends Migration
             $table->decimal('gst', 8, 2)->default(0);
             $table->decimal('gst_rate', 8, 2)->default(0);
             $table->decimal('final_amount', 8, 2)->default(0);
-            $table->decimal('pv', 8, 2)->default(0)->nullable();
+            $table->decimal('pv', 10, 2)->default(0)->nullable();
             $table->timestamps();
         });
     }

@@ -15,10 +15,10 @@ class CreatePinTransferLogsTable extends Migration
     {
         Schema::create('pin_transfer_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('pin_id');
-            $table->integer('transfered_from');
-            $table->integer('transfered_to');
-            $table->integer('transfered_by');
+            $table->bigInteger('pin_id');
+            $table->bigInteger('transfered_from');
+            $table->bigInteger('transfered_to');
+            $table->bigInteger('transfered_by');
             $table->string('note',2048)->nullable();
             $table->timestamps();
             $table->softDeletes();

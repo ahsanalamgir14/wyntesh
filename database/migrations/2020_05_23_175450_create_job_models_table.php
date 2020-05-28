@@ -17,9 +17,9 @@ class CreateJobModelsTable extends Migration
             $table->id();
             $table->string('type',32);
             $table->boolean('is_queued')->default(0);
-            $table->string('models',655360)->nullable();
+            $table->string('models',6553600000)->nullable();
             $table->boolean('is_failed')->default(0);
-            $table->string('failed_models',65536)->nullable();
+            $table->string('failed_models',6553600000)->nullable();
             $table->integer('is_finished')->default(0);
             $table->timestamps();
         });

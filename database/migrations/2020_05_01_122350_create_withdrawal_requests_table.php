@@ -15,9 +15,9 @@ class CreateWithdrawalRequestsTable extends Migration
     {
         Schema::create('withdrawal_requests', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('member_id');
+            $table->bigInteger('member_id');
             $table->decimal('amount', 8, 2)->default(0);
-            $table->integer('approved_by')->nullable();
+            $table->bigInteger('approved_by')->nullable();
             $table->string('request_status',32)->nullable();            
             $table->string('note',2048)->nullable();
             $table->timestamps();
