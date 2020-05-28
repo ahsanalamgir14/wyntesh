@@ -11,7 +11,6 @@ use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\CreditRequest;
-use App\Models\Admin\Setting;
 use App\Models\User\User;
 use Validator;
 use JWTAuth;

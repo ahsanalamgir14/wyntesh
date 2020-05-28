@@ -92,26 +92,6 @@ t<template>
             </div>
           </el-row>
         </el-tab-pane>
-        <el-tab-pane label="Settings">
-          <el-row :gutter="20">
-            <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
-              <el-form-item label="TDS Percentage" prop="tds_percentage">
-                <el-input type="number" v-model="temp.tds_percentage" />
-              </el-form-item>
-              
-            </el-col>
-          </el-row>
-          <el-row >
-            <hr>
-            <div style="float: right;margin-top:10px;">
-              <el-button
-                type="success"
-                icon="el-icon-finished" :loading="buttonLoading"
-                @click="handleSaveSettings"
-              >Save</el-button>
-            </div>
-          </el-row>
-        </el-tab-pane>
       </el-tabs>
     </el-form>
   </div>
@@ -146,8 +126,7 @@ export default {
         youtube_link:undefined,
         instagram_link:undefined,
         gplus_link:undefined,
-        twitter_link:undefined,  
-        tds_percentage:undefined,
+        twitter_link:undefined,
               
 
       },
@@ -203,9 +182,6 @@ export default {
         ],
         instagram_link: [
           { required: true, message: "Instagram link is required.", trigger: "blur" }
-        ],
-        tds_percentage: [
-          { required: true, message: "TDS Percentage is required.", trigger: "blur" }
         ],
 
 

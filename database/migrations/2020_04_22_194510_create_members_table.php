@@ -21,7 +21,9 @@ class CreateMembersTable extends Migration
             $table->integer('parent_id')->nullable();
             $table->string('path', 2048)->nullable();
             $table->integer('level');
-            $table->decimal('wallet_balance', 8, 2)->nullable();
+            $table->decimal('wallet_balance', 10, 2)->nullable();
+            $table->decimal('current_personal_pv', 10, 2)->default(0)->nullable();
+            $table->decimal('total_personal_pv', 10, 2)->default(0)->nullable();
             $table->timestamps();
         });
     }

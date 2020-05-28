@@ -151,9 +151,10 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('order/stats', 'DashboardController@orderStats');
     Route::get('activation/stats', 'DashboardController@pinActivations');
 
-    Route::post('settings','SettingsController@updateCompanyDetails');
-    Route::get('settings','SettingsController@getSettings');
-    Route::get('settings/company','SettingsController@getCompanySettings');
+    Route::post('settings','SettingsController@update');
+    Route::get('settings','SettingsController@getCopanyDetailsSettings');
+    Route::get('company-settings','CompanySettingsController@get');
+    Route::post('company-settings','CompanySettingsController@update');
     Route::get('statuses/all', '\App\Http\Controllers\Superadmin\StatusesController@getAllStatuses');
 
     Route::post('notice','NoticesController@save');
@@ -167,6 +168,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('user/update', 'UserAndRoleController@updateUser');
     Route::delete('user/{id}/delete', 'UserAndRoleController@deleteUser');
     Route::post('user/change-status', 'UserAndRoleController@changeUserStatus');
+    Route::post('user/change-status/activation', 'UserAndRoleController@changeUserActivationStatus');
    
     Route::get('inquiries', 'InquiriesController@index');
     Route::post('inquiry/change-status', 'InquiriesController@changeInquiryStatus');

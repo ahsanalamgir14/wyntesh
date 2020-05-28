@@ -64,7 +64,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="170" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="190" class-name="small-padding">
         <template slot-scope="{row}">
 
           <el-button
@@ -91,6 +91,11 @@
             <el-button icon="el-icon-close" circle v-if="row.is_blocked==0" type="danger" @click="handleModifyStatus(row,1)">
             </el-button>
           </el-tooltip>
+          <el-button icon="el-icon-turn-off"
+            circle v-if="row.is_active!=1" type="info" @click="handleModifyActivationStatus(row,1)">
+          </el-button>
+          <el-button icon="el-icon-open" circle v-if="row.is_active!=0" type="success" @click="handleModifyActivationStatus(row,0)">
+          </el-button>
         </template>
       </el-table-column>
        <el-table-column label="ID" width="100px">
@@ -241,6 +246,28 @@
         </el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="User Activation Status" width="40%" top="30px"  :visible.sync="dialogUserActivationStatus">
+      <el-form ref="userStatusForm" :model="userStatusLog"  >
+        <el-row :gutter="20">
+          <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+            
+            <el-form-item label="Remarks" prop="remarks">
+              <el-input  type="textarea" :cols="2" v-model="userStatusLog.remarks" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogUserActivationStatus = false">
+          Cancel
+        </el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="updateUserActivationStatus()">
+          Update
+        </el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -251,7 +278,8 @@ import {
   updateUser,
   deleteUser,
   changeUserStatus,
-  updateExpireDate
+  updateExpireDate,
+  changeUserActivationStatus
 } from "@/api/admin/users";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -309,7 +337,13 @@ export default {
         dob: undefined,
         is_active: 0,
       },
+      userStatusLog:{
+        user_id:undefined,
+        is_active:0,
+        remarks:undefined,
+      },
       dialogUserVisible: false,
+      dialogUserActivationStatus:false,
       dialogStatus: "",
       textMap: {
         update: "Edit",
@@ -362,19 +396,32 @@ export default {
 
       row.is_blocked = status;
     },
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
+    handleModifyActivationStatus(row, status) {
+      this.resetUserStatus();
+      let temp = Object.assign({}, row);
+      this.userStatusLog.user_id=temp.id;
+      this.userStatusLog.is_active=status;
+      this.dialogUserActivationStatus=true;
     },
-    sortByID(order) {
-      if (order === "ascending") {
-        this.listQuery.sort = "+id";
-      } else {
-        this.listQuery.sort = "-id";
-      }
-      this.handleFilter();
+    updateUserActivationStatus(){      
+      changeUserActivationStatus(this.userStatusLog).then((response) => {
+        this.getList();
+        this.dialogUserActivationStatus=false;
+        this.$notify({
+          title: "Success",
+          message: response.message,
+          type: "success",
+          duration: 2000
+        })
+      })
+
+    },
+    resetUserStatus(){
+      this.userStatusLog = {
+        user_id:undefined,
+        is_active:0,
+        remarks:undefined,
+      };
     },
     resetTemp() {
       this.temp = {
@@ -525,6 +572,20 @@ export default {
           }
         })
       );
+    },
+    sortChange(data) {
+      const { prop, order } = data;
+      if (prop === "id") {
+        this.sortByID(order);
+      }
+    },
+    sortByID(order) {
+      if (order === "ascending") {
+        this.listQuery.sort = "+id";
+      } else {
+        this.listQuery.sort = "-id";
+      }
+      this.handleFilter();
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;

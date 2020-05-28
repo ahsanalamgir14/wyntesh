@@ -25,6 +25,14 @@ export function changeUserStatus(data) {
   })
 }
 
+export function changeUserActivationStatus(data) {
+  return request({
+    url: '/admin/user/change-status/activation',
+    method: 'post',
+    data
+  })
+}
+
 export function updateExpireDate(data) {
   return request({
     url: '/admin/user/package/update-expire-date',
@@ -47,3 +55,4 @@ export function deleteUser(id) {
     method: 'delete'
   })
 }
+

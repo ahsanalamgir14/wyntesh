@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User\User;
+use App\Models\Admin\ActivationLog;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\Setting;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Validator;
 use Carbon\Carbon;
 use DB;
-
+use JWTAuth;
 class UserAndRoleController extends Controller
 {    
 
@@ -195,6 +196,32 @@ class UserAndRoleController extends Controller
                 $message='User blocked successfully.';
             }else{
                 $message='User unblocked successfully.';                
+            }
+            $response = array('status' => true,'message'=>$message);
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'User not found');
+            return response()->json($response, 400);
+        }
+    }
+
+    public function changeUserActivationStatus(Request $request){
+        $User=User::find($request->user_id);
+        $Admin=JWTAuth::user();
+        if($User){
+            $User->is_active=$request->is_active;
+            $User->save();
+            $ActivationLog=new ActivationLog;
+            $ActivationLog->user_id=$User->id;
+            $ActivationLog->is_active=$User->is_active;
+            $ActivationLog->by_user=$Admin->id;
+            $ActivationLog->remarks=$request->remarks;
+            $ActivationLog->save();
+
+            if($request->is_active){
+                $message='User activated successfully.';
+            }else{
+                $message='User deactivated successfully.';                
             }
             $response = array('status' => true,'message'=>$message);
             return response()->json($response, 200);

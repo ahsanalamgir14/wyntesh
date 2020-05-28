@@ -550,6 +550,12 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/settings/notifications'),
         name: 'Notifications',
         meta: { title: 'Notifications', icon: 'fas fa-bell', color:'color:#67eb34', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'Settings',
+        component: () => import('@/views/admin/settings/settings'),
+        name: 'Settings',
+        meta: { title: 'Settings', icon: 'fas fa-cog', color:'color:#FF5733', affix: true, roles: ['admin'] }
       }
 
     ]

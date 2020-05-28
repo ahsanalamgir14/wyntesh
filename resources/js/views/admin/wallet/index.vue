@@ -180,10 +180,17 @@
                   placeholder="Payment made at">
                 </el-date-picker>
             </el-form-item>
+
+            
+
             <el-form-item label="Payment Status" prop="payment_status">
-              <el-select v-model="temp.payment_status" style="width: 100%" clearable placeholder="Status"  >
-                <el-option label="Paid" value="Paid" />
-                <el-option label="In progress" value="In progress" />
+              <el-select v-model="temp.payment_status"  style="width:100%;" filterable placeholder="Select Status">
+                <el-option
+                  v-for="item in payment_statuses"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name">
+                </el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="Note" prop="note">
@@ -339,7 +346,7 @@ import {
   approveWithdrawalRequest,
   rejectWithdrawalRequest
 } from "@/api/admin/wallet";
-import { getSettings } from "@/api/admin/settings";
+import { getCompanySettings } from "@/api/admin/company-settings";
 import { getStatuesAll } from "@/api/admin/config";
 import CountTo from 'vue-count-to'
 import waves from "@/directive/waves"; // waves directive
@@ -422,6 +429,7 @@ export default {
       dialogKycVisible:false,
       dialogStatus: "",
       statuses:[],
+      payment_statuses:[],
       textMap: {
         update: "Edit",
         create: "Create"
@@ -468,7 +476,7 @@ export default {
   },
   created() {
     this.getList();
-    this.getSettings();
+    this.getCompanySettings();
   },
   methods: {
     getList() {
@@ -484,13 +492,16 @@ export default {
         this.listLoading = false;
       });
     },
-    getSettings() {      
-      getSettings().then(response => {
-        this.settings = response.data
-        this.temp.tds_percentage=parseFloat(response.data.tds_percentage);
+    getCompanySettings() {      
+      getCompanySettings().then(response => {
+        this.settings = response.data        
+        this.temp.tds_percentage=this.settings.tds_percentage;
       });
       getStatuesAll('credit_requests').then(response => {
         this.statuses = response.data;
+      });
+      getStatuesAll('withdrawals').then(response => {
+        this.payment_statuses = response.data;
       });
     },
     handleDebitChange(){
