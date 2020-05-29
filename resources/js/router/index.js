@@ -125,6 +125,30 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/plan',
+    component: Layout,
+    meta: {
+      title: 'Plan',
+      icon: 'fas fa-scroll',
+      roles: ['superadmin'],
+      color:'color:#67eb34'
+    },
+    children: [
+      {
+        path: 'incomes',
+        component: () => import('@/views/admin/plan/incomes'),
+        name: 'Incomes',
+        meta: { title: 'Incomes', color:'color:#2adfe8', icon: 'fas fa-money-bill-alt', affix: true, roles: ['superadmin'] }
+      },
+      {
+        path: 'payout-types',
+        component: () => import('@/views/admin/plan/payout-types'),
+        name: 'Payout Types',
+        meta: { title: 'Payout Types', color:'color:#9261fa', icon: 'fas fa-redo', affix: true, roles: ['superadmin'] }
+      },
+    ]
+  },
+  {
     path: '/configs',
     component: Layout,
     meta: {
@@ -556,7 +580,19 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/settings/settings'),
         name: 'Settings',
         meta: { title: 'Settings', icon: 'fas fa-cog', color:'color:#FF5733', affix: true, roles: ['admin'] }
-      }
+      },
+      {
+        path: 'incomes',
+        component: () => import('@/views/admin/plan/incomes'),
+        name: 'Incomes',
+        meta: { title: 'Incomes', color:'color:#2adfe8', icon: 'fas fa-money-bill-alt', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'payout-types',
+        component: () => import('@/views/admin/plan/payout-types'),
+        name: 'Payout Types',
+        meta: { title: 'Payout Types', color:'color:#9261fa', icon: 'fas fa-redo', affix: true, roles: ['admin'] }
+      },
 
     ]
   },

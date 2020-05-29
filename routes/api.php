@@ -310,6 +310,24 @@ Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' =>
     Route::get('notification-settings', 'NotificationSettingsController@get');
     Route::post('notification-settings', 'NotificationSettingsController@save');
 
+    Route::post('income', 'IncomesController@createIncome');
+    Route::post('income/update', 'IncomesController@updateIncome');
+    Route::get('incomes', 'IncomesController@getIncomes');
+    Route::get('income/{id}', 'IncomesController@getIncome');
+    Route::delete('income/{id}/delete', 'IncomesController@deleteIncome');
+
+    Route::post('income-parameter', 'IncomesController@createIncomeParameter');
+    Route::post('income-parameter/update', 'IncomesController@updateIncomeParameter');
+    Route::get('income-parameters', 'IncomesController@getIncomeParameters');
+    Route::get('income-parameter/{id}', 'IncomesController@getIncomeParameter');
+    Route::delete('income-parameter/{id}/delete', 'IncomesController@deleteIncomeParameter');
+
+    Route::post('payout-type', 'PayoutTypesController@createPayoutType');
+    Route::post('payout-type/update', 'PayoutTypesController@updatePayoutType');
+    Route::get('payout-types', 'PayoutTypesController@getPayoutTypes');
+    Route::get('payout-type/{id}', 'PayoutTypesController@getPayoutType');
+    Route::delete('payout-type/{id}/delete', 'PayoutTypesController@deletePayoutType');
+
 });
 
 // Superadmin Routes

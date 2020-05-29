@@ -4,13 +4,19 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MemberCarryForwardPv extends Model
+class MemberPayout extends Model
 {
-    protected $table = 'member_carry_forward_pv';
+    protected $table = 'member_payouts';
     public $timestamps = true;
+
+    public function payout()
+    {
+        return $this->belongsTo('App\Models\Admin\Payout');
+    }
 
     public function member()
     {
         return $this->belongsTo('App\Models\Admin\Member');
     }
+
 }
