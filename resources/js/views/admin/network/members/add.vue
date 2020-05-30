@@ -30,10 +30,10 @@
                   <el-form-item prop="position"  class="radio-btn" label="Position">
                     <br>
                     <el-radio-group v-model="registerForm.position" >                  
-                        <el-radio border label="1">Leg 1</el-radio>
-                        <el-radio border label="2">Leg 2</el-radio>
-                        <el-radio border label="3">Leg 3</el-radio>
-                        <el-radio border label="4">Leg 4</el-radio>
+                        <el-radio border label="1">Leg A</el-radio>
+                        <el-radio border label="2">Leg B</el-radio>
+                        <el-radio border label="3">Leg C</el-radio>
+                        <el-radio border label="4">Leg D</el-radio>
                       </el-radio-group>
                   </el-form-item>    
                   

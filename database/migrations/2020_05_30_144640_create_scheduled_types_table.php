@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePayoutTypesTable extends Migration
+class CreateScheduledTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreatePayoutTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('payout_types', function (Blueprint $table) {
+        Schema::create('scheduled_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name',64);
-            $table->string('exection_type',32);
-            $table->string('exection_day',2)->nullable();
-            $table->string('exection_time',16)->nullable();
+            $table->string('name',32);
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ class CreatePayoutTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payout_types');
+        Schema::dropIfExists('scheduled_types');
     }
 }

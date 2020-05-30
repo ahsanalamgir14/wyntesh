@@ -22,6 +22,7 @@ use Validator;
 use JWTAuth;
 use Carbon\Carbon;
 use App\Events\OrderUpdateEvent;
+use App\Events\UpdateGroupPVEvent;
 
 class ShoppingController extends Controller
 {
@@ -150,6 +151,7 @@ class ShoppingController extends Controller
         $Order=Order::find($request->id);
 
         if($Order){
+            $old_status=$Order->delivery_status;
             $Order->delivery_status=$request->delivery_status;
             $Order->delivery_by=$request->delivery_by;
             $Order->tracking_no=$request->tracking_no;
@@ -162,7 +164,7 @@ class ShoppingController extends Controller
             $DeliveryLog->remarks=$request->remarks;
             $DeliveryLog->save();
 
-            if($request->delivery_status=='Order Confirmed'){
+            if($request->delivery_status=='Order Confirmed' && $old_status != $request->delivery_status){
                 $final_amount_company=($Order->final_amount)-($Order->gst)-($Order->shipping_fee)-($Order->admin_fee);
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
@@ -189,6 +191,9 @@ class ShoppingController extends Controller
 
                     }
                 }
+                
+                event(new UpdateGroupPVEvent($Order,$Order->user));
+                
             }
 
             event(new OrderUpdateEvent($Order,$Order->user));

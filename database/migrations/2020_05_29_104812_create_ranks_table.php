@@ -21,6 +21,7 @@ class CreateRanksTable extends Migration
             $table->decimal('bv_to', 8, 2)->nullable();
             $table->integer('leg_rank')->nullable();
             $table->integer('leg_rank_count')->nullable();
+            $table->decimal('personal_bv_condition', 8, 2)->nullable();
             $table->timestamps();
         });
     }

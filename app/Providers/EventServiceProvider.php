@@ -24,6 +24,15 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\OrderUpdateEvent' => [
             'App\Listeners\OrderUpdateListener',
         ],
+        'App\Events\UpdateGroupPVEvent' => [
+            'App\Listeners\UpdateGroupPVListener',
+        ],
+        'App\Events\UpdateGroupPVEvent' => [
+            'App\Listeners\UpdateGroupPVListener',
+        ],
+        'App\Events\GeneratePayoutEvent' => [
+            'App\Listeners\GeneratePayoutListener',
+        ],
 
     ];
 

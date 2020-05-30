@@ -15,6 +15,20 @@ export function fetchPayoutType(id) {
   })
 }
 
+export function getAllPayoutTypes(id) {
+  return request({
+    url: '/admin/payout-types/all',
+    method: 'get'
+  })
+}
+
+export function getScheduledTypes(id) {
+  return request({
+    url: '/admin/scheduled-types',
+    method: 'get'
+  })
+}
+
 export function deletePayoutType(id) {
   return request({
     url: '/admin/payout-type/'+id+'/delete',

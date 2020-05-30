@@ -146,6 +146,12 @@ export const asyncRoutes = [
         name: 'Payout Types',
         meta: { title: 'Payout Types', color:'color:#9261fa', icon: 'fas fa-redo', affix: true, roles: ['superadmin'] }
       },
+      {
+        path: 'ranks',
+        component: () => import('@/views/admin/plan/ranks'),
+        name: 'Ranks',
+        meta: { title: 'Ranks', color:'color:#c9801a', icon: 'fas fa-crown', affix: true, roles: ['superadmin'] }
+      },
     ]
   },
   {
@@ -576,7 +582,7 @@ export const asyncRoutes = [
         meta: { title: 'Notifications', icon: 'fas fa-bell', color:'color:#67eb34', affix: true, roles: ['admin'] }
       },
       {
-        path: 'Settings',
+        path: 'settings',
         component: () => import('@/views/admin/settings/settings'),
         name: 'Settings',
         meta: { title: 'Settings', icon: 'fas fa-cog', color:'color:#FF5733', affix: true, roles: ['admin'] }
@@ -592,6 +598,12 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/plan/payout-types'),
         name: 'Payout Types',
         meta: { title: 'Payout Types', color:'color:#9261fa', icon: 'fas fa-redo', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'ranks',
+        component: () => import('@/views/admin/plan/ranks'),
+        name: 'Ranks',
+        meta: { title: 'Ranks', color:'color:#c9801a', icon: 'fas fa-crown', affix: true, roles: ['admin'] }
       },
 
     ]

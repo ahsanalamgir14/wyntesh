@@ -11,6 +11,12 @@ t<template>
               <el-form-item label="Minimun Parchase for Activation (PV)" prop="minimum_purchase">
                 <el-input type="number" v-model="temp.minimum_purchase" />
               </el-form-item>              
+              <el-form-item label="Automatic Payout ?" prop="is_automatic_payout">
+                <el-select v-model="temp.is_automatic_payout"  style="width:100%;" filterable placeholder="Select Payout Mode">
+                    <el-option label="Yes" value="1"></el-option>
+                    <el-option label="No" value="0"></el-option>
+                </el-select>
+              </el-form-item>
             </el-col>
           </el-row>
           <el-row >
@@ -42,6 +48,7 @@ export default {
       temp: { 
         tds_percentage:undefined,
         minimum_purchase:undefined,
+        is_automatic_payout:"0",
       },
       rules: {
         tds_percentage: [
@@ -49,6 +56,9 @@ export default {
         ],
         minimum_purchase: [
           { required: true, message: "Minimun purchase is required.", trigger: "blur" }
+        ],
+        is_automatic_payout: [
+          { required: true, message: "Select Payout Mode.", trigger: "blur" }
         ],
       },
       buttonLoading: false

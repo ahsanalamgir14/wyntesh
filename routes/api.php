@@ -294,6 +294,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('marketing/email/mass', 'MarketingController@sendMassEmail');
     Route::post('marketing/sms/mass', 'MarketingController@sendMassSMS');
 
+    Route::post('payout/generate', 'PayoutsController@generateManualPayout');
+    Route::get('payouts', 'PayoutsController@getPayouts');
+
 
 });
 
@@ -325,8 +328,17 @@ Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' =>
     Route::post('payout-type', 'PayoutTypesController@createPayoutType');
     Route::post('payout-type/update', 'PayoutTypesController@updatePayoutType');
     Route::get('payout-types', 'PayoutTypesController@getPayoutTypes');
+    Route::get('payout-types/all', 'PayoutTypesController@getAllPayoutTypes');
     Route::get('payout-type/{id}', 'PayoutTypesController@getPayoutType');
     Route::delete('payout-type/{id}/delete', 'PayoutTypesController@deletePayoutType');
+    Route::get('scheduled-types', 'PayoutTypesController@getScheduledTypes');
+
+    Route::post('rank', 'RanksController@createRank');
+    Route::post('rank/update', 'RanksController@updateRank');
+    Route::get('ranks', 'RanksController@getRanks');
+    Route::get('ranks/all', 'RanksController@getAllRanks');
+    Route::get('rank/{id}', 'RanksController@getRank');
+    Route::delete('rank/{id}/delete', 'RanksController@deleteRank');
 
 });
 

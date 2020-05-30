@@ -14,6 +14,11 @@ class Member extends Model
         return $this->belongsTo('App\Models\User\User');
     }
 
+    public function rank()
+    {
+        return $this->belongsTo('App\Models\Admin\Rank','rank_id');
+    }
+
     public function kyc()
     {
         return $this->hasOne('App\Models\User\Kyc');

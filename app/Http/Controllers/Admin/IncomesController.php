@@ -34,10 +34,10 @@ class IncomesController extends Controller
         }
 
         if(!$search){
-            $Incomes=Income::select()->with('income_parameters');
+            $Incomes=Income::select()->with('income_parameters','payout_type');
             $Incomes = $Incomes->orderBy('id',$sort)->paginate($limit);    
         }else{
-            $Incomes=Income::select()->with('income_parameters');
+            $Incomes=Income::select()->with('income_parameters','payout_type');
 
             $Incomes=$Incomes->orWhere('name','like','%'.$search.'%');
             $Incomes=$Incomes->orWhere('code','like','%'.$search.'%');
@@ -95,6 +95,8 @@ class IncomesController extends Controller
         $Income->capping=$request->capping;
         $Income->is_active=$request->is_active;
         $Income->save();
+
+        $Income->payout_type()->sync($request->payout_types);
 
 
         $response = array('status' => true,'message'=>'Income updated successfully.','data'=>$Income);

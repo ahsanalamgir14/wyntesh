@@ -6,11 +6,26 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\PayoutType;
+use App\Models\Superadmin\ScheduledType;
 
 class PayoutTypesController extends Controller
 {    
 
     //  get PayoutType
+    public function getScheduledTypes(Request $request)
+    {
+        $ScheduledTypes=ScheduledType::all();
+        $response = array('status' => true,'message'=>"Scheduled types retrieved.",'data'=>$ScheduledTypes);
+        return response()->json($response, 200);
+    }
+
+    public function getAllPayoutTypes(Request $request)
+    {
+        $PayoutTypes=PayoutType::all();
+        $response = array('status' => true,'message'=>"Payout Types retrieved.",'data'=>$PayoutTypes);
+        return response()->json($response, 200);
+    }
+
     public function getPayoutTypes(Request $request)
     {
         $page=$request->page;
@@ -41,8 +56,8 @@ class PayoutTypesController extends Controller
             $PayoutType=$PayoutType->orderBy('id',$sort)->paginate($limit);
         }
    
-       $response = array('status' => true,'message'=>"Transaction Types retrieved.",'data'=>$PayoutType);
-            return response()->json($response, 200);
+        $response = array('status' => true,'message'=>"Payout Types retrieved.",'data'=>$PayoutType);
+        return response()->json($response, 200);
     }
   
 
@@ -66,7 +81,7 @@ class PayoutTypesController extends Controller
         $PayoutType->exection_time=$request->exection_time;
         $PayoutType->save();
 
-        $response = array('status' => true,'message'=>'Transaction Type created successfully.','data'=>$PayoutType);
+        $response = array('status' => true,'message'=>'Payout Type created successfully.','data'=>$PayoutType);
         return response()->json($response, 200);
     }
 
@@ -91,7 +106,7 @@ class PayoutTypesController extends Controller
         $PayoutType->save();
 
 
-        $response = array('status' => true,'message'=>'Transaction Type updated successfully.','data'=>$PayoutType);
+        $response = array('status' => true,'message'=>'Payout Type updated successfully.','data'=>$PayoutType);
         return response()->json($response, 200);
     }
 

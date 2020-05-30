@@ -44,6 +44,9 @@
             <p v-if="parameter.value_4"><b>Value 4:</b> {{ parameter.value_4 }}</p>
             <p v-if="parameter.value_5"><b>Value 5:</b> {{ parameter.value_5 }}</p>
           </div>
+          <div v-for="type in row.payout_type">
+            <p><b>Payout Type:</b> {{ type.name }}</p>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -131,6 +134,16 @@
             <el-form-item label="Capping" prop="capping">
               <el-input type="number" v-model="temp.capping" />
             </el-form-item>
+            <el-form-item label="Select Payout Type" prop="payout_types">
+                  <el-select v-model="temp.payout_types" filterable multiple placeholder="Select Payout Type">
+                    <el-option
+                      v-for="item in payoutTypeList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
             <el-form-item label="Description" prop="description">
               <el-input type="textarea" v-model="temp.description" />
             </el-form-item>
@@ -262,7 +275,7 @@
             </el-form-item>
             <el-form-item label="Value 5" prop="value_5">
               <el-input v-model="parameterTemp.value_5" />
-            </el-form-item>
+            </el-form-item>            
           </el-col>
         </el-row>
       </el-form>
@@ -290,6 +303,8 @@ import {
   createIncomeParameter,
   updateIncomeParameter
 } from "@/api/admin/incomes";
+import {getAllPayoutTypes} from "@/api/admin/payout-types";
+
 import waves from "@/directive/waves";
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
@@ -343,6 +358,7 @@ export default {
         description: undefined,
         code: undefined,
         capping: undefined,
+        payout_types:[],
         is_active: "1",
       },
       parameterTemp: {
@@ -354,7 +370,7 @@ export default {
         value_4: undefined,
         value_5: undefined,
       },
-
+      payoutTypeList:[],
       dialogIncomeVisible:false,
       dialogIncomeParametersVisible:false,
       dialogParameterSaveVisible:false,
@@ -368,6 +384,7 @@ export default {
       rules: {
         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
         code: [{ required: true, message: 'Income code is required', trigger: 'blur' }],
+        payout_types: [{ required: true, message: 'Payout types are required', trigger: 'blur' }],
       },
       parameterRules: {
         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
@@ -379,6 +396,9 @@ export default {
   },
   created() {
     this.getList();
+    getAllPayoutTypes().then(response => {
+      this.payoutTypeList = response.data
+    });
   },
   methods: {
     checkRole,
@@ -407,6 +427,7 @@ export default {
         id: undefined,
         name: undefined,
         description: undefined,
+        payout_types:[],
         code: undefined,
         capping: undefined,
         is_active: "1",
@@ -490,13 +511,22 @@ export default {
       });
     },
     handleEdit(row) {
-     
+      row.payout_types=[];
       this.temp = Object.assign({}, row); // copy obj
       if(row.is_active==1){
         this.temp.is_active="1"
       }else{
         this.temp.is_active="0"
       }
+
+      var keys = [];
+
+      row.payout_type.map(pay => {
+          keys.push(pay.id);
+      })
+
+      keys = keys.filter((item, i, ar) => ar.indexOf(item) === i);
+      this.temp.payout_types=keys;
 
       this.dialogStatus = "update";
       this.dialogTitle="Update Income";

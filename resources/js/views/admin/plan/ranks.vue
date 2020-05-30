@@ -49,18 +49,17 @@
       <el-table-column label="Actions" align="center" width="200" class-name="small-padding" v-if="checkRole(['superadmin'])">
         <template slot-scope="{row}">
           <el-button
-            type="primary"
-            :loading="buttonLoading"
-            circle
-            icon="el-icon-edit"
-            @click="handleEdit(row)"
-          ></el-button>
+              circle
+              type="primary"
+              icon="el-icon-edit"
+              @click="handleEdit(row)"
+              ></el-button>
           <el-button
               circle
               type="danger"
               icon="el-icon-delete"
               @click="deleteData(row)"
-          ></el-button>
+              ></el-button>
         </template>
       </el-table-column>
       <el-table-column label="Name" min-width="150px">
@@ -68,22 +67,36 @@
           <span >{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Exection Type" min-width="150px">
+      <el-table-column label="Capping" min-width="150px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.exection_type }}</span>
+          <span >{{ row.capping }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Exection Day" min-width="150px">
+      <el-table-column label="Personal BV Condition" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.exection_day }}</span>
+          <span >{{ row.personal_bv_condition }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Exection Time" min-width="150px">
+      <el-table-column label="BV From" width="120px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.exection_time }}</span>
+          <span >{{ row.bv_from }}</span>
         </template>
       </el-table-column>
-
+      <el-table-column label="BV To" width="120px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.bv_to }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Leg Rank" min-width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.legRank?row.legRank.name:'' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Leg Rank Count" min-width="150px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.leg_rank_count }}</span>
+        </template>
+      </el-table-column>
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -99,47 +112,50 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="dialogTitle" width="60%" top="30px"  :visible.sync="dialogPayoutTypeVisible">
-      <el-form ref="transactionTypeForm" :rules="rules" :model="temp" style="">
+    <el-dialog :title="dialogTitle" width="60%" top="30px"  :visible.sync="dialogRanksVisible">
+      <el-form ref="rankForm" :rules="rules" :model="temp" style="">
         <el-row :gutter="20">
           <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
             <el-form-item label="Name" prop="name">
               <el-input v-model="temp.name" />
             </el-form-item>
-            <el-form-item label="Exectition Type" prop="exection_type">
+            <el-form-item label="Capping" prop="capping">
+              <el-input type="number" v-model="temp.capping" />
+            </el-form-item>
+            <el-form-item label="BV From" prop="bv_from">
+              <el-input type="number" v-model="temp.bv_from" />
+            </el-form-item>
+            <el-form-item label="BV To" prop="bv_to">
+              <el-input type="number" v-model="temp.bv_to" />
+            </el-form-item>
+            
+          </el-col>
+          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+            <el-form-item label="Leg Rank" prop="leg_rank">
               <br>
-              <el-select v-model="temp.exection_type" style="width:100%;" filterable placeholder="Exectition Type">
+              <el-select v-model="temp.leg_rank"  clearable  style="width:100%;"  placeholder="Select Leg Rank">
                 <el-option
-                  v-for="item in scheduled_types"
+                  v-for="item in legRanks"
                   :key="item.name"
                   :label="item.name"
-                  :value="item.name">
+                  :value="item.id">
                 </el-option>
               </el-select>
             </el-form-item>
-          </el-col>
-          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-            <el-form-item label="Exectition Day" prop="exection_day">
-              <el-input type="number" v-model="temp.exection_day" />
+            <el-form-item label="Leg rank count" prop="leg_rank_count">
+              <el-input type="number" v-model="temp.leg_rank_count" />
             </el-form-item>
-            <el-form-item label="Exectition Time" prop="exection_time">
-              <br>
-              <el-time-select
-                style="width: 100%"
-                v-model="temp.exection_time"
-                :picker-options="pickerOptions"
-                placeholder="Select time">
-              </el-time-select>
+            <el-form-item label="Personal BV Condition" prop="personal_bv_condition">
+              <el-input type="number" v-model="temp.personal_bv_condition" />
             </el-form-item>
           </el-col>
-
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogPayoutTypeVisible = false">
+        <el-button @click="dialogRanksVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="is_updating?updateData():createData()">
           Save
         </el-button>
       </div>
@@ -150,22 +166,21 @@
 <script>
 import {
   fetchList,
-  fetchTransactionType,
-  deletePayoutType,
-  createPayoutType,
-  updatePayoutType,
-  getScheduledTypes
-} from "@/api/admin/payout-types";
+  deleteRank,
+  createRank,
+  updateRank,
+  getAllRanks
+} from "@/api/admin/ranks";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
-import role from '@/directive/role'; 
+ import role from '@/directive/role'; 
 import checkRole from '@/utils/role';
 
 export default {
-  name: "TransactionTypes",
-  components: { Pagination },
-  directives: { waves,role },
+  name: "ComplexTable",
+  components: { Pagination,Pagination },
+  directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -186,9 +201,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        search: undefined,
-        is_active: "1",
-        sort: "-id"
+        sort: "+id"
       },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
@@ -196,26 +209,21 @@ export default {
       ],
       temp: {
         name: undefined,
-        exection_type: undefined,
-        exection_day: undefined,
-        exection_time: undefined,
+        capping: undefined,
+        bv_from: undefined,
+        bv_to: undefined,
+        leg_rank: undefined,
+        leg_rank_count: undefined,
+        personal_bv_condition:undefined,
       },
-      pickerOptions:{
-        start: '00:00',
-        step: '00:30',
-        end: '24:00'
-      },
-      scheduled_types:[],
-      dialogPayoutTypeVisible:false,
-      dialogStatus: "",
-      dialogTitle:"",
-      textMap: {
-        update: "Edit",
-        create: "Create"
-      },
+      legRanks:[],
+      dialogRanksVisible:false,
+      is_updating: false,
+      dialogTitle:'Create',
       rules: {
         name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
-        exection_type: [{ required: true, message: 'Exectition type is required', trigger: 'blur' }],
+        capping: [{ required: true, message: 'Capping is required', trigger: 'blur' }],
+        personal_bv_condition: [{ required: true, message: 'Personal BV Condition is required', trigger: 'blur' }],
       },
       downloadLoading: false,
       buttonLoading: false
@@ -223,9 +231,7 @@ export default {
   },
   created() {
     this.getList();
-    getScheduledTypes().then(response => {
-      this.scheduled_types = response.data;
-    });
+    this.getAllRanks();
   },
   methods: {
     checkRole,
@@ -238,6 +244,101 @@ export default {
           this.listLoading = false;
         }, 1 * 100);
       });
+    },
+    getAllRanks() {
+      this.listLoading = true;
+      getAllRanks().then(response => {
+        this.legRanks = response.data;
+      });
+    },
+    resetTemp() {
+      this.temp = {
+        id: undefined,
+        name: undefined,
+        capping: undefined,
+        bv_from: undefined,
+        bv_to: undefined,
+        leg_rank: undefined,
+        leg_rank_count: undefined,
+        personal_bv_condition:undefined,
+      };
+    },
+    handleCreate() {
+      this.is_updating = false;
+      this.dialogTitle="Create Rank"      
+      this.dialogRanksVisible = true;
+      this.resetTemp();
+      this.$nextTick(() => {
+        this.$refs["rankForm"].clearValidate();
+      });
+    },
+    createData() {
+      this.buttonLoading=true;
+      this.$refs["rankForm"].validate(valid => {
+        if (valid) {   
+          this.buttonLoading=true;
+          createRank(this.temp).then((data) => {            
+            this.dialogRanksVisible = false;
+            this.buttonLoading=false;
+            this.resetTemp();
+            this.getList();
+            this.getAllRanks();
+
+            this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+            });
+          }).catch((err)=>{
+            this.buttonLoading=false;      
+          });
+        }
+      });      
+    },
+    handleEdit(row) {
+      this.temp = Object.assign({}, row);      
+      this.is_updating = true;
+      this.dialogTitle="Update Rank"
+      this.dialogRanksVisible = true;
+      this.$nextTick(() => {
+        this.$refs["rankForm"].clearValidate();
+      });
+    },
+    updateData() {    
+      this.$refs["rankForm"].validate(valid => {
+        if (valid) {
+        this.buttonLoading=true;          
+          updateRank(this.temp).then((data) => {
+            this.dialogRanksVisible = false;
+            this.buttonLoading=false;
+            this.resetTemp();
+            this.getList();
+            this.getAllRanks();
+
+            this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+            });
+          }).catch((err)=>{
+            this.buttonLoading=false;      
+          });
+        }
+      });
+    },
+    deleteData(row) {
+        deleteRank(row.id).then((data) => {
+            this.dialogRanksVisible = false;
+            this.getList();
+            this.$notify({
+                title: "Success",
+                message: data.message,
+                type: "success",
+                duration: 2000
+            });
+        });
     },
     handleFilter() {
       this.listQuery.page = 1;
@@ -256,89 +357,6 @@ export default {
         this.listQuery.sort = "-id";
       }
       this.handleFilter();
-    },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        name: undefined,
-        exection_type: undefined,
-        exection_day: undefined,
-        exection_time: undefined,
-      };
-    },
-    handleCreate() {
-      this.resetTemp();
-      this.dialogStatus = "create";
-      this.dialogTitle="Create Payout Type";
-      this.dialogPayoutTypeVisible = true;
-      this.$nextTick(() => {
-        this.$refs["transactionTypeForm"].clearValidate();
-      });
-    },
-    createData() {
-      this.$refs["transactionTypeForm"].validate(valid => {
-        if (valid) {
-          this.buttonLoading=true;
-          createPayoutType(this.temp).then((data) => {
-            this.getList();
-            this.dialogPayoutTypeVisible = false;
-            this.$notify({
-              title: "Success",
-              message: data.message,
-              type: "success",
-              duration: 2000
-            });
-            this.buttonLoading=false;
-            this.resetTemp();
-          }).catch((err)=>{
-            this.buttonLoading=false;
-          });
-        }
-      });      
-    },
-    handleEdit(row) {
-     
-      this.temp = Object.assign({}, row); // copy obj
-      this.dialogStatus = "update";
-      this.dialogTitle="Update Payout Type";
-      this.dialogPayoutTypeVisible = true;
-      this.$nextTick(() => {
-        this.$refs["transactionTypeForm"].clearValidate();
-      });
-    },
-    updateData() {
-      this.$refs["transactionTypeForm"].validate(valid => {
-        if (valid) {          
-          this.buttonLoading=true;
-          const tempData = Object.assign({}, this.temp);
-          updatePayoutType(tempData).then((data) => {
-            this.getList();
-            this.dialogPayoutTypeVisible = false;
-            this.$notify({
-              title: "Success",
-              message: data.message,
-              type: "success",
-              duration: 2000
-            });
-            this.buttonLoading=false;
-            this.resetTemp();
-          }).catch((err)=>{
-            this.buttonLoading=false;
-          });
-        }
-      });
-    },
-    deleteData(row) {
-        deletePayoutType(row.id).then((data) => {
-            this.dialogPayoutTypeVisible = false;
-            this.$notify({
-                title: "Success",
-                message: data.message,
-                type: "success",
-                duration: 2000
-            });
-            this.getList();
-        });
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;
