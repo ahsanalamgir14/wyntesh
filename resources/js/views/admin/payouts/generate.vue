@@ -241,20 +241,7 @@ export default {
       this.listQuery.page = 1;
       this.getList();
     },
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
-    },
-    sortByID(order) {
-      if (order === "ascending") {
-        this.listQuery.sort = "+id";
-      } else {
-        this.listQuery.sort = "-id";
-      }
-      this.handleFilter();
-    },
+    
     resetTemp() {
       this.temp = {
         id: undefined,
@@ -264,7 +251,7 @@ export default {
     handleCreate() {
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogTitle="Create Payout Type";
+      this.dialogTitle="Generate Payout";
       this.dialogPayoutGenerateVisible = true;
       this.$nextTick(() => {
         this.$refs["payoutGenerateForm"].clearValidate();
@@ -290,49 +277,19 @@ export default {
         }
       });      
     },
-    handleEdit(row) {
-     
-      this.temp = Object.assign({}, row); // copy obj
-      this.dialogStatus = "update";
-      this.dialogTitle="Update Payout Type";
-      this.dialogPayoutGenerateVisible = true;
-      this.$nextTick(() => {
-        this.$refs["payoutGenerateForm"].clearValidate();
-      });
+    sortChange(data) {
+      const { prop, order } = data;
+      if (prop === "id") {
+        this.sortByID(order);
+      }
     },
-    updateData() {
-      this.$refs["payoutGenerateForm"].validate(valid => {
-        if (valid) {          
-          this.buttonLoading=true;
-          const tempData = Object.assign({}, this.temp);
-          updatePayoutType(tempData).then((data) => {
-            this.getList();
-            this.dialogPayoutGenerateVisible = false;
-            this.$notify({
-              title: "Success",
-              message: data.message,
-              type: "success",
-              duration: 2000
-            });
-            this.buttonLoading=false;
-            this.resetTemp();
-          }).catch((err)=>{
-            this.buttonLoading=false;
-          });
-        }
-      });
-    },
-    deleteData(row) {
-        deletePayoutType(row.id).then((data) => {
-            this.dialogPayoutGenerateVisible = false;
-            this.$notify({
-                title: "Success",
-                message: data.message,
-                type: "success",
-                duration: 2000
-            });
-            this.getList();
-        });
+    sortByID(order) {
+      if (order === "ascending") {
+        this.listQuery.sort = "+id";
+      } else {
+        this.listQuery.sort = "-id";
+      }
+      this.handleFilter();
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;
