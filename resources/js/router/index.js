@@ -677,7 +677,7 @@ export const asyncRoutes = [
       roles: ['user'],
       color:'color:#DC7633'
     },
-    hidden: false,
+    hidden: true,
     children: [
       {
         path: 'profile',
@@ -715,6 +715,7 @@ export const asyncRoutes = [
     path: '/network',
     component: Layout,
     name: 'Network',
+    hidden: true,
     redirect: '/network/geneology',
     meta: {
       title: 'Network',
@@ -753,6 +754,7 @@ export const asyncRoutes = [
   {
     path: '/shopping',
     component: Layout,
+    hidden: true,
     name: 'Shopping',
     redirect: '/shopping/products',
     meta: {
@@ -800,6 +802,7 @@ export const asyncRoutes = [
   {
     path: '/member/pins',
     component: Layout,
+    hidden: true,
     name: 'PINs',
     meta: {
       title: 'PINs',
@@ -851,6 +854,7 @@ export const asyncRoutes = [
   {
     path: '/wallet',
     component: Layout,
+    hidden: true,
     name: 'Wallet',
     meta: {
       title: 'Wallet',
@@ -896,6 +900,7 @@ export const asyncRoutes = [
   {
     path: '/member/payouts',
     component: Layout,
+    hidden: true,
     name: 'Payouts',
     meta: {
       title: 'Payouts',
@@ -922,6 +927,7 @@ export const asyncRoutes = [
   {
     path: '/reports',
     component: Layout,
+    hidden: true,
     name: 'Reports',
     meta: {
       title: 'Reports',
