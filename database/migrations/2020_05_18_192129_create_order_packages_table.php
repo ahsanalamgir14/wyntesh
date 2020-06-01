@@ -14,7 +14,7 @@ class CreateOrderPackagesTable extends Migration
     public function up()
     {
         Schema::create('order_packages', function (Blueprint $table) {
-            $table->bigIncrements();
+            $table->bigIncrements('id');
             $table->bigInteger('order_id');
             $table->integer('package_id');
             $table->integer('qty');

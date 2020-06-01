@@ -24,6 +24,11 @@ class Member extends Model
         return $this->hasOne('App\Models\User\Kyc');
     }
 
+    public function leg()
+    {
+        return $this->hasMany('App\Models\Admin\MemberLegPv');
+    }
+
     public function parent()
     {
         return $this->belongsTo(self::class,'parent_id')->with('user:id,username,name,is_active');

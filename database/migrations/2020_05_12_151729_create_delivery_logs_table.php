@@ -14,7 +14,7 @@ class CreateDeliveryLogsTable extends Migration
     public function up()
     {
         Schema::create('delivery_logs', function (Blueprint $table) {
-            $table->bigIncrements();
+            $table->bigIncrements('id');
             $table->bigInteger('order_id');
             $table->string('delivery_status',32);
             $table->string('remarks',1024)->nullable();

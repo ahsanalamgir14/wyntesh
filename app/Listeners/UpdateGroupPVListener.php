@@ -7,8 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\Member;
-use Illuminate\Support\Facades\Log;
-
 class UpdateGroupPVListener implements ShouldQueue
 {
     /**
