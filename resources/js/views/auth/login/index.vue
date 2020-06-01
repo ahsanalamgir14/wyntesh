@@ -4,7 +4,7 @@
       <div class="welcome-container"> 
         <div class="logo-text">
           <img  v-if="logo" :src="logo" class="sidebar-logo">
-          <h2>Welcome to MLM World</h2>
+          <h2>Welcome</h2>
         </div>
         <div class="footer">
           <a href="http://infex.in" target="_self">Home</a>

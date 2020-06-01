@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      title: 'MLM World',
+      title: 'Vision4U',
       logo: logo
     }
   }
