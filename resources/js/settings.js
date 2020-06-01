@@ -4,10 +4,10 @@ export default {
   /**
    * @type {String}
    */
-  title: 'MLM World',
+  title: 'Vision4U',
   theme: variables.theme,
   totalLegs:4,
-  baseUrl:'https://software.mlmworld.in/',
+  baseUrl:'https://software.vision4uedu.in/',
   /**
    * @type {boolean} true | false
    * @description Whether show the settings right-panel
