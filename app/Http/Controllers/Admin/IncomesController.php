@@ -44,8 +44,14 @@ class IncomesController extends Controller
             $Incomes=$Incomes->orderBy('id',$sort)->paginate($limit);
         }
    
-       $response = array('status' => true,'message'=>"Transaction Types retrieved.",'data'=>$Incomes);
-            return response()->json($response, 200);
+        $response = array('status' => true,'message'=>"Incomes retrieved.",'data'=>$Incomes);
+        return response()->json($response, 200);
+    }
+
+    public function getAllIncomes(Request $request){
+        $Incomes=Income::where('is_active',1)->get();
+        $response = array('status' => true,'message'=>"Incomes retrieved.",'data'=>$Incomes);
+        return response()->json($response, 200);
     }
   
 

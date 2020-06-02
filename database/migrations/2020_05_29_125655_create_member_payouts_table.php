@@ -19,6 +19,10 @@ class CreateMemberPayoutsTable extends Migration
             $table->bigInteger('payout_id');            
             $table->decimal('sales_pv', 10, 2)->default(0);
             $table->decimal('sales_amount', 10, 2)->default(0);
+            $table->decimal('group_sales_pv', 10, 2)->default(0);
+            $table->decimal('group_sales_amount', 10, 2)->default(0);
+            $table->decimal('total_matched_bv', 10, 2)->default(0);
+            $table->decimal('total_carry_forward_bv', 10, 2)->default(0);
             $table->decimal('total_payout', 10, 2)->default(0);
             $table->timestamps();
         });

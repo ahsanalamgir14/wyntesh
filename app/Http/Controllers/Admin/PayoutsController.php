@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutType;
+use App\Models\Admin\PayoutIncome;
 use App\Events\GeneratePayoutEvent;
 
 class PayoutsController extends Controller
@@ -54,6 +55,7 @@ class PayoutsController extends Controller
 
         $validate = Validator::make($request->all(), [
             'date_range' => 'required',
+            'incomes' => 'required',
         ]);
 
         if($validate->fails()){
@@ -72,6 +74,14 @@ class PayoutsController extends Controller
         $Payout->sales_amount=0;
         $Payout->total_payout=0;
         $Payout->save();
+
+        foreach ($request->incomes as $income_id) {
+            $PayoutIncome=new PayoutIncome;
+            $PayoutIncome->payout_id=$Payout->id;
+            $PayoutIncome->income_id=$income_id;
+            $PayoutIncome->payout_amount=0;
+            $PayoutIncome->save();
+        }
 
         event(new GeneratePayoutEvent($Payout));
 

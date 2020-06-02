@@ -316,6 +316,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' =>
     Route::post('income', 'IncomesController@createIncome');
     Route::post('income/update', 'IncomesController@updateIncome');
     Route::get('incomes', 'IncomesController@getIncomes');
+    Route::get('incomes/all', 'IncomesController@getAllIncomes');
     Route::get('income/{id}', 'IncomesController@getIncome');
     Route::delete('income/{id}/delete', 'IncomesController@deleteIncome');
 

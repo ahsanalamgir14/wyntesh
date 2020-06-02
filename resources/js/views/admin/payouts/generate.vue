@@ -120,6 +120,16 @@
                 </el-date-picker>
               </div>
             </el-form-item>
+            <el-form-item label="Incomes" prop="incomes">
+                <el-select v-model="temp.incomes" multiple clearable  style="width:100%;" filterable placeholder="Select Incomes">
+                  <el-option
+                    v-for="item in income_list"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
           </el-col>
 
         </el-row>
@@ -137,10 +147,8 @@
 </template>
 
 <script>
-import {
-  fetchPayouts,
-  generateManualPayout,
-} from "@/api/admin/payouts";
+import { fetchPayouts, generateManualPayout,} from "@/api/admin/payouts";
+import { getAllIncomes,} from "@/api/admin/incomes";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
@@ -180,7 +188,9 @@ export default {
       ],
       temp: {
         date_range:undefined,
+        incomes:undefined
       },
+      income_list:[],
       pickerOptions: {
         shortcuts: [{
           text: 'Last week',
@@ -217,6 +227,7 @@ export default {
       },
       rules: {
         date_range: [{ required: true, message: 'Date range is required', trigger: 'blur' }],
+        incomes: [{ required: true, message: 'Please select income', trigger: 'blur' }],
       },
       downloadLoading: false,
       buttonLoading: false
@@ -224,6 +235,9 @@ export default {
   },
   created() {
     this.getList();
+    getAllIncomes().then(response => {
+      this.income_list = response.data;
+    });
   },
   methods: {
     checkRole,
@@ -245,7 +259,8 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        date_range: undefined
+        date_range:undefined,
+        incomes:undefined
       };
     },
     handleCreate() {

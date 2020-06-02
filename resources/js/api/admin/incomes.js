@@ -15,6 +15,13 @@ export function fetchIncome(id) {
   })
 }
 
+export function getAllIncomes(id) {
+  return request({
+    url: '/admin/incomes/all',
+    method: 'get'
+  })
+}
+
 export function deleteIncome(id) {
   return request({
     url: '/admin/income/'+id+'/delete',

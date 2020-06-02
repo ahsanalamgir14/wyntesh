@@ -21,6 +21,8 @@ class CreatePayoutsTable extends Migration
             $table->date('sales_end_date');
             $table->decimal('sales_bv', 10, 2)->default(0);
             $table->decimal('sales_amount', 10, 2)->default(0);
+            $table->decimal('total_matched_bv', 10, 2)->default(0);
+            $table->decimal('total_carry_forward_bv', 10, 2)->default(0);
             $table->decimal('total_payout', 10, 2)->default(0);
             $table->timestamps();
         });
