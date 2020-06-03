@@ -34,7 +34,6 @@ export default {
     return {
       settings:{},
       title: 'MLM World',
-      logo: logo
     }
   }
 }
