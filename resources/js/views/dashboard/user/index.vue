@@ -74,9 +74,9 @@
               </div>
               <div class="card-panel-description">
                 
-                <count-to :start-val="0" :end-val="dashboardStats.expected_payout" :duration="3200" class="card-panel-num" />
+                <count-to :start-val="0" :end-val="dashboardStats.last_payout" :duration="3200" class="card-panel-num" />
                 <div class="card-panel-text">
-                  Expected Payout
+                  Last Payout
                 </div>
               </div>
             </div>
@@ -112,13 +112,13 @@
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <div class="card-panel gr2" >
               <div class="card-panel-icon-wrapper icon-shopping">
-                <i class="fas fa-tag card-panel-icon"  ></i>
+                <i class="fas fa-flag card-panel-icon"  ></i>
               </div>
               <div class="card-panel-description">
                 
-                <count-to :start-val="0" :end-val="dashboardStats.pins_available" :duration="3600" class="card-panel-num" />
+                <count-to :start-val="0" :end-val="dashboardStats.current_personal_pv" :duration="3600" class="card-panel-num" />
                 <div class="card-panel-text">
-                  Pins Available
+                  Personal PV
                 </div>
               </div>
             </div>

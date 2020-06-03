@@ -20,7 +20,7 @@ Route::get('/', function (Request $request) {
 Route::get('mail', 'Auth\AuthController@mailCheck');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
-
+Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
 // Authentication Routes
 Route::group(['prefix' => 'auth'], function ($router) {
     Route::post('login', 'Auth\AuthController@login');
@@ -129,6 +129,8 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::post('order/place', 'ShoppingController@placeOrder');
     Route::get('orders', 'ShoppingController@getMyOrders');
     Route::get('order/{id}', 'ShoppingController@getOrder');
+
+    Route::get('payouts', 'PayoutsController@getPayouts');
 
 });
 

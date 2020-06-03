@@ -4,12 +4,12 @@
       <div class="welcome-container"> 
         <div class="logo-text">
           <img  v-if="logo" :src="logo" class="sidebar-logo">
-          <h2>Welcome to MLM World</h2>
+          <h2>Welcome to {{settings.company_name}}</h2>
         </div>
-        <div class="footer">
+        <!-- <div class="footer">
           <a href="http://infex.in" target="_self">Home</a>
           <a href="http://infex.in" target="_self">Contact</a>
-        </div>
+        </div> -->
       </div>
       
     </el-col>
@@ -60,6 +60,7 @@
 <script>
 import { validEmail } from '@/utils/validate';
 import logo from '@/assets/images/logo.png'
+import { getPublicSettings } from "@/api/user/settings";
 
 export default {
   name: 'Login',
@@ -88,6 +89,7 @@ export default {
         username: [{ required: true, trigger: 'blur', message: 'Username is required', }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
       },
+      settings:{},
       loading: false,
       pwdType: 'password',
       redirect: undefined,
@@ -100,6 +102,11 @@ export default {
       },
       immediate: true,
     },
+  },
+  created() {
+    getPublicSettings().then(response => {
+      this.settings = response.data;
+    });
   },
   methods: {
     showPwd() {
@@ -159,7 +166,7 @@ $light_gray:#eee;
     color:#fff;
     position:absolute;
     top:20px;
-    router-link{
+    a{
       margin-right:10px;
       margin-left:10px;
     }

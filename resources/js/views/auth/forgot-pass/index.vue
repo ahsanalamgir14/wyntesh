@@ -4,12 +4,12 @@
       <div class="welcome-container"> 
         <div class="logo-text">
           <img  v-if="logo" :src="logo" class="sidebar-logo">
-          <h2>Welcome to MLM World</h2>
+          <h2>Welcome to {{settings.company_name}}</h2>
         </div>
-        <div class="footer">
+        <!-- <div class="footer">
           <a href="http://infex.in" target="_self">Home</a>
           <a href="http://infex.in" target="_self">Contact</a>
-        </div>
+        </div> -->
       </div>
       
     </el-col>
@@ -44,6 +44,7 @@
 import { validEmail } from '@/utils/validate';
 import logo from '@/assets/images/logo.png'
 import { getResetToken } from "@/api/auth";
+import { getPublicSettings } from "@/api/user/settings";
 
 export default {
   name: 'Login',
@@ -68,6 +69,7 @@ export default {
       forgotPassForm: {
         username: '',
       },
+      settings:{},
       logo: logo,
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -75,6 +77,11 @@ export default {
       loading: false,
       redirect: undefined,
     };
+  },
+  created() {
+    getPublicSettings().then(response => {
+      this.settings = response.data;
+    });
   },
   methods: {
    

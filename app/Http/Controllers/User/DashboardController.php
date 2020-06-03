@@ -24,10 +24,12 @@ class DashboardController extends Controller
     	$total_purchase= floor(Order::where('user_id',$User->id)->sum('final_amount'));
     	$withdrawals=floor(Withdrawal::where('member_id',$User->member->id)->sum('amount'));
         $pins_available=Pin::where('used_at',null)->where('owned_by',$User->member->id)->count();
+        $current_personal_pv=$User->member->current_personal_pv;
+        $total_personal_pv=$User->member->total_personal_pv;
         $balance=floatval($User->member->wallet_balance);
-        $expected_payout=1500;
+        $last_payout=1500;
 
-        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('downlines'=>$downlines,'total_purchase'=>$total_purchase,'withdrawals'=>$withdrawals,'pins_available'=>$pins_available,'balance'=>$balance,'expected_payout'=>$expected_payout));             
+        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('downlines'=>$downlines,'total_purchase'=>$total_purchase,'withdrawals'=>$withdrawals,'pins_available'=>$pins_available,'balance'=>$balance,'last_payout'=>$last_payout,'current_personal_pv'=>$current_personal_pv,'total_personal_pv'=>$total_personal_pv));             
         return response()->json($response, 200);
 
     }

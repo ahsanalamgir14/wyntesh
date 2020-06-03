@@ -4,12 +4,12 @@
       <div class="welcome-container"> 
         <div class="logo-text">
           <img  v-if="logo" :src="logo" class="sidebar-logo">
-          <h2>Welcome to MLM World</h2>
+          <h2>Welcome to {{settings.company_name}}</h2>
         </div>
-        <div class="footer">
+        <!-- <div class="footer">
           <a href="http://infex.in" target="_self">Home</a>
           <a href="http://infex.in" target="_self">Contact</a>
-        </div>
+        </div> -->
       </div>
       
     </el-col>
@@ -131,6 +131,7 @@
 import { validEmail } from '@/utils/validate';
 import logo from '@/assets/images/logo.png'
 import { checkSponsorCode,registerMember } from "@/api/user/members";
+import { getPublicSettings } from "@/api/user/settings";
 
 export default {
   name: 'Login',
@@ -174,6 +175,7 @@ export default {
         gender:'m'
       },
       logo: logo,
+      settings:{},
       registerRules: {
         name: [{ required: true, trigger: 'blur', message: 'Name is required', }],
         email: [{ required: true, trigger: 'blur', validator: validateEmail  }],
@@ -188,6 +190,9 @@ export default {
   created(){
     this.registerForm.sponsor_code=this.$route.query.sponsor_code
     this.handleCheckSponsorCode(this.$route.query.sponsor_code);
+    getPublicSettings().then(response => {
+      this.settings = response.data;
+    });
   },
   methods: {
     showPwd() {

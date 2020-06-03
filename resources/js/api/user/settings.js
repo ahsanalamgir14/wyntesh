@@ -6,3 +6,11 @@ export function getSettings() {
     method: 'get'
   })
 }
+
+
+export function getPublicSettings() {
+  return request({
+    url: '/settings',
+    method: 'get'
+  })
+}
