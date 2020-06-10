@@ -36,11 +36,11 @@ class PayoutsController extends Controller
         }
 
         if(!$search){
-            $Payout = Payout::with('payout_type')->orderBy('id',$sort)->paginate($limit);    
+            $Payout = Payout::with('payout_type','incomes.income')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $Payout=Payout::select();
             
-            $Payout=$Payout->with('payout_type')->orderBy('id',$sort)->paginate($limit);
+            $Payout=$Payout->with('payout_type','incomes')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"Payout Types retrieved.",'data'=>$Payout);

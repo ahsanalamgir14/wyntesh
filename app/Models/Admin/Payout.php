@@ -14,4 +14,9 @@ class Payout extends Model
         return $this->belongsTo('App\Models\Admin\PayoutType');
     }
 
+    public function incomes()
+    {
+        return $this->hasMany('App\Models\Admin\PayoutIncome');
+    }
+
 }

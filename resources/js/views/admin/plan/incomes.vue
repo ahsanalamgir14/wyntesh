@@ -414,7 +414,7 @@ export default {
     },
     getParameterList() {
       this.listLoading = true;
-      fetchListIncomeParameter(this.listQuery).then(response => {
+      fetchListIncomeParameter(this.parameterListQuery).then(response => {
         this.parameterList = response.data.data;
         this.parameterTotal = response.data.total;
         setTimeout(() => {
@@ -448,7 +448,7 @@ export default {
       this.resetParameterTemp();
       this.parameterTemp.income_id=row.id;
       this.dialogIncomeParametersVisible=true;
-      this.parameterListQuery.id=row.id
+      this.parameterListQuery.income_id=row.id
       this.getParameterList();
     },
     handleCreate() {

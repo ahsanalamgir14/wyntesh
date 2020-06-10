@@ -201,7 +201,7 @@ export const asyncRoutes = [
     component: Layout,
     name: 'Network',
     redirect: '/network/members',
-    hidden:true,
+    hidden:false,
     meta: {
       title: 'Network',
       icon: 'fas fa-network-wired',
@@ -246,7 +246,7 @@ export const asyncRoutes = [
     path: '/kyc',
     component: Layout,
     name: 'KYCs',
-    hidden:true,
+    hidden:false,
     redirect: '/kyc/pending',
     meta: {
       title: 'KYCs',
@@ -278,7 +278,7 @@ export const asyncRoutes = [
   {
     path: '/packages',
     component: Layout,
-    hidden:true,
+    hidden:false,
     meta: {
       roles: ['admin']
     },
@@ -294,7 +294,7 @@ export const asyncRoutes = [
   {
     path: '/products',
     component: Layout,
-    hidden:true,
+    hidden:false,
     name: 'Products',
     redirect: '/products/add',
     meta: {
@@ -334,7 +334,7 @@ export const asyncRoutes = [
   {
     path: '/shopping',
     component: Layout,
-    hidden:true,
+    hidden:false,
     name: 'Shopping',
     redirect: '/shopping/orders',
     meta: {
@@ -360,7 +360,7 @@ export const asyncRoutes = [
   {
     path: '/pins',
     component: Layout,
-    hidden:true,
+    hidden:false,
     name: 'PINs',
     meta: {
       title: 'PINs',
@@ -411,7 +411,7 @@ export const asyncRoutes = [
   {
     path: '/wallet',
     component: Layout,
-    hidden:true,
+    hidden:false,
     name: 'Wallet',
     meta: {
       title: 'Wallet',
@@ -456,7 +456,7 @@ export const asyncRoutes = [
   {
     path: '/payouts',
     component: Layout,
-    hidden:true,
+    hidden:false,
     name: 'Payouts',
     meta: {
       title: 'Payouts',
@@ -471,12 +471,50 @@ export const asyncRoutes = [
         name: 'Generate PINs',
         meta: { title: 'Generate Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
       },
-      // {
-      //   path: 'all',
-      //   component: () => import('@/views/admin/users/index'),
-      //   name: 'PIN Requests',
-      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
-      // }
+      {
+        path: 'all',
+        component: () => import('@/views/admin/payouts/incomes'),
+        name: 'PIN Requests',
+        meta: { title: 'Incomes', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
+      }
+    ]
+  },
+  {
+    path: '/reports',
+    component: Layout,
+    hidden: false,
+    name: 'Reports',
+    meta: {
+      title: 'Reports',
+      icon: 'fas fa-chart-bar',
+      roles: ['admin'],
+      color:'color:#FF5733'
+    },
+    children: [
+      {
+        path: 'gst-report',
+        component: () => import('@/views/admin/reports/gst-report'),
+        name: 'GST',
+        meta: { title: 'GST', icon: 'fas fa-receipt', color:'color:#DCB527', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'tds-report',
+        component: () => import('@/views/admin/reports/tds-report'),
+        name: 'TDS',
+        meta: { title: 'TDS', icon: 'fas fa-hand-holding-usd', color:'color:#62a832', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'wallet-transactions',
+        component: () => import('@/views/admin/wallet/transactions'),
+        name: 'Wallet Transactions',
+        meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'joining-report',
+        component: () => import('@/views/admin/reports/joining-report'),
+        name: 'Joinings',
+        meta: { title: 'Joinings', icon: 'fas fa-users', color:'color:#EE7642', affix: true, roles: ['admin'] }
+      },
     ]
   },
   {
@@ -566,14 +604,14 @@ export const asyncRoutes = [
         path: 'welcome-letter',
         component: () => import('@/views/admin/settings/welcome-letter'),
         name: 'Welcome Letter',
-        hidden: true,
+        hidden: false,
         meta: { title: 'Welcome Letter', icon: 'fas fa-handshake', color:'color:#854CE2', affix: true, roles: ['admin'] }
       },
       {
         path: 'emails',
         component: () => import('@/views/admin/settings/emails'),
         name: 'Emails',
-        hidden: true, 
+        hidden: false, 
         meta: { title: 'Emails', icon: 'fas fa-envelope', color:'color:#fcb103', affix: true, roles: ['admin'] }
       },
       {
@@ -587,35 +625,35 @@ export const asyncRoutes = [
         path: 'notifications',
         component: () => import('@/views/admin/settings/notifications'),
         name: 'Notifications',
-        hidden: true, 
+        hidden: false, 
         meta: { title: 'Notifications', icon: 'fas fa-bell', color:'color:#67eb34', affix: true, roles: ['admin'] }
       },
       {
         path: 'settings',
         component: () => import('@/views/admin/settings/settings'),
         name: 'Settings',
-        hidden: true,
+        hidden: false,
         meta: { title: 'Settings', icon: 'fas fa-cog',  color:'color:#FF5733', affix: true, roles: ['admin'] }
       },
       {
         path: 'incomes',
         component: () => import('@/views/admin/plan/incomes'),
         name: 'Incomes',
-        hidden:true,
+        hidden:false,
         meta: { title: 'Incomes', color:'color:#2adfe8',  icon: 'fas fa-money-bill-alt', affix: true, roles: ['admin'] }
       },
       {
         path: 'payout-types',
         component: () => import('@/views/admin/plan/payout-types'),
         name: 'Payout Types',
-        hidden:true,
+        hidden:false,
         meta: { title: 'Payout Types', color:'color:#9261fa',  icon: 'fas fa-redo', affix: true, roles: ['admin'] }
       },
       {
         path: 'ranks',
         component: () => import('@/views/admin/plan/ranks'),
         name: 'Ranks',
-        hidden:true,
+        hidden:false,
         meta: { title: 'Ranks', color:'color:#c9801a',  icon: 'fas fa-crown', affix: true, roles: ['admin'] }
       },
 
@@ -624,7 +662,7 @@ export const asyncRoutes = [
   {
     path: '/marketing',
     component: Layout,
-    hidden:true,
+    hidden:false,
     name: 'Marketing',
     redirect: '/marketing/email-and-message',
     meta: {
@@ -680,7 +718,7 @@ export const asyncRoutes = [
       roles: ['user'],
       color:'color:#DC7633'
     },
-    hidden: true,
+    hidden: false,
     children: [
       {
         path: 'profile',
@@ -718,7 +756,7 @@ export const asyncRoutes = [
     path: '/network',
     component: Layout,
     name: 'Network',
-    hidden: true,
+    hidden: false,
     redirect: '/network/geneology',
     meta: {
       title: 'Network',
@@ -757,7 +795,7 @@ export const asyncRoutes = [
   {
     path: '/shopping',
     component: Layout,
-    hidden: true,
+    hidden: false,
     name: 'Shopping',
     redirect: '/shopping/products',
     meta: {
@@ -805,7 +843,7 @@ export const asyncRoutes = [
   {
     path: '/member/pins',
     component: Layout,
-    hidden: true,
+    hidden: false,
     name: 'PINs',
     meta: {
       title: 'PINs',
@@ -856,7 +894,7 @@ export const asyncRoutes = [
   {
     path: '/wallet',
     component: Layout,
-    hidden: true,
+    hidden: false,
     name: 'Wallet',
     meta: {
       title: 'Wallet',
@@ -901,7 +939,7 @@ export const asyncRoutes = [
   {
     path: '/member/payouts',
     component: Layout,
-    hidden: true,
+    hidden: false,
     name: 'Payouts',
     meta: {
       title: 'Payouts',
@@ -928,7 +966,7 @@ export const asyncRoutes = [
   {
     path: '/reports',
     component: Layout,
-    hidden: true,
+    hidden: false,
     name: 'Reports',
     meta: {
       title: 'Reports',

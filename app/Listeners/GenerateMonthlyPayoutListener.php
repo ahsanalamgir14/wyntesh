@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\GeneratePayoutEvent;
+use App\Events\GenerateMonthlyPayoutEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Admin\Income;
@@ -14,13 +14,10 @@ use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutIncome;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
-use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Superadmin\TransactionType;
 
-use Illuminate\Support\Facades\Log;
-
-class GeneratePayoutListener
+class GenerateMonthlyPayoutListener
 {
     /**
      * Create the event listener.
@@ -35,10 +32,11 @@ class GeneratePayoutListener
     /**
      * Handle the event.
      *
-     * @param  GeneratePayoutEvent  $event
+     * @param  GenerateMonthlyPayoutEvent  $event
      * @return void
-     */
-    public function handle(GeneratePayoutEvent $event)
+     */    
+
+    public function handle(GenerateMonthlyPayoutEvent $event)
     {
         $payout=$event->payout;
 
@@ -112,6 +110,7 @@ class GeneratePayoutListener
                 // Add current pv to matched_bv of all legs except strong one.
                 $matched_bv+=$leg->current_pv;
 
+
                 // Reset Leg Current Pv to Carry Forward;
                 $leg->current_pv=0;
                 $leg->save();
@@ -143,7 +142,7 @@ class GeneratePayoutListener
         $payout->save();
 
         // Get Income Ids of Payout 
-        $Incomes=Income::whereIn('id',$income_ids)->where('code','MATACHING')->get();
+        $Incomes=Income::whereIn('id',$income_ids)->where('code','!=','MATACHING')->get();
         
         foreach ($Incomes as $income) {
 
@@ -160,12 +159,7 @@ class GeneratePayoutListener
 
             // Counting matching point value based on parameters and plan criteria
             $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
-            if($payout->total_matched_bv==0){
-                $matching_point_value=0;
-            }else{
-                $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;    
-            }
-            
+            $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;
             $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
             $PayoutIncome->save();
         }
@@ -192,34 +186,14 @@ class GeneratePayoutListener
                     $TransactionType=TransactionType::where('name','Matching Bonus')->first();
 
                     if($TransactionType){
-
-                        if($Member->rank->personal_bv_condition > $MemberPayout->sales_pv){
-                            if($MemberPayoutIncome->payout_amount != 0){
-                                $MemberIncomeHolding=new MemberIncomeHolding;
-                                $MemberIncomeHolding->member_id=$Member->id;
-                                $MemberIncomeHolding->payout_id=$payout->id;
-                                $MemberIncomeHolding->rank_id=$Member->rank_id;
-                                $MemberIncomeHolding->rank_bv_criteria=$Member->rank->personal_bv_condition;
-                                $MemberIncomeHolding->current_bv=$MemberPayout->sales_pv;
-                                $MemberIncomeHolding->required_bv=$Member->rank->personal_bv_condition-$MemberPayout->sales_pv;
-                                $MemberIncomeHolding->amount=$MemberPayoutIncome->payout_amount;
-                                $MemberIncomeHolding->is_paid=0;
-                                $MemberIncomeHolding->save();
-                            }
-                            
-                        }else{
-                            if($MemberPayoutIncome->payout_amount != 0){
-                                $WalletTransaction=new WalletTransaction;
-                                $WalletTransaction->member_id=$Member->id;
-                                $WalletTransaction->amount=$MemberPayoutIncome->payout_amount;
-                                $WalletTransaction->balance=$MemberPayoutIncome->payout_amount+$Member->wallet_balance;
-                                $WalletTransaction->transaction_type_id=$TransactionType->id;
-                                $WalletTransaction->transfered_to=$Member->user->id;
-                                $WalletTransaction->note='Payout Income';
-                                $WalletTransaction->save(); 
-                            }
-                        }
-                        
+                        $WalletTransaction=new WalletTransaction;
+                        $WalletTransaction->member_id=$Member->id;
+                        $WalletTransaction->amount=$MemberPayoutIncome->payout_amount;
+                        $WalletTransaction->balance=$MemberPayoutIncome->payout_amount+$Member->wallet_balance;
+                        $WalletTransaction->transaction_type_id=$TransactionType->id;
+                        $WalletTransaction->transfered_to=$Member->user->id;
+                        $WalletTransaction->note='Payout Income';
+                        $WalletTransaction->save();
                     }
                     // Getting Total Payout of all incomes for member.                
                     $total_payout+=$MemberPayoutIncome->payout_amount;

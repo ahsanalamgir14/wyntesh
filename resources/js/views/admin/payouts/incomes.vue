@@ -38,7 +38,6 @@
         <template slot-scope="{row}">
           <div v-for="income in row.incomes">
             <p><b>Name:</b> {{ income.income.name }}</p>
-            <p><b>Payout Amount:</b> {{ income.payout_amount}}</p>
             <p v-if="income.income_payout_parameter_1_name" ><b>{{income.income_payout_parameter_1_name}}</b> {{income.income_payout_parameter_1_value}}</p>
             <p v-if="income.income_payout_parameter_2_name" ><b>{{income.income_payout_parameter_2_name}}</b> {{income.income_payout_parameter_2_value}}</p>
             <p v-if="income.income_payout_parameter_3_name" ><b>{{income.income_payout_parameter_3_name}}</b> {{income.income_payout_parameter_3_value}}</p>

@@ -16,6 +16,7 @@ use App\Models\User\User;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
+use DB;
 
 class WalletController extends Controller
 {
@@ -173,13 +174,21 @@ class WalletController extends Controller
             $Withdrawals=Withdrawal::select();           
             $Withdrawals=$Withdrawals->with('member','transaction_by');
             $Withdrawals=$Withdrawals->orderBy('id',$sort)->paginate($limit);
+            $withdrawals_total=Withdrawal::select([DB::raw('sum(tds_amount) as tds_amount'),DB::raw('sum(net_amount) as net_amount')])->first();
         }else{
             $Withdrawals=Withdrawal::select();
-            
+            $Withdrawals=Withdrawal::select();
+            $withdrawals_total=Withdrawal::select([DB::raw('sum(tds_amount) as tds_amount'),DB::raw('sum(net_amount) as net_amount')]);
             if($search){
                 $Withdrawals=$Withdrawals->where(function ($query)use($search) {
                     $query=$query->orWhere('payment_status',$search);
 
+                    $query=$query->orWhereHas('member.user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });
+                });
+
+                $withdrawals_total=$withdrawals_total->where(function ($query)use($search) {
                     $query=$query->orWhereHas('member.user',function($q)use($search){
                         $q->where('username','like','%'.$search.'%');
                     });
@@ -189,14 +198,17 @@ class WalletController extends Controller
             if($date_range){
                 $Withdrawals=$Withdrawals->whereDate('payment_made_at','>=', $date_range[0]);
                 $Withdrawals=$Withdrawals->whereDate('payment_made_at','<=', $date_range[1]);
+                $withdrawals_total=$withdrawals_total->whereDate('payment_made_at','>=', $date_range[0]);
+                $withdrawals_total=$withdrawals_total->whereDate('payment_made_at','<=', $date_range[1]);
             }
 
             $Withdrawals=$Withdrawals->with('member','transaction_by');
+            $withdrawals_total=$withdrawals_total->first();
             $Withdrawals=$Withdrawals->orderBy('id',$sort)->paginate($limit);
         }
 
         
-       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals);
+       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals,'total'=>$withdrawals_total);
         return response()->json($response, 200);
     }
 

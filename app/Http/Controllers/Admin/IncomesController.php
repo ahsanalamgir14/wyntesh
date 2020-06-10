@@ -59,7 +59,7 @@ class IncomesController extends Controller
         
         $validate = Validator::make($request->all(), [
             'name' => 'required|max:64',
-            'code' => 'required|max:10',
+            'code' => 'required|max:40',
         ]);
 
         if($validate->fails()){
@@ -76,6 +76,8 @@ class IncomesController extends Controller
         $Income->is_active=$request->is_active;
         $Income->save();
 
+        $Income->payout_type()->sync($request->payout_types);
+
         $response = array('status' => true,'message'=>'Income created successfully.','data'=>$Income);
         return response()->json($response, 200);
     }
@@ -85,7 +87,7 @@ class IncomesController extends Controller
         $validate = Validator::make($request->all(), [
             'id' => 'required|integer',
             'name' => 'required|max:64',
-            'code' => 'required|max:10',
+            'code' => 'required|max:40',
         ]);
 
         if($validate->fails()){
@@ -171,7 +173,9 @@ class IncomesController extends Controller
         }
 
         if(!$search){
-            $IncomeParameters = IncomeParameter::orderBy('id',$sort)->paginate($limit);    
+            $IncomeParameters=IncomeParameter::select();
+            $IncomeParameters=$IncomeParameters->where('income_id',$income_id);
+            $IncomeParameters = $IncomeParameters->orderBy('id',$sort)->paginate($limit);    
         }else{
             $IncomeParameters=IncomeParameter::select();
             $IncomeParameters=$IncomeParameters->where(function ($query)use($search) {
