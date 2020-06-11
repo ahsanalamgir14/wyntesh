@@ -10,6 +10,7 @@ use App\Models\Admin\IncomeParameter;
 use App\Models\Admin\Sale;
 use App\Models\Admin\Member;
 use App\Models\Admin\MembersLegPv;
+use App\Models\Admin\Rank;
 use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutIncome;
 use App\Models\Admin\MemberPayout;
@@ -19,6 +20,7 @@ use App\Models\Admin\WalletTransaction;
 use App\Models\Superadmin\TransactionType;
 
 use Illuminate\Support\Facades\Log;
+use DB;
 
 class GeneratePayoutListener
 {
@@ -41,7 +43,8 @@ class GeneratePayoutListener
     public function handle(GeneratePayoutEvent $event)
     {
         $payout=$event->payout;
-
+        $this->updateRank();
+        die();
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
         
@@ -143,31 +146,102 @@ class GeneratePayoutListener
         $payout->save();
 
         // Get Income Ids of Payout 
-        $Incomes=Income::whereIn('id',$income_ids)->where('code','MATACHING')->get();
+        $Incomes=Income::whereIn('id',$income_ids)->get();
         
         foreach ($Incomes as $income) {
 
             // Get Payout income from payout id
             $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
-            $percent_of_total_company_bv=0;
+            if($income->code=='MATACHING'){
 
-            foreach ($income->income_parameters as $parameter) {
-                // Get parameter for matching bonus income.
-                if($parameter->name=='percent_of_total_company_bv'){
-                    $percent_of_total_company_bv=$parameter->value_1;
+                $percent_of_total_company_bv=0;
+
+                foreach ($income->income_parameters as $parameter) {
+                    // Get parameter for matching bonus income.
+                    
+                    if($parameter->name=='percent_of_total_company_bv'){
+                        $percent_of_total_company_bv=$parameter->value_1;
+                    }  
+                    
+                    
+                }
+
+                // Counting matching point value based on parameters and plan criteria
+                $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                if($payout->total_matched_bv==0){
+                    $matching_point_value=0;
+                }else{
+                    $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;    
+                }
+                
+                $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
+                $PayoutIncome->save();
+            }else{
+                $percent_of_total_company_bv=0;
+                $matching_pv=0;
+
+                foreach ($income->income_parameters as $parameter) {
+                    // Get parameter for income.                    
+                    if($parameter->name=='percent_of_total_company_bv'){
+                        $percent_of_total_company_bv=$parameter->value_1;
+                    }
+                    if($parameter->name=='matching_pv'){
+                        $percent_of_total_company_bv=$parameter->value_1;
+                    }                                          
+                }
+
+                if($income->code=='CONSISTENCY'){
+                    $Members_Matched=$MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$matching_pv)->get();
+
+                    $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                    if($payout->total_matched_bv==0){
+                        $matching_point_value=0;
+                    }else{
+                        $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;    
+                    }
+                    $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
+                    $PayoutIncome->save();
+                }else{
+                    $quilifier_matched_pv=0;
+                    if($income->code=='TRIP_ALL' || $income->code=='VEHICLE_ALL' || $income->code=='HOUSE_ALL' || $income->code=='SUPER_GROWTH_ALL'){
+
+                        $quilifier_matched_pv=$MemberPayout::where('payout_id',$payout->id)
+                        ->whereHas('member.rank',function($q){
+                            $q->whereIn('id',[1,2,3,4,5,6]);
+                        })
+                        ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
+                    }
+
+                    if($income->code=='TRIP_DIA_EXE' || $income->code=='VEHICLE_DIA_EXE' || $income->code=='HOUSE_DIA_EXE' || $income->code=='SUPER_GROWTH_DIA_EXE'){
+
+                        $quilifier_matched_pv=$MemberPayout::where('payout_id',$payout->id)
+                        ->whereHas('member.rank',function($q){
+                            $q->where('id',7);
+                        })
+                        ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
+                    }
+
+                    if($income->code=='TRIP_DIPLOMAT' || $income->code=='VEHICLE_DIPLOMAT' || $income->code=='HOUSE_DIPLOMAT' || $income->code=='SUPER_GROWTH_DIPLOMAT'){
+
+                        $quilifier_matched_pv=$MemberPayout::where('payout_id',$payout->id)
+                        ->whereHas('member.rank',function($q){
+                            $q->where('id',7);
+                        })
+                        ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
+                    }
+
+
+                    $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                    if($quilifier_matched_pv==0){
+                        $matching_point_value=0;
+                    }else{
+                        $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$quilifier_matched_pv;    
+                    }
+                    $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
+                    $PayoutIncome->save();
+
                 }
             }
-
-            // Counting matching point value based on parameters and plan criteria
-            $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
-            if($payout->total_matched_bv==0){
-                $matching_point_value=0;
-            }else{
-                $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;    
-            }
-            
-            $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
-            $PayoutIncome->save();
         }
 
         $all_income_payout_total=0;
@@ -181,15 +255,50 @@ class GeneratePayoutListener
                 // Count payout based on income.
                 if($PayoutIncome->income_payout_parameter_1_name=='matching_point_value'){
                     // MemberIncomePayout Calculation
-                    $MemberPayoutIncome=new MemberPayoutIncome;
-                    $MemberPayoutIncome->payout_id=$payout->id;
-                    $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
-                    $MemberPayoutIncome->member_id=$Member->id;
-                    $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
-                    $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
-                    $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
-                    $MemberPayoutIncome->save();   
-                    $TransactionType=TransactionType::where('name','Matching Bonus')->first();
+                    $income_payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
+
+                    if($PayoutIncome->income->code=='MATACHING'){
+                        $TransactionType=TransactionType::where('name','Matching Bonus')->first();
+                        $MemberPayoutIncome=new MemberPayoutIncome;
+                        $MemberPayoutIncome->payout_id=$payout->id;
+                        $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
+                        $MemberPayoutIncome->member_id=$Member->id;
+                        $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                        $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
+                        $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                        $MemberPayoutIncome->save();
+                    }
+
+                    if($PayoutIncome->income->code=='CONSISTENCY'){
+                       
+                        if($income_payout_amount==0){
+                            continue;
+                        }
+
+                        $TransactionType=TransactionType::where('name','Consistency Bonus')->first();
+                        $MemberPayoutIncome=new MemberPayoutIncome;
+                        $MemberPayoutIncome->payout_id=$payout->id;
+                        $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
+                        $MemberPayoutIncome->member_id=$Member->id;
+                        $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                        $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
+                        $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                        $MemberPayoutIncome->save();
+                    }else{
+                        if($income_payout_amount==0){
+                            continue;
+                        }
+
+                        $TransactionType=TransactionType::where('name','Achievers’s Fund')->first();
+                        $MemberPayoutIncome=new MemberPayoutIncome;
+                        $MemberPayoutIncome->payout_id=$payout->id;
+                        $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
+                        $MemberPayoutIncome->member_id=$Member->id;
+                        $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                        $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
+                        $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                        $MemberPayoutIncome->save();
+                    }                    
 
                     if($TransactionType){
 
@@ -222,7 +331,7 @@ class GeneratePayoutListener
                         
                     }
                     // Getting Total Payout of all incomes for member.                
-                    $total_payout+=$MemberPayoutIncome->payout_amount;
+                    $total_payout+=$income_payout_amount;
                 }
             }
 
@@ -246,5 +355,33 @@ class GeneratePayoutListener
         $payout->total_payout=$all_income_payout_total;
         $payout->save();
 
+    }
+
+    public function updateRank(){
+        $Members=Member::orderBy('level','desc')->get();
+        $Ranks=Rank::all();
+        foreach ($Members as $Member) {
+            $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('total_pv');
+            $children=$Member->children();
+            foreach ($Ranks as $Rank) {
+                if($Rank->bv_to){
+                    if($group_pv >= $Rank->bv_from && $group_pv <= $Rank->bv_to){
+                        $Member->rank_id=$Rank->id;
+                        $Member->save();
+                    }
+
+                   
+                }else if($Rank->leg_rank){
+                    $rank_count=$Member->select('rank_id',DB::raw('count(*) as total'))->where('parent_id',$Member->id)->groupBy('rank_id')->get();
+
+                    foreach ($rank_count as $future_rank) {
+                        if($Rank->leg_rank==$future_rank->rank_id && $Rank->leg_rank_count>=$future_rank->total){
+                            $Member->rank_id=$Rank->id;
+                            $Member->save();
+                        }
+                    }
+                }
+            }
+        }
     }
 }

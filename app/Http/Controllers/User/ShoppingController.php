@@ -299,6 +299,9 @@ class ShoppingController extends Controller
                 $OrderProduct->pv=floatval($item->products->pv?:0)*intval($item->qty);
                 $OrderProduct->qty=$item->qty;
                 $OrderProduct->save();
+
+                $OrderProduct->product->stock-=$item->qty;
+                $OrderProduct->product->save();
             }
 
             $DeliveryLog=new DeliveryLog;
