@@ -89,7 +89,7 @@
       </el-table-column>
       <el-table-column label="Leg Rank" min-width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.legRank?row.legRank.name:'' }}</span>
+          <span>{{ row.leg_rank?row.leg_rank.name:'' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Leg Rank Count" min-width="150px" align="right">

@@ -16,7 +16,7 @@ class PayoutIncome extends Model
 
     public function payout()
     {
-        return $this->belongsTo('App\Models\Admin\payout');
+        return $this->belongsTo('App\Models\Admin\Payout');
     }
 
 }

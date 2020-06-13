@@ -43,7 +43,7 @@ class PayoutsController extends Controller
             $Payout=$Payout->with('payout_type','incomes')->orderBy('id',$sort)->paginate($limit);
         }
    
-        $response = array('status' => true,'message'=>"Payout Types retrieved.",'data'=>$Payout);
+        $response = array('status' => true,'message'=>"Payouts retrieved.",'data'=>$Payout);
         return response()->json($response, 200);
     }
   
@@ -86,6 +86,50 @@ class PayoutsController extends Controller
         event(new GeneratePayoutEvent($Payout));
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');
+        return response()->json($response, 200);
+    }
+
+    public function getPayoutIncomes(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $income_id=$request->income_id;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$income_id && !$date_range){
+            $PayoutIncome = PayoutIncome::with('income','payout')->orderBy('id',$sort)->paginate($limit);    
+        }else{
+            $PayoutIncome=PayoutIncome::select();
+            
+            if($date_range){
+                $PayoutIncome=$PayoutIncome->whereDate('created_at','>=', $date_range[0]);
+                $PayoutIncome=$PayoutIncome->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            if($income_id){
+                $PayoutIncome=$PayoutIncome->where('income_id',$income_id);
+            }
+            
+            $PayoutIncome=$PayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit);
+        }
+   
+        $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$PayoutIncome);
         return response()->json($response, 200);
     }
 }

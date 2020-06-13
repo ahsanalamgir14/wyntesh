@@ -44,7 +44,6 @@ class GeneratePayoutListener
     {
         $payout=$event->payout;
         $this->updateRank();
-        die();
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
         
@@ -230,7 +229,6 @@ class GeneratePayoutListener
                         ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
                     }
 
-
                     $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
                     if($quilifier_matched_pv==0){
                         $matching_point_value=0;
@@ -363,25 +361,29 @@ class GeneratePayoutListener
         foreach ($Members as $Member) {
             $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('total_pv');
             $children=$Member->children();
+
             foreach ($Ranks as $Rank) {
+               
                 if($Rank->bv_to){
-                    if($group_pv >= $Rank->bv_from && $group_pv <= $Rank->bv_to){
+                    if($group_pv >= $Rank->bv_from ){
+                        
                         $Member->rank_id=$Rank->id;
                         $Member->save();
                     }
-
                    
                 }else if($Rank->leg_rank){
                     $rank_count=$Member->select('rank_id',DB::raw('count(*) as total'))->where('parent_id',$Member->id)->groupBy('rank_id')->get();
-
-                    foreach ($rank_count as $future_rank) {
-                        if($Rank->leg_rank==$future_rank->rank_id && $Rank->leg_rank_count>=$future_rank->total){
+                     
+                    foreach ($rank_count as $future_rank) {                                                
+                        if($Rank->leg_rank===$future_rank->rank_id && $Rank->leg_rank_count == $future_rank->total){
                             $Member->rank_id=$Rank->id;
                             $Member->save();
                         }
                     }
+                     
                 }
-            }
+            } 
+            
         }
     }
 }

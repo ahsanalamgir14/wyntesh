@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User\User;
 use App\Models\User\Kyc;
 use App\Models\Admin\Member;
+use App\Models\Admin\Rank;
+use App\Models\Admin\MembersLegPv;
 use Illuminate\Support\Facades\Hash;
 use Validator;
 use Carbon\Carbon;
@@ -17,6 +19,74 @@ use Storage;
 class MembersController extends Controller
 {    
 
+
+    public function updateRank(){
+        $Members=Member::orderBy('level','desc')->get();
+        $Ranks=Rank::all();
+        foreach ($Members as $Member) {
+            $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('total_pv');
+            $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
+            $counts=array();
+            
+            foreach ($children as $child) {
+                $child_ids=$this->getChildsOfParent($child);
+                $child_ids[]=$child;
+
+               $check_rank=Member::select('rank_id',DB::raw('count(*) as total'))->whereIn('id',$child_ids)->groupBy('rank_id')->get()->pluck('rank_id','total')->toArray();
+              foreach ($check_rank as $check) {
+                       
+                        $counts[]=$check;
+               }
+                
+            }
+
+            $counts=array_count_values($counts);
+
+
+            foreach ($Ranks as $Rank) {
+               
+                if($Rank->bv_to){
+                    if($group_pv >= $Rank->bv_from ){
+                       
+                        $Member->rank_id=$Rank->id;
+                        $Member->save();
+                    }
+
+                    
+                   
+                }else if($Rank->leg_rank){
+                   
+                    
+                   
+                   
+                    foreach ($counts as $key => $value) {                                                
+                        if($Member->id==2)
+                        echo $key.'-'.$value.'<br>';
+                        if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
+
+                           
+
+                                echo $Member->user->name;
+                                echo($Rank->leg_rank===$key);
+                                echo $Rank->name; 
+                                 $Member->rank_id=$Rank->id;
+                            $Member->save();   
+
+                          
+                            
+                       
+                            $Member->rank_id=$Rank->id;
+                            $Member->save();
+                        }
+                    }
+
+                }
+
+            } 
+            
+            
+        }
+    }
 
     public function getProfile()
     {   
@@ -72,7 +142,11 @@ class MembersController extends Controller
     }
 
     public function adminGeneology(){
-        $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('level',0)->first();
+        $zero=Member::with('children.children.children')->with('kyc')->with('user')->with('rank')
+        ->withCount(['leg as group_pv' => function($query){
+           $query->select(DB::raw('sum(total_pv)'));
+        }])
+        ->where('level',0)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
         return response()->json($response, 200);  
     }
@@ -80,7 +154,11 @@ class MembersController extends Controller
     public function adminMemberGeneology($id){
         $User=User::where('username',$id)->first();
         if($User){
-            $zero=Member::with('children.children.children')->with('kyc')->with('user')->where('user_id',$User->id)->first();
+            $zero=Member::with('children.children.children')->with('kyc')->with('user')
+            ->withCount(['leg as group_pv' => function($query){
+               $query->select(DB::raw('sum(total_pv)'));
+            }])
+            ->with('rank')->where('user_id',$User->id)->first();
             $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
             return response()->json($response, 200);  
         }else{
@@ -92,7 +170,11 @@ class MembersController extends Controller
 
     public function myGeneology(){
         $id=JWTAuth::user()->id;
-        $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->where('user_id',$id)->first();
+        $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->with('rank')
+            ->withCount(['leg as group_pv' => function($query){
+               $query->select(DB::raw('sum(total_pv)'));
+            }])
+            ->where('user_id',$id)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
         return response()->json($response, 200);  
     }
@@ -106,7 +188,12 @@ class MembersController extends Controller
             $tempMember=Member::where('user_id',$User->id)->first();            
             $pathArray=(explode("/",$tempMember->path));            
             if(in_array($my_member_id,$pathArray)){
-                $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->where('user_id',$User->id)->first();
+                $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')
+                ->with('user')->with('rank')
+                ->withCount(['leg as group_pv' => function($query){
+                   $query->select(DB::raw('sum(total_pv)'));
+                }])
+                ->where('user_id',$User->id)->first();
                 $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
                 return response()->json($response, 200);      
             }else{

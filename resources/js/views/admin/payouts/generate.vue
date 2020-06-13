@@ -43,7 +43,7 @@
             <p v-if="income.income_payout_parameter_2_name" ><b>{{income.income_payout_parameter_2_name}}</b> {{income.income_payout_parameter_2_value}}</p>
             <p v-if="income.income_payout_parameter_3_name" ><b>{{income.income_payout_parameter_3_name}}</b> {{income.income_payout_parameter_3_value}}</p>
             <p v-if="income.income_payout_parameter_4_name" ><b>{{income.income_payout_parameter_4_name}}</b> {{income.income_payout_parameter_4_value}}</p>
-            <p v-if="income.income_payout_parameter_5_name" ><b>{{income.income_payout_parameter_5_name}}</b> {{income.income_payout_parameter_5_value}}</p>
+            <p v-if="income.income_payout_parameter_5_name" ><b>{{income.income_payout_parameter_5_name}}</b> {{income.income_payout_parameter_5_value}}</p><br>
           </div>
         </template>
       </el-table-column>

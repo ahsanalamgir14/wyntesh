@@ -472,9 +472,9 @@ export const asyncRoutes = [
         meta: { title: 'Generate Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
       },
       {
-        path: 'all',
+        path: 'incomes',
         component: () => import('@/views/admin/payouts/incomes'),
-        name: 'PIN Requests',
+        name: 'Incomes',
         meta: { title: 'Incomes', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
       }
     ]
@@ -955,12 +955,12 @@ export const asyncRoutes = [
         name: 'My Payout',
         meta: { title: 'My Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['user'] }
       },
-      // {
-      //   path: 'all',
-      //   component: () => import('@/views/admin/users/index'),
-      //   name: 'PIN Requests',
-      //   meta: { title: 'All Payouts', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
-      // }
+      {
+        path: 'incomes',
+        component: () => import('@/views/user/payouts/incomes'),
+        name: 'Incomes',
+        meta: { title: 'Incomes', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['user'] }
+      }
     ]
   },
   {

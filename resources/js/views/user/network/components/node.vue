@@ -5,8 +5,8 @@
               <div class="member-image">
                 <el-popover
                   placement="top-start"
-                  :title="node.user.name"
-                  width="200"
+                  
+                  width="250"
                   trigger="hover"
                     >
                   <div slot="reference">
@@ -14,9 +14,12 @@
                     <img v-else-if="node.user.is_active && node.kyc.verification_status!='verified' " src="@/assets/images/kyc-pending.png" alt="Member">
                     <img v-else="!node.user.is_active" src="@/assets/images/deactive.png" alt="Member">
                   </div>
-                  <div>                   
+                  <div class="pop-over">
+                    <p><b>{{node.user.name}}</b></p>                   
                     <p><b>ID</b> : {{node.user.username}}</p>
                     <p><b>Wallet Balance</b> : {{node.wallet_balance}}</p>
+                    <p><b>Rank</b> : {{node.rank.name}}</p>
+                    <p><b>Total Group PV</b> : {{node.group_pv?node.group_pv:0}}</p>
                     <p><b>KYC Status</b> : {{node.kyc.verification_status}}</p>
                   </div>
                 </el-popover>
@@ -229,5 +232,8 @@ export default {
   z-index: 1;
 }
 
+.pop-over{
+  padding:5px !important;
+}
 
 </style>

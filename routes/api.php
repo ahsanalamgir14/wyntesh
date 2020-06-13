@@ -18,6 +18,7 @@ Route::get('/', function (Request $request) {
 });
 
 Route::get('mail', 'Auth\AuthController@mailCheck');
+Route::get('rank', '\App\Http\Controllers\User\MembersController@updateRank');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
@@ -131,6 +132,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('order/{id}', 'ShoppingController@getOrder');
 
     Route::get('payouts', 'PayoutsController@getPayouts');
+    Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
 
 });
 
@@ -141,6 +143,7 @@ Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user
     Route::get('transaction-types/all', 'ConfigController@allTransactionTypes');
     Route::get('payment-modes/all', 'ConfigController@allPaymentModes');
     Route::get('bank-partners/all', 'ConfigController@allBankPartners');
+    Route::get('incomes/all', '\App\Http\Controllers\Admin\IncomesController@getAllIncomes');
 
     
 });
@@ -298,6 +301,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::post('payout/generate', 'PayoutsController@generateManualPayout');
     Route::get('payouts', 'PayoutsController@getPayouts');
+    Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
 
 
 });

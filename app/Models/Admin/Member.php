@@ -4,7 +4,7 @@ namespace App\Models\Admin;
 
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
-
+use DB;
 class Member extends Model
 {
     public $timestamps = true;
@@ -26,7 +26,7 @@ class Member extends Model
 
     public function leg()
     {
-        return $this->hasMany('App\Models\Admin\MemberLegPv');
+        return $this->hasMany('App\Models\Admin\MembersLegPv');
     }
 
     public function parent()
@@ -36,7 +36,10 @@ class Member extends Model
 
     public function children()
     {
-        return $this->hasMany(self::class, 'parent_id')->with('user:id,username,name,is_active')->with('kyc:id,member_id,verification_status,is_verified');
+        return $this->hasMany(self::class, 'parent_id')->with('user:id,username,name,is_active')->with('kyc:id,member_id,verification_status,is_verified')->with('leg')->with('rank')
+            ->withCount(['leg as group_pv' => function($query){
+               $query->select(DB::raw('sum(total_pv)'));
+            }]);
     }
 
     public function sponsor()

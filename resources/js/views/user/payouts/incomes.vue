@@ -110,8 +110,7 @@
 </template>
 
 <script>
-import { getPayoutIncomes,} from "@/api/admin/payouts";
-import { getAllIncomes,} from "@/api/admin/incomes";
+import { getPayoutIncomes,getAllIncomes} from "@/api/user/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 

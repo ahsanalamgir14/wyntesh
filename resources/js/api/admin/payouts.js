@@ -15,3 +15,11 @@ export function generateManualPayout(data) {
     data
   })
 }
+
+export function getPayoutIncomes(query) {
+  return request({
+    url: '/admin/payout-incomes',
+    method: 'get',
+    params: query
+  })
+}
