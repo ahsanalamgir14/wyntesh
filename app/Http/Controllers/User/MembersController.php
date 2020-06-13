@@ -32,16 +32,16 @@ class MembersController extends Controller
                 $child_ids=$this->getChildsOfParent($child);
                 $child_ids[]=$child;
 
-               $check_rank=Member::select('rank_id',DB::raw('count(*) as total'))->whereIn('id',$child_ids)->groupBy('rank_id')->get()->pluck('rank_id','total')->toArray();
-              foreach ($check_rank as $check) {
-                       
-                        $counts[]=$check;
-               }
+               $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
+               if($Member->id==1)
                 
+                $check_rank=array_unique($check_rank);
+              foreach ($check_rank as $check) {
+                        $counts[]=$check;
+               }                           
             }
-
+            
             $counts=array_count_values($counts);
-
 
             foreach ($Ranks as $Rank) {
                
@@ -52,31 +52,12 @@ class MembersController extends Controller
                         $Member->save();
                     }
 
-                    
-                   
                 }else if($Rank->leg_rank){
-                   
-                    
-                   
-                   
-                    foreach ($counts as $key => $value) {                                                
-                        if($Member->id==2)
-                        echo $key.'-'.$value.'<br>';
-                        if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
-
-                           
-
-                                echo $Member->user->name;
-                                echo($Rank->leg_rank===$key);
-                                echo $Rank->name; 
-                                 $Member->rank_id=$Rank->id;
-                            $Member->save();   
-
-                          
-                            
-                       
+                                     
+                    foreach ($counts as $key => $value) {   
+                        if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){                           
                             $Member->rank_id=$Rank->id;
-                            $Member->save();
+                            $Member->save();   
                         }
                     }
 
