@@ -63,6 +63,7 @@ class GeneratePayoutListener
             // Personal Sales amount and BV of Member
             $member_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('final_amount_company');
             $member_total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('pv');
+            $toal_bv_without_withhold_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->where('is_withhold_purchase',0)->sum('pv');
 
             // Personal Sales amount and BV of Group/Legs
             $member_leg_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->whereIn('member_id',$Member->children->pluck('id'))->sum('final_amount_company');
@@ -300,20 +301,20 @@ class GeneratePayoutListener
 
                     if($TransactionType){
 
-                        if($Member->rank->personal_bv_condition > $MemberPayout->sales_pv){
+                        if($Member->rank->personal_bv_condition > $toal_bv_without_withhold_bv){
                             if($MemberPayoutIncome->payout_amount != 0){
                                 $MemberIncomeHolding=new MemberIncomeHolding;
                                 $MemberIncomeHolding->member_id=$Member->id;
                                 $MemberIncomeHolding->payout_id=$payout->id;
+                                $MemberIncomeHolding->income_id=$MemberPayoutIncome->income_id;
                                 $MemberIncomeHolding->rank_id=$Member->rank_id;
                                 $MemberIncomeHolding->rank_bv_criteria=$Member->rank->personal_bv_condition;
-                                $MemberIncomeHolding->current_bv=$MemberPayout->sales_pv;
-                                $MemberIncomeHolding->required_bv=$Member->rank->personal_bv_condition-$MemberPayout->sales_pv;
+                                $MemberIncomeHolding->current_bv=$toal_bv_without_withhold_bv;
+                                $MemberIncomeHolding->required_bv=$Member->rank->personal_bv_condition-$toal_bv_without_withhold_bv;
                                 $MemberIncomeHolding->amount=$MemberPayoutIncome->payout_amount;
                                 $MemberIncomeHolding->is_paid=0;
                                 $MemberIncomeHolding->save();
-                            }
-                            
+                            }                            
                         }else{
                             if($MemberPayoutIncome->payout_amount != 0){
                                 $WalletTransaction=new WalletTransaction;

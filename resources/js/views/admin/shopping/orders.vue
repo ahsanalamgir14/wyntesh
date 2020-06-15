@@ -361,7 +361,8 @@ export default {
         'Order Prepared': "warning",
         'Order Dispached': "warning",
         'Order Delivered': "success",                
-        'Order Cancelled': "danger"
+        'Order Cancelled': "danger",
+        'Order Returned': "danger"
       };
 
       return statusMap[status];

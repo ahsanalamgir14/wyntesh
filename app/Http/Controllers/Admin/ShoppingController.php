@@ -16,6 +16,7 @@ use App\Models\Superadmin\PaymentMode;
 use App\Models\Admin\Sale;
 use App\Models\Admin\CompanySetting;
 use App\Models\Admin\ActivationLog;
+use App\Models\Admin\WalletTransaction;
 use App\Models\User\Address;
 use App\Models\User\User;
 use Validator;
@@ -155,8 +156,17 @@ class ShoppingController extends Controller
 
         $Order=Order::find($request->id);
 
+
+
         if($Order){
+
             $old_status=$Order->delivery_status;
+            if(($old_status=='Order Returned') || ( $old_status=='Order Cancelled')){
+                $response = array('status' => false,'message'=>'Cancelled or returned order cannot be updated.');
+                return response()->json($response, 400);
+            }
+
+            
             $Order->delivery_status=$request->delivery_status;
             $Order->delivery_by=$request->delivery_by;
             $Order->tracking_no=$request->tracking_no;
@@ -169,7 +179,9 @@ class ShoppingController extends Controller
             $DeliveryLog->remarks=$request->remarks;
             $DeliveryLog->save();
 
-            if($request->delivery_status=='Order Confirmed' && $old_status != $request->delivery_status){
+            $ExistingSale=Sale::where('order_id',$Order->id)->first();
+
+            if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){
                 $final_amount_company=($Order->final_amount)-($Order->gst)-($Order->shipping_fee)-($Order->admin_fee);
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
@@ -195,10 +207,59 @@ class ShoppingController extends Controller
                         $ActivationLog->save();
 
                     }
+                }               
+            }
+
+            
+
+            if(($request->delivery_status=='Order Cancelled' || $request->delivery_status=='Order Returned')){
+
+                if($old_status !== 'Order Created'){
+                    
+                    $Sale= Sale::where('order_id',$Order->id)->first();
+                    
+                    $Sale->pv=0;
+                    $Sale->final_amount_company=0;
+                    $Sale->save();
+
+                    $Order->user->member->current_personal_pv-=$Order->pv;
+                    $Order->user->member->total_personal_pv-=$Order->pv;
+                    $Order->user->member->save();
                 }
                 
-                event(new UpdateGroupPVEvent($Order,$Order->user));
-                
+
+                $minimum_purchase=CompanySetting::getValue('minimum_purchase');
+                if($Order->user->is_active){
+                    if($Order->user->member->total_personal_pv<$minimum_purchase){
+                        $Order->user->is_active=0;
+                        $Order->user->save();
+
+                        $ActivationLog=new ActivationLog;
+                        $ActivationLog->user_id=$Order->user->id;
+                        $ActivationLog->is_active=0;
+                        $ActivationLog->by_user=$User->id;
+                        $ActivationLog->remarks='Minimum Purchase Dectivation. Order returned or cancelled.';
+                        $ActivationLog->save();
+
+                    }
+                }
+
+
+                $TransactionType=TransactionType::where('name','Order Refund')->first();
+                $balance=$Order->user->member->wallet_balance;
+                $WalletTransaction=new WalletTransaction;
+                $WalletTransaction->member_id=$Order->user->member->id;
+                $WalletTransaction->balance=$balance+$Order->final_amount;
+                $WalletTransaction->amount=$Order->final_amount;
+                $WalletTransaction->transaction_type_id=$TransactionType->id;
+                $WalletTransaction->transfered_to=$Order->user->id;
+                $WalletTransaction->transaction_by=$User->id;
+                $WalletTransaction->note='Product Purchase';
+                $WalletTransaction->save();
+
+                $final_balance=$balance+$Order->final_amount;
+                $Order->User->member->wallet_balance=$final_balance;
+                $Order->User->member->save();
             }
 
             event(new OrderUpdateEvent($Order,$Order->user));

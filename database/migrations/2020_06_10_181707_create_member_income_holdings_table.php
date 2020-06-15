@@ -16,7 +16,8 @@ class CreateMemberIncomeHoldingsTable extends Migration
         Schema::create('member_income_holdings', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('member_id');
-            $table->bigInteger('payout_id');            
+            $table->bigInteger('payout_id');
+            $table->bigInteger('income_id');
             $table->integer('rank_id');
             $table->decimal('rank_bv_criteria', 10, 2)->default(0);
             $table->decimal('current_bv', 10, 2)->default(0);

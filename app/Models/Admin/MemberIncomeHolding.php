@@ -14,6 +14,11 @@ class MemberIncomeHolding extends Model
         return $this->belongsTo('App\Models\Admin\Payout');
     }
 
+    public function income()
+    {
+        return $this->belongsTo('App\Models\Admin\Income');
+    }
+
     public function member()
     {
         return $this->belongsTo('App\Models\Admin\Member');

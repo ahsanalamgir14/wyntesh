@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Admin\Payout;
 
 class GenerateMonthlyPayoutEvent
 {
@@ -19,9 +20,11 @@ class GenerateMonthlyPayoutEvent
      *
      * @return void
      */
-    public function __construct()
+    public $payout;
+
+    public function __construct(Payout $payout)
     {
-        //
+        $this->payout = $payout;
     }
 
     /**

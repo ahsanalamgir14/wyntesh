@@ -8,7 +8,7 @@ use Validator;
 use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutType;
 use App\Models\Admin\PayoutIncome;
-use App\Events\GeneratePayoutEvent;
+use App\Events\GenerateMonthlyPayoutEvent;
 
 class PayoutsController extends Controller
 {    
@@ -83,7 +83,7 @@ class PayoutsController extends Controller
             $PayoutIncome->save();
         }
 
-        event(new GeneratePayoutEvent($Payout));
+        event(new GenerateMonthlyPayoutEvent($Payout));
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');
         return response()->json($response, 200);

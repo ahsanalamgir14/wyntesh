@@ -17,7 +17,8 @@ class CreateSalesTable extends Migration
             $table->id();
             $table->bigInteger('member_id');
             $table->bigInteger('order_id');
-            $table->decimal('pv', 10, 2)->default(0); 
+            $table->decimal('pv', 10, 2)->default(0);
+            $table->boolean('is_withhold_purchase')->default(0);
             $table->decimal('final_amount_company', 10, 2)->default(0); //(order_amount - GST - shipping - admin)
             $table->timestamps();
         });
