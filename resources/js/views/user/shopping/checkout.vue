@@ -80,7 +80,7 @@
             <div class="cal-title">
               <span>Total PV</span>
             </div>         
-            <div class="cal-amount"><span>₹ {{temp.pv}}</span></div>
+            <div class="cal-amount"><span>{{temp.pv}}</span></div>
           </div>
           <div class="calculations">
             <div class="cal-grand">

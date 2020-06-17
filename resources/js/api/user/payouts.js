@@ -23,3 +23,12 @@ export function getPayoutIncomes(query) {
     params: query
   })
 }
+
+
+export function getIncomeHoldings(query) {
+  return request({
+    url: '/user/income-holdings',
+    method: 'get',
+    params: query
+  })
+}

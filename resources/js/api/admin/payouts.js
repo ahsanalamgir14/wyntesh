@@ -23,3 +23,27 @@ export function getPayoutIncomes(query) {
     params: query
   })
 }
+
+export function getMemberPayouts(query) {
+  return request({
+    url: '/admin/payouts/member',
+    method: 'get',
+    params: query
+  })
+}
+
+export function getMemberPayoutIncomes(query) {
+  return request({
+    url: '/admin/payout-incomes/member',
+    method: 'get',
+    params: query
+  })
+}
+
+export function getMemberIncomeHoldings(query) {
+  return request({
+    url: '/admin/income-holdings/member',
+    method: 'get',
+    params: query
+  })
+}

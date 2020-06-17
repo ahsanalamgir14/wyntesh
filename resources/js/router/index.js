@@ -476,6 +476,24 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/payouts/incomes'),
         name: 'Incomes',
         meta: { title: 'Incomes', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'member/payouts',
+        component: () => import('@/views/admin/payouts/member-payouts'),
+        name: 'Member Payouts',
+        meta: { title: 'Member Payouts', icon: 'fas fa-money-bill-alt', color:'color:#32a852', affix: true, roles: ['admin'] }
+      },
+      {
+        path: '/member/incomes',
+        component: () => import('@/views/admin/payouts/member-incomes'),
+        name: 'Member Incomes',
+        meta: { title: 'Member Incomes', icon: 'fas fa-money-bill', color:'color:#c23abd', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'income-holdings',
+        component: () => import('@/views/admin/payouts/member-income-holdings'),
+        name: 'Income on Hold',
+        meta: { title: 'Income on Hold', icon: 'fas fa-hand-holding-usd', color:'color:#C39BD3', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -960,6 +978,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/payouts/incomes'),
         name: 'Incomes',
         meta: { title: 'Incomes', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'income-holdings',
+        component: () => import('@/views/user/payouts/income-holdings'),
+        name: 'Income on Hold',
+        meta: { title: 'Income on Hold', icon: 'fas fa-hand-holding-usd', color:'color:#C39BD3', affix: true, roles: ['user'] }
       }
     ]
   },

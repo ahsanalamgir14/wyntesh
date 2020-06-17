@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
      
-      <el-select v-model="listQuery.income_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Transaction Type">
+      <el-select v-model="listQuery.income_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Income">
         <el-option
           v-for="item in income_list"
           :key="item.name"

@@ -110,7 +110,7 @@
 </template>
 
 <script>
-import { getPayoutIncomes,} from "@/api/admin/payouts";
+import { getMemberPayoutIncomes,} from "@/api/admin/payouts";
 import { getAllIncomes,} from "@/api/admin/incomes";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -206,7 +206,7 @@ export default {
     checkRole,
     getList() {
       this.listLoading = true;
-      getPayoutIncomes(this.listQuery).then(response => {
+      getMemberPayoutIncomes(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {

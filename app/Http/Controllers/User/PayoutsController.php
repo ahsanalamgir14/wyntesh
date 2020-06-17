@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
+use App\Models\Admin\MemberIncomeHolding;
 use JWTAuth;
 
 class PayoutsController extends Controller
@@ -93,6 +94,36 @@ class PayoutsController extends Controller
         }
    
         $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome);
+        return response()->json($response, 200);
+    }
+
+    public function getIncomeHoldings(Request $request)
+    {
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id')
+       ->with('payout')->selectRaw('*, sum(amount) as withhold_amount')
+       ->where('member_id',$user->member->id)->where('is_paid',0)->paginate($limit);
+   
+        $response = array('status' => true,'message'=>"Member Income Holding retrieved.",'data'=>$MemberIncomeHolding);
         return response()->json($response, 200);
     }
   

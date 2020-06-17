@@ -1,31 +1,13 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-     
-      <el-select v-model="listQuery.income_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Income">
-        <el-option
-          v-for="item in income_list"
-          :key="item.name"
-          :label="item.name"
-          :value="item.id">
-        </el-option>
-      </el-select>
-
-      <el-date-picker
-        v-model="listQuery.date_range"
+      <el-input
+        v-model="listQuery.search"
+        placeholder="Search Records"
+        style="width: 200px;"
         class="filter-item"
-        type="daterange"
-        align="right"
-        unlink-panels
-        @change="handleFilter"
-        format="yyyy-MM-dd"
-        value-format="yyyy-MM-dd"
-        range-separator="|"
-        start-placeholder="Start date"
-        end-placeholder="End date"
-        :picker-options="pickerOptions">
-      </el-date-picker>
-
+        @keyup.enter.native="handleFilter"
+      />
       <el-button
         v-waves
         class="filter-item"
@@ -45,8 +27,6 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-     
-
       <el-table-column
         label="ID"
         prop="id"
@@ -60,11 +40,6 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="Income" min-width="300px">
-        <template slot-scope="{row}">
-          <span >{{ row.income?row.income.name:'' }}</span>
-        </template>
-      </el-table-column>
 
       <el-table-column label="Sales Start Date" width="150px" align="center">
         <template slot-scope="{row}">
@@ -76,19 +51,19 @@
           <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Sales BV" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.sales_pv }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Sales Amount" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.sales_amount }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Total Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout_amount }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Income Parameter 1" width="200px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.income_payout_parameter_1_name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Income Parameter 1 Value" width="200px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.income_payout_parameter_1_value }}</span>
+          <span >{{ row.total_payout }}</span>
         </template>
       </el-table-column>
 
@@ -106,22 +81,20 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
+
   </div>
 </template>
 
 <script>
-import { getPayoutIncomes,} from "@/api/admin/payouts";
-import { getAllIncomes,} from "@/api/admin/incomes";
+import { getMemberPayouts, } from "@/api/admin/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
-import role from '@/directive/role'; 
-import checkRole from '@/utils/role';
 
 export default {
-  name: "GeneratePayout",
+  name: "Payouts",
   components: { Pagination },
-  directives: { waves,role },
+  directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -141,7 +114,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 15,
+        limit: 5,
         search: undefined,
         sort: "-id"
       },
@@ -149,11 +122,6 @@ export default {
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
-      temp: {
-        date_range:undefined,
-        incomes:undefined
-      },
-      income_list:[],
       pickerOptions: {
         shortcuts: [{
           text: 'Last week',
@@ -188,25 +156,17 @@ export default {
         update: "Edit",
         create: "Create"
       },
-      rules: {
-        date_range: [{ required: true, message: 'Date range is required', trigger: 'blur' }],
-        incomes: [{ required: true, message: 'Please select income', trigger: 'blur' }],
-      },
       downloadLoading: false,
       buttonLoading: false
     };
   },
   created() {
     this.getList();
-    getAllIncomes().then(response => {
-      this.income_list = response.data;
-    });
   },
   methods: {
-    checkRole,
     getList() {
       this.listLoading = true;
-      getPayoutIncomes(this.listQuery).then(response => {
+      getMemberPayouts(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
@@ -217,43 +177,6 @@ export default {
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();
-    },
-    
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        date_range:undefined,
-        incomes:undefined
-      };
-    },
-    handleCreate() {
-      this.resetTemp();
-      this.dialogStatus = "create";
-      this.dialogTitle="Generate Payout";
-      this.dialogPayoutGenerateVisible = true;
-      this.$nextTick(() => {
-        this.$refs["payoutGenerateForm"].clearValidate();
-      });
-    },
-    createData() {
-      this.$refs["payoutGenerateForm"].validate(valid => {
-        if (valid) {
-          this.buttonLoading=true;
-          generateManualPayout(this.temp).then((data) => {
-            this.dialogPayoutGenerateVisible = false;
-            this.$notify({
-              title: "Success",
-              message: data.message,
-              type: "success",
-              duration: 2000
-            });
-            this.buttonLoading=false;
-            this.resetTemp();
-          }).catch((err)=>{
-            this.buttonLoading=false;
-          });
-        }
-      });      
     },
     sortChange(data) {
       const { prop, order } = data;
