@@ -8,6 +8,20 @@
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
+      <el-date-picker
+        v-model="listQuery.date_range"
+        class="filter-item"
+        type="daterange"
+        align="right"
+        unlink-panels
+        @change="handleFilter"
+        format="yyyy-MM-dd"
+        value-format="yyyy-MM-dd"
+        range-separator="|"
+        start-placeholder="Payout Start date"
+        end-placeholder="Payout End date"
+        :picker-options="pickerOptions">
+      </el-date-picker>
       <el-button
         v-waves
         class="filter-item"
@@ -15,6 +29,14 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >Export</el-button>
     </div>
 
     <el-table
@@ -39,8 +61,16 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      
-
+      <el-table-column label="Payout Month" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Member" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.member.user.username }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Sales Start Date" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
@@ -66,12 +96,7 @@
           <span >{{ row.total_payout }}</span>
         </template>
       </el-table-column>
-
-       <el-table-column label="Generated at" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+       
     </el-table>
 
     <pagination
@@ -114,7 +139,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 5,
+        limit: 10,
         search: undefined,
         sort: "-id"
       },
@@ -199,7 +224,56 @@ export default {
         : sort === `-${key}`
         ? "descending"
         : "";
-    }
+    },
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "Sr.No",
+          "Member",
+          "Sales start date",
+          "Sales end date",
+          "Sales BV",
+          "Saled Amount",
+          "Total Payout",
+          "Generated At",
+        ];
+        const filterVal = [
+          "id",
+          "member",
+          "sales_start_date",
+          "sales_end_date",
+          "sales_pv",
+          "sales_amount",
+          "total_payout",
+          "created_at",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "member-payouts"
+        });
+        this.downloadLoading = false;
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else if(j === "member") {
+            return v.member?v.member.user.username:''
+          }else if(j === "sales_start_date") {
+            return v.payout?v.payout.sales_start_date:''
+          }else if(j === "sales_end_date") {
+            return v.payout?v.payout.sales_end_date:''
+          }else {
+            return v[j];
+          }
+        })
+      );
+    },
   }
 };
 </script>

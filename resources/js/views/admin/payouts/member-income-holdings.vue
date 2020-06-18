@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <!-- <div class="filter-container">
+    <div class="filter-container">
       <el-input
         v-model="listQuery.search"
         placeholder="Search Records"
@@ -15,7 +15,15 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-    </div> -->
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >Export</el-button>
+    </div>
 
     <el-table
       :key="tableKey"
@@ -32,7 +40,11 @@
           <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-
+      <el-table-column label="Member" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.member.user.username }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Required BV to release" min-width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.required_bv }}</span>
@@ -171,7 +183,46 @@ export default {
         : sort === `-${key}`
         ? "descending"
         : "";
-    }
+    },
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "Payout",
+          "Member",
+          "Required BV to release",
+          "Amount"
+        ];
+        const filterVal = [          
+          "payout",
+          "member",
+          "required_bv",
+          "amount",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "income-holdings"
+        });
+        this.downloadLoading = false;
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else if(j === "payout") {
+            return v.payout?v.payout.created_at:''
+          }else if(j === "member") {
+            return v.member?v.member.user.username:''
+          }else {
+            return v[j];
+          }
+        })
+      );
+    },
   }
 };
 </script>

@@ -1,7 +1,13 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-     
+      <el-input
+        v-model="listQuery.search"
+        placeholder="Search Records"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
       <el-select v-model="listQuery.income_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Income">
         <el-option
           v-for="item in income_list"
@@ -33,6 +39,14 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >Export</el-button>
     </div>
 
     <el-table
@@ -65,7 +79,11 @@
           <span >{{ row.income?row.income.name:'' }}</span>
         </template>
       </el-table-column>
-
+      <el-table-column label="Member" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.member.user.username }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Sales Start Date" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
@@ -276,7 +294,60 @@ export default {
         : sort === `-${key}`
         ? "descending"
         : "";
-    }
+    },
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "Sr.No",
+          "Income",
+          "Member",
+          "Sales start date",
+          "Sales end date",
+          "Total Payout",
+          "Income parameter",
+          "Income parameter value",          
+          "Generated At",
+        ];
+        const filterVal = [
+          "id",
+          "income",
+          "member",
+          "sales_start_date",
+          "sales_end_date",
+          "payout_amount",
+          "income_payout_parameter_1_name",
+          "income_payout_parameter_1_value",          
+          "created_at",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "member-income-payouts"
+        });
+        this.downloadLoading = false;
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else if(j === "sales_start_date") {
+            return v.payout?v.payout.sales_start_date:''
+          }else if(j === "sales_end_date") {
+            return v.payout?v.payout.sales_end_date:''
+          }else if(j === "income") {
+            return v.income?v.income.name:''
+          }else if(j === "member") {
+            return v.member?v.member.user.username:''
+          }else {
+            return v[j];
+          }
+        })
+      );
+    },
   }
 };
 </script>

@@ -18,7 +18,7 @@ use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Superadmin\TransactionType;
-
+use App\Http\Controllers\User\MembersController;
 use Illuminate\Support\Facades\Log;
 use DB;
 
@@ -62,7 +62,11 @@ class GeneratePayoutListener
 
             // Personal Sales amount and BV of Member
             $member_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('final_amount_company');
+            
+            // total bv turnover including withholding bv
             $member_total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('pv');
+            
+            // get member total puchase in payout period to check minimum bv condition based on rank.
             $toal_bv_without_withhold_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->where('is_withhold_purchase',0)->sum('pv');
 
             // Personal Sales amount and BV of Group/Legs
@@ -190,6 +194,7 @@ class GeneratePayoutListener
                     }                                          
                 }
 
+                // matching point value calculation for various income
                 if($income->code=='CONSISTENCY'){
                     $Members_Matched=$MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$matching_pv)->get();
 
@@ -205,27 +210,31 @@ class GeneratePayoutListener
                     $quilifier_matched_pv=0;
                     if($income->code=='TRIP_ALL' || $income->code=='VEHICLE_ALL' || $income->code=='HOUSE_ALL' || $income->code=='SUPER_GROWTH_ALL'){
 
+                        // Get all qualifier whose rank is greator than or equals to gold and satisfies matching pv condtion
+
                         $quilifier_matched_pv=$MemberPayout::where('payout_id',$payout->id)
                         ->whereHas('member.rank',function($q){
-                            $q->whereIn('id',[1,2,3,4,5,6]);
+                            $q->where('id','>=',[6]);
                         })
                         ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
                     }
 
                     if($income->code=='TRIP_DIA_EXE' || $income->code=='VEHICLE_DIA_EXE' || $income->code=='HOUSE_DIA_EXE' || $income->code=='SUPER_GROWTH_DIA_EXE'){
 
+                        // Get all qualifier whose rank is greator than or equals to diamond and satisfies matching pv condtion
                         $quilifier_matched_pv=$MemberPayout::where('payout_id',$payout->id)
                         ->whereHas('member.rank',function($q){
-                            $q->where('id',7);
+                            $q->where('id','>=',[7]);
                         })
                         ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
                     }
 
                     if($income->code=='TRIP_DIPLOMAT' || $income->code=='VEHICLE_DIPLOMAT' || $income->code=='HOUSE_DIPLOMAT' || $income->code=='SUPER_GROWTH_DIPLOMAT'){
 
+                        // Get all qualifier whose rank is greator than or equals to diplomat and satisfies matching pv condtion
                         $quilifier_matched_pv=$MemberPayout::where('payout_id',$payout->id)
                         ->whereHas('member.rank',function($q){
-                            $q->where('id',7);
+                            $q->where('id','>=',[8]);
                         })
                         ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
                     }
@@ -234,6 +243,7 @@ class GeneratePayoutListener
                     if($quilifier_matched_pv==0){
                         $matching_point_value=0;
                     }else{
+                        // calculate matching point value. (factor)
                         $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$quilifier_matched_pv;    
                     }
                     $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
@@ -257,6 +267,18 @@ class GeneratePayoutListener
                     $income_payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
 
                     if($PayoutIncome->income->code=='MATACHING'){
+                        
+                        $payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
+
+                        $capping=$Member->rank->capping;
+                        if($payout_amount>$capping){
+                            $payout_amount=$capping;
+                        }
+
+                        if($payout_amount==0){
+                            continue;
+                        }
+
                         $TransactionType=TransactionType::where('name','Matching Bonus')->first();
                         $MemberPayoutIncome=new MemberPayoutIncome;
                         $MemberPayoutIncome->payout_id=$payout->id;
@@ -264,7 +286,7 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->member_id=$Member->id;
                         $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
                         $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
-                        $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                        $MemberPayoutIncome->payout_amount=$payout_amount;
                         $MemberPayoutIncome->save();
                     }
 
@@ -274,6 +296,13 @@ class GeneratePayoutListener
                             continue;
                         }
 
+                        $payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
+
+                        $capping=$Member->rank->capping;
+                        if($payout_amount>$capping){
+                            $payout_amount=$capping;
+                        }
+
                         $TransactionType=TransactionType::where('name','Consistency Bonus')->first();
                         $MemberPayoutIncome=new MemberPayoutIncome;
                         $MemberPayoutIncome->payout_id=$payout->id;
@@ -281,7 +310,7 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->member_id=$Member->id;
                         $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
                         $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
-                        $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                        $MemberPayoutIncome->payout_amount=$payout_amount;
                         $MemberPayoutIncome->save();
                     }else{
                         if($income_payout_amount==0){
@@ -359,31 +388,49 @@ class GeneratePayoutListener
     public function updateRank(){
         $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
+        $MembersController=new MembersController;
         foreach ($Members as $Member) {
             $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('total_pv');
-            $children=$Member->children();
+            $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
+            $counts=array();
+            
+            foreach ($children as $child) {
+                $child_ids=$MembersController->getChildsOfParent($child);
+                $child_ids[]=$child;
+
+               $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
+               if($Member->id==1)
+                
+                $check_rank=array_unique($check_rank);
+              foreach ($check_rank as $check) {
+                        $counts[]=$check;
+               }                           
+            }
+            
+            $counts=array_count_values($counts);
 
             foreach ($Ranks as $Rank) {
                
                 if($Rank->bv_to){
                     if($group_pv >= $Rank->bv_from ){
-                        
+                       
                         $Member->rank_id=$Rank->id;
                         $Member->save();
                     }
-                   
+
                 }else if($Rank->leg_rank){
-                    $rank_count=$Member->select('rank_id',DB::raw('count(*) as total'))->where('parent_id',$Member->id)->groupBy('rank_id')->get();
-                     
-                    foreach ($rank_count as $future_rank) {                                                
-                        if($Rank->leg_rank===$future_rank->rank_id && $Rank->leg_rank_count == $future_rank->total){
+                                     
+                    foreach ($counts as $key => $value) {   
+                        if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){                           
                             $Member->rank_id=$Rank->id;
-                            $Member->save();
+                            $Member->save();   
                         }
                     }
-                     
+
                 }
+
             } 
+            
             
         }
     }

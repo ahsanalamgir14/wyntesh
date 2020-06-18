@@ -141,6 +141,7 @@ class PayoutsController extends Controller
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
+        $date_range=$request->date_range;
 
         if(!$page){
             $page=1;
@@ -156,14 +157,24 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search){
+        if(!$search && !$date_range){
             $MemberPayout=MemberPayout::select();
             
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username')->orderBy('id',$sort)->paginate($limit);
         }else{
             $MemberPayout=MemberPayout::select();
-            
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($date_range){
+                $MemberPayout=$MemberPayout->whereDate('created_at','>=', $date_range[0]);
+                $MemberPayout=$MemberPayout->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout);
@@ -196,10 +207,16 @@ class PayoutsController extends Controller
         if(!$search && !$income_id && !$date_range){
             $MemberPayoutIncome=MemberPayoutIncome::select();
             
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit); 
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username')->orderBy('id',$sort)->paginate($limit); 
         }else{
             $MemberPayoutIncome=MemberPayoutIncome::select();
             
+            $MemberPayoutIncome=$MemberPayoutIncome->where(function ($query)use($search) {              
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+
             if($date_range){
                 $MemberPayoutIncome=$MemberPayoutIncome->whereDate('created_at','>=', $date_range[0]);
                 $MemberPayoutIncome=$MemberPayoutIncome->whereDate('created_at','<=', $date_range[1]);
@@ -209,7 +226,7 @@ class PayoutsController extends Controller
                 $MemberPayoutIncome=$MemberPayoutIncome->where('income_id',$income_id);
             }
             
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome);
@@ -238,10 +255,21 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id')
-       ->with('payout')->selectRaw('*, sum(amount) as withhold_amount')
-       ->where('is_paid',0)->paginate($limit);
-   
+        if(!$search ){
+            $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id')
+           ->with('payout','member.user:id,username')->selectRaw('*, sum(amount) as withhold_amount')
+           ->where('is_paid',0)->paginate($limit);
+        }else{
+            $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id');
+            $MemberIncomeHolding=$MemberIncomeHolding->where(function ($query)use($search) {              
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+            $MemberIncomeHolding=$MemberIncomeHolding->with('payout','member.user:id,username')->selectRaw('*, sum(amount) as withhold_amount')
+           ->where('is_paid',0)->paginate($limit);
+        }
+
         $response = array('status' => true,'message'=>"Member Income Holding retrieved.",'data'=>$MemberIncomeHolding);
         return response()->json($response, 200);
     }

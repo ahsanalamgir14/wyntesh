@@ -33,8 +33,17 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-    </div>
 
+    <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >Export</el-button>
+
+    </div>
     <el-table
       :key="tableKey"
       v-loading="listLoading"
@@ -276,7 +285,56 @@ export default {
         : sort === `-${key}`
         ? "descending"
         : "";
-    }
+    },
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "Sr.No",
+          "Income",
+          "Sales start date",
+          "Sales end date",
+          "Income parameter",
+          "Income parameter value",
+          "Total Payout",
+          "Generated At",
+        ];
+        const filterVal = [
+          "id",
+          "income",
+          "sales_start_date",
+          "sales_end_date",
+          "income_payout_parameter_1_name",
+          "income_payout_parameter_1_value",
+          "payout_amount",
+          "created_at",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "income-payouts"
+        });
+        this.downloadLoading = false;
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else if(j === "sales_start_date") {
+            return v.payout?v.payout.sales_start_date:''
+          }else if(j === "sales_end_date") {
+            return v.payout?v.payout.sales_end_date:''
+          }else if(j === "income") {
+            return v.income?v.income.name:''
+          }else {
+            return v[j];
+          }
+        })
+      );
+    },
   }
 };
 </script>
