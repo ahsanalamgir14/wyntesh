@@ -47,3 +47,11 @@ export function getMemberIncomeHoldings(query) {
     params: query
   })
 }
+
+export function releaseMemberHoldPayout(data) {
+  return request({
+    url: '/admin/payout/release/member-holding',
+    method: 'post',
+    data
+  })
+}

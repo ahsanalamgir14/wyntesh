@@ -7,6 +7,44 @@
     </el-steps>
 
     <el-row :gutter="10" v-if="step==0" style="margin-top: 20px;">
+      <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+        <el-form ref="pinTransferForm" label-position="top" :model="payout">
+          <el-row :gutter="20">
+            <el-col  :xs="24" :sm="24" :md="5" :lg="5" :xl="5" >
+              <el-form-item label="Payout You want to release" prop="payout_id">            
+                <el-select v-model="payout.payout_id" @change="handleChangePayout"  clearable  style="width:200px;" filterable placeholder="Select Payout">
+                  <el-option
+                    v-for="item in incomeHoldingPayouts"
+                    :key="item.payout_id"
+                    :label="item.payout.created_at | parseTime('{y}-{m}-{d}')"
+                    :value="item.payout_id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col  :xs="24" :sm="24" :md="5" :lg="5" :xl="5" >
+              <el-form-item label="Required BV" prop="required_bv">
+                <el-input
+                  v-model="payout.required_bv"
+                  placeholder="Required PV"
+                  style="width: 200px;"
+                  class="filter-item"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col  :xs="24" :sm="24" :md="5" :lg="5" :xl="5" >
+              <el-form-item label="Withhold Amount" prop="withhold_amount">
+                <el-input
+                  v-model="payout.withhold_amount"
+                  placeholder="Amount to release"
+                  style="width: 200px;"
+                  class="filter-item"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </el-col>
       <el-col  :xs="24" :sm="24" :md="16" :lg="16" :xl="16" >
         <div class="shopping-cart">
           <div class="title">
@@ -97,7 +135,7 @@
                 size="large"
                 icon="el-icon-shopping-cart-full"                
                 :loading="buttonLoading"
-                @click="step=1"
+                @click="gotoStep1()"
               >Place Order</el-button>
           </div>
         </div>
@@ -284,6 +322,7 @@
 
 <script>
 import { getMyCart, addToCart, removeFromCart, updateCartQty, placeOrder } from "@/api/user/shopping";
+import { getIncomeHoldingPayouts } from "@/api/user/payouts";
 import { getAllAddresses } from "@/api/user/addresses";
 import { getMyBalance } from "@/api/user/wallet";
 import waves from "@/directive/waves"; 
@@ -322,8 +361,14 @@ export default {
         package_id: undefined,
         sort: "+id"
       },
+      payout:{
+        payout_id:undefined,
+        required_bv:undefined,
+        withhold_amount:undefined,
+      },
       categories:[],
       cartProducts:[],
+      incomeHoldingPayouts:[],
       temp: {
         subtotal:0,
         total_gst: 0,
@@ -335,6 +380,7 @@ export default {
         billing_address_id:undefined,
         pv:0,
         payment_mode:1,
+        payout_id:undefined,
 
       },
       billing_address:{
@@ -387,6 +433,7 @@ export default {
     this.getMyCart();
     this.getAllAddresses();
     this.getMyBalance();
+    this.getIncomeHoldingPayouts();
   },
   methods: {        
     getMyCart(){
@@ -406,6 +453,11 @@ export default {
     getMyBalance(){
       getMyBalance().then(response => {
         this.balance = response.data; 
+      });
+    },
+    getIncomeHoldingPayouts(){
+      getIncomeHoldingPayouts().then(response => {
+        this.incomeHoldingPayouts = response.data; 
       });
     },
     selectShippingAddress(){      
@@ -438,6 +490,13 @@ export default {
           this.temp.grand_total=this.temp.subtotal+this.temp.total_gst+this.temp.shipping+this.temp.admin-this.temp.discount;
         });  
     },
+    resetPayout(){
+      this.payout={
+        payout_id:undefined,
+        required_bv:undefined,
+        withhold_amount:undefined,
+      };
+    },
     resetTemp(){
       this.temp= {
         subtotal:0,
@@ -447,12 +506,36 @@ export default {
         discount:0,
         pv:0,
         grand_total:0,
+        payout_id:undefined,
 
       };
+    },
+    handleChangePayout(){
+      let withhold=this.incomeHoldingPayouts.map((item)=>{
+        return item.payout_id==this.payout.payout_id?item:0;
+      })[0];
+      if(withhold){
+        this.payout.payout_id=withhold.payout_id;
+        this.payout.withhold_amount=withhold.withhold_amount;
+        this.payout.required_bv=withhold.required_bv;
+      }else{
+        this.resetPayout();
+      }
+      
+    },
+    gotoStep1(){
+      if(this.temp.pv < this.payout.required_bv && this.payout.payout_id){
+        this.$message.error('You require total - '+this.payout.required_bv+' PV to release this payout. Buy some more products.');
+        return;
+      }else{
+        this.temp.payout_id=this.payout.payout_id;
+        this.step=1;
+      }
     },
     placeOrder(){   
       this.$refs["orderForm"].validate(valid => {
         if (valid) { 
+
           if(parseFloat(this.balance) < parseFloat(this.temp.grand_total)){
             this.$message.error('Oops, You have not enough balance to place order.');
             return;

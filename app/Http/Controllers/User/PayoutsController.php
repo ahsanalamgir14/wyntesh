@@ -126,5 +126,18 @@ class PayoutsController extends Controller
         $response = array('status' => true,'message'=>"Member Income Holding retrieved.",'data'=>$MemberIncomeHolding);
         return response()->json($response, 200);
     }
+
+    public function getIncomeHoldingPayouts(Request $request)
+    {
+        $user=JWTAuth::user();
+        
+
+        $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id')
+       ->with('payout')->selectRaw('*, sum(amount) as withhold_amount')
+       ->where('member_id',$user->member->id)->where('is_paid',0)->get();
+   
+        $response = array('status' => true,'message'=>"Member Income Holding Payouts retrieved.",'data'=>$MemberIncomeHolding);
+        return response()->json($response, 200);
+    }
   
 }

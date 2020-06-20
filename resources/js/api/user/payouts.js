@@ -32,3 +32,10 @@ export function getIncomeHoldings(query) {
     params: query
   })
 }
+
+export function getIncomeHoldingPayouts() {
+  return request({
+    url: '/user/income-holding-payouts',
+    method: 'get'
+  })
+}

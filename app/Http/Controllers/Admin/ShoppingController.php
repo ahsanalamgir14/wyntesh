@@ -188,6 +188,11 @@ class ShoppingController extends Controller
                 $Sale->pv=$Order->pv;
                 $Sale->order_id=$Order->id;
                 $Sale->final_amount_company=$final_amount_company;
+
+                if($Order->is_withhold_purchase){
+                    $Sale->is_withhold_purchase=1;
+                }
+                
                 $Sale->save();
 
                 $Order->user->member->current_personal_pv+=$Order->pv;

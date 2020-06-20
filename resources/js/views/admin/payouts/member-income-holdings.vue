@@ -34,7 +34,20 @@
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
-    >
+    > 
+      <el-table-column label="Actions" align="center" width="230px" class-name="small-padding">        
+        <template slot-scope="{row}">
+          <el-tooltip content="Release withhold Payout" placement="right" effect="dark" >
+            <el-button
+              circle
+              type="success"
+              icon="el-icon-check"
+              :loading="buttonLoading"
+              @click="handleReleasePayout(row)"
+              ></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column label="Payout" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
@@ -70,7 +83,7 @@
 </template>
 
 <script>
-import { getMemberIncomeHoldings, } from "@/api/admin/payouts";
+import { getMemberIncomeHoldings, releaseMemberHoldPayout} from "@/api/admin/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
@@ -183,6 +196,34 @@ export default {
         : sort === `-${key}`
         ? "descending"
         : "";
+    },
+    handleReleasePayout(row){
+
+      this.$confirm('Are you sure you want to release withhold payout?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        this.buttonLoading=true;
+        let data={
+          payout_id:row.payout_id,
+          member_id:row.member_id
+        };
+        releaseMemberHoldPayout(data).then((data) => {
+          this.buttonLoading=false;
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          this.getList();
+        }).catch((err)=>{
+          this.buttonLoading=false;
+        });
+      }).catch(()=>{
+          
+      });
     },
     handleDownload() {
       this.downloadLoading = true;

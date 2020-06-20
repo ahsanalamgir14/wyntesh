@@ -65,9 +65,6 @@ class GeneratePayoutListener
             
             // total bv turnover including withholding bv
             $member_total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('pv');
-            
-            // get member total puchase in payout period to check minimum bv condition based on rank.
-            $toal_bv_without_withhold_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->where('is_withhold_purchase',0)->sum('pv');
 
             // Personal Sales amount and BV of Group/Legs
             $member_leg_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->whereIn('member_id',$Member->children->pluck('id'))->sum('final_amount_company');
@@ -260,6 +257,9 @@ class GeneratePayoutListener
             $total_payout=0;
             $PayoutIncomes=PayoutIncome::where('payout_id',$payout->id)->get();
             $MemberPayout= MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
+            // get member total puchase in payout period to check minimum bv condition based on rank.
+            $toal_bv_without_withhold_bv=Sale::whereBetween('created_at', [$MemberPayout->payout->sales_start_date, $MemberPayout->payout->sales_end_date])->where('member_id',$Member->id)->where('is_withhold_purchase',0)->sum('pv');
+
             foreach ($PayoutIncomes as $PayoutIncome) {
                 // Count payout based on income.
                 if($PayoutIncome->income_payout_parameter_1_name=='matching_point_value'){

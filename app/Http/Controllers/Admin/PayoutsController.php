@@ -6,12 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\Payout;
+use App\Models\Admin\Member;
 use App\Models\Admin\PayoutType;
 use App\Models\Admin\PayoutIncome;
 use App\Events\GenerateMonthlyPayoutEvent;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
+
+use App\Models\User\Order;
+use App\Models\Superadmin\TransactionType;
+use App\Models\Admin\WalletTransaction;
+use Carbon\Carbon;
 
 class PayoutsController extends Controller
 {    
@@ -272,5 +278,52 @@ class PayoutsController extends Controller
 
         $response = array('status' => true,'message'=>"Member Income Holding retrieved.",'data'=>$MemberIncomeHolding);
         return response()->json($response, 200);
+    }
+
+    public function releaseMemberHoldPayout(Request $request){
+        $validate = Validator::make($request->all(), [
+            'payout_id' => 'required',
+            'member_id'=>'required',
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $Member=Member::find($request->member_id);
+
+        if($Member){
+            $this->releaseHoldPayout($request->payout_id,$Member->user);
+            $response = array('status' => true,'message'=>"Member Income Holding released and credited to member account.");
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>"Member not found.");
+            return response()->json($response, 404);
+        }
+    }    
+
+    public function releaseHoldPayout($payout_id,$user){
+        
+        $TransactionType=TransactionType::where('name','Withhold Payout')->first();
+
+        $MemberIncomeHolding=MemberIncomeHolding::selectRaw('*, sum(amount) as withhold_amount')
+       ->where('member_id',$user->member->id)->where('payout_id',$payout_id)->where('is_paid',0)->first();
+
+        if($MemberIncomeHolding->withhold_amount && $TransactionType){
+            $WalletTransaction=new WalletTransaction;
+            $WalletTransaction->member_id=$user->member->id;
+            $WalletTransaction->amount=$MemberIncomeHolding->withhold_amount;
+            $WalletTransaction->balance=$MemberIncomeHolding->withhold_amount+$user->member->wallet_balance;
+            $WalletTransaction->transaction_type_id=$TransactionType->id;
+            $WalletTransaction->transfered_to=$user->id;
+            $WalletTransaction->note='Withhold Payout';
+            $WalletTransaction->save(); 
+
+            $user->member->wallet_balance+=$MemberIncomeHolding->withhold_amount;
+            $user->member->save();
+
+            MemberIncomeHolding::where('member_id',$user->member->id)->where('payout_id',$payout_id)->where('is_paid',0)->update(['is_paid'=>1,'paid_at'=>Carbon::now()]);
+        }
     }
 }
