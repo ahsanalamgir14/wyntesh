@@ -236,15 +236,35 @@ class GeneratePayoutListener
                         ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
                     }
 
-                    $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
-                    if($quilifier_matched_pv==0){
-                        $matching_point_value=0;
-                    }else{
-                        // calculate matching point value. (factor)
-                        $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$quilifier_matched_pv;    
+                    if($income->code!='FRANCHISE'){
+                        $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                        if($quilifier_matched_pv==0){
+                            $matching_point_value=0;
+                        }else{
+                            // calculate matching point value. (factor)
+                            $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$quilifier_matched_pv;    
+                        }
+                        $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
+                        $PayoutIncome->save();
                     }
-                    $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
-                    $PayoutIncome->save();
+
+                    if($income->code=='FRANCHISE'){
+                        
+                        if($Member->rank_id <= 6){
+                            $rank=Rank::find(6);
+                        }else if($Member->rank_id == 7){
+                            $rank=Rank::find(8);
+                        }else if($Member->rank_id >= 8){
+                            $rank=Rank::find(8);
+                        }
+
+                        $IncomeParameter=IncomeParameter::where('name',$rank->name)->where('income_id',$income->id)->first();                        
+                        $PayoutIncome->income_payout_parameter_1_name='franchise_bonus_percent';
+                        $PayoutIncome->income_payout_parameter_1_value=$IncomeParameter->value_1;
+                        $PayoutIncome->save();
+                    }
+
+                    
 
                 }
             }
@@ -252,6 +272,11 @@ class GeneratePayoutListener
 
         $all_income_payout_total=0;
         // Calculating Member Payout Amount
+
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+        })->orderBy('level','desc')->get();
+
         foreach ($Members as $Member) {
             // Get Incomes included in payout.
             $total_payout=0;
@@ -259,7 +284,7 @@ class GeneratePayoutListener
             $MemberPayout= MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
             // get member total puchase in payout period to check minimum bv condition based on rank.
             $toal_bv_without_withhold_bv=Sale::whereBetween('created_at', [$MemberPayout->payout->sales_start_date, $MemberPayout->payout->sales_end_date])->where('member_id',$Member->id)->where('is_withhold_purchase',0)->sum('pv');
-
+           
             foreach ($PayoutIncomes as $PayoutIncome) {
                 // Count payout based on income.
                 if($PayoutIncome->income_payout_parameter_1_name=='matching_point_value'){
@@ -298,9 +323,11 @@ class GeneratePayoutListener
 
                         $payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
 
-                        $capping=$Member->rank->capping;
-                        if($payout_amount>$capping){
-                            $payout_amount=$capping;
+                        $rank=$Member->rank->name;
+                        $IncomeParameter=IncomeParameter::where('income_id',$PayoutIncome->income_id)->where('name',$rank)->first();
+
+                        if($payout_amount>$IncomeParameter->value_1){
+                            $payout_amount=$IncomeParameter->value_1;
                         }
 
                         $TransactionType=TransactionType::where('name','Consistency Bonus')->first();
@@ -326,41 +353,67 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
                         $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
                         $MemberPayoutIncome->save();
-                    }                    
+                    }                                        
+                }else if($PayoutIncome->income_payout_parameter_1_name=='franchise_bonus_percent'){
+                    if($PayoutIncome->income->code=='FRANCHISE'){
+                        $TransactionType=TransactionType::where('name','Franchise Bonus')->first();
+                        $MemberPayoutIncome=new MemberPayoutIncome;
+                        $MemberPayoutIncome->payout_id=$payout->id;
+                        $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
+                        $MemberPayoutIncome->member_id=$Member->id;
+                        $MemberPayoutIncome->income_payout_parameter_1_name='franchise_bonus_percent';
+                        $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;                                                
+                        $sponsored=$Member->sponsored->pluck('id')->toArray();
+                        $total_sponsor_payout=0;
+                        foreach ($sponsored as $sponsor) {
+                            $SponsorPayout=MemberPayout::where('member_id',$sponsor)->where('payout_id',$payout->id)->first();
+                            $total_sponsor_payout+=$SponsorPayout->total_payout;
+                            echo $SponsorPayout->total_payout.', ';
 
-                    if($TransactionType){
-
-                        if($Member->rank->personal_bv_condition > $toal_bv_without_withhold_bv){
-                            if($MemberPayoutIncome->payout_amount != 0){
-                                $MemberIncomeHolding=new MemberIncomeHolding;
-                                $MemberIncomeHolding->member_id=$Member->id;
-                                $MemberIncomeHolding->payout_id=$payout->id;
-                                $MemberIncomeHolding->income_id=$MemberPayoutIncome->income_id;
-                                $MemberIncomeHolding->rank_id=$Member->rank_id;
-                                $MemberIncomeHolding->rank_bv_criteria=$Member->rank->personal_bv_condition;
-                                $MemberIncomeHolding->current_bv=$toal_bv_without_withhold_bv;
-                                $MemberIncomeHolding->required_bv=$Member->rank->personal_bv_condition-$toal_bv_without_withhold_bv;
-                                $MemberIncomeHolding->amount=$MemberPayoutIncome->payout_amount;
-                                $MemberIncomeHolding->is_paid=0;
-                                $MemberIncomeHolding->save();
-                            }                            
-                        }else{
-                            if($MemberPayoutIncome->payout_amount != 0){
-                                $WalletTransaction=new WalletTransaction;
-                                $WalletTransaction->member_id=$Member->id;
-                                $WalletTransaction->amount=$MemberPayoutIncome->payout_amount;
-                                $WalletTransaction->balance=$MemberPayoutIncome->payout_amount+$Member->wallet_balance;
-                                $WalletTransaction->transaction_type_id=$TransactionType->id;
-                                $WalletTransaction->transfered_to=$Member->user->id;
-                                $WalletTransaction->note='Payout Income';
-                                $WalletTransaction->save(); 
-                            }
                         }
-                        
+
+                        echo $Member->id.' /';
+
+                        if($total_sponsor_payout==0){
+                            continue;
+                        }
+                        $income_payout_amount=$total_sponsor_payout;
+                        $MemberPayoutIncome->payout_amount=$total_sponsor_payout;
+                        $MemberPayoutIncome->save();
                     }
-                    // Getting Total Payout of all incomes for member.                
-                    $total_payout+=$income_payout_amount;
                 }
+
+                if($TransactionType){
+                    if($Member->rank->personal_bv_condition > $toal_bv_without_withhold_bv){
+                        if($MemberPayoutIncome->payout_amount != 0){
+                            $MemberIncomeHolding=new MemberIncomeHolding;
+                            $MemberIncomeHolding->member_id=$Member->id;
+                            $MemberIncomeHolding->payout_id=$payout->id;
+                            $MemberIncomeHolding->income_id=$MemberPayoutIncome->income_id;
+                            $MemberIncomeHolding->rank_id=$Member->rank_id;
+                            $MemberIncomeHolding->rank_bv_criteria=$Member->rank->personal_bv_condition;
+                            $MemberIncomeHolding->current_bv=$toal_bv_without_withhold_bv;
+                            $MemberIncomeHolding->required_bv=$Member->rank->personal_bv_condition-$toal_bv_without_withhold_bv;
+                            $MemberIncomeHolding->amount=$MemberPayoutIncome->payout_amount;
+                            $MemberIncomeHolding->is_paid=0;
+                            $MemberIncomeHolding->save();
+                        }                            
+                    }else{
+                        if($MemberPayoutIncome->payout_amount != 0){
+                            $WalletTransaction=new WalletTransaction;
+                            $WalletTransaction->member_id=$Member->id;
+                            $WalletTransaction->amount=$MemberPayoutIncome->payout_amount;
+                            $WalletTransaction->balance=$MemberPayoutIncome->payout_amount+$Member->wallet_balance;
+                            $WalletTransaction->transaction_type_id=$TransactionType->id;
+                            $WalletTransaction->transfered_to=$Member->user->id;
+                            $WalletTransaction->note='Payout Income';
+                            $WalletTransaction->save(); 
+                        }
+                    }
+                    
+                }
+                // Getting Total Payout of all incomes for member.                
+                $total_payout+=$income_payout_amount;
             }
 
             $MemberPayout->total_payout=$total_payout;
@@ -371,6 +424,10 @@ class GeneratePayoutListener
             // calculating total payout for this payout run
             $all_income_payout_total+=$total_payout;
         }
+
+          if($Member->id==5){
+                            dd($all_income_payout_total);
+                        }
 
         // Calculating income wise total payout.
         foreach ($PayoutIncomes as $PayoutIncome) {

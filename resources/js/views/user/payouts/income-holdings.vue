@@ -40,7 +40,7 @@
       </el-table-column>
       <el-table-column label="Amount" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.amount }}</span>
+          <span >{{ row.withhold_amount }}</span>
         </template>
       </el-table-column>
       

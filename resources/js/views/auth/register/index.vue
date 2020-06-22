@@ -187,7 +187,9 @@ export default {
       redirect: undefined,
     };
   },
+
   created(){
+    this.getRecaptcha();
     this.registerForm.sponsor_code=this.$route.query.sponsor_code
     this.handleCheckSponsorCode(this.$route.query.sponsor_code);
     getPublicSettings().then(response => {
@@ -195,6 +197,11 @@ export default {
     });
   },
   methods: {
+    async getRecaptcha(){
+      await this.$recaptchaLoaded();
+      const token = await this.$recaptcha('addmember');
+      this.registerForm.recaptcha=token;      
+    },
     showPwd() {
       if (this.pwdType === 'password') {
         this.pwdType = '';
@@ -234,10 +241,12 @@ export default {
               type: "success",
               duration: 2000
             })
+            this.getRecaptcha();
             this.resetRegistraionForm();
             this.$router.push('/login' );
           })
-          .catch((error) => {             
+          .catch((error) => {
+              this.getRecaptcha();
               this.loading = false;
             });
         } 

@@ -291,6 +291,23 @@ class MembersController extends Controller
             return response()->json($response, 404);
         }
 
+        $parent=$Sponsor->member->id;
+        $parents=$this->getSponsorTail($parent,$request->position);
+        if($parents){
+            $parent=$parents[0]->id;
+        }else{
+            $parent=$Sponsor->member->id;
+        }
+
+
+        $Parent=Member::where('id',$parent)->first();
+
+        $PositionEmptyCheck=Member::where('position',$request->position)->where('parent_id',$Parent->id)->first();
+        if($PositionEmptyCheck){
+            $response = array('status' => false,'message'=>'Position is already filled, try another position.');
+            return response()->json($response, 400);
+        }
+
         $username=$this->generateMemberID();
 
         $User= User::create([
@@ -307,15 +324,7 @@ class MembersController extends Controller
 
         $User->assignRole('user');
 
-        $parent=$Sponsor->member->id;
-        $parents=$this->getSponsorTail($parent,$request->position);
-        if($parents){
-            $parent=$parents[0]->id;
-        }else{
-            $parent=$Sponsor->member->id;
-        }
-
-        $Parent=Member::where('id',$parent)->first();
+        
         $level=$Parent->level+1;
               
         $Member=new Member;
@@ -355,6 +364,12 @@ class MembersController extends Controller
             return response()->json($response, 404);
         }
 
+        $PositionEmptyCheck=Member::where('position',$request->position)->where('parent_id',$Parent->member->id)->first();
+        if($PositionEmptyCheck){
+            $response = array('status' => false,'message'=>'Position is already filled, try another position.');
+            return response()->json($response, 400);
+        }
+
         $Sponsor=User::where('username',$request->sponsor_code)->first();
         if(!$Sponsor){
             $response = array('status' => false,'message'=>'Sponsor not found.');
@@ -386,6 +401,7 @@ class MembersController extends Controller
         // }
 
         //$Parent=Member::where('id',$parent)->first();
+
         $level=$Parent->member->level+1;
               
         $Member=new Member;
