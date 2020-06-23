@@ -34,10 +34,10 @@ class EmailsController extends Controller
         }
 
         if(!$search){
-            $Emails=Email::select('id','title');
+            $Emails=Email::select('id','title','is_active','created_at');
             $Emails=$Emails->orderBy('id',$sort)->paginate($limit);
         }else{
-            $Emails=Email::select('id','title');
+            $Emails=Email::select('id','title','is_active','created_at');
 
             $Emails=$Emails->orWhere('title','like','%'.$search.'%');
             $Emails=$Emails->orderBy('id',$sort)->paginate($limit);
