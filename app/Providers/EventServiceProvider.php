@@ -36,6 +36,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\GenerateMonthlyPayoutEvent' => [
             'App\Listeners\GenerateMonthlyPayoutListener',
         ],
+        'App\Events\MemberRegisteredEvent' => [
+            'App\Listeners\MemberRegisteredListener',
+        ],
 
     ];
 

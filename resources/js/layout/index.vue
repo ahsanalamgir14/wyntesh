@@ -25,7 +25,7 @@
         <el-button @click="dialogChangePassword = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="handleChangePassword()" @click.native.prevent="handleChangePassword">
+        <el-button type="primary"  @click.native.prevent="handleChangePassword">
           Change Password
         </el-button>
       </div>

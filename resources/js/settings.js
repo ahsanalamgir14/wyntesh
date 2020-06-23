@@ -4,7 +4,7 @@ export default {
   /**
    * @type {String}
    */
-  title: 'MLM World',
+  title: 'Vision4U',
   theme: variables.theme,
   totalLegs:4,
   baseUrl:'http://localhost:8000/',

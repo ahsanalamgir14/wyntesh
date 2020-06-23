@@ -49,8 +49,7 @@ class SendMassEmailsJob implements ShouldQueue
 
         foreach ($Users as $User) {
             try{
-                $mail=Mail::to($User->email)->send(new CustomHtmlMail($this->Email->description));    
-                
+                $mail=Mail::to($User->email)->send(new CustomHtmlMail($this->Email->description));
             }catch (\Exception $e) {
                 
                 $failed_models[]=intval($User->id);

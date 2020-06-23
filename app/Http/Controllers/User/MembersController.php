@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use JWTAuth;
 use DB;
 use Storage;
+use App\Events\MemberRegisteredEvent;
 
 class MembersController extends Controller
 {    
@@ -419,7 +420,8 @@ class MembersController extends Controller
         $Kyc->verification_status='pending';
         $Kyc->save();
 
-        
+        event(new MemberRegisteredEvent($User));
+
         $response = array('status' => true,'message'=>'You are registered successfully. Your ID is - '.$User->username);
         return response()->json($response, 200);
     }
@@ -496,6 +498,7 @@ class MembersController extends Controller
         $Kyc->verification_status='pending';
         $Kyc->save();
 
+        event(new MemberRegisteredEvent($User));
         
         $response = array('status' => true,'message'=>'Member added successfully. Member ID is - '.$User->username);
         return response()->json($response, 200);
