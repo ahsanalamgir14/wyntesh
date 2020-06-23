@@ -59,6 +59,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::get('stats', 'DashboardController@stats');
     Route::get('payout/stats', 'DashboardController@payoutStats');
+    Route::get('order/stats', 'DashboardController@orderStats');
     Route::get('downline/stats', 'DashboardController@downlineStats');
     Route::get('downline/latest', 'DashboardController@latestDownlines');
     Route::get('transactions/latest', 'DashboardController@latestTransactions');
@@ -79,7 +80,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('geneology', 'MembersController@myGeneology');
     Route::get('geneology/member/{id}', 'MembersController@myMemberGeneology');
     Route::get('downlines', 'MembersController@getDownlines');
-
+    Route::get('referrals', 'MembersController@getReferrals');
 
     Route::get('pending-pin-requests', 'PinsController@myPendingPinRequests');
     Route::get('approved-pin-requests', 'PinsController@myApprovedPinRequests');

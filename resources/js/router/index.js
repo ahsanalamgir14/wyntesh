@@ -809,6 +809,14 @@ export const asyncRoutes = [
         component: () => import('@/views/user/network/downlines'),
         name: 'Downlines',
         meta: { title: 'Downlines', icon: 'fas fa-user-friends', color:'color:#DC7633', affix: true, roles: ['user'] }
+      },
+      ,
+      {
+        path: 'referrals',
+        component: () => import('@/views/user/network/referrals'),
+        name: 'Referrals',
+        hidden: false,
+        meta: { title: 'Referrals', icon: 'fas fa-sitemap', color:'color:#42f560', affix: true, roles: ['user'] }
       }
     ]
   },

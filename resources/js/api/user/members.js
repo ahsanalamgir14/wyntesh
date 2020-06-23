@@ -88,3 +88,11 @@ export function getAccountStatus(id) {
     method: 'get'
   })
 }
+
+export function getReferrals(query) {
+  return request({
+    url: '/user/referrals',
+    method: 'get',
+    params: query
+  })
+}

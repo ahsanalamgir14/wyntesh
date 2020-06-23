@@ -160,6 +160,80 @@ class MembersController extends Controller
         return response()->json($response, 200);  
     }
 
+    public function getReferrals(Request $request)
+    {
+        $User=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $is_active=$request->is_active;
+        $date_range=$request->date_range;
+        
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+       
+        if(!$search && !$date_range){
+            $Members=Member::select();
+            $Members=$Members->where('sponsor_id',$User->member->id);
+
+            if($is_active!='all'){
+                $Members=$Members->whereHas('user', function($q)use($is_active){
+                    $q->where('is_active', $is_active);
+                });
+            }
+
+            $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
+        }else{
+            $Members=Member::select();
+            $Members=$Members->where('sponsor_id',$User->member->id);
+
+            $Members=$Members->where(function ($query)use($search) {
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('name','like','%'.$search.'%');
+                });
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('contact','like','%'.$search.'%');
+                });
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('email','like','%'.$search.'%');
+                });
+                $query->orWhereHas('user', function($q)use($search){
+                     $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($date_range){
+                $Members=$Members->whereDate('created_at','>=', $date_range[0]);
+                $Members=$Members->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            if($is_active!='all'){
+                $Members=$Members->whereHas('user', function($q)use($is_active){
+                    $q->where('is_active', $is_active);
+                });
+            }
+       
+            $Members=$Members->with('parent','sponsor','user')->orderBy('id',$sort)->paginate($limit);
+            
+        }  
+       
+       $response = array('status' => true,'message'=>"Members retrieved.",'data'=>$Members);
+            return response()->json($response, 200);
+    }
+
     public function myMemberGeneology($id){
         $user_id=JWTAuth::user()->id;
         $my_member_id=JWTAuth::user()->member->id;

@@ -7,9 +7,9 @@ export function dashboardStats() {
   })
 }
 
-export function payoutStats() {
+export function orderStats() {
   return request({
-    url: '/user/payout/stats',
+    url: '/user/order/stats',
     method: 'get'
   })
 }

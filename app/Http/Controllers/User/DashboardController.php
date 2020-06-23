@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User\User;
 use App\Models\Admin\Member;
+use App\Models\Admin\MemberPayout;
 use App\Models\User\Order;
+use App\Models\Admin\Sale;
 use App\Models\Admin\Pin;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WalletTransaction;
@@ -19,6 +21,7 @@ class DashboardController extends Controller
     
     public function stats(){
     	$User=JWTAuth::user();
+        $Member=User::with('kyc')->with('member:id,user_id,wallet_balance')->with('member.rank')->find($User->id);
     	$MembersController=new MembersController;
     	$downlines=count($MembersController->getChildsOfParent($User->member->id));
     	$total_purchase= floor(Order::where('user_id',$User->id)->sum('final_amount'));
@@ -27,44 +30,56 @@ class DashboardController extends Controller
         $current_personal_pv=$User->member->current_personal_pv;
         $total_personal_pv=$User->member->total_personal_pv;
         $balance=floatval($User->member->wallet_balance);
-        $last_payout=1500;
+        $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
 
-        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('downlines'=>$downlines,'total_purchase'=>$total_purchase,'withdrawals'=>$withdrawals,'pins_available'=>$pins_available,'balance'=>$balance,'last_payout'=>$last_payout,'current_personal_pv'=>$current_personal_pv,'total_personal_pv'=>$total_personal_pv));             
+        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('downlines'=>$downlines,'total_purchase'=>$total_purchase,'withdrawals'=>$withdrawals,'pins_available'=>$pins_available,'balance'=>$balance,'total_payout'=>$total_payout,'current_personal_pv'=>$current_personal_pv,'total_personal_pv'=>$total_personal_pv,'member'=>$Member));             
         return response()->json($response, 200);
 
     }
 
-    public function payoutStats(){
-    	$from=Carbon::now()->subDays(7)->format('Y-m-d');
+    public function orderStats(){
+        $from=Carbon::now()->subDays(7)->format('Y-m-d');
         $to=Carbon::now()->format('Y-m-d'); 
-    	$orders=Order::whereBetween('created_at', [$from,$to])
-    				->groupBy('date')
+        $User=JWTAuth::user();
+        $MembersController=new MembersController;
+        $downlines=$MembersController->getChildsOfParent($User->member->id);        
+
+        $sales=Sale::whereBetween('created_at', [$from,$to])
+                    ->whereIn('member_id',$downlines)
+                    ->groupBy('date')
                     ->orderBy('date', 'ASC')
                     ->get(array(
                         DB::raw('Date(created_at) as date'),
-                        DB::raw('sum(final_amount) as sum')
+                        DB::raw('sum(pv) as sum')
                     ));
         $od=[];
 
         for ($i=7; $i >= 1 ; $i--) {
-        	foreach ($orders as $order) {
-        	 	if($order->date==Carbon::now()->subDays($i)->format('Y-m-d') ){
-        	 		$od[$i]['date']=Carbon::parse($order->date)->format('m-d');
-        	 		$od[$i]['sum']=floor($order->sum);
-        		}else{
-        			if(!isset($od[$i])){
-        				$od[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
-        				$od[$i]['sum']=0;
-        			}
-        			
-        		}
-        	 }         	
+            if(count($sales)){
+                foreach ($sales as $sale) {
+                    if($sale->date==Carbon::now()->subDays($i)->format('Y-m-d') ){
+                        $od[$i]['date']=Carbon::parse($sale->date)->format('m-d');
+                        $od[$i]['sum']=floor($sale->sum);
+                    }else{
+                        if(!isset($od[$i])){
+                            $od[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+                            $od[$i]['sum']=0;
+                        }
+                        
+                    }
+                 }
+            }else{
+                $od[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+                $od[$i]['sum']=0;
+            }           
         }
-        $order=[];
+        $sale=[];
+        
         foreach ($od as $o) {
-        	$order[]=$o;
+            $sale[]=$o;
         }
-        $response = array('status' => true,'message'=>'Stats recieved','orders'=>$order);             
+        
+        $response = array('status' => true,'message'=>'Stats recieved','sales'=>$sale);             
         return response()->json($response, 200);
     }
 

@@ -21,6 +21,9 @@
                 <span >{{ temp.name }}</span>
                 <br>
                 <div style="margin-top: 10px;">
+                  <el-tag type="primary">{{ temp.member.rank.name }}</el-tag>
+                </div>
+                <div style="margin-top: 10px;">
                   <el-tag v-if="temp.kyc.verification_status=='verified'" type="success">Verified</el-tag>
                   <el-tag v-if="temp.kyc.verification_status=='pending'" type="warning">KYC - Pending</el-tag>
                   <el-tag v-if="temp.kyc.verification_status=='submitted'" type="primary">KYC - Submitted</el-tag>
@@ -74,9 +77,9 @@
               </div>
               <div class="card-panel-description">
                 
-                <count-to :start-val="0" :end-val="dashboardStats.last_payout" :duration="3200" class="card-panel-num" />
+                <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
                 <div class="card-panel-text">
-                  Last Payout
+                  Total Payout
                 </div>
               </div>
             </div>
@@ -134,7 +137,7 @@
       </el-col>
       <el-col :xs="24" :sm="24" :md="12" :lg="12">        
         <el-card shadow="never">
-          <line-chart :chartData="payoutData" ></line-chart>
+          <line-chart :chartData="orderData" ></line-chart>
         </el-card>
       </el-col>
     </el-row>
@@ -205,7 +208,7 @@ import CountTo from 'vue-count-to';
 import { parseTime } from "@/utils";
 import { getProfile } from "@/api/user/members";
 import { getNotice } from "@/api/user/notices";
-import { dashboardStats,payoutStats,downlineStats,latestDownlines,latestTransactions } from "@/api/user/dashboard";
+import { dashboardStats,orderStats,downlineStats,latestDownlines,latestTransactions } from "@/api/user/dashboard";
 
 
 import defaultSettings from '@/settings';
@@ -223,6 +226,7 @@ export default {
       dashboardStats:{},
       downlineData:{},
       payoutData:{},
+      orderData:{},
       referral_link:'',
       downlines:[],
       transitions:[],
@@ -238,6 +242,7 @@ export default {
           email: undefined,
           password:undefined,
           contact: undefined,
+          member:{rank:{name:undefined}},
           gender: "m",
           kyc:{
             address:undefined,
@@ -280,15 +285,15 @@ export default {
       this.transitions = response.data;
     });
 
-    this.payoutData={labels:['10/2','20/5','30/3','5/5','7/3','8/5',
-      '9/10'],data:[20,25,30,500,60,450,980],title:'Payout'};
-
-    // await payoutStats().then(response => {
-    //   // this.payoutData = { labels:response.activations.map(function (el) { return el.date; }), data:response.activations.map(function (el) { return el.count; }), title:'Activations', color:'#60c402' };
-
-    // });
-    getProfile().then(response => {
-        this.temp = response.data;
+    await orderStats().then(response => {
+      this.orderData = { labels:response.sales.map(function (el) { return el.date; }), data:response.sales.map(function (el) { return el.sum; }), title:'Downline Business', color:'#60c402' };
+    });
+  },
+  methods: {
+    getDashboardStats(){
+      dashboardStats().then(response => {
+        this.dashboardStats = response.stats;
+        this.temp = this.dashboardStats.member;
         if(!this.temp.kyc){
           this.temp.kyc={
             address:undefined,
@@ -304,12 +309,6 @@ export default {
           }
         }
         this.referral_link=baseUrl+'#/register?sponsor_code='+this.temp.username;
-    });
-  },
-  methods: {
-    getDashboardStats(){
-      dashboardStats().then(response => {
-        this.dashboardStats = response.stats;
       });
     },
     onCopy(){
