@@ -15,6 +15,7 @@ use App\Models\User\User;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
+use DB;
 
 class WalletController extends Controller
 {
@@ -107,9 +108,11 @@ class WalletController extends Controller
             $Withdrawals=$Withdrawals->with('member','transaction_by');
             $Withdrawals=$Withdrawals->where('member_id',$User->member->id);
             $Withdrawals=$Withdrawals->orderBy('id',$sort)->paginate($limit);
+            $withdrawals_total=Withdrawal::select([DB::raw('sum(tds_amount) as tds_amount'),DB::raw('sum(net_amount) as net_amount')])->where('member_id',$User->member->id)->first();
         }else{
             $Withdrawals=Withdrawal::select();
-           
+            $withdrawals_total=Withdrawal::select([DB::raw('sum(tds_amount) as tds_amount'),DB::raw('sum(net_amount) as net_amount')])->where('member_id',$User->member->id);
+
             if($search){
                 $Withdrawals=$Withdrawals->where(function ($query)use($search) {               
                     $query=$query->orwhere('payment_status',$search);
@@ -119,6 +122,8 @@ class WalletController extends Controller
             if($date_range){
                 $Withdrawals=$Withdrawals->whereDate('payment_made_at','>=', $date_range[0]);
                 $Withdrawals=$Withdrawals->whereDate('payment_made_at','<=', $date_range[1]);
+                $withdrawals_total=$withdrawals_total->whereDate('payment_made_at','>=', $date_range[0]);
+                $withdrawals_total=$withdrawals_total->whereDate('payment_made_at','<=', $date_range[1]);
             }
 
             $Withdrawals=$Withdrawals->where('member_id',$User->member->id);
@@ -127,7 +132,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals);
+       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals,'total'=>$withdrawals_total);
         return response()->json($response, 200);
     }
 
