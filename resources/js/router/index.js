@@ -219,6 +219,7 @@ export const asyncRoutes = [
         path: 'activate',
         component: () => import('@/views/admin/network/activate-accounts'),
         name: 'Activate IDs',
+        hidden:true,
         meta: { title: 'Activate IDs', icon: 'fas fa-check-circle', color:'color:#42f560', affix: true, roles: ['admin'] }
       },
       {
@@ -278,7 +279,7 @@ export const asyncRoutes = [
   {
     path: '/packages',
     component: Layout,
-    hidden:false,
+    hidden:true,
     meta: {
       roles: ['admin']
     },
@@ -360,7 +361,7 @@ export const asyncRoutes = [
   {
     path: '/pins',
     component: Layout,
-    hidden:false,
+    hidden:true,
     name: 'PINs',
     meta: {
       title: 'PINs',
@@ -760,6 +761,7 @@ export const asyncRoutes = [
         path: 'activate',
         component: () => import('@/views/user/account/activate-account'),
         name: 'Activate ID',
+        hidden:true,
         meta: { title: 'Activate ID', icon: 'fas fa-check-circle', color:'color:#42f560', affix: true, roles: ['user'] }
       },
       {
@@ -861,7 +863,7 @@ export const asyncRoutes = [
   {
     path: '/member/pins',
     component: Layout,
-    hidden: false,
+    hidden:true,
     name: 'PINs',
     meta: {
       title: 'PINs',

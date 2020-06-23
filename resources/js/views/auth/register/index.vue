@@ -38,12 +38,14 @@
                 <el-input v-model="registerForm.sponsor_name" disabled name="sponsor_name" type="text" auto-complete="on" placeholder="Sponsor name." />
               </el-form-item>
             </el-col>
-            <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >      
+            <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >      
               <el-form-item prop="position"  class="radio-btn">
 
                 <el-radio-group v-model="registerForm.position">
-                    <el-radio border label="1">Left</el-radio>
-                    <el-radio border label="2">Right</el-radio>
+                    <el-radio border label="1">Leg A</el-radio>
+                    <el-radio border label="2">Leg B</el-radio>
+                    <el-radio border label="3">Leg C</el-radio>
+                    <el-radio border label="4">Leg D</el-radio>
                   </el-radio-group>
               </el-form-item>
             </el-col>

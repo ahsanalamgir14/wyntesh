@@ -367,12 +367,11 @@ class GeneratePayoutListener
                         $total_sponsor_payout=0;
                         foreach ($sponsored as $sponsor) {
                             $SponsorPayout=MemberPayout::where('member_id',$sponsor)->where('payout_id',$payout->id)->first();
-                            $total_sponsor_payout+=$SponsorPayout->total_payout;
-                            echo $SponsorPayout->total_payout.', ';
+                            if($SponsorPayout->total_payout!=0){
+                                $total_sponsor_payout+=($SponsorPayout->total_payout*$PayoutIncome->income_payout_parameter_1_value)/100;
+                            }
 
                         }
-
-                        echo $Member->id.' /';
 
                         if($total_sponsor_payout==0){
                             continue;
@@ -424,10 +423,6 @@ class GeneratePayoutListener
             // calculating total payout for this payout run
             $all_income_payout_total+=$total_payout;
         }
-
-          if($Member->id==5){
-                            dd($all_income_payout_total);
-                        }
 
         // Calculating income wise total payout.
         foreach ($PayoutIncomes as $PayoutIncome) {
