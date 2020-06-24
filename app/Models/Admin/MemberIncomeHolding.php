@@ -3,11 +3,13 @@
 namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MemberIncomeHolding extends Model
 {
     protected $table = 'member_income_holdings';
     public $timestamps = true;
+    use SoftDeletes;
 
     public function payout()
     {

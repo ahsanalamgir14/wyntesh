@@ -18,7 +18,7 @@ Route::get('/', function (Request $request) {
 });
 
 Route::get('mail', 'Auth\AuthController@mailCheck');
-Route::get('rank', '\App\Http\Controllers\User\MembersController@updateRank');
+Route::get('payout', '\App\Http\Controllers\Admin\CronsController@delete3MonthHoldIncome');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
@@ -298,6 +298,13 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('emails/all', 'EmailsController@getAllEmails');
     Route::get('email/{id}', 'EmailsController@get');
     Route::delete('email/{id}/delete', 'EmailsController@delete');
+
+    Route::post('sms','SmsesController@create');
+    Route::post('sms/update', 'SmsesController@update');
+    Route::get('smses', 'SmsesController@getSmses');
+    Route::get('smses/all', 'SmsesController@getAllSmses');
+    Route::get('sms/{id}', 'SmsesController@get');
+    Route::delete('sms/{id}/delete', 'SmsesController@delete');
 
     Route::post('marketing/email/mass', 'MarketingController@sendMassEmail');
     Route::post('marketing/sms/mass', 'MarketingController@sendMassSMS');

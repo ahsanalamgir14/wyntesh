@@ -58,7 +58,7 @@ class PayoutsController extends Controller
   
     public function generateManualPayout(Request $request){
         
-        $PayoutType=PayoutType::where('name','Manual')->first();
+        $PayoutType=PayoutType::where('name','Monthly')->first();
 
 
         $validate = Validator::make($request->all(), [

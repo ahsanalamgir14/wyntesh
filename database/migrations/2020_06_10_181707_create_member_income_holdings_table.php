@@ -26,6 +26,7 @@ class CreateMemberIncomeHoldingsTable extends Migration
             $table->boolean('is_paid')->default(0);
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

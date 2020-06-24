@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use App\Http\Controllers\Admin\CronsController;
 
 class Kernel extends ConsoleKernel
 {
@@ -26,8 +28,14 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function () {
-            // Do Something Here
-        })->everyMinute();
+            $CronsController=new CronsController;
+            $CronsController->delete3MonthHoldIncome();
+        })->dailyAt('03:00');
+
+        $schedule->call(function () {
+            $CronsController=new CronsController;
+            $CronsController->generateMonthlyPayout();
+        })->monthlyOn(1, '01:00');
     }
 
     /**
