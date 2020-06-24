@@ -35,6 +35,9 @@
             <router-link v-if="roles.includes('user')" to="/my/profile">
               <el-dropdown-item>Profile</el-dropdown-item>
             </router-link>
+            <a :href="telescopeURL" target="_blank" v-if="roles.includes('superadmin')"> 
+              <el-dropdown-item>Monitoring</el-dropdown-item>
+            </a>
             <router-link v-if="roles.includes('user')" to="/wallet/wallet">
               <el-dropdown-item>Wallet</el-dropdown-item>
             </router-link>
@@ -59,6 +62,7 @@ import SizeSelect from '@/components/SizeSelect';
 import LangSelect from '@/components/LangSelect';
 import Search from '@/components/HeaderSearch';
 import { getMyCartCount } from "@/api/user/shopping";
+import { getToken } from '@/utils/auth';
 
 export default {
   components: {
@@ -82,12 +86,17 @@ export default {
   data() {
     return {
       cartCount:0,
+      telescopeURL:'',
     }
   },
   created(){
     if(this.roles.includes('user')){
       this.updateCartCount();  
-    }    
+    }
+    var protocol = location.protocol;
+    var slashes = protocol.concat("//");
+    var host = slashes.concat(window.location.hostname);
+    this.telescopeURL=host+'/telescope?token='+getToken();
   },
   mounted() {
       this.$events.$on("update-cart-count", () => this.updateCartCount());

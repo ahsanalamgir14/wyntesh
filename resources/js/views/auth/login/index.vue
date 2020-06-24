@@ -128,7 +128,6 @@ export default {
               recaptcha.hideBadge()
             })
             .catch((error) => {
-               this.$message.error(error);
               this.loading = false;
             });
         } else {

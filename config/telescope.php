@@ -2,6 +2,7 @@
 
 use Laravel\Telescope\Http\Middleware\Authorize;
 use Laravel\Telescope\Watchers;
+use App\Http\Middleware\AppendToken;
 
 return [
 
@@ -76,7 +77,8 @@ return [
     */
 
     'middleware' => [
-        'web',
+        AppendToken::class,
+        'jwt.verify',
         Authorize::class,
     ],
 
