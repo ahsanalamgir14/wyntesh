@@ -14,6 +14,13 @@ export function orderStats() {
   })
 }
 
+export function payoutStats() {
+  return request({
+    url: '/user/payout/stats',
+    method: 'get'
+  })
+}
+
 export function downlineStats() {
   return request({
     url: '/user/downline/stats',

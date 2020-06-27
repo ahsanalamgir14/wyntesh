@@ -183,6 +183,18 @@
         </el-card>
       </el-col>
     </el-row>
+    <el-row :gutter="10" >      
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <bar-chart :chartData="payoutData" ></bar-chart>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <line-chart :chartData="orderData" ></line-chart>
+        </el-card>
+      </el-col>
+    </el-row>
 
     <el-row :gutter="10" style="margin-top: 20px;">      
       <el-col :xs="24" :sm="24" :md="12" :lg="12">        
@@ -250,7 +262,7 @@ import CountTo from 'vue-count-to';
 import { parseTime } from "@/utils";
 import { getProfile } from "@/api/user/members";
 import { getNotice } from "@/api/user/notices";
-import { dashboardStats,orderStats,downlineStats,latestDownlines,latestTransactions } from "@/api/user/dashboard";
+import { dashboardStats,orderStats,downlineStats,latestDownlines,latestTransactions,payoutStats } from "@/api/user/dashboard";
 
 
 import defaultSettings from '@/settings';
@@ -329,6 +341,10 @@ export default {
 
     await orderStats().then(response => {
       this.orderData = { labels:response.sales.map(function (el) { return el.date; }), data:response.sales.map(function (el) { return el.sum; }), title:'Downline Business', color:'#60c402' };
+    });
+
+    await payoutStats().then(response => {
+      this.payoutData = { labels:response.payouts.map(function (el) { return el.date; }), data:response.payouts.map(function (el) { return el.income; }), title:'Income', color:'#60c402' };
     });
   },
   methods: {

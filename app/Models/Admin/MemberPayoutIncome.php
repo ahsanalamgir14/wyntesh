@@ -8,7 +8,8 @@ class MemberPayoutIncome extends Model
 {
     protected $table = 'member_payout_incomes';
     public $timestamps = true;
-
+    protected $dates = ['created_at', 'updated_at'];
+    
     public function income()
     {
         return $this->belongsTo('App\Models\Admin\Income');

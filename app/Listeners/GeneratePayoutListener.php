@@ -452,7 +452,7 @@ class GeneratePayoutListener
                 $child_ids[]=$child;
 
                $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
-               if($Member->id==1)
+               //if($Member->id==1)
                 
                 $check_rank=array_unique($check_rank);
               foreach ($check_rank as $check) {

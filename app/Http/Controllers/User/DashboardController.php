@@ -156,6 +156,52 @@ class DashboardController extends Controller
         return response()->json($response, 200);
     }
 
+    public function payoutStats(){
+        $User=JWTAuth::user();
+        $dt = Carbon::now()->modify('-7 months');        
+        $from= $dt->firstOfMonth()->toDateString('Y-m-d');        
+        $to=Carbon::now()->modify('-1 months')->endOfMonth()->toDateString('Y-m-d');
+        $payouts=MemberPayout::whereBetween('created_at', [$from,$to])
+                    ->where('member_id',$User->member->id)
+                    ->orderBy('date', 'ASC')
+                    ->get(array(
+                        DB::raw('Date(created_at) as date'),
+                        DB::raw('sum(total_payout) as income')
+                    ));
+        $od=[];
+
+
+        for ($i=7; $i >= 1 ; $i--) {
+            
+            if(count($payouts)){
+                foreach ($payouts as $payout) {
+                    $date_to_compare=Carbon::parse($payout->date)->format('Y-m');
+
+                    if($date_to_compare == Carbon::now()->modify('-'.$i.' months')->format('Y-m') ){
+                        $od[$i]['date']=Carbon::parse($payout->date)->format('Y-m');
+                        $od[$i]['income']=floor($payout->income);
+                    }else{
+                        if(!isset($od[$i])){
+                            $od[$i]['date']=Carbon::now()->modify('-'.$i.' months')->format('Y-m');
+                            $od[$i]['income']=0;
+                        }
+                        
+                    }
+                }   
+            }else{
+                $od[$i]['date']=Carbon::now()->modify('-'.$i.' months')->format('Y-m') ;
+                $od[$i]['income']=0;
+            }
+     
+        }
+        $payout_list=[];
+        foreach ($od as $o) {
+            $payout_list[]=$o;
+        }
+        $response = array('status' => true,'message'=>'Stats recieved','payouts'=>$payout_list);             
+        return response()->json($response, 200);
+    }
+
     public function latestDownlines(){
     	$User=JWTAuth::user();
     	$MembersController=new MembersController;
