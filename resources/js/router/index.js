@@ -1031,6 +1031,12 @@ export const asyncRoutes = [
         meta: { title: 'TDS', icon: 'fas fa-hand-holding-usd', color:'color:#62a832', affix: true, roles: ['user'] }
       },
       {
+        path: 'group-and-matching',
+        component: () => import('@/views/user/reports/group-and-matching'),
+        name: 'Business History',
+        meta: { title: 'Business History', icon: 'fas fa-percent', color:'color:#68eda6', affix: true, roles: ['user'] }
+      },
+      {
         path: 'wallet-transactions',
         component: () => import('@/views/user/wallet/transactions'),
         name: 'Wallet Transactions',

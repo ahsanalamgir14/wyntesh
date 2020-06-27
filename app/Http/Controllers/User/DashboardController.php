@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User\User;
 use App\Models\Admin\Member;
 use App\Models\Admin\MemberPayout;
+use App\Models\Admin\MemberMonthlyLegPv;
 use App\Models\User\Order;
 use App\Models\Admin\Sale;
 use App\Models\Admin\Pin;
@@ -21,10 +22,17 @@ class DashboardController extends Controller
     
     public function stats(){
     	$User=JWTAuth::user();
-        $Member=User::with('kyc')->with('member:id,user_id,wallet_balance')->with('member.rank')->find($User->id);
-    	$MembersController=new MembersController;
+        $Member=User::with('kyc')
+                ->with('member:id,user_id,wallet_balance')
+                ->with('member.rank')
+                ->find($User->id);
+    	
+        $MembersController=new MembersController;
+        $total_group_bv=MemberMonthlyLegPv::where('member_id',$User->member->id)->sum('pv');
+        $total_matched=MemberPayout::where('member_id',$User->member->id)->sum('total_matched_bv');
     	$downlines=count($MembersController->getChildsOfParent($User->member->id));
-    	$total_purchase= floor(Order::where('user_id',$User->id)->sum('final_amount'));
+    	$total_purchase= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('final_amount'));
+        $distributor_discount= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('distributor_discount'));
     	$withdrawals=floor(Withdrawal::where('member_id',$User->member->id)->sum('amount'));
         $pins_available=Pin::where('used_at',null)->where('owned_by',$User->member->id)->count();
         $current_personal_pv=$User->member->current_personal_pv;
@@ -32,7 +40,24 @@ class DashboardController extends Controller
         $balance=floatval($User->member->wallet_balance);
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
 
-        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('downlines'=>$downlines,'total_purchase'=>$total_purchase,'withdrawals'=>$withdrawals,'pins_available'=>$pins_available,'balance'=>$balance,'total_payout'=>$total_payout,'current_personal_pv'=>$current_personal_pv,'total_personal_pv'=>$total_personal_pv,'member'=>$Member));             
+        $response = array(
+            'status' => true,
+            'message'=>'Stats recieved',
+            'stats'=>array(
+                'downlines'=>$downlines,
+                'total_purchase'=>$total_purchase,
+                'withdrawals'=>$withdrawals,
+                'pins_available'=>$pins_available,
+                'balance'=>$balance,
+                'total_payout'=>$total_payout,
+                'current_personal_pv'=>$current_personal_pv,
+                'total_personal_pv'=>$total_personal_pv,
+                'member'=>$Member,
+                'total_group_bv'=>$total_group_bv,
+                'total_matched'=>$total_matched,
+                'distributor_discount'=>$distributor_discount,
+            )
+        );             
         return response()->json($response, 200);
 
     }

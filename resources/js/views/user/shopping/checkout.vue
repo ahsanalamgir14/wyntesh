@@ -75,7 +75,7 @@
               <el-input style="width: 80px;" v-model="product.qty" @change="updateCartQty(product.product_id,product.qty)" type="number"  min="1"  :max="product.products.stock" />
             </div>
             <div class="total-price">{{product.products.pv*product.qty}} PV</div>
-            <div class="total-price">₹ {{product.products.retail_amount*product.qty}}</div>
+            <div class="total-price">₹ {{product.products.dp_amount*product.qty}}</div>
           </div>
         </div>
       </el-col>
@@ -440,6 +440,10 @@ export default {
       getMyCart().then(response => {
         this.cartProducts = response.data;   
         this.calculateFinal();
+        if(this.temp.shipping>=1500){
+          this.temp.shipping-=100;
+          this.temp.grand_total-=100;
+        }
         if(this.cartProducts.length==0){
           this.$router.push('/shopping/products')
         }     
@@ -481,8 +485,8 @@ export default {
     calculateFinal() {
       this.resetTemp();
         this.cartProducts.forEach((cart)=>{
-          this.temp.subtotal+=parseFloat(cart.products.retail_base)*parseInt(cart.qty);
-          this.temp.total_gst+=parseFloat(cart.products.retail_gst)*parseInt(cart.qty);
+          this.temp.subtotal+=parseFloat(cart.products.dp_base)*parseInt(cart.qty);
+          this.temp.total_gst+=parseFloat(cart.products.dp_gst)*parseInt(cart.qty);
           this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
           this.temp.discount+=parseFloat(cart.products.discount_amount)*parseInt(cart.qty);

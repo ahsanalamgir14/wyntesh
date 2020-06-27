@@ -45,7 +45,21 @@
                 <p class="product-cat"><el-tag size="mini" type="warning" effect="dark" :key="cat.name" v-for="cat in temp.categories" >{{cat.name}}</el-tag></p>
                 <p class="product-qty">{{temp.qty}} {{temp.qty_unit}}</p>
                 <p class="product-qty"><b>{{temp.stock}}</b> Units left (Hurry up)</p>
-                <p class="product-price" slot="reference">₹ {{temp.retail_amount}} /- 
+                <p class="product-price" slot="reference">DP - ₹ {{temp.dp_amount}} /- 
+                  <el-popover                  
+                      placement="right"
+                      width="200"
+                      trigger="hover">
+                      <span class="product-brand" slot="reference" style="font-weight: normal;text-decoration: underline;"><a>Inclusive of all taxes</a></span>
+
+                      <div style="margin-left: 5px;">                   
+                        <p><b>Base price</b> : {{temp.dp_base}}</p>
+                        <p><b>GST</b> : {{temp.dp_gst}}</p>
+                        <p><b>DP</b> : {{temp.dp_amount}}</p>
+                      </div>
+                  </el-popover>
+                </p>
+                <p class="product-price" slot="reference">MRP - ₹ {{temp.retail_amount}} /- 
                   <el-popover                  
                       placement="right"
                       width="200"
@@ -251,7 +265,7 @@ export default {
 }
 .product-price {
   line-height: 1.3;
-  font-size: 25px;
+  font-size: 17px;
   color: #424040;
   font-weight: bold;
 }

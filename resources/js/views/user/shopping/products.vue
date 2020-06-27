@@ -41,6 +41,16 @@
             <span>{{product.name}}</span>
             <el-row style="margin-top: 20px;">
               <el-col :span="12" class="price">
+               <span style="text-align: left;"> DP <br>
+                {{product.dp_amount}}</span>
+              </el-col>
+              <el-col :span="12" class="price" style="text-align: right;">
+                <span>PV <br>
+                {{product.pv}}</span>
+              </el-col>
+            </el-row>
+            <el-row style="margin-top: 20px;">
+              <el-col :span="12" class="price">
                <span style="text-align: left;"> MRP <br>
                 {{product.retail_amount}}</span>
               </el-col>

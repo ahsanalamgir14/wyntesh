@@ -156,8 +156,6 @@ class ShoppingController extends Controller
 
         $Order=Order::find($request->id);
 
-
-
         if($Order){
 
             $old_status=$Order->delivery_status;
@@ -181,7 +179,7 @@ class ShoppingController extends Controller
 
             $ExistingSale=Sale::where('order_id',$Order->id)->first();
 
-            if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){
+            if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){                 
                 $final_amount_company=($Order->final_amount)-($Order->gst)-($Order->shipping_fee)-($Order->admin_fee);
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
@@ -212,7 +210,9 @@ class ShoppingController extends Controller
                         $ActivationLog->save();
 
                     }
-                }               
+                }
+
+                event(new UpdateGroupPVEvent($Order,$Order->user,'add'));
             }
 
             
@@ -265,6 +265,8 @@ class ShoppingController extends Controller
                 $final_balance=$balance+$Order->final_amount;
                 $Order->User->member->wallet_balance=$final_balance;
                 $Order->User->member->save();
+
+                event(new UpdateGroupPVEvent($Order,$Order->user,'subtract'));
             }
 
             event(new OrderUpdateEvent($Order,$Order->user));

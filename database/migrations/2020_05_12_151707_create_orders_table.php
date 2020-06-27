@@ -24,6 +24,7 @@ class CreateOrdersTable extends Migration
             $table->decimal('admin_fee', 8, 2)->default(0)->nullable();
             $table->decimal('final_amount', 8, 2)->default(0);
             $table->string('payment_status',32);
+            $table->decimal('distributor_discount', 8, 2)->default(0)->nullable();
             $table->integer('wallet_transaction_id')->nullable();
             $table->string('payment_mode',32);
             $table->string('delivery_by',128)->nullable();

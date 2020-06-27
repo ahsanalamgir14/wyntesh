@@ -92,6 +92,7 @@ class GeneratePayoutListener
             //Getting Member Legs in decenting based on current PV
             $legs=MembersLegPv::where('member_id',$Member->id)->orderBy('current_pv','desc')->get();
             foreach ($legs as $key => $leg) {
+                
                 if($key==0){
                     $leg_1_pv=$leg->current_pv;
                     $carry_forward_position=$leg->position;

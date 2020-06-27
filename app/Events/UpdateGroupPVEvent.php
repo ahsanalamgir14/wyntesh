@@ -23,11 +23,13 @@ class UpdateGroupPVEvent
      */
     public $order;
     public $user;
+    public $type;
 
-    public function __construct(Order $order, User $user)
+    public function __construct(Order $order, User $user,$type)
     {
         $this->order = $order;
         $this->user = $user;
+        $this->type = $type;
     }
 
     /**

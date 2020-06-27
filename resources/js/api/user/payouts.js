@@ -39,3 +39,11 @@ export function getIncomeHoldingPayouts() {
     method: 'get'
   })
 }
+
+export function getGroupAndMatchingPvs(query) {
+  return request({
+    url: '/user/group-and-matching-pvs',
+    method: 'get',
+    params: query
+  })
+}

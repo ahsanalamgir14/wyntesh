@@ -8,6 +8,7 @@ use Validator;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
+use App\Models\Admin\MemberMonthlyLegPv;
 use JWTAuth;
 
 class PayoutsController extends Controller
@@ -137,6 +138,48 @@ class PayoutsController extends Controller
        ->where('member_id',$user->member->id)->where('is_paid',0)->get();
    
         $response = array('status' => true,'message'=>"Member Income Holding Payouts retrieved.",'data'=>$MemberIncomeHolding);
+        return response()->json($response, 200);
+    }
+
+    public function getGroupAndMatchingPvs(Request $request)
+    {   
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $user=JWTAuth::user();
+        $distinct_months=MemberMonthlyLegPv::selectRaw('distinct(DATE_FORMAT(created_at,"%Y-%m")) as month')->orderBy('created_at','desc')->paginate($limit);
+
+        $monthly_pvs=array();
+        foreach ($distinct_months as $val) {
+            $date=date_create($val->month);
+            $month= date_format($date,"m");
+            $year= date_format($date,"Y");
+            $MemberMonthlyLegPv=MemberMonthlyLegPv::selectRaw('*')
+                ->whereYear('created_at', '=', $year)
+                ->whereMonth('created_at', '=', $month)
+            ->where('member_id',$user->member->id)->get();  
+            $monthly_pvs[]=array('month'=>$val->month,'legs'=>$MemberMonthlyLegPv);
+        }
+
+        
+   
+        $response = array('status' => true,'message'=>"Member Leg Pvs retrieved.",'data'=>$monthly_pvs,'total'=>count($distinct_months));
         return response()->json($response, 200);
     }
   

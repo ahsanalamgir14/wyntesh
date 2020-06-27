@@ -39,7 +39,7 @@
               <el-input style="width: 80px;" v-model="product.qty" @change="updateCartQty(product.product_id,product.qty)" type="number"  min="1"  :max="product.products.stock" />
             </div>
          
-            <div class="total-price">₹ {{product.products.retail_amount*product.qty}}</div>
+            <div class="total-price">₹ {{product.products.dp_amount*product.qty}}</div>
           </div>
           <div class="empty-cart" v-if="cartProducts.length == 0">
               <h2 style="text-align: center;">Your cart is empty, buy something.</h2>
@@ -51,13 +51,49 @@
         <div class="shopping-cart">
           <!-- Title -->
           <div class="title">
-            Cart Total (Without Taxes)
+            Cart Total
           </div>          
           <div class="calculations">
             <div class="cal-grand">
               <span>Total</span>
             </div>         
             <div class="cal-amount"><span>₹ {{temp.subtotal}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-title">
+              <span>GST</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.total_gst}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-title">
+              <span>Shipping</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.shipping}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-title">
+              <span>Admin Charge</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.admin}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-title">
+              <span>Discount</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.discount}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-title">
+              <span>Total PV</span>
+            </div>         
+            <div class="cal-amount"><span>{{temp.pv}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-grand">
+              <span>Grand Total</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.grand_total}}</span></div>
           </div>
 
           <div class="checkout-btn make-payment-btn" v-if="cartProducts.length != 0">
@@ -134,6 +170,8 @@ export default {
         admin:0,
         discount:0,
         grand_total:0,
+        pv:0,
+        discount:0,
 
       },
       is_create:true,      
@@ -148,17 +186,22 @@ export default {
     getMyCart(){
       getMyCart().then(response => {
         this.cartProducts = response.data;   
-        this.calculateFinal();     
+        this.calculateFinal();
+        if(this.temp.shipping>=1500){
+          this.temp.shipping-=100;
+          this.temp.grand_total-=100;
+        }
       });
     },
     calculateFinal() {
       this.resetTemp();
         this.cartProducts.forEach((cart)=>{
-          this.temp.subtotal+=parseFloat(cart.products.retail_amount)*parseInt(cart.qty);
-          this.temp.total_gst+=parseFloat(cart.products.retail_gst)*parseInt(cart.qty);
+          this.temp.subtotal+=parseFloat(cart.products.dp_base)*parseInt(cart.qty);
+          this.temp.total_gst+=parseFloat(cart.products.dp_gst)*parseInt(cart.qty);
           this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
           this.temp.discount+=parseFloat(cart.products.discount_amount)*parseInt(cart.qty);
+          this.temp.pv+=parseFloat(cart.products.pv)*parseInt(cart.qty);
           this.temp.grand_total=this.temp.subtotal+this.temp.total_gst+this.temp.shipping+this.temp.admin-this.temp.discount;
         });  
     },
@@ -170,6 +213,8 @@ export default {
         admin:0,
         discount:0,
         grand_total:0,
+        pv:0,
+        discount:0,
 
       };
     },
