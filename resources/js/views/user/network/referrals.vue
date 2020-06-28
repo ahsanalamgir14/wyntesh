@@ -70,12 +70,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column> 
-      <el-table-column label="DOJ" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="ID" width="160px" align="center">
+       <el-table-column label="ID" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.user.username }}</span>
         </template>
@@ -85,26 +80,31 @@
           <span >{{ row.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Parent" width="160px" align="center">
+      <el-table-column label="Parent" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.parent.user.username}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sponsor" width="160px" align="center">
+      <el-table-column label="Sponsor" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.sponsor.user.username }}</span>
         </template>
       </el-table-column>
-     <!--  <el-table-column label="Right" width="160px" align="right">
+      <el-table-column label="DOJ" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.right }}</span>
+          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Left" width="160px" align="right">
+      <el-table-column label="Personal BV" width="140px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.left }}</span>
+          <span>{{ row.total_personal_pv }}</span>
         </template>
-      </el-table-column> -->
+      </el-table-column>
+      <el-table-column label="Group BV" width="140px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.group_pv }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Status" class-name="status-col" width="100">
         <template slot-scope="{row}">
           <el-tag :type="row.user.is_active | statusFilter">{{ row.user.is_active?'Active':'Deactive' }}</el-tag>

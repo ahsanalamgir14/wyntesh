@@ -48,6 +48,7 @@ class CronsController extends Controller
         $Payout->sales_start_date=$from;
         $Payout->sales_end_date=$to;
         $Payout->sales_bv=0;
+        $Payout->tds=0;
         $Payout->sales_amount=0;
         $Payout->total_payout=0;
         $Payout->save();
@@ -57,6 +58,7 @@ class CronsController extends Controller
             $PayoutIncome->payout_id=$Payout->id;
             $PayoutIncome->income_id=$income->id;
             $PayoutIncome->payout_amount=0;
+            $PayoutIncome->tds=0;
             $PayoutIncome->save();
         }
 

@@ -110,7 +110,13 @@
           </div>
           <div class="calculations">
             <div class="cal-title">
-              <span>Discount</span>
+              <span>Distributor Discount</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.distributor_discount}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-title">
+              <span>Product Discount</span>
             </div>         
             <div class="cal-amount"><span>₹ {{temp.discount}}</span></div>
           </div>
@@ -159,9 +165,11 @@
       <el-form ref="orderForm" :rules="orderRules" :model="temp"  >
         
         <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
+          <br>
+          <br>
           <el-form-item label="Shipping Address" prop="shipping_address_id">
             <br>
-            <el-select style="width: 100%" v-model="temp.shipping_address_id" @change="selectShippingAddress()" clearable autocomplete="off" filterable placeholder="Select Shipping Address">
+            <el-select style="width: 100%" v-model="temp.shipping_address_id" @change="selectShippingAddress()" @clear="resetShippingAddress()" clearable autocomplete="off" filterable placeholder="Select Shipping Address">
               <el-option
                 v-for="item in addresses"
                 :key="item.id"
@@ -211,9 +219,11 @@
           </el-row>
         </el-col>
         <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
-          <el-form-item label="Billing Address" prop="billing_address_id">
-            <br>
-            <el-select style="width: 100%" v-model="temp.billing_address_id" @change="selectBillingAddress()" clearable autocomplete="off" filterable placeholder="Select billing Address">
+          <el-checkbox @change="selectSameBillingAddress()" v-model="billing_address_tick">Same as shipping address</el-checkbox>
+          <br>
+          <br>
+          <el-form-item label="Billing Address" prop="billing_address_id">            
+            <el-select style="width: 100%" v-model="temp.billing_address_id" @clear="resetBillingAddress()" @change="selectBillingAddress()" clearable autocomplete="off" filterable placeholder="Select billing Address">
               <el-option
                 v-for="item in addresses"
                 :key="item.full_name"
@@ -381,8 +391,10 @@ export default {
         pv:0,
         payment_mode:1,
         payout_id:undefined,
+        distributor_discount:0,
 
       },
+      billing_address_tick:false,
       billing_address:{
         full_name:undefined,
         mobile_number:undefined,
@@ -449,6 +461,39 @@ export default {
         }     
       });
     },
+    resetBillingAddress(){
+      this.billing_address={
+        full_name:undefined,
+        mobile_number:undefined,
+        pincode:undefined,
+        address:undefined,
+        landmark:undefined,
+        city:undefined,
+        state:undefined,
+      };
+    },
+    resetShippingAddress(){
+      this.shipping_address={
+        full_name:undefined,
+        mobile_number:undefined,
+        pincode:undefined,
+        address:undefined,
+        landmark:undefined,
+        city:undefined,
+        state:undefined,
+      };
+    },
+    selectSameBillingAddress(){
+      if(this.billing_address_tick){
+        let temp=Object.assign({}, this.temp);
+        this.temp.billing_address_id=temp.shipping_address_id;
+        console.log(temp.shipping_address_id);
+        this.selectBillingAddress();
+      }else{
+        this.temp.billing_address_id=undefined;
+        this.resetBillingAddress();
+      }
+    },
     getAllAddresses(){
       getAllAddresses().then(response => {
         this.addresses = response.data; 
@@ -464,7 +509,11 @@ export default {
         this.incomeHoldingPayouts = response.data; 
       });
     },
-    selectShippingAddress(){      
+    selectShippingAddress(){  
+      this.temp.billing_address_id=undefined;
+      this.resetBillingAddress();
+      this.billing_address_tick=false;
+      
       let address=this.addresses.filter((address)=>{
         return address.id==this.temp.shipping_address_id
       });
@@ -473,7 +522,7 @@ export default {
       }
       
     },
-    selectBillingAddress(){      
+    selectBillingAddress(){   
       let address=this.addresses.filter((address)=>{
         return address.id==this.temp.billing_address_id
       });
@@ -486,6 +535,7 @@ export default {
       this.resetTemp();
         this.cartProducts.forEach((cart)=>{
           this.temp.subtotal+=parseFloat(cart.products.dp_base)*parseInt(cart.qty);
+          this.temp.distributor_discount+=parseFloat(cart.products.retail_amount-cart.products.dp_amount)*parseInt(cart.qty);
           this.temp.total_gst+=parseFloat(cart.products.dp_gst)*parseInt(cart.qty);
           this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
@@ -511,6 +561,7 @@ export default {
         pv:0,
         grand_total:0,
         payout_id:undefined,
+        distributor_discount:0,
 
       };
     },
@@ -831,7 +882,7 @@ input:focus {
 }
 
 .cal-amount {  
-  width: 100%;
+  width: 70%;
   margin-right: 25px;
   padding-top: 8px;
   text-align: right;

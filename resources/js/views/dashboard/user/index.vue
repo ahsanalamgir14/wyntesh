@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-editor-container">
-    <el-alert
+  <el-alert
     v-if="notice.is_active"
     style="margin-bottom: 10px;"
     :title="notice.title"
@@ -8,6 +8,15 @@
     :description="notice.description"
     show-icon>
   </el-alert>
+  <el-alert
+    v-if="!temp.is_active"
+    style="margin-bottom: 10px;"
+    title="ID Activation Notice"
+    type="error"
+    description="Your ID is inactive, kindly fullfill minimum business criteria to activate ID"
+    show-icon>
+  </el-alert>
+
 
     <el-row :gutter="10" >      
       <el-col :xs="24" :sm="24" :md="6" :lg="6" >
@@ -21,7 +30,7 @@
                 <span >{{ temp.name }}</span>
                 <br>
                 <div style="margin-top: 10px;">
-                  <el-tag type="primary">{{ temp.member.rank.name }}</el-tag>
+                  <el-tag style="font-size: 16px;" type="primary">{{ temp.member.rank.name }}</el-tag>
                 </div>
                 <div style="margin-top: 10px;">
                   <el-tag v-if="temp.kyc.verification_status=='verified'" type="success">Verified</el-tag>
@@ -44,115 +53,84 @@
       <el-col :xs="24" :sm="24" :md="18" :lg="18" >
         <el-row :gutter="10" class="panel-group">
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr14" >
-              <div class="card-panel-icon-wrapper " >
-                <i class="fas fa-users card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                  <count-to :start-val="0" :end-val="dashboardStats.downlines" :duration="2600" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Downlines
+            <router-link to="/network/downlines">
+              <div class="card-panel gr14" >
+                <div class="card-panel-icon-wrapper " >
+                  <i class="fas fa-users card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                    <count-to :start-val="0" :end-val="dashboardStats.downlines" :duration="2600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Downlines
+                  </div>
                 </div>
               </div>
-            </div>
+            </router-link>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr2" >
-              <div class="card-panel-icon-wrapper icon-message">
-                <i class="fas fa-wallet card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="dashboardStats.balance" :duration="3000" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Wallet Balance
+            <router-link to="/network/referrals">
+              <div class="card-panel gr7" >
+                <div class="card-panel-icon-wrapper icon-money">
+                  <i class="fas fa-users card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="dashboardStats.referrals" :duration="3200" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Referrals
+                  </div>
                 </div>
               </div>
-            </div>
+            </router-link>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr8" >
-              <div class="card-panel-icon-wrapper icon-money">
-                <i class="fas fa-rupee-sign card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Total Payout
+            <router-link to="/wallet/wallet">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-message">
+                  <i class="fas fa-wallet card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="dashboardStats.balance" :duration="3000" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Wallet Balance
+                  </div>
                 </div>
               </div>
-            </div>
+            </router-link>
+          </el-col>
+          
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/wallet/withdrawals">
+              <div class="card-panel gr17" >
+                <div class="card-panel-icon-wrapper icon-message">
+                  <i class="fas fa-wallet card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="dashboardStats.withdrawals" :duration="3000" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Total Withdrawals
+                  </div>
+                </div>
+              </div>
+            </router-link>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr17" >
-              <div class="card-panel-icon-wrapper icon-message">
-                <i class="fas fa-wallet card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="dashboardStats.withdrawals" :duration="3000" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Total Withdrawals
+            <router-link to="/member/payouts/all">
+              <div class="card-panel gr8" >
+                <div class="card-panel-icon-wrapper icon-money">
+                  <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Total Payout
+                  </div>
                 </div>
               </div>
-            </div>
-          </el-col>
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr7" >
-              <div class="card-panel-icon-wrapper icon-money">
-                <i class="fas fa-rupee-sign card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="dashboardStats.total_purchase" :duration="3200" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Total Purchase
-                </div>
-              </div>
-            </div>
-          </el-col>
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr2" >
-              <div class="card-panel-icon-wrapper icon-shopping">
-                <i class="fas fa-flag card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="parseInt(dashboardStats.current_personal_pv)" :duration="3600" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Personal PV
-                </div>
-              </div>
-            </div>
-          </el-col>
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr2" >
-              <div class="card-panel-icon-wrapper icon-shopping">
-                <i class="fas fa-coins card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="parseInt(dashboardStats.total_group_bv)" :duration="3600" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Total Group PV
-                </div>
-              </div>
-            </div>
-          </el-col>
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr2" >
-              <div class="card-panel-icon-wrapper icon-shopping">
-                <i class="fas fa-coins card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="parseInt(dashboardStats.total_matched)" :duration="3600" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Total Matched PV
-                </div>
-              </div>
-            </div>
+            </router-link>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <div class="card-panel gr2" >
@@ -168,6 +146,55 @@
               </div>
             </div>
           </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/reports/personal-pv">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-flag card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.current_personal_pv)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Personal PV
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/reports/group-and-matching">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-coins card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.total_group_bv)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Total Group PV
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/reports/group-and-matching">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-coins card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.total_matched)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Total Matched PV
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+          
         </el-row>
       </el-col>
     </el-row>

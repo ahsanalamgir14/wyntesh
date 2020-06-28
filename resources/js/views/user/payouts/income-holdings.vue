@@ -27,23 +27,37 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="Payout" width="150px" align="center">
+      <el-table-column
+        type="index"
+        width="50">
+      </el-table-column>
+
+      <el-table-column label="Month" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Required BV to release" min-width="150px" align="right">
+      <el-table-column label="Repurchase BV Condition" width="200px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.required_bv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Amount" min-width="130px" align="right">
+      <el-table-column label="Amount Payble" min-width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.withhold_amount }}</span>
         </template>
       </el-table-column>
-      
+      <el-table-column label="Remaining Days" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ getRemainingDays(row.created_at) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Payout Generation Date" min-width="180px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
     </el-table>
 
     <pagination
@@ -145,6 +159,22 @@ export default {
           this.listLoading = false;
         }, 1 * 100);
       });
+    },
+    addDays(date, days) {
+      var result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    },
+    getRemainingDays(date){
+        let endDate=this.addDays(date,90);
+        let countDownDate = new Date(endDate).getTime();      
+        let now = new Date().getTime();
+        var distance = countDownDate - now;
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        return days + " days" ;
     },
     handleFilter() {
       this.listQuery.page = 1;

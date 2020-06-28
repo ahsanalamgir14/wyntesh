@@ -332,6 +332,36 @@ class ShoppingController extends Controller
         }        
     }
 
+    public function getPersonalPVMonthly(Request $request)
+    {
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $Orders=Order::selectRaw('*,YEAR(created_at) year, MONTH(created_at) month, sum(pv) as total_pv')
+        ->groupBy('year','month')
+       ->where('user_id',$user->id)->whereNotIn('delivery_status',['Order Returned','Order Created','Order Cancelled'])->paginate($limit);
+   
+        $response = array('status' => true,'message'=>"Personal PV History retrieved.",'data'=>$Orders);
+        return response()->json($response, 200);
+    }
+
     public function placePackageOrder(Request $request){
         $validate = Validator::make($request->all(), [ 
             'pin_number' => "required",

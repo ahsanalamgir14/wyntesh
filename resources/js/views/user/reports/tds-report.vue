@@ -1,43 +1,20 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-       <el-input
-          v-model="listQuery.search"
-          placeholder="Member ID / Status"
-          style="width: 200px;"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        />
-
-      <el-date-picker
-        v-model="listQuery.date_range"
+      <!-- <el-input
+        v-model="listQuery.search"
+        placeholder="Search Records"
+        style="width: 200px;"
         class="filter-item"
-        type="daterange"
-        align="right"
-        unlink-panels
-        @change="handleFilter"
-        format="yyyy-MM-dd"
-        value-format="yyyy-MM-dd"
-        range-separator="|"
-        start-placeholder="Start date"
-        end-placeholder="End date"
-        :picker-options="pickerOptions">
-      </el-date-picker>
+        @keyup.enter.native="handleFilter"
+      />
       <el-button
         v-waves
         class="filter-item"
         type="primary"
         icon="el-icon-search"
         @click="handleFilter"
-      >Search</el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >Export</el-button>
+      >Search</el-button> -->
     </div>
 
     <el-table
@@ -45,49 +22,29 @@
       v-loading="listLoading"
       :data="list"
       border
-      show-summary
-      :summary-method="getSummaries"
       fit
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
-      >
+    >
       <el-table-column
-        label="ID"
-        prop="id"
-        sortable="custom"
-        align="center"
-        width="80"
-        :class-name="getSortClass('id')"
-      >
+        type="index"
+        width="50">
+      </el-table-column>
+      <el-table-column label="Month" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Payment made at" width="140px" align="center">
+      
+      <el-table-column label="Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span v-if="row.payment_made_at">{{ row.payment_made_at | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column> 
-      <el-table-column label="Amout" width="110px" align="right">
-        <template slot-scope="{row}">
-          <span>{{ row.amount }}</span>
+          <span >{{ row.total_payout }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS (%)" width="160px" align="right">
+      <el-table-column label="TDS" width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.tds_percentage }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Net Amount" min-width="110px"align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.net_amount }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="TDS Amount" width="160px" align="right">
-        <template slot-scope="{row}">
-          <span>{{ row.tds_amount }}</span>
+          <span >{{ row.tds }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -104,20 +61,20 @@
 </template>
 
 <script>
-import { fetchWithdrawals } from "@/api/user/wallet";
+import { fetchPayouts, } from "@/api/user/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 
 export default {
-  name: "Withdrawals",
+  name: "Payouts",
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
         1: "success",
-        null: "info",
+        draft: "info",
         0: "danger"
       };
 
@@ -132,21 +89,14 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 10,
-        search:undefined,
-        sort: "+id",
-        date_range:''
-      },
-      sums:{
-        tds_amount:0,
-        net_amount:0
+        limit: 5,
+        search: undefined,
+        sort: "-id"
       },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
-      downloadLoading: false,
-      buttonLoading: false,      
       pickerOptions: {
         shortcuts: [{
           text: 'Last week',
@@ -174,50 +124,30 @@ export default {
           }
         }]
       },
+      dialogPayoutGenerateVisible:false,
+      dialogStatus: "",
+      dialogTitle:"",
+      textMap: {
+        update: "Edit",
+        create: "Create"
+      },
+      downloadLoading: false,
+      buttonLoading: false
     };
   },
   created() {
     this.getList();
   },
   methods: {
-    getSummaries(param) {
-      const { columns, data } = param;
-      const sums = [];
-      columns.forEach((column, index) => {
-        if (index === 0) {
-          sums[index] = 'All Rows';
-          return;
-        }
-        if (index === 1) {
-          sums[index] = 'Total';
-          return;
-        }
-        if(index===4){
-          sums[index] = this.sums.net_amount;
-          return; 
-        }
-        if(index===5){
-          sums[index] = this.sums.tds_amount;
-          return; 
-        }
-      });
-
-      return sums;
-    },
     getList() {
       this.listLoading = true;
-     
-      fetchWithdrawals(this.listQuery).then(response => {
+      fetchPayouts(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
-        this.sums=response.total;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
-      }).catch((er)=>{
-        this.listLoading = false;
       });
-   
     },
     handleFilter() {
       this.listQuery.page = 1;
@@ -237,53 +167,6 @@ export default {
       }
       this.handleFilter();
     },
-    handleDownload() {
-      this.downloadLoading = true;
-      import("@/vendor/Export2Excel").then(excel => {
-        const tHeader = [
-          "ID",
-          "Payment made at",
-          "Amount",
-          "Status",          
-          "TDS %",
-          "TDS amount",
-          "Net Amount",
-          "Request id",
-          "Transaction by",
-        ];
-        const filterVal = [
-          "id",
-          "payment_made_at",
-          "amount",
-          "payment_status",
-          "tds_percentage",
-          "tds_amount",
-          "net_amount",
-          "withdrawal_request_id",
-          "transaction_by",
-        ];
-        const data = this.formatJson(filterVal, this.list);
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: "withdrawals"
-        });
-        this.downloadLoading = false;
-      });
-    },
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v =>
-        filterVal.map(j => {
-          if (j === "timestamp") {
-            return parseTime(v[j]);
-          } else if(j=="transaction_by"){
-            return v.transaction_by.username
-          }else {
-            return v[j];
-          }
-        })
-      );
-    },
     getSortClass: function(key) {
       const sort = this.listQuery.sort;
       return sort === `+${key}`
@@ -296,7 +179,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .el-drawer__body {
   padding: 20px;
 }
@@ -306,14 +189,6 @@ export default {
 .pagination-container {
   background: #fff;
   padding: 15px 16px;
-}
-.edit-input {
-  padding-right: 100px;
-}
-.cancel-btn {
-  position: absolute;
-  right: 15px;
-  top: 10px;
 }
 
 </style>

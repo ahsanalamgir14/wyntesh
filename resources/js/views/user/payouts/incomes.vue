@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
      
-      <el-select v-model="listQuery.income_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Income">
+      <el-select v-model="listQuery.income_id" @change="handleFilter" multiple  clearable class="filter-item" style="width:500px;" filterable placeholder="Select Income">
         <el-option
           v-for="item in income_list"
           :key="item.name"
@@ -12,18 +12,13 @@
       </el-select>
 
       <el-date-picker
-        v-model="listQuery.date_range"
-        class="filter-item"
-        type="daterange"
-        align="right"
-        unlink-panels
+        v-model="listQuery.month"
+        type="month"
         @change="handleFilter"
-        format="yyyy-MM-dd"
-        value-format="yyyy-MM-dd"
-        range-separator="|"
-        start-placeholder="Start date"
-        end-placeholder="End date"
-        :picker-options="pickerOptions">
+        format="yyyy-MM"
+        value-format="yyyy-MM"
+         class="filter-item"
+        placeholder="Pick a month">
       </el-date-picker>
 
       <el-button
@@ -76,9 +71,19 @@
           <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Total Payout" width="130px" align="right">
+      <el-table-column label="Income Payout" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.payout_amount }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="TDS" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.tds }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Admin Fee" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.admin_fee }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Income Parameter 1" width="200px" align="right">

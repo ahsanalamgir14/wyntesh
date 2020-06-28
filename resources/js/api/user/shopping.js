@@ -88,3 +88,10 @@ export function getOrder(id) {
     method: 'get'
   })
 }
+
+export function getPersonalPVMonthly(id) {
+  return request({
+    url: '/user/personal-pv-monthly/',
+    method: 'get'
+  })
+}

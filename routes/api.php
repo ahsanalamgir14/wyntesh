@@ -137,6 +137,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('income-holdings', 'PayoutsController@getIncomeHoldings');
     Route::get('income-holding-payouts', 'PayoutsController@getIncomeHoldingPayouts');
     Route::get('group-and-matching-pvs', 'PayoutsController@getGroupAndMatchingPvs');
+    Route::get('personal-pv-monthly', 'ShoppingController@getPersonalPVMonthly');
 
 });
 

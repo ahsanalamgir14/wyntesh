@@ -196,6 +196,10 @@ class MembersController extends Controller
                 });
             }
 
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
+               $query->select(DB::raw('sum(total_pv)'));
+            }]);
+
             $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $Members=Member::select();
@@ -226,6 +230,10 @@ class MembersController extends Controller
                     $q->where('is_active', $is_active);
                 });
             }
+
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
+               $query->select(DB::raw('sum(total_pv)'));
+            }]);
        
             $Members=$Members->with('parent','sponsor','user')->orderBy('id',$sort)->paginate($limit);
             
@@ -393,7 +401,7 @@ class MembersController extends Controller
             'contact'=>$request->contact,
             'gender'=>$request->gender,
             'dob'=>$request->dob,
-            'is_active'=>1,
+            'is_active'=>0,
             'verified_at'=>Carbon::now()
         ]);
 
@@ -462,7 +470,7 @@ class MembersController extends Controller
             'contact'=>$request->contact,
             'gender'=>$request->gender,
             'dob'=>$request->dob,
-            'is_active'=>1,
+            'is_active'=>0,
             'verified_at'=>Carbon::now()
         ]);
 
@@ -541,6 +549,10 @@ class MembersController extends Controller
                 });
             }
 
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
+               $query->select(DB::raw('sum(total_pv)'));
+            }]);
+
             $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $Members=Member::select();
@@ -560,6 +572,10 @@ class MembersController extends Controller
                      $q->where('username','like','%'.$search.'%');
                 });
             });
+
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
+               $query->select(DB::raw('sum(total_pv)'));
+            }]);
 
             if($date_range){
                 $Members=$Members->whereDate('created_at','>=', $date_range[0]);

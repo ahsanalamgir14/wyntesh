@@ -11,6 +11,7 @@ use App\Models\Admin\Sale;
 use App\Models\Admin\Member;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\Rank;
+use App\Models\Admin\CompanySetting;
 use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutIncome;
 use App\Models\Admin\MemberPayout;
@@ -55,6 +56,9 @@ class GeneratePayoutListener
             $q->where('is_active',1);
         })->get();
 
+        $tds_percentage=CompanySetting::getValue('tds_percentage');
+        $admin_fee_percent=CompanySetting::getValue('admin_fee_percent');
+        $tds_percentage=$tds_percentage?$tds_percentage:0;
         $total_mached_bv=0;
         $total_carry_forward_bv=0;
 
@@ -79,6 +83,7 @@ class GeneratePayoutListener
             $MemberPayout->group_sales_pv=$member_leg_total_bv;
             $MemberPayout->group_sales_amount=$member_leg_sales_amount;
             $MemberPayout->total_payout=0;
+            $MemberPayout->tds=0;
             $MemberPayout->save();
 
             $matched_bv=0;
@@ -272,6 +277,8 @@ class GeneratePayoutListener
         }
 
         $all_income_payout_total=0;
+        $payout_tds=0;
+        $payout_admin_fee=0;
         // Calculating Member Payout Amount
 
         $Members=Member::whereHas('user',function($q){
@@ -285,9 +292,15 @@ class GeneratePayoutListener
             $MemberPayout= MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
             // get member total puchase in payout period to check minimum bv condition based on rank.
             $toal_bv_without_withhold_bv=Sale::whereBetween('created_at', [$MemberPayout->payout->sales_start_date, $MemberPayout->payout->sales_end_date])->where('member_id',$Member->id)->where('is_withhold_purchase',0)->sum('pv');
-           
+            
+            $member_payout_tds=0;
+            $member_payout_admin_fee=0;
+
             foreach ($PayoutIncomes as $PayoutIncome) {
                 // Count payout based on income.
+                $income_tds=0;
+                $income_admin_fee=0;
+
                 if($PayoutIncome->income_payout_parameter_1_name=='matching_point_value'){
                     // MemberIncomePayout Calculation
                     $income_payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
@@ -301,6 +314,11 @@ class GeneratePayoutListener
                             $payout_amount=$capping;
                         }
 
+                        $income_tds=($payout_amount*$tds_percentage)/100;
+                        $income_admin_fee=($payout_amount*$admin_fee_percent)/100;
+                        $payout_amount=$payout_amount-$income_tds;                        
+                        $payout_amount=$payout_amount-$income_admin_fee;
+
                         if($payout_amount==0){
                             continue;
                         }
@@ -313,10 +331,10 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
                         $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
                         $MemberPayoutIncome->payout_amount=$payout_amount;
+                        $MemberPayoutIncome->tds=$income_tds;
+                        $MemberPayoutIncome->admin_fee=$income_admin_fee;
                         $MemberPayoutIncome->save();
-                    }
-
-                    if($PayoutIncome->income->code=='CONSISTENCY'){
+                    }else if($PayoutIncome->income->code=='CONSISTENCY'){
                        
                         if($income_payout_amount==0){
                             continue;
@@ -331,6 +349,11 @@ class GeneratePayoutListener
                             $payout_amount=$IncomeParameter->value_1;
                         }
 
+                        $income_tds=($payout_amount*$tds_percentage)/100;
+                        $income_admin_fee=($payout_amount*$admin_fee_percent)/100;
+                        $payout_amount=$payout_amount-$income_tds;                        
+                        $payout_amount=$payout_amount-$income_admin_fee;
+
                         $TransactionType=TransactionType::where('name','Consistency Bonus')->first();
                         $MemberPayoutIncome=new MemberPayoutIncome;
                         $MemberPayoutIncome->payout_id=$payout->id;
@@ -339,11 +362,20 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
                         $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
                         $MemberPayoutIncome->payout_amount=$payout_amount;
+                        $MemberPayoutIncome->tds=$income_tds;
+                        $MemberPayoutIncome->admin_fee=$income_admin_fee;
                         $MemberPayoutIncome->save();
                     }else{
                         if($income_payout_amount==0){
                             continue;
                         }
+
+                        $payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+
+                        $income_tds=($payout_amount*$tds_percentage)/100;
+                        $income_admin_fee=($payout_amount*$admin_fee_percent)/100;
+                        $payout_amount=$payout_amount-$income_tds;                        
+                        $payout_amount=$payout_amount-$income_admin_fee;
 
                         $TransactionType=TransactionType::where('name','Achievers’s Fund')->first();
                         $MemberPayoutIncome=new MemberPayoutIncome;
@@ -352,7 +384,9 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->member_id=$Member->id;
                         $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
                         $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
-                        $MemberPayoutIncome->payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                        $MemberPayoutIncome->payout_amount=$payout_amount;
+                        $MemberPayoutIncome->tds=$income_tds;
+                        $MemberPayoutIncome->admin_fee=$income_admin_fee;
                         $MemberPayoutIncome->save();
                     }                                        
                 }else if($PayoutIncome->income_payout_parameter_1_name=='franchise_bonus_percent'){
@@ -377,8 +411,16 @@ class GeneratePayoutListener
                         if($total_sponsor_payout==0){
                             continue;
                         }
+
+                        $income_tds=($total_sponsor_payout*$tds_percentage)/100;
+                        $income_admin_fee=($total_sponsor_payout*$admin_fee_percent)/100;
+                        $total_sponsor_payout=$total_sponsor_payout-$income_tds;
+                        $total_sponsor_payout=$total_sponsor_payout-$income_admin_fee;
+
                         $income_payout_amount=$total_sponsor_payout;
                         $MemberPayoutIncome->payout_amount=$total_sponsor_payout;
+                        $MemberPayoutIncome->tds=$income_tds;
+                        $MemberPayoutIncome->admin_fee=$income_admin_fee;
                         $MemberPayoutIncome->save();
                     }
                 }
@@ -412,17 +454,26 @@ class GeneratePayoutListener
                     }
                     
                 }
-                // Getting Total Payout of all incomes for member.                
+                // Getting Total Payout of all incomes for member.
+                $member_payout_tds+=$income_tds;
+                $member_payout_admin_fee+=$income_admin_fee;
                 $total_payout+=$income_payout_amount;
             }
 
+            $total_payout=$total_payout-$member_payout_tds;
+            $total_payout=$total_payout-$member_payout_admin_fee;
+
             $MemberPayout->total_payout=$total_payout;
+            $MemberPayout->tds=$member_payout_tds;
+            $MemberPayout->admin_fee=$member_payout_admin_fee;
             $MemberPayout->save();
             $Member->current_personal_pv=0;
             $Member->wallet_balance+=$total_payout;
             $Member->save();
             // calculating total payout for this payout run
             $all_income_payout_total+=$total_payout;
+            $payout_tds+=$member_payout_tds;
+            $payout_admin_fee+=$member_payout_admin_fee;
         }
 
         // Calculating income wise total payout.
@@ -433,7 +484,10 @@ class GeneratePayoutListener
         }
 
         // Saving total payout to payout
+        $all_income_payout_total=$all_income_payout_total-$payout_tds-$payout_admin_fee;
         $payout->total_payout=$all_income_payout_total;
+        $payout->tds=$payout_tds;
+        $payout->admin_fee=$payout_admin_fee;
         $payout->save();
 
     }

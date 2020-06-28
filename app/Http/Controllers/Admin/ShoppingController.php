@@ -198,7 +198,7 @@ class ShoppingController extends Controller
                 $Order->user->member->save();
                 $minimum_purchase=CompanySetting::getValue('minimum_purchase');
                 if(!$Order->user->is_active){
-                    if($Order->user->member->total_personal_pv>$minimum_purchase){
+                    if($Order->user->member->total_personal_pv>=$minimum_purchase){
                         $Order->user->is_active=1;
                         $Order->user->save();
 

@@ -79,7 +79,13 @@
           </div>
           <div class="calculations">
             <div class="cal-title">
-              <span>Discount</span>
+              <span>Distributor Discount</span>
+            </div>         
+            <div class="cal-amount"><span>₹ {{temp.distributor_discount}}</span></div>
+          </div>
+          <div class="calculations">
+            <div class="cal-title">
+              <span>Product Discount</span>
             </div>         
             <div class="cal-amount"><span>₹ {{temp.discount}}</span></div>
           </div>
@@ -172,6 +178,7 @@ export default {
         grand_total:0,
         pv:0,
         discount:0,
+        distributor_discount:0,
 
       },
       is_create:true,      
@@ -197,6 +204,7 @@ export default {
       this.resetTemp();
         this.cartProducts.forEach((cart)=>{
           this.temp.subtotal+=parseFloat(cart.products.dp_base)*parseInt(cart.qty);
+          this.temp.distributor_discount+=parseFloat(cart.products.retail_amount-cart.products.dp_amount)*parseInt(cart.qty);
           this.temp.total_gst+=parseFloat(cart.products.dp_gst)*parseInt(cart.qty);
           this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
@@ -215,6 +223,7 @@ export default {
         grand_total:0,
         pv:0,
         discount:0,
+        distributor_discount:0,
 
       };
     },
@@ -477,7 +486,7 @@ input:focus {
 }
 
 .cal-amount {  
-  width: 100%;
+  width: 70%;
   margin-right: 25px;
   padding-top: 8px;
   text-align: right;

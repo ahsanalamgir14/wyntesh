@@ -10,6 +10,8 @@ use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\MemberMonthlyLegPv;
 use JWTAuth;
+use DB;
+use Carbon\Carbon;
 
 class PayoutsController extends Controller
 {    
@@ -59,6 +61,7 @@ class PayoutsController extends Controller
         $sort=$request->sort;
         $search=$request->search;
         $date_range=$request->date_range;
+        $month=$request->month;
         $income_id=$request->income_id;
 
         if(!$page){
@@ -75,20 +78,24 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$income_id && !$date_range){
+        if(!$search && !$income_id && !$month){
             $MemberPayoutIncome=MemberPayoutIncome::select();
             $MemberPayoutIncome=$MemberPayoutIncome->where('member_id',$user->member->id);
             $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit); 
         }else{
             $MemberPayoutIncome=MemberPayoutIncome::select();
             
-            if($date_range){
-                $MemberPayoutIncome=$MemberPayoutIncome->whereDate('created_at','>=', $date_range[0]);
-                $MemberPayoutIncome=$MemberPayoutIncome->whereDate('created_at','<=', $date_range[1]);
+            if($month){
+                $MemberPayoutIncome=$MemberPayoutIncome->whereHas('payout',function($q)use($month){
+                    $month=$month.'-01';
+                    $date=Carbon::parse($month);
+                    $q->whereMonth('sales_start_date',$date->month);
+                    $q->whereYear('sales_start_date',$date->year);
+                });
             }
 
             if($income_id){
-                $MemberPayoutIncome=$MemberPayoutIncome->where('income_id',$income_id);
+                $MemberPayoutIncome=$MemberPayoutIncome->whereIn('income_id',$income_id);
             }
             $MemberPayoutIncome=$MemberPayoutIncome->where('member_id',$user->member->id);
             $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit);
@@ -176,9 +183,7 @@ class PayoutsController extends Controller
             ->where('member_id',$user->member->id)->get();  
             $monthly_pvs[]=array('month'=>$val->month,'legs'=>$MemberMonthlyLegPv);
         }
-
         
-   
         $response = array('status' => true,'message'=>"Member Leg Pvs retrieved.",'data'=>$monthly_pvs,'total'=>count($distinct_months));
         return response()->json($response, 200);
     }

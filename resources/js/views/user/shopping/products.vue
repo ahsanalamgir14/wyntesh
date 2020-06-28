@@ -50,13 +50,17 @@
               </el-col>
             </el-row>
             <el-row style="margin-top: 20px;">
-              <el-col :span="12" class="price">
+              <el-col :span="8" class="price">
                <span style="text-align: left;"> MRP <br>
                 {{product.retail_amount}}</span>
               </el-col>
-              <el-col :span="12" class="price" style="text-align: right;">
+              <el-col :span="6" class="price" style="text-align: right;">
                 <span>{{product.qty}} <br>
                 {{product.qty_unit}}</span>
+              </el-col>
+              <el-col :span="10" class="price" style="text-align: right;">
+                <span>Discount <br>
+                {{product.retail_amount-product.dp_amount}}</span>
               </el-col>
             </el-row>
             <div class="clearfix" style="margin:0 auto;width: 50%;margin-top: 20px;">

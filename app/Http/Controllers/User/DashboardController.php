@@ -31,6 +31,7 @@ class DashboardController extends Controller
         $total_group_bv=MemberMonthlyLegPv::where('member_id',$User->member->id)->sum('pv');
         $total_matched=MemberPayout::where('member_id',$User->member->id)->sum('total_matched_bv');
     	$downlines=count($MembersController->getChildsOfParent($User->member->id));
+        $referrals=$User->member->sponsored->count();
     	$total_purchase= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('final_amount'));
         $distributor_discount= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('distributor_discount'));
     	$withdrawals=floor(Withdrawal::where('member_id',$User->member->id)->sum('amount'));
@@ -45,6 +46,7 @@ class DashboardController extends Controller
             'message'=>'Stats recieved',
             'stats'=>array(
                 'downlines'=>$downlines,
+                'referrals'=>$referrals,
                 'total_purchase'=>$total_purchase,
                 'withdrawals'=>$withdrawals,
                 'pins_available'=>$pins_available,
@@ -178,7 +180,7 @@ class DashboardController extends Controller
                     $date_to_compare=Carbon::parse($payout->date)->format('Y-m');
 
                     if($date_to_compare == Carbon::now()->modify('-'.$i.' months')->format('Y-m') ){
-                        $od[$i]['date']=Carbon::parse($payout->date)->format('Y-m');
+                        $od[$i]['date']=$date_to_compare;
                         $od[$i]['income']=floor($payout->income);
                     }else{
                         if(!isset($od[$i])){

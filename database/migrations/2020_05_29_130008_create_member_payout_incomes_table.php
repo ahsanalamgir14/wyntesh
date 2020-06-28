@@ -29,6 +29,8 @@ class CreateMemberPayoutIncomesTable extends Migration
             $table->decimal('income_payout_parameter_4_value', 10, 2)->default(0)->nullable();
             $table->string('income_payout_parameter_5_name',128)->nullable();
             $table->decimal('income_payout_parameter_5_value', 10, 2)->default(0)->nullable();
+            $table->decimal('tds', 10, 2)->default(0);
+            $table->decimal('admin_fee', 10, 2)->default(0);
             $table->timestamps();
         });
     }

@@ -1041,6 +1041,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/wallet/transactions'),
         name: 'Wallet Transactions',
         meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'personal-pv',
+        component: () => import('@/views/user/reports/personal-pv-monthly'),
+        name: 'Personal Monthly PV',
+        meta: { title: 'Personal Monthly PV', icon: 'fas fa-list-alt', color:'color:#fcba03', affix: true, roles: ['user'] }
       }
     ]
   },
