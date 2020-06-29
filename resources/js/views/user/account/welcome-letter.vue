@@ -21,6 +21,7 @@
 import {
   getWelcomeLetter
 } from "@/api/user/welcome-letter";
+import { parseTime } from "@/utils";
 
 export default {
   name: "Settings",
@@ -48,9 +49,21 @@ export default {
     print(){
 
     },
-    hashTags: function() {      
-      this.temp.description=this.temp.description.replace(/@name(\S*)/g, '<b>'+this.user_details.name+'</b>.');
-      this.temp.description=this.temp.description.replace(/@company(\S*)/g, '<b>'+this.company_details.company_name+'.</b>')
+    hashTags: function() {
+      if(this.user_details.profile_picture){
+        this.temp.description=this.temp.description.replace(/@profile_picture(\S*)/g, '<img width="100px" style="border-radius:10px" src="'+this.user_details.profile_picture+'"</img>');
+      }else{
+        this.temp.description=this.temp.description.replace(/@profile_picture(\S*)/g, '');
+      }
+      this.temp.description=this.temp.description.replace(/@name(\S*)/g, '<b>'+this.user_details.name+'</b>');
+      this.temp.description=this.temp.description.replace(/@username(\S*)/g, '<b>'+this.user_details.username+'</b>');
+      this.temp.description=this.temp.description.replace(/@dob(\S*)/g, '<b>'+this.user_details.dob+'</b>');
+      this.temp.description=this.temp.description.replace(/@contact(\S*)/g, '<b>'+this.user_details.contact+'</b>');
+      this.temp.description=this.temp.description.replace(/@address(\S*)/g, '<b>'+this.user_details.address+'</b>');
+      this.temp.description=this.temp.description.replace(/@joining_date(\S*)/g, '<b>'+parseTime(this.user_details.created_at,'{y}-{m}-{d}')+'</b>');
+      this.temp.description=this.temp.description.replace(/@sponsor_id(\S*)/g, '<b>'+this.user_details.sponsor_id+'</b>');
+      this.temp.description=this.temp.description.replace(/@sponsor_name(\S*)/g, '<b>'+this.user_details.sponsor_name+'</b>');
+      this.temp.description=this.temp.description.replace(/@company(\S*)/g, '<b>'+this.company_details.company_name+'</b>')
     }
   }
 };

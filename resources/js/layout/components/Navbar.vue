@@ -23,7 +23,7 @@
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
           <div class="avatar-wrapper">
-            <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+            <img :src="avatar" class="user-avatar">
           </div>
           <el-dropdown-menu slot="dropdown">
             <!-- <router-link to="/profile/index">
@@ -205,7 +205,7 @@ export default {
           cursor: pointer;
           width: 40px;
           height: 40px;
-          border-radius: 4px;
+          border-radius: 20px;
         }
 
         .el-icon-caret-bottom {

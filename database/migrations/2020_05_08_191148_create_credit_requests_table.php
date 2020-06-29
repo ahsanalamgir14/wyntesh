@@ -19,6 +19,7 @@ class CreateCreditRequestsTable extends Migration
             $table->bigInteger('requested_by');
             $table->integer('payment_mode');
             $table->string('reference',512)->nullable();
+            $table->string('image', 2048)->nullable();
             $table->integer('bank_id')->nullable();
             $table->string('status',32)->nullable();
             $table->bigInteger('approved_by');

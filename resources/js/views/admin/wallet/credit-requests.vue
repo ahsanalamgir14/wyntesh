@@ -102,6 +102,11 @@
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Image" width="120px" align="right">
+        <template slot-scope="{row}">
+          <a  v-if="row.image" :href="row.image" target="_blank">View image.</a>
+        </template>
+      </el-table-column>
       <el-table-column label="Reference No." width="130px" >
         <template slot-scope="{row}">
           <span>{{ row.reference }}</span>

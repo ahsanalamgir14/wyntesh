@@ -72,7 +72,7 @@
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS (%)" width="160px" align="right">
+      <!-- <el-table-column label="TDS (%)" width="160px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.tds_percentage }}</span>
         </template>
@@ -81,7 +81,7 @@
         <template slot-scope="{row}">
           <span>{{ row.tds_amount }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="Net Amount" min-width="110px"align="right">
         <template slot-scope="{row}">
           <span >{{ row.net_amount }}</span>
@@ -234,8 +234,8 @@ export default {
           "Payment made at",
           "Amount",
           "Status",          
-          "TDS %",
-          "TDS amount",
+          // "TDS %",
+          // "TDS amount",
           "Net Amount",
           "Request id",
           "Transaction by",
@@ -245,8 +245,8 @@ export default {
           "payment_made_at",
           "amount",
           "payment_status",
-          "tds_percentage",
-          "tds_amount",
+          // "tds_percentage",
+          // "tds_amount",
           "net_amount",
           "withdrawal_request_id",
           "transaction_by",

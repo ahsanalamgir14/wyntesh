@@ -134,13 +134,50 @@
             </el-row>
             
           </el-tab-pane>
-          <el-tab-pane v-loading="updating" label="KYC Images" name="kyc-images">
+          <el-tab-pane v-loading="updating" label="Nominee Details" name="nominee">
             <el-row :gutter="20">
-              <el-col :span="8">            
+              <el-col :span="12">            
                 
+                <el-form-item label="Nominee Name" prop="nominee_name">
+                  <el-input max="64" v-model="temp.nominee_name" />
+                </el-form-item>
+                <el-form-item label="Nominee Relation" prop="nominee_relation" >
+                  <br>
+                  <el-select v-model="temp.nominee_relation" clearable placeholder="Select" style="width: 100%">
+                    <el-option label="Father" value="Father"></el-option>
+                    <el-option label="Mother" value="Mother"></el-option>
+                    <el-option label="Brother" value="Brother"></el-option>
+                    <el-option label="Sister" value="Sister"></el-option>
+                    <el-option label="Wife" value="Wife"></el-option>
+                    <el-option label="Son" value="Son"></el-option>
+                    <el-option label="Daughter" value="Daughter"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">                   
+                <el-form-item label="Nominee DOB" prop="nominee_dob">
+                  <br>
+                  <el-date-picker
+                    v-model="temp.nominee_dob"
+                    type="date"
+                    format="yyyy-MM-dd"
+                    value-format="yyyy-MM-dd"
+                    placeholder="Date of birth">
+                  </el-date-picker>
+                </el-form-item>                    
+                </el-form-item>
+                <el-form-item label="Nominee Contact" prop="nominee_contact">
+                  <el-input v-model="temp.nominee_contact" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+          <el-tab-pane v-loading="updating" label="KYC Images" name="kyc-images">
+            <el-row :gutter="20">              
+              <el-col :span="8">                            
                 <div class="img-upload">
                   <el-form-item  prop="adhar_image">
-                    <label for="Adhar Image">Adhar Image</label>
+                    <label for="Adhar Image">Adhar Front Image</label>
                     <el-upload
                       class="avatar-uploader"
                       action="#"
@@ -160,9 +197,34 @@
                     </el-upload>
                     <a  v-if="temp.adhar_image" :href="temp?temp.adhar_image:''" target="_blank">View full image.</a>                      
                   </el-form-item>
-                </div>
-               
+                </div>               
               </el-col>
+              <el-col :span="8">                              
+                  <div class="img-upload">
+                    <el-form-item  prop="adhar_image_back">
+                      <label for="Adhar Back Image">Adhar Back Image</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handleAdharBackChange"
+                        :on-remove="handleAdharBackRemove"
+                        :limit="1"
+                        :file-list="adharBackfileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">
+                        
+                        <img v-if="temp.adhar_image_back" :src="temp?temp.adhar_image_back:''" class="avatar">
+                        <i v-if="temp.adhar_image_back"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload>
+                      <a  v-if="temp.adhar_image_back" :href="temp?temp.adhar_image_back:''" target="_blank">View full image.</a>                      
+                    </el-form-item>
+                  </div>                 
+                </el-col>
+
               <el-col :span="8">
                 <div class="img-upload">
                   <el-form-item  prop="pan_image">
@@ -228,11 +290,27 @@
         <el-button type="success" :loading="buttonLoading" @click="verifyKyc()">
           Approve
         </el-button>
-        <el-button type="danger" :loading="buttonLoading" @click="rejectKyc()">
+        <el-button type="danger" :loading="buttonLoading" @click="dialogRemarks=true">
           Reject
         </el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      title="Remarks"
+      :visible.sync="dialogRemarks"
+      width="30%">
+      <el-input
+        type="textarea"
+        :rows="2"
+        placeholder="Enter remarks"
+        v-model="temp.remarks">
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogRemarks = false">Cancel</el-button>
+        <el-button type="danger" @click="rejectKyc()">Reject</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -275,8 +353,11 @@ export default {
       },
       adharfileList:[],
       adharfile:undefined,
+      adharBackfileList:[],
+      adharBackfile:undefined,
       panfileList:[],
       panfile:undefined,
+      chequefile:undefined,
       chequefileList:[],
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
@@ -293,6 +374,11 @@ export default {
         bank_name:undefined,
         bank_ac_no:undefined,
         ifsc:undefined,
+        nominee_name:undefined,
+        nominee_relation:undefined,
+        nominee_dob:undefined,
+        nominee_contact:undefined,
+        remarks:undefined,
         member:{
           user:{
             name:undefined,
@@ -304,7 +390,7 @@ export default {
           }
         }
       },
-
+      dialogRemarks:false,
       dialogKycVisible:false,
       dialogStatus: "",
       textMap: {
@@ -328,6 +414,16 @@ export default {
     handleAdharRemove(file, fileList) {
        this.adharfile=undefined;
        this.adharfileList=[];
+    },
+    handleAdharBackChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.adharBackfile=f.raw      
+    },
+    handleAdharBackRemove(file, fileList) {
+       this.adharBackfile=undefined;
+       this.adharBackfileList=[];
     },
     handlePanChange(f, fl){     
       if(fl.length > 1){
@@ -399,6 +495,11 @@ export default {
         bank_ac_no:undefined,
         ifsc:undefined,
         verification_status:undefined,
+        nominee_name:undefined,
+        nominee_relation:undefined,
+        nominee_dob:undefined,
+        nominee_contact:undefined,
+        remarks:undefined,
         member:{
           user:{
             name:undefined,
@@ -413,6 +514,8 @@ export default {
 
       this.adharfile=undefined
       this.adharfileList=[];
+      this.adharBackfileList=[];
+      this.adharBackfile=undefined;
       this.panfile=undefined
       this.panfileList=[];
       this.chequefile=undefined
@@ -423,12 +526,14 @@ export default {
       this.onSubmit();
     },
     rejectKyc(){
+      this.dialogRemarks=false;
       this.temp.verification_status='rejected';
       this.onSubmit();
     },
     handleEdit(row) {
      
       this.temp = Object.assign({}, row);
+      this.temp.remarks='';
       this.dialogStatus = "update";
       this.dialogKycVisible = true;
     },
@@ -445,6 +550,7 @@ export default {
       }
 
       form.append('adhar_image', this.adharfile);
+      form.append('adhar_image_back', this.adharBackfile);
       form.append('pan_image', this.panfile);
       form.append('cheque_image', this.chequefile);
 
@@ -465,8 +571,10 @@ export default {
 
         this.dialogKycVisible = false;
 
-        this.adharfile=undefined
+        this.adharfile=undefined;
         this.adharfileList=[];
+        this.adharBackfileList=[];
+        this.adharBackfile=undefined;
         this.panfile=undefined
         this.panfileList=[];
         this.chequefile=undefined

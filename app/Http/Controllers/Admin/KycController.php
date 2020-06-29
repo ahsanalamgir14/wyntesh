@@ -164,6 +164,11 @@ class KycController extends Controller
             $Kyc->bank_name=$request->bank_name;
             $Kyc->bank_ac_no=$request->bank_ac_no;
             $Kyc->ifsc=$request->ifsc;
+            $Kyc->nominee_name=$request->nominee_name;
+            $Kyc->nominee_relation=$request->nominee_relation;
+            $Kyc->nominee_dob=$request->nominee_dob;
+            $Kyc->nominee_contact=$request->nominee_contact;
+            $Kyc->remarks=$request->remarks;
             $Kyc->verification_status=$request->verification_status;
             if($request->verification_status=='verified'){
                 $Kyc->is_verified=1;
@@ -186,6 +191,23 @@ class KycController extends Controller
                 $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
 
                 $Kyc->adhar_image=$cdn_url;
+                $Kyc->save();
+            }
+
+            if($request->hasFile('adhar_image_back')){
+                $file = $request->file('adhar_image_back');
+                $str=rand(); 
+                $randomID = md5($str);
+                $filename=$randomID.'-'.$Kyc->id.".".$file->getClientOriginalExtension();          
+                $project_directory=env('DO_STORE_PATH');
+
+                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
+                
+                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
+                
+                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+                $Kyc->adhar_image_back=$cdn_url;
                 $Kyc->save();
             }
 

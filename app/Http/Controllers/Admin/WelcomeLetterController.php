@@ -43,7 +43,17 @@ class WelcomeLetterController extends Controller
     public function get()
     {
         $user=JWTAuth::user();
-        $user_details=array('name' => $user->name,'username'=>$user->username );
+        $user_details=array(
+            'name' => $user->name,
+            'username'=>$user->username,
+            'contact'=>$user->contact,
+            'dob'=>$user->dob,
+            'profile_picture'=>$user->profile_picture,
+            'created_at'=>$user->created_at,
+            'sponsor_id'=>$user->member->sponsor?$user->member->sponsor->user->username:'',
+            'sponsor_name'=>$user->member->sponsor?$user->member->sponsor->user->name:'',
+            'address'=>$user->kyc->address.', '.$user->kyc->city.', '.$user->kyc->state.', '.$user->kyc->pincode,
+        );
         
         $settings= Setting::orWhere('is_public',1)
         ->get()->pluck('value', 'key')->toArray();

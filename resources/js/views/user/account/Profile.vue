@@ -1,12 +1,24 @@
 <template>
   <div class="app-container">
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <el-alert
+          v-if="temp.kyc.remarks && temp.kyc.verification_status=='rejected'"
+          style="margin-bottom: 10px;"
+          title="KYC Rejection"
+          type="error"
+          :description="temp.kyc.remarks"
+          show-icon>
+        </el-alert>
+      </el-col>
+    </el-row>
     <el-form  :model="temp">
       <el-row :gutter="20">
         <el-col  :xs="24" :sm="24" :md="12" :lg="6" :xl="6" >
           <el-card >
             <div class="user-profile">
               <div class="user-avatar box-center">
-                <pan-thumb image="/images/avatar.png" :height="'100px'" :width="'100px'" :hoverable="false" />
+                <pan-thumb :image="temp.profile_picture?temp.profile_picture:'/images/avatar.png'" :height="'100px'" :width="'100px'" :hoverable="false" />
               </div>
               <div class="box-center">
                 <div class="user-name text-center">
@@ -125,13 +137,80 @@
                 </el-button>
               </el-form-item>
             </el-tab-pane>
-            <el-tab-pane v-loading="updating" label="KYC Images" name="kyc-images">
+            <el-tab-pane v-loading="updating" label="Nominee Details" name="nominee">
               <el-row :gutter="20">
-                <el-col :span="8">            
+                <el-col :span="12">            
                   
+                  <el-form-item label="Nominee Name" prop="nominee_name">
+                    <el-input max="64" v-model="temp.kyc.nominee_name" />
+                  </el-form-item>
+                  <el-form-item label="Nominee Relation" prop="nominee_relation" >
+                    <br>
+                    <el-select v-model="temp.kyc.nominee_relation" clearable placeholder="Select" style="width: 100%">
+                      <el-option label="Father" value="Father"></el-option>
+                      <el-option label="Mother" value="Mother"></el-option>
+                      <el-option label="Brother" value="Brother"></el-option>
+                      <el-option label="Sister" value="Sister"></el-option>
+                      <el-option label="Wife" value="Wife"></el-option>
+                      <el-option label="Son" value="Son"></el-option>
+                      <el-option label="Daughter" value="Daughter"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">                   
+                  <el-form-item label="Nominee DOB" prop="nominee_dob">
+                    <br>
+                    <el-date-picker
+                      v-model="temp.kyc.nominee_dob"
+                      type="date"
+                      format="yyyy-MM-dd"
+                      value-format="yyyy-MM-dd"
+                      placeholder="Date of birth">
+                    </el-date-picker>
+                  </el-form-item>                    
+                  </el-form-item>
+                  <el-form-item label="Nominee Contact" prop="nominee_contact">
+                    <el-input v-model="temp.kyc.nominee_contact" />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-form-item>
+                <el-button type="primary"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                  Update
+                </el-button>
+              </el-form-item>
+            </el-tab-pane>
+            <el-tab-pane v-loading="updating" label="Profile Image and KYC Images" name="kyc-images">
+              <el-row :gutter="20">                
+                <el-col :span="8">                              
+                  <div class="img-upload">
+                    <el-form-item  prop="profile_picture">
+                      <label for="Profile Picture">Profile Picture</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handleProfileChange"
+                        :on-remove="handleProfileRemove"
+                        :limit="1"
+                        :file-list="profilefileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">
+                        
+                        <img v-if="temp.profile_picture" :src="temp.profile_picture?temp.profile_picture:''" class="avatar">
+                        <i v-if="temp.profile_picture"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload>
+                      <a  v-if="temp.profile_picture" :href="temp.profile_picture?temp.profile_picture:''" target="_blank">View full image.</a>                      
+                    </el-form-item>
+                  </div>
+                </el-col>
+                <el-col :span="8">                            
                   <div class="img-upload">
                     <el-form-item  prop="adhar_image">
-                      <label for="Adhar Image">Adhar Image</label>
+                      <label for="Adhar Front Image">Adhar Front Image</label>
                       <el-upload
                         class="avatar-uploader"
                         action="#"
@@ -151,9 +230,36 @@
                       </el-upload>
                       <a  v-if="temp.kyc.adhar_image" :href="temp.kyc?temp.kyc.adhar_image:''" target="_blank">View full image.</a>                      
                     </el-form-item>
-                  </div>
-                 
+                  </div>                 
                 </el-col>
+                <el-col :span="8">                              
+                  <div class="img-upload">
+                    <el-form-item  prop="adhar_image_back">
+                      <label for="Adhar Back Image">Adhar Back Image</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handleAdharBackChange"
+                        :on-remove="handleAdharBackRemove"
+                        :limit="1"
+                        :file-list="adharBackfileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">
+                        
+                        <img v-if="temp.kyc.adhar_image_back" :src="temp.kyc?temp.kyc.adhar_image_back:''" class="avatar">
+                        <i v-if="temp.kyc.adhar_image_back"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload>
+                      <a  v-if="temp.kyc.adhar_image_back" :href="temp.kyc?temp.kyc.adhar_image_back:''" target="_blank">View full image.</a>                      
+                    </el-form-item>
+                  </div>                 
+                </el-col>
+              </el-row>
+              <el-row :gutter="20">
+
                 <el-col :span="8">
                   <div class="img-upload">
                     <el-form-item  prop="pan_image">
@@ -239,6 +345,10 @@ export default {
       referral_link:'',
       adharfileList:[],
       adharfile:undefined,
+      adharBackfileList:[],
+      adharBackfile:undefined,
+      profilefileList:[],
+      profilefile:undefined,
       panfileList:[],
       panfile:undefined,
       chequefileList:[],
@@ -264,8 +374,13 @@ export default {
             bank_ac_name:undefined,
             bank_name:undefined,
             bank_ac_no:undefined,
-            ifsc:undefined
+            ifsc:undefined,            
+            nominee_name:undefined,
+            nominee_relation:undefined,
+            nominee_dob:undefined,
+            nominee_contact:undefined,
           },
+          profile_picture:undefined,
           parent:undefined,
           comission_from_self:0,
           comission_from_child:0,
@@ -288,7 +403,11 @@ export default {
             bank_ac_name:undefined,
             bank_name:undefined,
             bank_ac_no:undefined,
-            ifsc:undefined
+            ifsc:undefined,
+            nominee_name:undefined,
+            nominee_relation:undefined,
+            nominee_dob:undefined,
+            nominee_contact:undefined,
           }
         }
         this.referral_link=baseUrl+'#/register?sponsor_code='+this.temp.username;
@@ -305,6 +424,26 @@ export default {
        this.adharfile=undefined;
        this.adharfileList=[];
     },
+    handleAdharBackChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.adharBackfile=f.raw      
+    },
+    handleAdharBackRemove(file, fileList) {
+       this.adharBackfile=undefined;
+       this.adharBackfileList=[];
+    },
+    handleProfileRemove(file, fileList) {
+       this.profilefile=undefined;
+       this.profilefileList=[];
+    },
+    handleProfileChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.profilefile=f.raw      
+    },    
     handlePanChange(f, fl){     
       if(fl.length > 1){
         fl.shift()  
@@ -366,6 +505,8 @@ export default {
       }
 
       form.append('adhar_image', this.adharfile);
+      form.append('adhar_image_back', this.adharBackfile);
+      form.append('profile_picture', this.profilefile);
       form.append('pan_image', this.panfile);
       form.append('cheque_image', this.chequefile);
 
@@ -381,6 +522,10 @@ export default {
         })
         this.adharfile=undefined
         this.adharfileList=[];
+        this.adharBackfile=undefined
+        this.adharBackfileList=[];
+        this.profilefile=undefined
+        this.profilefileList=[];
         this.panfile=undefined
         this.panfileList=[];
         this.chequefile=undefined

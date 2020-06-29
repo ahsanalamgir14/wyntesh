@@ -108,11 +108,11 @@
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Expected TDS" width="160px" align="right">
+      <!-- <el-table-column label="Expected TDS" width="160px" align="right">
         <template slot-scope="{row}">
           <span>{{ (parseFloat(row.amount)*parseFloat(temp.tds_percent))/100 }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="Approved?" class-name="status-col" width="120">
         <template slot-scope="{row}">
           <el-tag :type="row.request_status | statusFilter">{{ row.request_status }}</el-tag>
@@ -293,7 +293,7 @@ export default {
     getSettings() {      
       getSettings().then(response => {
         this.settings = response.data
-        this.temp.tds_percent=parseFloat(response.data.tds_percentage);
+        //this.temp.tds_percent=parseFloat(response.data.tds_percentage);
       });
       getStatuesAll('withdrawal_requests').then(response => {
         this.statuses = response.data;

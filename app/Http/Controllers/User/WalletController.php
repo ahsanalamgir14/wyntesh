@@ -16,6 +16,7 @@ use Validator;
 use JWTAuth;
 use Carbon\Carbon;
 use DB;
+use Storage;
 
 class WalletController extends Controller
 {
@@ -171,7 +172,8 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->where(function ($query)use($User) {
                 $query=$query->orWhere('transfered_from',$User->id);
                 $query=$query->orWhere('transfered_to',$User->id);
-                $query=$query->orWhere('transaction_by',$User->id);                
+                $query=$query->orWhere('transaction_by',$User->id);
+                $query=$query->orWhere('member_id',$User->member->id);                
             });
 
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
@@ -186,7 +188,8 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->where(function ($query)use($User) {
                 $query=$query->orWhere('transfered_from',$User->id);
                 $query=$query->orWhere('transfered_to',$User->id);
-                $query=$query->orWhere('transaction_by',$User->id);                
+                $query=$query->orWhere('transaction_by',$User->id);
+                $query=$query->orWhere('member_id',$User->member->id);
             });
 
             if($transaction_type){
@@ -462,6 +465,23 @@ class WalletController extends Controller
         $CreditRequest->note=$request->note;
         $CreditRequest->status='Pending';
         $CreditRequest->save();
+
+        if($request->hasFile('image')){
+            $file = $request->file('image');
+            $str=rand(); 
+            $randomID = md5($str);
+            $filename=$randomID.'-'.$CreditRequest->id.".".$file->getClientOriginalExtension();          
+            $project_directory=env('DO_STORE_PATH');
+
+            $store=Storage::disk('spaces')->put($project_directory.'/credit-requests/'.$filename, file_get_contents($file->getRealPath()), 'public');
+            
+            $url=Storage::disk('spaces')->url($project_directory.'/credit-requests/'.$filename);
+            
+            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+            $CreditRequest->image=$cdn_url;
+            $CreditRequest->save();
+        }
 
         $CreditRequest=CreditRequest::with('payment_mode','bank','member.user:username','approver')->find($CreditRequest->id);
         $response = array('status' => true,'message'=>'Wallet Credit requests created successfully.','data'=>$CreditRequest);  

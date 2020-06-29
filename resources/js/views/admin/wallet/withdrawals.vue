@@ -82,7 +82,7 @@
           <el-tag type="success" >{{ row.payment_status }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="TDS (%)" width="160px" align="right">
+      <!-- <el-table-column label="TDS (%)" width="160px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.tds_percentage }}</span>
         </template>
@@ -91,7 +91,7 @@
         <template slot-scope="{row}">
           <span>{{ row.tds_amount }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="Net Amount" min-width="110px"align="right">
         <template slot-scope="{row}">
           <span >{{ row.net_amount }}</span>

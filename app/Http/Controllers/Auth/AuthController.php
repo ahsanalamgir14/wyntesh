@@ -194,7 +194,7 @@ class AuthController extends Controller
         $roles = $user->getRoleNames();
         $permissions = $user->getPermissionNames();
 
-        $user_data=array('id'=>$user->id,'name'=>$user->name,'email'=>$user->email,'contact'=>$user->contact,'roles'=>$roles,'permissions'=>$permissions);
+        $user_data=array('id'=>$user->id,'name'=>$user->name,'email'=>$user->email,'contact'=>$user->contact,'roles'=>$roles,'permissions'=>$permissions,'profile_picture'=>$user->profile_picture);
         
         return response()->json($user_data);
     }

@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration {
 			$table->string('password')->nullable();
 			$table->string('contact', 20)->nullable();
 			$table->string('gender', 1)->nullable();
+			$table->string('profile_picture', 2048)->nullable();
 			$table->integer('parent')->nullable();
 			$table->date('dob')->nullable();
 			$table->string('otp',6)->nullable();

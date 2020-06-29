@@ -159,7 +159,7 @@
             <el-form-item label="TDS (%)" label-width="120" prop="tds_amount">
               <el-input  type="number"  @change="handleDebitChange" min=0 v-model="temp.tds_percentage" ></el-input>
             </el-form-item>
-            <el-form-item label="TDS Amount" label-width="120" prop="tds_amount">
+            <el-form-item label="TDS Amount" disabled label-width="120" prop="tds_amount">
               <el-input  type="number"  min=0 v-model="temp.tds_amount" ></el-input>
             </el-form-item>
             <el-form-item label="Final Amount" label-width="120" prop="final_amount">
@@ -495,7 +495,7 @@ export default {
     getCompanySettings() {      
       getCompanySettings().then(response => {
         this.settings = response.data        
-        this.temp.tds_percentage=this.settings.tds_percentage;
+        //this.temp.tds_percentage=this.settings.tds_percentage;
       });
       getStatuesAll('credit_requests').then(response => {
         this.statuses = response.data;

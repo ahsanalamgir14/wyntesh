@@ -69,6 +69,11 @@
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Image" width="120px" align="right">
+        <template slot-scope="{row}">
+          <a  v-if="row.image" :href="row.image" target="_blank">View image.</a>
+        </template>
+      </el-table-column>
      
       <el-table-column label="Reference No." width="120px" >
         <template slot-scope="{row}">
@@ -110,10 +115,10 @@
       @pagination="getList"
     />
 
-    <el-dialog :title="dialogTitle" width="60%" top="30px"  :visible.sync="dialogWalletCreditRequestVisible">
+    <el-dialog :title="dialogTitle" width="80%" top="30px"  :visible.sync="dialogWalletCreditRequestVisible">
       <el-form ref="walletCreditRequestForm" :rules="rules" :model="temp"  >
         <el-row :gutter="20">
-          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+          <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
              
             <el-form-item label="Amount" prop="amount">
               <el-input type="number" min=0 v-model="temp.amount" />
@@ -128,24 +133,10 @@
                 </el-option>
               </el-select>
             </el-form-item>
-          </el-col>
-          <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >              
-            
             <el-form-item label="Payment reference" prop="reference">
               <el-input v-model="temp.reference" />
             </el-form-item>
-            <el-form-item label="Bank" prop="bank_id">
-              <el-select v-model="temp.bank_id" filterable placeholder="Select Bank">
-                <el-option
-                  v-for="item in banks"
-                  :key="item.name"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="Note" prop="note">
+             <el-form-item label="Note" prop="note">
               <el-input
                 type="textarea"
                 v-model="temp.note"
@@ -154,7 +145,52 @@
               </el-input>
             </el-form-item>
           </el-col>
-         
+          <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                          
+            <el-form-item label="Bank" prop="bank_id">
+              <el-select v-model="temp.bank_id" @change="selectBank()" clearable filterable placeholder="Select Bank">
+                <el-option
+                  v-for="item in banks"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="Branch" prop="branch_name">
+              <el-input disabled v-model="temp.branch_name" />
+            </el-form-item>
+            <el-form-item label="IFSC" prop="ifsc">
+              <el-input disabled v-model="temp.ifsc" />
+            </el-form-item>
+            <el-form-item label="Account Type" prop="account_type">
+              <el-input disabled v-model="temp.account_type" />
+            </el-form-item>
+            <el-form-item label="Account Holder name" prop="account_holder_name">
+              <el-input disabled v-model="temp.account_holder_name" />
+            </el-form-item>
+            <el-form-item label="Account Number" prop="account_number">
+              <el-input disabled v-model="temp.account_number" />
+            </el-form-item>           
+          </el-col>
+          <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                          
+            <el-form-item  prop="image">
+              <label for="Image">Image</label>
+              <el-upload
+                class="avatar-uploader"
+                action="#"
+                ref="upload"
+                :show-file-list="true"
+                :auto-upload="false"
+                :on-change="handleImageChange"
+                :on-remove="handleImageRemove"
+                :limit="1"
+                :file-list="imagefileList"
+                :on-exceed="handleExceed"
+                accept="image/png, image/jpeg">
+                <i class="el-icon-plus avatar-uploader-icon"></i>
+              </el-upload>                   
+            </el-form-item>
+          </el-col>         
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -204,6 +240,8 @@ export default {
         search:undefined,
         sort: "+id"
       },
+      imagefile:undefined,
+      imagefileList:[],
       paymentModes:[],
       banks:[],
       sortOptions: [
@@ -252,6 +290,16 @@ export default {
         }, 1 * 100);
       });
     },
+    handleImageChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.imagefile=f.raw      
+    },
+    handleImageRemove(file, fileList) {
+       this.adharfile=undefined;
+       this.imagefileList=[];
+    },
     getConfig() {
     
       getPaymentModes().then(response => {
@@ -271,6 +319,30 @@ export default {
         note:undefined,
       };
     },
+    selectBank(){
+      let bank_id=this.temp.bank_id;
+      if(bank_id){
+        let bank=this.banks.map((bank)=>{
+          if(bank.id==bank_id){
+            return bank;  
+          }else{
+            return false;
+          }
+        })[0];
+        console.log(bank);
+        this.temp.branch_name=bank.branch_name;
+        this.temp.ifsc=bank.ifsc;
+        this.temp.account_type=bank.account_type;
+        this.temp.account_holder_name=bank.account_holder_name;
+        this.temp.account_number=bank.account_number;
+      }else{
+        this.temp.branch_name=undefined;
+        this.temp.ifsc=undefined;
+        this.temp.account_type=undefined;
+        this.temp.account_holder_name=undefined;
+        this.temp.account_number=undefined;
+      }
+    },
     handleCreate() {
       this.resetTemp();
       this.dialogStatus = "create";
@@ -283,8 +355,19 @@ export default {
     createData() {
       this.$refs["walletCreditRequestForm"].validate(valid => {
         if (valid) {     
-          this.buttonLoading=true;    
-          createCreditRequest(this.temp).then((data) => {
+          this.buttonLoading=true;
+          var form = new FormData();
+          let form_data=this.temp;
+
+          for ( var key in form_data ) {
+            if(form_data[key] !== undefined && form_data[key] !== null){              
+                form.append(key, form_data[key]);               
+            }
+          }
+
+          form.append('image', this.imagefile);
+
+          createCreditRequest(form).then((data) => {
             this.list.unshift(data.data);
             this.dialogWalletCreditRequestVisible = false;
             this.$notify({
@@ -293,6 +376,8 @@ export default {
               type: "success",
               duration: 2000
             });
+            this.imagefile=undefined
+            this.imagefileList=[];
             this.buttonLoading=false;
             this.resetTemp();
           }).catch((err)=>{
@@ -323,6 +408,9 @@ export default {
           this.buttonLoading=false;
         });
       })        
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(`You can not select more than one file, please remove first.`);
     },
     handleFilter() {
       this.listQuery.page = 1;

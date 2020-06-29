@@ -73,7 +73,7 @@ const actions = {
             reject('Verification failed, please Login again.');
           }
 
-          const { roles, name, introduction, permissions, id } = data;
+          const { roles, name, introduction, permissions, id, profile_picture } = data;
           // roles must be a non-empty array
           if (!roles || roles.length <= 0) {
             reject('getInfo: roles must be a non-null array!');
@@ -82,7 +82,13 @@ const actions = {
           commit('SET_ROLES', roles);
           commit('SET_PERMISSIONS', permissions);
           commit('SET_NAME', name);
-          commit('SET_AVATAR', avatar);
+          
+          if(profile_picture){
+            commit('SET_AVATAR', profile_picture);
+          }else{
+            commit('SET_AVATAR', avatar);  
+          }
+          
           commit('SET_INTRODUCTION', introduction);
           commit('SET_ID', id);
           resolve(data);

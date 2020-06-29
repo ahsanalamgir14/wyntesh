@@ -295,6 +295,10 @@ class MembersController extends Controller
             $User->kyc->bank_ac_name=$kyc['bank_ac_name'];
             $User->kyc->bank_name=$kyc['bank_name'];
             $User->kyc->bank_ac_no=$kyc['bank_ac_no'];
+            $User->kyc->nominee_name=$kyc['nominee_name'];
+            $User->kyc->nominee_relation=$kyc['nominee_relation'];
+            $User->kyc->nominee_dob=$kyc['nominee_dob'];
+            $User->kyc->nominee_contact=$kyc['nominee_contact'];
             $User->kyc->ifsc=$kyc['ifsc'];
             $User->kyc->verification_status=$kyc['verification_status'];
             $User->kyc->save();
@@ -314,6 +318,40 @@ class MembersController extends Controller
 
                 $User->kyc->adhar_image=$cdn_url;
                 $User->kyc->save();
+            }
+
+            if($request->hasFile('adhar_image_back')){
+                $file = $request->file('adhar_image_back');
+                $str=rand(); 
+                $randomID = md5($str);
+                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
+                $project_directory=env('DO_STORE_PATH');
+
+                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
+                
+                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
+                
+                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+                $User->kyc->adhar_image_back=$cdn_url;
+                $User->kyc->save();
+            }
+
+            if($request->hasFile('profile_picture')){
+                $file = $request->file('profile_picture');
+                $str=rand(); 
+                $randomID = md5($str);
+                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
+                $project_directory=env('DO_STORE_PATH');
+
+                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
+                
+                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
+                
+                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+                $User->profile_picture=$cdn_url;
+                $User->save();
             }
 
             if($request->hasFile('pan_image')){

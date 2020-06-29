@@ -7,7 +7,7 @@
             <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
               
               <el-form-item prop="description">
-                <tinymce v-model="temp.description"  :imageUploadButton="true" menubar="" :toolbar="tools" id="welcomeLetter" ref="welcomeLetter" :value="temp.description" :height="450" />
+                <tinymce v-model="temp.description"  :imageUploadButton="true" id="welcomeLetter" ref="welcomeLetter" :value="temp.description" :height="450" />
               </el-form-item>
             </el-col>
           </el-row>
