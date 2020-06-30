@@ -70,7 +70,7 @@
       </el-table-column>
      
 
-      <el-table-column label="Order No" min-width="110px" align="right">
+      <!-- <el-table-column label="Order No" width="150px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.order_no }}</span>
         </template>
@@ -79,7 +79,7 @@
         <template slot-scope="{row}">
           <span>{{ row.user.username }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
      <!--  <el-table-column label="Package" min-width="130px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.packages?row.packages[0].package.name:'' }}</span>
@@ -90,12 +90,12 @@
           <el-tag :type="row.payment_mode?row.payment_mode.name:'' | statusFilter">{{ row.payment_mode.name }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Final Amount" width="110px" align="right">
+      <el-table-column label="Final Amount" min-width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.final_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="GST" width="130px" align="right">
+      <el-table-column label="GST" min-width="130px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.gst }}</span>
         </template>
@@ -226,11 +226,11 @@ export default {
           sums[index] = 'Final Total (All)';
           return;
         }
-        if(index===5){
+        if(index===2){
           sums[index] = this.sums.final_total;
           return; 
         }
-        if(index===6){
+        if(index===3){
           sums[index] = this.sums.gst;
           return; 
         }

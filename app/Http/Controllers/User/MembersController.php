@@ -124,9 +124,9 @@ class MembersController extends Controller
     }
 
     public function adminGeneology(){
-        $zero=Member::with('children.children.children')->with('kyc')->with('user')->with('rank')
-        ->withCount(['leg as group_pv' => function($query){
-           $query->select(DB::raw('sum(total_pv)'));
+        $zero=Member::with('children.children')->with('kyc')->with('user')->with('rank')
+        ->withCount(['leg_pv as group_pv' => function($query){
+           $query->select(DB::raw('sum(pv)'));
         }])
         ->where('level',0)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
@@ -136,9 +136,9 @@ class MembersController extends Controller
     public function adminMemberGeneology($id){
         $User=User::where('username',$id)->first();
         if($User){
-            $zero=Member::with('children.children.children')->with('kyc')->with('user')
-            ->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(total_pv)'));
+            $zero=Member::with('children.children')->with('kyc')->with('user')
+            ->withCount(['leg_pv as group_pv' => function($query){
+               $query->select(DB::raw('sum(pv)'));
             }])
             ->with('rank')->where('user_id',$User->id)->first();
             $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
@@ -152,9 +152,9 @@ class MembersController extends Controller
 
     public function myGeneology(){
         $id=JWTAuth::user()->id;
-        $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->with('rank')
-            ->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(total_pv)'));
+        $zero=Member::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->with('rank')
+            ->withCount(['leg_pv as group_pv' => function($query){
+               $query->select(DB::raw('sum(pv)'));
             }])
             ->where('user_id',$id)->first();
         $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
@@ -196,8 +196,8 @@ class MembersController extends Controller
                 });
             }
 
-            $Members=$Members->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(total_pv)'));
+            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+               $query->select(DB::raw('sum(pv)'));
             }]);
 
             $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
@@ -231,8 +231,8 @@ class MembersController extends Controller
                 });
             }
 
-            $Members=$Members->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(total_pv)'));
+            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+               $query->select(DB::raw('sum(pv)'));
             }]);
        
             $Members=$Members->with('parent','sponsor','user')->orderBy('id',$sort)->paginate($limit);
@@ -252,10 +252,10 @@ class MembersController extends Controller
             $tempMember=Member::where('user_id',$User->id)->first();            
             $pathArray=(explode("/",$tempMember->path));            
             if(in_array($my_member_id,$pathArray)){
-                $zero=Member::with('children.children.children')->with('kyc:id,member_id,verification_status,is_verified')
+                $zero=Member::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')
                 ->with('user')->with('rank')
-                ->withCount(['leg as group_pv' => function($query){
-                   $query->select(DB::raw('sum(total_pv)'));
+                ->withCount(['leg_pv as group_pv' => function($query){
+                   $query->select(DB::raw('sum(pv)'));
                 }])
                 ->where('user_id',$User->id)->first();
                 $response = array('status' => false,'message'=>'Geneology recieved.','data' => $zero);
@@ -587,8 +587,8 @@ class MembersController extends Controller
                 });
             }
 
-            $Members=$Members->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(total_pv)'));
+            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+               $query->select(DB::raw('sum(pv)'));
             }]);
 
             $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
@@ -611,8 +611,8 @@ class MembersController extends Controller
                 });
             });
 
-            $Members=$Members->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(total_pv)'));
+            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+               $query->select(DB::raw('sum(pv)'));
             }]);
 
             if($date_range){

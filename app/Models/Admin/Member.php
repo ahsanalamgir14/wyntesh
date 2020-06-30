@@ -8,7 +8,7 @@ use DB;
 class Member extends Model
 {
     public $timestamps = true;
-
+    protected $appends = ['group_pv'];
     public function user()
     {
         return $this->belongsTo('App\Models\User\User');
@@ -27,6 +27,22 @@ class Member extends Model
     public function leg()
     {
         return $this->hasMany('App\Models\Admin\MembersLegPv');
+    }
+
+    public function getGroupPvAttribute()
+    {
+        $group_pv=0;
+        $legs=$this->leg_pv;
+        foreach ($legs as $leg) {
+            $group_pv+=$leg->pv;
+        }
+        return $group_pv;
+    }
+
+
+    public function leg_pv()
+    {
+        return $this->hasMany('App\Models\Admin\MemberMonthlyLegPv');
     }
 
     public function parent()

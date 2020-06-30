@@ -3,116 +3,180 @@
 
     <el-row :gutter="10" class="panel-group">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr12" @click="handleSetLineChartData('newVisitis')">
-          <div class="card-panel-icon-wrapper " >
-            <i class="fas fa-users card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-              <count-to :start-val="0" :end-val="dashboardStats.users" :duration="2600" class="card-panel-num" />
-            <div class="card-panel-text">
-              Total Members
+        <router-link to="/network/members">
+          <div class="card-panel gr12">
+            <div class="card-panel-icon-wrapper " >
+              <i class="fas fa-users card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+                <count-to :start-val="0" :end-val="dashboardStats.users" :duration="2600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Total Members
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr4" @click="handleSetLineChartData('purchases')">
-          <div class="card-panel-icon-wrapper icon-money">
-            <i class="fas fa-user-times card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="dashboardStats.inactive_users" :duration="3200" class="card-panel-num" />
-            <div class="card-panel-text">
-              Inactive Members
+        <router-link to="/network/members">
+          <div class="card-panel gr4">
+            <div class="card-panel-icon-wrapper icon-money">
+              <i class="fas fa-user-times card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.inactive_users" :duration="3200" class="card-panel-num" />
+              <div class="card-panel-text">
+                Inactive Members
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr13" @click="handleSetLineChartData('messages')">
-          <div class="card-panel-icon-wrapper icon-message">
-            <i class="fas fa-shopping-cart  card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="dashboardStats.total_orders" :duration="3000" class="card-panel-num" />
-            <div class="card-panel-text">
-              Total Orders
+        <router-link to="/wallet/withdrawal-requests">
+          <div class="card-panel gr2" >
+            <div class="card-panel-icon-wrapper icon-message">
+              <i class="fas fa-wallet card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="parseInt(dashboardStats.wallet_balance)" :duration="3000" class="card-panel-num" />
+              <div class="card-panel-text">
+                Wallet Total
+              </div>
             </div>
           </div>
-        </div>
-      </el-col>
-      
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr14" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="dashboardStats.tickets" :duration="3600" class="card-panel-num" />
-            <div class="card-panel-text">
-              Support Tickets
-            </div>
-          </div>
-        </div>
+        </router-link>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr5" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <i class="fas fa-tag card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="dashboardStats.used_pin" :duration="3600" class="card-panel-num" />
-            <div class="card-panel-text">
-              Used Pins
+        <router-link to="reports//payout-monthwise">
+          <div class="card-panel gr8" >
+            <div class="card-panel-icon-wrapper icon-money">
+              <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
+              <div class="card-panel-text">
+                Total Payout
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr6" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <i class="fas fa-tag card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="dashboardStats.unused_pin" :duration="3600" class="card-panel-num" />
-            <div class="card-panel-text">
-              Unused Pins
+        <router-link to="/shopping/orders/all">
+          <div class="card-panel gr13" >
+            <div class="card-panel-icon-wrapper icon-message">
+              <i class="fas fa-shopping-cart  card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.total_orders" :duration="3000" class="card-panel-num" />
+              <div class="card-panel-text">
+                Total Orders
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
+      </el-col>
+
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <router-link to="/reports/payout-monthwise">
+          <div class="card-panel gr13" >
+            <div class="card-panel-icon-wrapper icon-message">
+              <i class="fas fa-shopping-cart  card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.total_business_volume" :duration="3000" class="card-panel-num" />
+              <div class="card-panel-text">
+                Total BV
+              </div>
+            </div>
+          </div>
+        </router-link>
+      </el-col>          
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <router-link to="/wallet/withdrawal-requests">
+          <div class="card-panel gr5" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <i class="fas fa-upload card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.pending_withdrawals" :duration="3600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Pending Withdrawals
+              </div>
+            </div>
+          </div>
+        </router-link>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr7" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <i class="fas fa-images card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="dashboardStats.pending_kyc" :duration="3600" class="card-panel-num" />
-            <div class="card-panel-text">
-              Pending KYCs
+        <router-link to="/shopping/orders/new">
+          <div class="card-panel gr6" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <i class="fas fa-cart-arrow-down card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.pending_orders" :duration="3600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Pending Orders
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
       </el-col>
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <div class="card-panel gr8" >
-          <div class="card-panel-icon-wrapper icon-shopping">
-            <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
-          </div>
-          <div class="card-panel-description">
-            
-            <count-to :start-val="0" :end-val="dashboardStats.inquiries" :duration="3600" class="card-panel-num" />
-            <div class="card-panel-text">
-              Inquiries
+        <router-link to="/kyc/pending">
+          <div class="card-panel gr7" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <i class="fas fa-images card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.pending_kyc" :duration="3600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Pending KYCs
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <router-link to="/support/tickets">
+          <div class="card-panel gr14" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.tickets" :duration="3600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Support Tickets
+              </div>
+            </div>
+          </div>
+        </router-link>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <router-link to="/support/inquiries">
+          <div class="card-panel gr8" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.inquiries" :duration="3600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Inquiries
+              </div>
+            </div>
+          </div>
+        </router-link>
       </el-col>
     </el-row>
 
@@ -129,6 +193,61 @@
       </el-col>
     </el-row>
 
+    <el-row :gutter="10" style="margin-top: 20px;">      
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <div slot="header" class="clearfix">
+            <span>Monthly Member Joinings</span>            
+          </div>
+          <el-table
+            :data="monthlyJoiningsCount"
+            style="width: 100%">
+            <el-table-column label="Month" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.month }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Joinings" min-width="150px">
+              <template slot-scope="{row}">
+                <span  >{{ row.count }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="12" :lg="12">        
+        <el-card shadow="never">
+          <div slot="header" class="clearfix">
+            <span>Monthwise Business</span>            
+          </div>
+          <el-table
+            :data="monthlyBusiness"
+            style="width: 100%">
+           <el-table-column label="Month" width="150px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.sales_start_date | parseTime('{y}-{m}') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Sales BV" width="130px" align="right">
+              <template slot-scope="{row}">
+                <span >{{ row.sales_bv }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Sales Amount" width="130px" align="right">
+              <template slot-scope="{row}">
+                <span >{{ row.sales_amount }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Total Payout" width="130px" align="right">
+              <template slot-scope="{row}">
+                <span >{{ row.total_payout }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
+
   </div>
 </template>
 
@@ -137,9 +256,7 @@
 import CountTo from 'vue-count-to'
 import BarChart from './components/BarChart'
 import LineChart from './components/LineChart'
-import { dashboardStats,pastOrderStats,pastActivations } from "@/api/admin/dashboard";
-
-
+import { dashboardStats,pastOrderStats,pastActivations,monthlyJoiningsCount,monthlyBusiness } from "@/api/admin/dashboard";
 
 export default {
   name: 'DashboardAdmin',
@@ -153,6 +270,8 @@ export default {
       dashboardStats:{},
       orderData:{},
       activationData:{},
+      monthlyJoiningsCount:[],
+      monthlyBusiness:[],
       barSum:[],
     }
   },
@@ -163,6 +282,14 @@ export default {
     });
     await pastActivations().then(response => {
       this.activationData = { labels:response.activations.map(function (el) { return el.date; }), data:response.activations.map(function (el) { return el.count; }), title:'Activations', color:'#60c402' };
+    });
+
+    await monthlyJoiningsCount().then(response => {
+      this.monthlyJoiningsCount = response.data;
+    });
+    
+    await monthlyBusiness().then(response => {
+      this.monthlyBusiness = response.data;
     });
 
   },

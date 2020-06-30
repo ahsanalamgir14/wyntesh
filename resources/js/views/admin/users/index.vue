@@ -116,38 +116,16 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Balance" width="110px" align="right">
+
+      <el-table-column label="Parent" width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.member?row.member.wallet_balance:'0.00' }}</span>
+          <span>{{ row.member.parent?row.member.parent.user.name:'---' }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="KYC" width="110px" align="center">
+      <el-table-column label="Parent ID" width="110px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.member.kyc">
-            <el-tag v-if="row.member.kyc.verification_status=='verified'" type="success">Verified</el-tag>
-            <el-tag v-if="row.member.kyc.verification_status=='pending'" type="warning">Pending</el-tag>
-            <el-tag v-if="row.member.kyc.verification_status=='submitted'" type="primary">Submitted</el-tag>
-            <el-tag v-if="row.member.kyc.verification_status=='rejected'" type="danger">Rejected</el-tag>
-          </span>
-        </template>
-      </el-table-column>
-
-       <el-table-column label="Status" class-name="status-col" width="100">
-        <template slot-scope="{row}">
-          <el-tag :type="row.is_active | statusFilter">{{ row.is_active?'Active':'Deactive' }}</el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Is Blocked" class-name="status-col" width="100">
-        <template slot-scope="{row}">
-          <el-tag :type="row.is_blocked | statusFilter">{{ row.is_blocked?'Yes':'No' }}</el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Joining Date" width="120px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ row.member.parent?row.member.parent.user.username:'---' }}</span>
         </template>
       </el-table-column>
 
@@ -163,19 +141,46 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Parent" width="110px" align="center">
+      <el-table-column label="Balance" width="110px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.member.parent?row.member.parent.user.name:'---' }}</span>
+          <span>{{ row.member?row.member.wallet_balance:'0.00' }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Parent ID" width="110px" align="center">
+      <el-table-column label="Joining Date" width="120px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.member.parent?row.member.parent.user.username:'---' }}</span>
+          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
 
-     
+      <el-table-column label="KYC" width="110px" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.member.kyc">
+            <el-tag v-if="row.member.kyc.verification_status=='verified'" type="success">Verified</el-tag>
+            <el-tag v-if="row.member.kyc.verification_status=='pending'" type="warning">Pending</el-tag>
+            <el-tag v-if="row.member.kyc.verification_status=='submitted'" type="primary">Submitted</el-tag>
+            <el-tag v-if="row.member.kyc.verification_status=='rejected'" type="danger">Rejected</el-tag>
+          </span>
+        </template>
+      </el-table-column>
+
+       <el-table-column label="Group Business" width="140px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.member.group_pv }}</span>
+        </template>
+      </el-table-column>
+
+       <el-table-column label="Status" class-name="status-col" width="100">
+        <template slot-scope="{row}">
+          <el-tag :type="row.is_active | statusFilter">{{ row.is_active?'Active':'Deactive' }}</el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Is Blocked" class-name="status-col" width="100">
+        <template slot-scope="{row}">
+          <el-tag :type="row.is_blocked | statusFilter">{{ row.is_blocked?'Yes':'No' }}</el-tag>
+        </template>
+      </el-table-column>
       
     </el-table>
 

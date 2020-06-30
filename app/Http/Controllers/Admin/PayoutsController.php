@@ -18,6 +18,7 @@ use App\Models\User\Order;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\WalletTransaction;
 use Carbon\Carbon;
+use DB;
 
 class PayoutsController extends Controller
 {    
@@ -29,6 +30,7 @@ class PayoutsController extends Controller
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
+        $month=$request->month;
 
         if(!$page){
             $page=1;
@@ -44,11 +46,17 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search){
+        if(!$search && !$month){
             $Payout = Payout::with('payout_type','incomes.income')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $Payout=Payout::select();
-            
+            if($month){
+                $month=$month.'-01';
+                $date=Carbon::parse($month);
+                $Payout->whereMonth('sales_start_date',$date->month);
+                $Payout->whereYear('sales_start_date',$date->year);
+            }
+
             $Payout=$Payout->with('payout_type','incomes')->orderBy('id',$sort)->paginate($limit);
         }
    
@@ -103,7 +111,7 @@ class PayoutsController extends Controller
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
-        $date_range=$request->date_range;
+        $month=$request->month;
         $income_id=$request->income_id;
 
         if(!$page){
@@ -120,18 +128,22 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$income_id && !$date_range){
+        if(!$search && !$income_id && !$month){
             $PayoutIncome = PayoutIncome::with('income','payout')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $PayoutIncome=PayoutIncome::select();
             
-            if($date_range){
-                $PayoutIncome=$PayoutIncome->whereDate('created_at','>=', $date_range[0]);
-                $PayoutIncome=$PayoutIncome->whereDate('created_at','<=', $date_range[1]);
+            if($month){
+                $PayoutIncome=$PayoutIncome->whereHas('payout',function($q)use($month){
+                    $month=$month.'-01';
+                    $date=Carbon::parse($month);
+                    $q->whereMonth('sales_start_date',$date->month);
+                    $q->whereYear('sales_start_date',$date->year);
+                });
             }
 
             if($income_id){
-                $PayoutIncome=$PayoutIncome->where('income_id',$income_id);
+                $PayoutIncome=$PayoutIncome->whereIn('income_id',[$income_id]);
             }
             
             $PayoutIncome=$PayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit);
@@ -147,7 +159,7 @@ class PayoutsController extends Controller
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
-        $date_range=$request->date_range;
+        $month=$request->month;
 
         if(!$page){
             $page=1;
@@ -163,10 +175,10 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$date_range){
+        if(!$search && !$month){
             $MemberPayout=MemberPayout::select();
             
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
         }else{
             $MemberPayout=MemberPayout::select();
             $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
@@ -175,15 +187,85 @@ class PayoutsController extends Controller
                 });
             });
 
-            if($date_range){
-                $MemberPayout=$MemberPayout->whereDate('created_at','>=', $date_range[0]);
-                $MemberPayout=$MemberPayout->whereDate('created_at','<=', $date_range[1]);
+            if($month){
+                $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
+                    $month=$month.'-01';
+                    $date=Carbon::parse($month);
+                    $q->whereMonth('sales_start_date',$date->month);
+                    $q->whereYear('sales_start_date',$date->year);
+                });
             }
 
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout);
+        return response()->json($response, 200);
+    }
+
+    public function getMemberTDS(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $month=$request->month;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$month){
+            $MemberPayout=MemberPayout::select();
+            
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+            $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')])->first();
+        }else{
+            $MemberPayout=MemberPayout::select();
+            $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')]);
+            if($search){
+                $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
+                    $query=$query->orWhereHas('member.user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });
+                });
+                $total=$total->where(function ($query)use($search) {              
+                    $query=$query->orWhereHas('member.user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });
+                });
+            }
+            
+            
+
+            if($month){
+                $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
+                    $month=$month.'-01';
+                    $date=Carbon::parse($month);
+                    $q->whereMonth('sales_start_date',$date->month);
+                    $q->whereYear('sales_start_date',$date->year);
+                });
+                $total=$total->whereHas('payout',function($q)use($month){
+                    $date=Carbon::parse($month);
+                    $q->whereMonth('sales_start_date',$date->month);
+                    $q->whereYear('sales_start_date',$date->year);
+                });
+            }
+            $total=$total->first();
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+        }
+   
+        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout,'sum'=>$total);
         return response()->json($response, 200);
     }
 
@@ -193,7 +275,7 @@ class PayoutsController extends Controller
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
-        $date_range=$request->date_range;
+        $month=$request->month;
         $income_id=$request->income_id;
 
         if(!$page){
@@ -210,10 +292,10 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$income_id && !$date_range){
+        if(!$search && !$income_id && !$month){
             $MemberPayoutIncome=MemberPayoutIncome::select();
             
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username')->orderBy('id',$sort)->paginate($limit); 
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit); 
         }else{
             $MemberPayoutIncome=MemberPayoutIncome::select();
             
@@ -223,16 +305,20 @@ class PayoutsController extends Controller
                 });
             });
 
-            if($date_range){
-                $MemberPayoutIncome=$MemberPayoutIncome->whereDate('created_at','>=', $date_range[0]);
-                $MemberPayoutIncome=$MemberPayoutIncome->whereDate('created_at','<=', $date_range[1]);
+            if($month){
+                $MemberPayoutIncome=$MemberPayoutIncome->whereHas('payout',function($q)use($month){
+                    $month=$month.'-01';
+                    $date=Carbon::parse($month);
+                    $q->whereMonth('sales_start_date',$date->month);
+                    $q->whereYear('sales_start_date',$date->year);
+                });
             }
 
             if($income_id){
                 $MemberPayoutIncome=$MemberPayoutIncome->where('income_id',$income_id);
             }
             
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome);

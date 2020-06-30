@@ -537,6 +537,18 @@ export const asyncRoutes = [
         meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
       },
       {
+        path: 'payout-monthwise',
+        component: () => import('@/views/admin/reports/payout-monthwise'),
+        name: 'Monthwise Business',
+        meta: { title: 'Monthwise Business', icon: 'fas fa-calendar-alt', color:'color:#32a8a0', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'member-business',
+        component: () => import('@/views/admin/reports/member-business'),
+        name: 'Member Business',
+        meta: { title: 'Member Business', icon: 'fas fa-users', color:'color:#5742f5', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'joining-report',
         component: () => import('@/views/admin/reports/joining-report'),
         name: 'Joinings',

@@ -9,18 +9,13 @@
         @keyup.enter.native="handleFilter"
       />
       <el-date-picker
-        v-model="listQuery.date_range"
-        class="filter-item"
-        type="daterange"
-        align="right"
-        unlink-panels
+        v-model="listQuery.month"
+        type="month"
         @change="handleFilter"
-        format="yyyy-MM-dd"
-        value-format="yyyy-MM-dd"
-        range-separator="|"
-        start-placeholder="Payout Start date"
-        end-placeholder="Payout End date"
-        :picker-options="pickerOptions">
+        format="yyyy-MM"
+        value-format="yyyy-MM"
+         class="filter-item"
+        placeholder="Pick a month">
       </el-date-picker>
       <el-button
         v-waves
@@ -61,37 +56,33 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Payout Month" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
-        </template>
-      </el-table-column>
+      
       <el-table-column label="Member" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sales Start Date" width="150px" align="center">
+      <el-table-column label="Name" width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span >{{ row.member.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sales End Date" width="150px" align="center">
+      <el-table-column label="Payout Month" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sales BV" width="130px" align="right">
+      <el-table-column label="Matched BV" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.sales_pv }}</span>
+          <span >{{ row.total_matched_bv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sales Amount" width="130px" align="right">
+      <el-table-column label="Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.sales_amount }}</span>
+          <span >{{ row.total_payout+row.tds+row.admin_fee }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Total Payout" width="130px" align="right">
+      <el-table-column label="Net Payable" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.total_payout }}</span>
         </template>

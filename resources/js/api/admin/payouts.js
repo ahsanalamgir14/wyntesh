@@ -32,6 +32,14 @@ export function getMemberPayouts(query) {
   })
 }
 
+export function getMemberTDS(query) {
+  return request({
+    url: '/admin/tds/member',
+    method: 'get',
+    params: query
+  })
+}
+
 export function getMemberPayoutIncomes(query) {
   return request({
     url: '/admin/payout-incomes/member',

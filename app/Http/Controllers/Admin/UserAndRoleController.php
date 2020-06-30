@@ -44,7 +44,7 @@ class UserAndRoleController extends Controller
 
         if(!$search && !$kyc_status && !$is_blocked){
             $users = User::role('user');
-
+          
             if($is_active!='all'){
                 $users=$users->where('is_active',$is_active);    
             }

@@ -9,6 +9,11 @@ use App\Models\User\Order;
 use App\Models\User\Ticket;
 use App\Models\User\Kyc;
 use App\Models\Admin\Pin;
+use App\Models\Admin\Sale;
+use App\Models\Admin\Withdrawal;
+use App\Models\Admin\WithdrawalRequest;
+use App\Models\Admin\Payout;
+use App\Models\Admin\Member;
 use App\Models\Admin\Inquiry;
 use JWTAuth;
 use Carbon\Carbon;
@@ -20,14 +25,38 @@ class DashboardController extends Controller
     public function stats(){
         $users=User::role('user')->count();
         $inactive_users=User::role('user')->where('is_active',0)->count();
+        $wallet_balance=Member::sum('wallet_balance');
+        $total_payout=Payout::sum('total_payout');
         $total_orders=floor(Order::sum('final_amount'));
+        $total_business_volume=floor(Sale::sum('pv'));
+        $pending_withdrawals=WithdrawalRequest::where('request_status','Pending')->count();
+        $pending_orders=Order::where('delivery_status','Order Created')->count();
         $tickets=Ticket::count();
         $used_pin=Pin::where('used_at','!=',null)->count();
         $unused_pin=Pin::where('used_at',null)->count();
         $pending_kyc=Kyc::where('verification_status','pending')->count();
         $inquiries=Inquiry::count();
 
-        $response = array('status' => true,'message'=>'Stats recieved','stats'=>array('users'=>$users,'inactive_users'=>$inactive_users,'total_orders'=>$total_orders,'tickets'=>$tickets,'used_pin'=>$used_pin,'unused_pin'=>$unused_pin,'pending_kyc'=>$pending_kyc,'inquiries'=>$inquiries));             
+        $response = array(
+            'status' => true,
+            'message'=>'Stats recieved',
+            'stats'=>array(
+                'users'=>$users,
+                'inactive_users'=>$inactive_users,
+                'total_orders'=>$total_orders,
+                'tickets'=>$tickets,
+                'used_pin'=>$used_pin,
+                'unused_pin'=>$unused_pin,
+                'pending_kyc'=>$pending_kyc,
+                'inquiries'=>$inquiries,
+                'wallet_balance'=>$wallet_balance,
+                'total_payout'=>$total_payout,
+                'pending_withdrawals'=>$pending_withdrawals,
+                'pending_orders'=>$pending_orders,
+                'total_business_volume'=>$total_business_volume
+            )
+        );
+
         return response()->json($response, 200);
 
     }
@@ -108,6 +137,30 @@ class DashboardController extends Controller
         	$activations[]=$o;
         }
         $response = array('status' => true,'message'=>'Stats recieved','activations'=>$activations);             
+        return response()->json($response, 200);
+    }
+
+    public function monthlyJoiningsCount(){
+       
+        $monthwise_count=Member::
+                    select(DB::raw('count(id) as `count`'), DB::raw("DATE_FORMAT(created_at, '%m-%Y') month"),  DB::raw('YEAR(created_at) year, MONTH(created_at) month'))
+                    ->groupby('year','month')
+                    ->orderBy('id', 'DESC')
+                    ->limit(5)
+                    ->get();
+
+        $response = array('status' => true,'message'=>'Latest downlines recieved','data'=>$monthwise_count);             
+        return response()->json($response, 200);
+    }
+
+    public function monthlyBusiness(){
+       
+       $payouts = Payout::with('payout_type','incomes.income')
+                    ->orderBy('id', 'DESC')
+                    ->limit(5)
+                    ->get();
+
+        $response = array('status' => true,'message'=>'Monthly payouts recieved.','data'=>$payouts);             
         return response()->json($response, 200);
     }
 }

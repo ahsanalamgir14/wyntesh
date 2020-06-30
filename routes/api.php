@@ -160,6 +160,8 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('stats', 'DashboardController@stats');
     Route::get('order/stats', 'DashboardController@orderStats');
     Route::get('activation/stats', 'DashboardController@pinActivations');
+    Route::get('monthly-joinings', 'DashboardController@monthlyJoiningsCount');
+    Route::get('monthly-business', 'DashboardController@monthlyBusiness');
 
     Route::post('settings','SettingsController@update');
     Route::get('settings','SettingsController@getCopanyDetailsSettings');
@@ -319,7 +321,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('income-holdings/member', 'PayoutsController@getMemberIncomeHoldings');
     Route::post('payout/release/member-holding', 'PayoutsController@releaseMemberHoldPayout');
 
-
+    Route::get('tds/member', 'PayoutsController@getMemberTDS');
 });
 
 Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' => 'admin','namespace'=>'Admin'], function($router)

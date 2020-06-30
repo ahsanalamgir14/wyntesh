@@ -2,12 +2,12 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-          v-model="listQuery.search"
-          placeholder="Search Records"
-          style="width: 200px;"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        />
+        v-model="listQuery.search"
+        placeholder="Search Records"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
       <el-date-picker
         v-model="listQuery.month"
         type="month"
@@ -24,6 +24,14 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >Export</el-button>
     </div>
 
     <el-table
@@ -31,37 +39,59 @@
       v-loading="listLoading"
       :data="list"
       border
-       show-summary
-      :summary-method="getSummaries"
       fit
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
     >
       <el-table-column
-        type="index"
-        width="50">
-      </el-table-column>      
-      <el-table-column label="Month" width="150px" align="center">
+        label="ID"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="80"
+        :class-name="getSortClass('id')"
+      >
+        <template slot-scope="{row}">
+          <span>{{ row.id }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Payout Month" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Member" width="130px" align="right">
+      <el-table-column label="Member" width="130px" align="left">
         <template slot-scope="{row}">
           <span >{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Name" width="130px" align="right">
+      <el-table-column label="Name" width="130px" align="left">
         <template slot-scope="{row}">
           <span >{{ row.member.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS" width="130px" align="right">
+      <el-table-column label="Personal BV" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.tds }}</span>
+          <span >{{ row.sales_pv }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Group BV" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.group_sales_pv }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Total BV" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.sales_pv+row.group_sales_pv }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Matched BV" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.total_matched_bv }}</span>
+        </template>
+      </el-table-column>
+       
     </el-table>
 
     <pagination
@@ -76,7 +106,7 @@
 </template>
 
 <script>
-import { getMemberTDS, } from "@/api/admin/payouts";
+import { getMemberPayouts, } from "@/api/admin/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
@@ -102,10 +132,9 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
-      sum:0,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 10,
         search: undefined,
         sort: "-id"
       },
@@ -157,30 +186,13 @@ export default {
   methods: {
     getList() {
       this.listLoading = true;
-      getMemberTDS(this.listQuery).then(response => {
+      getMemberPayouts(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
-        this.sums=response.sum;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
       });
-    },
-    getSummaries(param) {
-      const { columns, data } = param;
-      const sums = [];
-      columns.forEach((column, index) => {
-        if (index === 1) {
-          sums[index] = 'Final Total (All)';
-          return;
-        }
-        if(index===4){
-          sums[index] = this.sums.tds_amount;
-          return; 
-        }
-      });
-
-      return sums;
     },
     handleFilter() {
       this.listQuery.page = 1;
@@ -207,7 +219,56 @@ export default {
         : sort === `-${key}`
         ? "descending"
         : "";
-    }
+    },
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "Sr.No",
+          "Member",
+          "Sales start date",
+          "Sales end date",
+          "Sales BV",
+          "Saled Amount",
+          "Total Payout",
+          "Generated At",
+        ];
+        const filterVal = [
+          "id",
+          "member",
+          "sales_start_date",
+          "sales_end_date",
+          "sales_pv",
+          "sales_amount",
+          "total_payout",
+          "created_at",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "member-payouts"
+        });
+        this.downloadLoading = false;
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else if(j === "member") {
+            return v.member?v.member.user.username:''
+          }else if(j === "sales_start_date") {
+            return v.payout?v.payout.sales_start_date:''
+          }else if(j === "sales_end_date") {
+            return v.payout?v.payout.sales_end_date:''
+          }else {
+            return v[j];
+          }
+        })
+      );
+    },
   }
 };
 </script>

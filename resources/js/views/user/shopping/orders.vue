@@ -58,7 +58,6 @@
           <p><b>Admin Fee</b>: {{ row.admin_fee }}</p>
           <br>
           <p><b>Delivery Agent</b>: {{ row.delivery_by }}</p>
-          <p><b>Tracking No</b>: {{ row.tracking_no }}</p>
           <p><b>Remark</b>: {{ row.remarks }}</p>
         </template>
       </el-table-column>
@@ -112,6 +111,11 @@
       <el-table-column label="Delivery Status" min-width="140px"align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.delivery_status | statusFilter">{{ row.delivery_status }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="Tracking No" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.tracking_no }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Payment Status" min-width="140px"align="center">

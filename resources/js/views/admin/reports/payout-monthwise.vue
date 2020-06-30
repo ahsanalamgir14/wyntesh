@@ -1,16 +1,6 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-     
-      <el-select v-model="listQuery.income_id" multiple @change="handleFilter"  clearable class="filter-item" style="width:350px;" filterable placeholder="Select Income">
-        <el-option
-          v-for="item in income_list"
-          :key="item.name"
-          :label="item.name"
-          :value="item.id">
-        </el-option>
-      </el-select>
-
       <el-date-picker
         v-model="listQuery.month"
         type="month"
@@ -20,16 +10,7 @@
          class="filter-item"
         placeholder="Pick a month">
       </el-date-picker>
-
       <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >Search</el-button>
-
-    <el-button
         v-waves
         :loading="downloadLoading"
         class="filter-item"
@@ -37,8 +18,8 @@
         icon="el-icon-download"
         @click="handleDownload"
       >Export</el-button>
-
     </div>
+
     <el-table
       :key="tableKey"
       v-loading="listLoading"
@@ -48,9 +29,7 @@
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
-    >
-     
-
+    >      
       <el-table-column
         label="ID"
         prop="id"
@@ -64,39 +43,28 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="Income" min-width="300px">
+      <el-table-column label="Month" width="150px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.income?row.income.name:'' }}</span>
+          <span>{{ row.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-
-      <el-table-column label="Sales Start Date" width="150px" align="center">
+      <el-table-column label="Sales BV" width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span >{{ row.sales_bv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sales End Date" width="150px" align="center">
+      <el-table-column label="Sales Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span >{{ row.sales_amount }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Total Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout_amount }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Income Parameter 1" width="200px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.income_payout_parameter_1_name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Income Parameter 1 Value" width="200px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.income_payout_parameter_1_value }}</span>
+          <span >{{ row.total_payout }}</span>
         </template>
       </el-table-column>
 
-       <el-table-column label="Generated at" width="150px" align="center">
+       <el-table-column label="Payout Generated at" min-width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
@@ -110,11 +78,56 @@
       :limit.sync="listQuery.limit"
       @pagination="getList"
     />
+
+    <el-dialog :title="dialogTitle" width="50%" top="30px"  :visible.sync="dialogPayoutGenerateVisible">
+      <el-form ref="payoutGenerateForm" :rules="rules" :model="temp" style="">
+        <el-row :gutter="20">
+          
+          <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+            <el-form-item label="Sales date range" prop="date_range">
+              <br>
+              <div class="block">
+                <el-date-picker
+                style="width:100%"
+                  v-model="temp.date_range"
+                  type="daterange"
+                  align="right"
+                  unlink-panels
+                  range-separator="To"
+                  start-placeholder="Sale Start date"
+                  end-placeholder="Sale End date"
+                  :picker-options="pickerOptions">
+                </el-date-picker>
+              </div>
+            </el-form-item>
+            <el-form-item label="Incomes" prop="incomes">
+                <el-select v-model="temp.incomes" multiple clearable  style="width:100%;" filterable placeholder="Select Incomes">
+                  <el-option
+                    v-for="item in income_list"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+          </el-col>
+
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogPayoutGenerateVisible = false">
+          Cancel
+        </el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="dialogStatus==='create'?createData():updateData()">
+          Save
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getPayoutIncomes,} from "@/api/admin/payouts";
+import { fetchPayouts, generateManualPayout,} from "@/api/admin/payouts";
 import { getAllIncomes,} from "@/api/admin/incomes";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -145,7 +158,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 15,
+        limit: 5,
         search: undefined,
         sort: "-id"
       },
@@ -210,7 +223,7 @@ export default {
     checkRole,
     getList() {
       this.listLoading = true;
-      getPayoutIncomes(this.listQuery).then(response => {
+      fetchPayouts(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
@@ -286,29 +299,27 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "Sr.No",
-          "Income",
           "Sales start date",
           "Sales end date",
-          "Income parameter",
-          "Income parameter value",
+          "Sales BV",
+          "Saled Amount",
           "Total Payout",
           "Generated At",
         ];
         const filterVal = [
           "id",
-          "income",
           "sales_start_date",
           "sales_end_date",
-          "income_payout_parameter_1_name",
-          "income_payout_parameter_1_value",
-          "payout_amount",
+          "sales_bv",
+          "sales_amount",
+          "total_payout",
           "created_at",
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "income-payouts"
+          filename: "payouts"
         });
         this.downloadLoading = false;
       });
@@ -318,12 +329,8 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
-          } else if(j === "sales_start_date") {
-            return v.payout?v.payout.sales_start_date:''
-          }else if(j === "sales_end_date") {
-            return v.payout?v.payout.sales_end_date:''
-          }else if(j === "income") {
-            return v.income?v.income.name:''
+          } else if(j === "payout_type") {
+            return v.payout_type?v.payout_type.name:''
           }else {
             return v[j];
           }

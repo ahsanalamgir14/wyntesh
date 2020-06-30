@@ -20,3 +20,18 @@ export function pastActivations() {
     method: 'get'
   })
 }
+
+export function monthlyJoiningsCount() {
+  return request({
+    url: '/admin/monthly-joinings',
+    method: 'get'
+  })
+}
+
+
+export function monthlyBusiness() {
+  return request({
+    url: '/admin/monthly-business',
+    method: 'get'
+  })
+}

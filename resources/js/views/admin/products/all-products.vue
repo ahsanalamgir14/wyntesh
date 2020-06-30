@@ -45,7 +45,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="200" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="170" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button
               circle
@@ -61,16 +61,38 @@
               ></el-button>
         </template>
       </el-table-column>
-      <el-table-column label="Name" min-width="150px">
+      <el-table-column label="Name" min-width="200px">
         <template slot-scope="{row}">
           <span class="link-type" @click="handleEdit(row)">{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Categories" min-width="150px">
+      <el-table-column label="Categories" min-width="200px">
         <template slot-scope="{row}">
           <span v-for="cat in row.categories">{{ cat.name }}, &nbsp;</span>
         </template>
       </el-table-column>
+      <el-table-column label="BV" align="right" width="110px">
+        <template slot-scope="{row}">
+          <span> {{row.pv}} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="MRP" align="right" width="110px">
+        <template slot-scope="{row}">
+          <span> {{row.retail_amount}} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="DP" align="right" width="110px">
+        <template slot-scope="{row}">
+          <span> {{row.dp_amount}} </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Stock" align="right" width="110px">
+        <template slot-scope="{row}">
+          <span> {{row.stock}} </span>
+        </template>
+      </el-table-column>
+
        <el-table-column label="Created at" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
