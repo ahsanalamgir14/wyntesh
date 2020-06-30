@@ -48,17 +48,23 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column label="Payout" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="Member" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Required BV to release" min-width="150px" align="right">
+      <el-table-column label="Name" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.member.user.name }}</span>
+        </template>
+      </el-table-column>
+      
+      <el-table-column label="Month" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="BV to release" min-width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.required_bv }}</span>
         </template>

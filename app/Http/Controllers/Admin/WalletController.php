@@ -534,6 +534,63 @@ class WalletController extends Controller
         }
     }
 
+    public function getDebitTransactions(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $transfered_from=$request->transfered_from;
+        $TransactionType=TransactionType::where('name','Debit (Admin)')->first();
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$date_range && !$transfered_from ){
+
+            $WalletTransactions=WalletTransaction::select();           
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            $WalletTransactions=$WalletTransactions->where('transaction_type_id',$TransactionType->id);
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $WalletTransactions=WalletTransaction::select();
+           
+            if($date_range){
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            $WalletTransactions=$WalletTransactions->where('transaction_type_id',$TransactionType->id);
+
+            if($transfered_from){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_from_user',function($q)use($transfered_from){
+                    $q->where('username','like','%'.$transfered_from.'%');
+                });               
+            }
+
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+       $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        return response()->json($response, 200);
+    }
+
     public function addBalance(Request $request){
         $user=JWTAuth::user();
 
@@ -568,6 +625,53 @@ class WalletController extends Controller
             $transfered_to_user->member->save();
 
             $response = array('status' => true,'message'=>'Balance added successfully.');
+            return response()->json($response, 200);
+
+        }else{
+            $response = array('status' => false,'message'=>'Invalid transaction type, contact admin.');
+            return response()->json($response, 404);
+        }
+
+    }
+
+    public function debitBalance(Request $request){
+        $user=JWTAuth::user();
+
+        $Member=User::where('username',$request->member_id)->first();
+
+        $transfered_from_user=$user;
+        $debited_from=$Member;
+  
+        if(!$debited_from){
+            $response = array('status' => false,'message'=>'Member not found.');
+            return response()->json($response, 404);
+        }
+
+        $balance=floatval($debited_from->member->wallet_balance);
+        $amount=$request->amount;
+        $TransactionType=TransactionType::where('name','Debit (Admin)')->first();
+        
+        if($balance<$amount){
+            $response = array('status' => false,'message'=>'Member does not have enough balance.');
+            return response()->json($response, 404);
+        }
+
+        if($TransactionType){
+            $WalletTransaction=new WalletTransaction;
+            $WalletTransaction->member_id=$Member->id;
+            $WalletTransaction->balance=$balance-$amount;
+            $WalletTransaction->amount=$amount;
+            $WalletTransaction->transaction_type_id=$TransactionType->id;
+            $WalletTransaction->transfered_from=$debited_from->id;
+            $WalletTransaction->transaction_by=$user->id;
+            $WalletTransaction->note=$request->note;
+            $WalletTransaction->save();
+
+            $final_balance=$balance-$amount;
+            $debited_from->member->wallet_balance=$final_balance;
+            $debited_from->member->save();
+
+            $response = array('status' => true,'message'=>'Balance debited successfully.');
             return response()->json($response, 200);
 
         }else{

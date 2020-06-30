@@ -109,6 +109,12 @@
           <span>{{ row.name }}</span>
         </template>
       </el-table-column>
+
+      <el-table-column label="Rank" min-width="120px">
+        <template slot-scope="{row}">
+          <el-tag type="primary">{{ row.member.rank.name }}</el-tag>
+        </template>
+      </el-table-column>
      
       <el-table-column label="Contact" width="110px" align="center">
         <template slot-scope="{row}">

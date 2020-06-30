@@ -49,7 +49,7 @@ class UserAndRoleController extends Controller
                 $users=$users->where('is_active',$is_active);    
             }
 
-            $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);    
+            $users=$users->with('member','member.kyc','member.rank','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);    
         }else{
             
             $users=User::select();
@@ -78,15 +78,11 @@ class UserAndRoleController extends Controller
                 });    
             }
             
-
-
             $users =$users->role('user');
             $users=$users->with('member','member.kyc','member.parent.user','member.sponsor.user')->orderBy('id',$sort)->paginate($limit);
             
         }
 
-        
-       
        $response = array('status' => true,'message'=>"users retrieved.",'data'=>$users);
             return response()->json($response, 200);
     }

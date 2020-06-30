@@ -211,9 +211,11 @@ class ProductsAndCategoryController extends Controller
         $Product->cost_base=$request->cost_base;
         $Product->cost_gst=$request->cost_gst;
         $Product->cost_amount=$request->cost_amount;
+        $Product->dp_gst_rate=$request->dp_gst_rate;
         $Product->dp_base=$request->dp_base;
         $Product->dp_gst=$request->dp_gst;
         $Product->dp_amount=$request->dp_amount;
+        $Product->retail_gst_rate=$request->retail_gst_rate;
         $Product->retail_base=$request->retail_base;
         $Product->retail_gst=$request->retail_gst;
         $Product->retail_amount=$request->retail_amount;
@@ -297,9 +299,11 @@ class ProductsAndCategoryController extends Controller
         $Product->cost_base=$request->cost_base;
         $Product->cost_gst=$request->cost_gst;
         $Product->cost_amount=$request->cost_amount;
+        $Product->dp_gst_rate=$request->dp_gst_rate;
         $Product->dp_base=$request->dp_base;
         $Product->dp_gst=$request->dp_gst;
         $Product->dp_amount=$request->dp_amount;
+        $Product->retail_gst_rate=$request->retail_gst_rate;
         $Product->retail_base=$request->retail_base;
         $Product->retail_gst=$request->retail_gst;
         $Product->retail_amount=$request->retail_amount;

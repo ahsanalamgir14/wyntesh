@@ -26,10 +26,12 @@ class CreateProductsTable extends Migration
             $table->decimal('cost_base', 8, 2)->default(0)->nullable();
             $table->decimal('cost_gst', 8, 2)->default(0)->nullable();
             $table->decimal('cost_amount', 8, 2)->default(0)->nullable();
+            $table->decimal('dp_gst_rate', 8, 2)->default(0)->nullable();
             $table->decimal('dp_base', 8, 2)->default(0)->nullable();
             $table->decimal('dp_gst', 8, 2)->default(0)->nullable();
             $table->decimal('dp_amount', 8, 2)->default(0)->nullable();
             $table->decimal('retail_base', 8, 2)->default(0)->nullable();
+            $table->decimal('retail_gst_rate', 8, 2)->default(0)->nullable();
             $table->decimal('retail_gst', 8, 2)->default(0)->nullable();
             $table->decimal('retail_amount', 8, 2)->default(0)->nullable();
             $table->decimal('discount_rate', 8, 2)->default(0)->nullable();

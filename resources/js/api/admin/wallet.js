@@ -96,3 +96,19 @@ export function rejectCreditRequest(data) {
     data
   })
 }
+
+export function getDebitTransactions(query) {
+  return request({
+    url: '/admin/wallet/debits',
+    method: 'get',
+    params: query
+  })
+}
+
+export function debitBalance(data) {
+  return request({
+    url: '/admin/wallet/balance/debit',
+    method: 'post',
+    data
+  })
+}

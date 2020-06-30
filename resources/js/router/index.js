@@ -452,6 +452,12 @@ export const asyncRoutes = [
         meta: { title: 'Transfer Balance', icon: 'fas fa-people-arrows', color:'color:#e33b6b', affix: true, roles: ['admin'] }
       },
       {
+        path: 'debit-balance',
+        component: () => import('@/views/admin/wallet/debit-balance'),
+        name: 'Debit Balance',
+        meta: { title: 'Debit Balance', icon: 'fas fa-upload', color:'color:#e2eb34', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'wallet-transactions',
         component: () => import('@/views/admin/wallet/transactions'),
         name: 'Wallet Transactions',

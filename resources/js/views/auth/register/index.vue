@@ -30,12 +30,28 @@
               </el-form-item>
             </el-col>
 
-             <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >      
+            <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >      
               <el-form-item prop="sponsor_name">
                 <span class="svg-container">
                   <i class="fas fa-user"></i>
                 </span>
                 <el-input v-model="registerForm.sponsor_name" disabled name="sponsor_name" type="text" auto-complete="on" placeholder="Sponsor name." />
+              </el-form-item>
+            </el-col>
+            <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >      
+              <el-form-item prop="parent_code" >
+                <span class="svg-container">
+                  <i class="fas fa-users"></i>
+                </span>               
+                <el-input v-model="registerForm.parent_code" v-on:blur="handleCheckParentCode()" name="parent_code" type="text" auto-complete="on" placeholder="Enter Parent code" />
+              </el-form-item>
+            </el-col>
+            <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+              <el-form-item prop="parent_name" >
+                <span class="svg-container">
+                  <i class="fas fa-user"></i>
+                </span>
+                <el-input v-model="registerForm.parent_name" disabled name="parent_name" type="text" auto-complete="on" placeholder="Parent name." />
               </el-form-item>
             </el-col>
             <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >      
@@ -168,6 +184,8 @@ export default {
       registerForm: {
         sponsor_code:undefined,
         sponsor_name:undefined,
+        parent_code:undefined,
+        parent_name:undefined,
         name: undefined,
         email: undefined,
         password: undefined,
@@ -215,6 +233,8 @@ export default {
       this.registerForm= {
         sponsor_code:undefined,
         sponsor_name:undefined,
+        parent_code:undefined,
+        parent_name:undefined,
         name: undefined,
         email: undefined,
         password: undefined,
@@ -228,6 +248,13 @@ export default {
       if(this.registerForm.sponsor_code){
         checkSponsorCode(this.registerForm.sponsor_code).then((response) => {
           this.registerForm.sponsor_name=response.data.name;          
+        })
+      }            
+    },
+    handleCheckParentCode(){
+      if(this.registerForm.parent_code){
+        checkSponsorCode(this.registerForm.parent_code).then((response) => {
+          this.registerForm.parent_name=response.data.name;          
         })
       }            
     },

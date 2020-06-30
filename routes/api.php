@@ -44,7 +44,7 @@ Route::post('public/subscribe', 'Admin\SubscribersController@store');
 Route::post('auth/google', 'Auth\AuthController@google');
 Route::get('member/check-sponsor-code/{code}', 'User\MembersController@checkSponsorCode');
 Route::get('member/check-member-code/{code}', 'User\MembersController@checkMemberCode');
-Route::post('member/registration', 'User\MembersController@registerMember');
+Route::post('member/registration', 'User\MembersController@addMember');
 Route::post('member/add', 'User\MembersController@addMember');
 
 
@@ -273,6 +273,9 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
     Route::post('wallet/balance/add', 'WalletController@addBalance');
+    
+    Route::get('wallet/debits', 'WalletController@getDebitTransactions');
+    Route::post('wallet/balance/debit', 'WalletController@debitBalance');
 
     Route::get('wallet/credit-requests', 'WalletController@creditRequests');
     Route::post('wallet/approve-credit-requests', 'WalletController@approveCreditRequest');

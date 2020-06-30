@@ -38,9 +38,9 @@
               
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
-              <el-form-item label="Stock" prop="stock">
-                <el-input type="number" min="1" v-model="temp.stock" />
-              </el-form-item> 
+              <el-form-item label="DP GST %" prop="gst_rate">
+                <el-input type="number" min="0" v-model="temp.dp_gst_rate" />
+              </el-form-item>
               <el-form-item label="Distributor Price" prop="dp_base">
                 <el-input type="number" min="1" @blur="calculateFinalDPPrice()" v-model="temp.dp_base" />
               </el-form-item>                
@@ -53,8 +53,8 @@
               
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
-              <el-form-item label="PV" prop="pv">
-                <el-input type="number" min="0" v-model="temp.pv" />
+              <el-form-item label="Retail GST %" prop="gst_rate">
+                <el-input type="number" min="0" v-model="temp.retail_gst_rate" />
               </el-form-item>
               <el-form-item label="Retail Price" prop="retail_base">
                 <el-input type="number" min="1" @blur="calculateFinalRetailPrice()" v-model="temp.retail_base" />
@@ -82,8 +82,12 @@
           <el-row :gutter="20">            
            
             <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
-               
-                                        
+               <el-form-item label="Stock" prop="stock">
+                <el-input type="number" min="1" v-model="temp.stock" />
+              </el-form-item> 
+              <el-form-item label="PV" prop="pv">
+                <el-input type="number" min="0" v-model="temp.pv" />
+              </el-form-item>          
               <el-form-item label="Discount Rate" prop="discount_rate">
                 <el-input type="number" min="0" v-model="temp.discount_rate" />
               </el-form-item>
@@ -275,9 +279,11 @@ export default {
         cost_base:undefined,
         cost_gst:undefined,
         cost_amount:undefined,
+        dp_gst_rate:undefined,
         dp_base:undefined,
         dp_gst:undefined,        
         dp_amount:undefined,
+        retail_gst_rate:undefined,
         retail_base:undefined,
         retail_gst:undefined,
         retail_amount:undefined,
@@ -320,6 +326,9 @@ export default {
         cost_amount: [
           { required: true, message: "Final cost is required.", trigger: "blur" }
         ],
+        dp_gst_rate: [
+          { required: true, message: "DP GST rate is required", trigger: "blur" }
+        ],
         dp_base: [
           { required: true, message: "DP Base price is required.", trigger: "blur" }
         ],
@@ -328,6 +337,9 @@ export default {
         ],
         dp_amount: [
           { required: true, message: "Final DP is required.", trigger: "blur" }
+        ],
+        retail_gst_rate: [
+          { required: true, message: "Retail GST rate is required", trigger: "blur" }
         ],
         retail_base: [
           { required: true, message: "Base retail price is required.", trigger: "blur" }
@@ -410,12 +422,12 @@ export default {
       }
     },
     calculateFinalDPPrice(){
-      if(this.temp.gst_rate != undefined && this.temp.gst_rate != null){
-        if(this.temp.gst_rate == 0){
+      if(this.temp.dp_gst_rate != undefined && this.temp.dp_gst_rate != null){
+        if(this.temp.dp_gst_rate == 0){
           this.temp.dp_amount=0;
           this.temp.dp_amount=this.temp.dp_base;
         }else{
-          let gst=(this.temp.gst_rate*this.temp.dp_base)/100;
+          let gst=(this.temp.dp_gst_rate*this.temp.dp_base)/100;
           gst=Math.floor(gst);
           this.temp.dp_gst=gst;
           this.temp.dp_amount=parseInt(this.temp.dp_base)+gst;
@@ -423,12 +435,12 @@ export default {
       }
     },
     calculateFinalRetailPrice(){
-      if(this.temp.gst_rate != undefined && this.temp.gst_rate != null){
-        if(this.temp.gst_rate == 0){
+      if(this.temp.retail_gst_rate != undefined && this.temp.retail_gst_rate != null){
+        if(this.temp.retail_gst_rate == 0){
           this.temp.retail_amount=0;
           this.temp.retail_amount=this.temp.retail_base;
         }else{
-          let gst=(this.temp.gst_rate*this.temp.retail_base)/100;
+          let gst=(this.temp.retail_gst_rate*this.temp.retail_base)/100;
           gst=Math.floor(gst);
           this.temp.retail_gst=gst;
           this.temp.retail_amount=parseInt(this.temp.retail_base)+gst;
