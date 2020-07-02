@@ -366,16 +366,80 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->admin_fee=$income_admin_fee;
                         $MemberPayoutIncome->save();
                     }else{
+
+                        
+                        $FundIncomeParameter=IncomeParameter::where('income_id',$PayoutIncome->income_id)->where('name','matching_pv')->first();
+
+                        if($PayoutIncome->income->code=='TRIP_ALL' || $PayoutIncome->income->code=='VEHICLE_ALL' || $PayoutIncome->income->code=='HOUSE_ALL' || $PayoutIncome->income->code=='SUPER_GROWTH_ALL'){
+
+                            // Get all qualifier whose rank is greator than or equals to gold and satisfies matching pv condtion
+                            $matching_pv=$FundIncomeParameter->value_1;
+                            $income_payout_amount=0;
+
+                            $is_qualify=MemberPayout::where('payout_id',$payout->id)
+                                        ->where('member_id',$Member->id)
+                                        ->whereHas('member.rank',function($q){
+                                            $q->where('id','>=',1);
+                                        })
+                                        ->where('total_matched_bv','>=',$matching_pv)->first();
+
+                            if($is_qualify){
+                                $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+
+                                Log::info('TRIP_ALL 2%'.$income_payout_amount);
+                            }
+                        }
+
+                        if($PayoutIncome->income->code=='TRIP_DIA_EXE' || $PayoutIncome->income->code=='VEHICLE_DIA_EXE' || $PayoutIncome->income->code=='HOUSE_DIA_EXE' || $PayoutIncome->income->code=='SUPER_GROWTH_DIA_EXE'){
+
+                            // Get all qualifier whose rank is greator than or equals to diamond and satisfies matching pv condtion
+
+                            $matching_pv=$FundIncomeParameter->value_1;
+                            $income_payout_amount=0;
+
+                            $is_qualify=MemberPayout::where('payout_id',$payout->id)
+                                        ->where('member_id',$Member->id)
+                                        ->whereHas('member.rank',function($q){
+                                            $q->where('id','>=',7);
+                                        })
+                                        ->where('total_matched_bv','>=',$matching_pv)->first();
+
+                            if($is_qualify){
+                                $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                                Log::info('TRIP_DIA_EXE 2%'.$income_payout_amount);
+                            }
+
+                        }
+
+                        if($PayoutIncome->income->code=='TRIP_DIPLOMAT' || $PayoutIncome->income->code=='VEHICLE_DIPLOMAT' || $PayoutIncome->income->code=='HOUSE_DIPLOMAT' || $PayoutIncome->income->code=='SUPER_GROWTH_DIPLOMAT'){
+
+                            // Get all qualifier whose rank is greator than or equals to diplomat and satisfies matching pv condtion
+                            $matching_pv=$FundIncomeParameter->value_1;
+                            $income_payout_amount=0;
+
+                            $is_qualify=MemberPayout::where('payout_id',$payout->id)
+                                        ->where('member_id',$Member->id)
+                                        ->whereHas('member.rank',function($q){
+                                            $q->where('id','>=',8);
+                                        })
+                                        ->where('total_matched_bv','>=',$matching_pv)->first();
+
+                            if($is_qualify){
+                                $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                                Log::info('TRIP_DIPLOMAT 2%'.$income_payout_amount);
+                            }
+                        }
+
                         if($income_payout_amount==0){
                             continue;
                         }
 
-                        $payout_amount=($MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
+                        
 
-                        $income_tds=($payout_amount*$tds_percentage)/100;
-                        $income_admin_fee=($payout_amount*$admin_fee_percent)/100;
-                        $payout_amount=$payout_amount-$income_tds;                        
-                        $payout_amount=$payout_amount-$income_admin_fee;
+                        $income_tds=($income_payout_amount*$tds_percentage)/100;
+                        $income_admin_fee=($income_payout_amount*$admin_fee_percent)/100;
+                        $income_payout_amount=$income_payout_amount-$income_tds;                        
+                        $income_payout_amount=$income_payout_amount-$income_admin_fee;
 
                         $TransactionType=TransactionType::where('name','Achievers’s Fund')->first();
                         $MemberPayoutIncome=new MemberPayoutIncome;
@@ -384,7 +448,9 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->member_id=$Member->id;
                         $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
                         $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
-                        $MemberPayoutIncome->payout_amount=$payout_amount;
+                        $MemberPayoutIncome->income_payout_parameter_2_name='matching_pv';
+                        $MemberPayoutIncome->income_payout_parameter_2_value=$FundIncomeParameter->value_1;
+                        $MemberPayoutIncome->payout_amount=$income_payout_amount;
                         $MemberPayoutIncome->tds=$income_tds;
                         $MemberPayoutIncome->admin_fee=$income_admin_fee;
                         $MemberPayoutIncome->save();
