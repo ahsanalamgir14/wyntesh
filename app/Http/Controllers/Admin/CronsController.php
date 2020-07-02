@@ -58,7 +58,6 @@ class CronsController extends Controller
             $PayoutIncome->payout_id=$Payout->id;
             $PayoutIncome->income_id=$income->id;
             $PayoutIncome->payout_amount=0;
-            $PayoutIncome->tds=0;
             $PayoutIncome->save();
         }
 

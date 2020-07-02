@@ -193,20 +193,20 @@ class GeneratePayoutListener
                         $percent_of_total_company_bv=$parameter->value_1;
                     }
                     if($parameter->name=='matching_pv'){
-                        $percent_of_total_company_bv=$parameter->value_1;
+                        $matching_pv=$parameter->value_1;
                     }                                          
                 }
 
                 // matching point value calculation for various income
                 if($income->code=='CONSISTENCY'){
-                    $Members_Matched=$MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$matching_pv)->get();
-
+                    // $Members_Matched=$MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$matching_pv)->get();
                     $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
                     if($payout->total_matched_bv==0){
                         $matching_point_value=0;
                     }else{
-                        $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;    
+                        $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;  
                     }
+
                     $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
                     $PayoutIncome->save();
                 }else{
@@ -266,7 +266,7 @@ class GeneratePayoutListener
 
                         $IncomeParameter=IncomeParameter::where('name',$rank->name)->where('income_id',$income->id)->first();                        
                         $PayoutIncome->income_payout_parameter_1_name='franchise_bonus_percent';
-                        $PayoutIncome->income_payout_parameter_1_value=$IncomeParameter->value_1;
+                        // $PayoutIncome->income_payout_parameter_1_value=$IncomeParameter->value_1;
                         $PayoutIncome->save();
                     }
 
@@ -391,13 +391,25 @@ class GeneratePayoutListener
                     }                                        
                 }else if($PayoutIncome->income_payout_parameter_1_name=='franchise_bonus_percent'){
                     if($PayoutIncome->income->code=='FRANCHISE'){
+
+                        if($Member->rank_id <= 6){
+                            $rank=Rank::find(6);
+                        }else if($Member->rank_id == 7){
+                            $rank=Rank::find(8);
+                        }else if($Member->rank_id >= 8){
+                            $rank=Rank::find(8);
+                        }
+
+                        $IncomeParameter=IncomeParameter::where('name',$rank->name)->where('income_id',$PayoutIncome->income_id)->first();
+
+
                         $TransactionType=TransactionType::where('name','Franchise Bonus')->first();
                         $MemberPayoutIncome=new MemberPayoutIncome;
                         $MemberPayoutIncome->payout_id=$payout->id;
                         $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
                         $MemberPayoutIncome->member_id=$Member->id;
                         $MemberPayoutIncome->income_payout_parameter_1_name='franchise_bonus_percent';
-                        $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;                                                
+                        $MemberPayoutIncome->income_payout_parameter_1_value=$IncomeParameter->value_1;                                                
                         $sponsored=$Member->sponsored->pluck('id')->toArray();
                         $total_sponsor_payout=0;
                         foreach ($sponsored as $sponsor) {
@@ -455,17 +467,23 @@ class GeneratePayoutListener
                     
                 }
                 // Getting Total Payout of all incomes for member.
-                $member_payout_tds+=$income_tds;
-                $member_payout_admin_fee+=$income_admin_fee;
-                $total_payout+=$income_payout_amount;
+                // $member_payout_tds+=$income_tds;
+                // $member_payout_admin_fee+=$income_admin_fee;
+                // $total_payout+=$income_payout_amount;
             }
 
-            $total_payout=$total_payout-$member_payout_tds;
-            $total_payout=$total_payout-$member_payout_admin_fee;
+            // $total_payout=$total_payout-$member_payout_tds;
+            // $total_payout=$total_payout-$member_payout_admin_fee;
 
-            $MemberPayout->total_payout=$total_payout;
-            $MemberPayout->tds=$member_payout_tds;
-            $MemberPayout->admin_fee=$member_payout_admin_fee;
+            $total_member_tds=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$Member->id)->sum('tds');
+
+            $total_member_admin_fee=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$Member->id)->sum('admin_fee');
+
+            $total_member_payout_amount=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$Member->id)->sum('payout_amount');
+
+            $MemberPayout->total_payout=$total_member_payout_amount;
+            $MemberPayout->tds=$total_member_tds;
+            $MemberPayout->admin_fee=$total_member_admin_fee;
             $MemberPayout->save();
             $Member->current_personal_pv=0;
             $Member->wallet_balance+=$total_payout;
@@ -483,11 +501,17 @@ class GeneratePayoutListener
             $PayoutIncome->save();
         }
 
+        $total_tds=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->sum('tds');
+
+        $total_admin_fee=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->sum('admin_fee');
+
+        $total_payout_amount=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->sum('payout_amount');
+
         // Saving total payout to payout
-        $all_income_payout_total=$all_income_payout_total-$payout_tds-$payout_admin_fee;
-        $payout->total_payout=$all_income_payout_total;
-        $payout->tds=$payout_tds;
-        $payout->admin_fee=$payout_admin_fee;
+        // $all_income_payout_total=$all_income_payout_total-$payout_tds-$payout_admin_fee;
+        $payout->total_payout=$total_payout_amount;
+        $payout->tds=$total_tds;
+        $payout->admin_fee=$total_admin_fee;
         $payout->save();
 
     }
