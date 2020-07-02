@@ -266,7 +266,7 @@ class GeneratePayoutListener
 
                         $IncomeParameter=IncomeParameter::where('name',$rank->name)->where('income_id',$income->id)->first();                        
                         $PayoutIncome->income_payout_parameter_1_name='franchise_bonus_percent';
-                        // $PayoutIncome->income_payout_parameter_1_value=$IncomeParameter->value_1;
+                        $PayoutIncome->income_payout_parameter_1_value=$IncomeParameter->value_1;
                         $PayoutIncome->save();
                     }
 
@@ -385,8 +385,7 @@ class GeneratePayoutListener
 
                             if($is_qualify){
                                 $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
-
-                                Log::info('TRIP_ALL 2%'.$income_payout_amount);
+                                
                             }
                         }
 
@@ -405,8 +404,7 @@ class GeneratePayoutListener
                                         ->where('total_matched_bv','>=',$matching_pv)->first();
 
                             if($is_qualify){
-                                $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
-                                Log::info('TRIP_DIA_EXE 2%'.$income_payout_amount);
+                                $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);                                
                             }
 
                         }
@@ -425,8 +423,7 @@ class GeneratePayoutListener
                                         ->where('total_matched_bv','>=',$matching_pv)->first();
 
                             if($is_qualify){
-                                $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);
-                                Log::info('TRIP_DIPLOMAT 2%'.$income_payout_amount);
+                                $income_payout_amount=($is_qualify->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value);                                
                             }
                         }
 
@@ -477,26 +474,30 @@ class GeneratePayoutListener
                         $MemberPayoutIncome->income_payout_parameter_1_name='franchise_bonus_percent';
                         $MemberPayoutIncome->income_payout_parameter_1_value=$IncomeParameter->value_1;                                                
                         $sponsored=$Member->sponsored->pluck('id')->toArray();
-                        $total_sponsor_payout=0;
-                        foreach ($sponsored as $sponsor) {
-                            $SponsorPayout=MemberPayout::where('member_id',$sponsor)->where('payout_id',$payout->id)->first();
-                            if($SponsorPayout->total_payout!=0){
-                                $total_sponsor_payout+=($SponsorPayout->total_payout*$PayoutIncome->income_payout_parameter_1_value)/100;
-                            }
+                        
+                        $SponsorPayout=MemberPayout::whereIn('member_id',$sponsored)->where('payout_id',$payout->id)->sum('total_payout');
+                        
+                        $franchise_income=0;
 
+                        Log::info('Member - '.$Member->id.', Sponsor Payout - '.$SponsorPayout.', Parameter Value - '.$IncomeParameter->value_1);
+
+                        if($SponsorPayout!=0){
+                            
+                            $franchise_income=($SponsorPayout*$IncomeParameter->value_1)/100;
                         }
 
-                        if($total_sponsor_payout==0){
+
+                        if($franchise_income==0){
                             continue;
                         }
 
-                        $income_tds=($total_sponsor_payout*$tds_percentage)/100;
-                        $income_admin_fee=($total_sponsor_payout*$admin_fee_percent)/100;
-                        $total_sponsor_payout=$total_sponsor_payout-$income_tds;
-                        $total_sponsor_payout=$total_sponsor_payout-$income_admin_fee;
+                        $income_tds=($franchise_income*$tds_percentage)/100;
+                        $income_admin_fee=($franchise_income*$admin_fee_percent)/100;
+                        $franchise_income=$franchise_income-$income_tds;
+                        $franchise_income=$franchise_income-$income_admin_fee;
 
-                        $income_payout_amount=$total_sponsor_payout;
-                        $MemberPayoutIncome->payout_amount=$total_sponsor_payout;
+                        //$income_payout_amount=$franchise_income;
+                        $MemberPayoutIncome->payout_amount=$franchise_income;
                         $MemberPayoutIncome->tds=$income_tds;
                         $MemberPayoutIncome->admin_fee=$income_admin_fee;
                         $MemberPayoutIncome->save();
