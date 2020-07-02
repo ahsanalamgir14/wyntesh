@@ -217,7 +217,7 @@ class GeneratePayoutListener
 
                         $quilifier_matched_pv=$MemberPayout::where('payout_id',$payout->id)
                         ->whereHas('member.rank',function($q){
-                            $q->where('id','>=',[6]);
+                            $q->where('id','>=',[1]);
                         })
                         ->where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
                     }
