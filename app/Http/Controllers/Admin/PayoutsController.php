@@ -338,7 +338,7 @@ class PayoutsController extends Controller
         }
 
         if(!$limit){
-            $limit=1;
+            $limit=100000;
         }
 
         if ($sort=='+id'){
@@ -348,7 +348,7 @@ class PayoutsController extends Controller
         }
 
         if(!$search ){
-            $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id')
+            $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id','member_id')
            ->with('payout','member.user:id,username')->selectRaw('*, sum(amount) as withhold_amount')
            ->where('is_paid',0)->paginate($limit);
         }else{

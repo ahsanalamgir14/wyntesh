@@ -454,6 +454,9 @@ class GeneratePayoutListener
                         }                            
                     }else{
                         if($MemberPayoutIncome->payout_amount != 0){
+
+                            
+
                             $WalletTransaction=new WalletTransaction;
                             $WalletTransaction->member_id=$Member->id;
                             $WalletTransaction->amount=$MemberPayoutIncome->payout_amount;
@@ -462,6 +465,9 @@ class GeneratePayoutListener
                             $WalletTransaction->transfered_to=$Member->user->id;
                             $WalletTransaction->note='Payout Income';
                             $WalletTransaction->save(); 
+
+                            $Member->wallet_balance+=$MemberPayoutIncome->payout_amount;
+                            $Member->save();
                         }
                     }
                     

@@ -79,7 +79,7 @@
       </el-table-column>
       <el-table-column label="Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.total_payout+row.tds+row.admin_fee }}</span>
+          <span >{{ parseFloat(row.total_payout)+parseFloat(row.tds)+parseFloat(row.admin_fee) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Net Payable" width="130px" align="right">
