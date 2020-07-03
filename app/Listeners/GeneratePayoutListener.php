@@ -458,7 +458,7 @@ class GeneratePayoutListener
                         if($Member->rank_id <= 6){
                             $rank=Rank::find(6);
                         }else if($Member->rank_id == 7){
-                            $rank=Rank::find(8);
+                            $rank=Rank::find(7);
                         }else if($Member->rank_id >= 8){
                             $rank=Rank::find(8);
                         }
