@@ -199,12 +199,24 @@ class GeneratePayoutListener
 
                 // matching point value calculation for various income
                 if($income->code=='CONSISTENCY'){
-                    // $Members_Matched=$MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$matching_pv)->get();
+                    
+                    $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
+
+                    $booster_matched_bv=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',15000)->whereIn('member_id',$booster_ids)->sum('total_matched_bv');
+
+                    $booster_member_ids=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',15000)->whereIn('member_id',$booster_ids)->get()->pluck('member_id');
+
+                    $matched_bv=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$matching_pv)->whereNotIn('member_id',$booster_member_ids)->sum('total_matched_bv');
+                    
+
+                    $all_matched=$matched_bv+$booster_matched_bv;
+
                     $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
+
                     if($payout->total_matched_bv==0){
                         $matching_point_value=0;
                     }else{
-                        $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;  
+                        $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$all_matched;  
                     }
 
                     $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
@@ -340,40 +352,54 @@ class GeneratePayoutListener
                             continue;
                         }
 
-                        $payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
+                        $ConsistencyIncomeParameter=IncomeParameter::where('income_id',$PayoutIncome->income_id)->where('name','matching_pv')->first();
 
-                        $rank=$Member->rank->name;
-                        $IncomeParameter=IncomeParameter::where('income_id',$PayoutIncome->income_id)->where('name',$rank)->first();
+                        $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
 
-                        if($payout_amount>$IncomeParameter->value_1){
-                            $payout_amount=$IncomeParameter->value_1;
-                        }
+                        $booster_member_ids=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',15000)->whereIn('member_id',$booster_ids)->get()->pluck('member_id')->toArray();
+                        
+                        $consistency_eligible=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$ConsistencyIncomeParameter->value_1)->whereNotIn('member_id',$booster_member_ids)->get()->pluck('member_id')->toArray();
 
-                        $income_tds=($payout_amount*$tds_percentage)/100;
-                        $income_admin_fee=($payout_amount*$admin_fee_percent)/100;
-                        $payout_amount=$payout_amount-$income_tds;                        
-                        $payout_amount=$payout_amount-$income_admin_fee;
+                        $eligible_members=array_merge($booster_member_ids,$consistency_eligible);
 
-                        $TransactionType=TransactionType::where('name','Consistency Bonus')->first();
-                        $MemberPayoutIncome=new MemberPayoutIncome;
-                        $MemberPayoutIncome->payout_id=$payout->id;
-                        $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
-                        $MemberPayoutIncome->member_id=$Member->id;
-                        $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
-                        $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
-                        $MemberPayoutIncome->payout_amount=$payout_amount;
-                        $MemberPayoutIncome->tds=$income_tds;
-                        $MemberPayoutIncome->admin_fee=$income_admin_fee;
-                        $MemberPayoutIncome->save();
+                        if(in_array($Member->id, $eligible_members)){
+                            $payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;
+
+                            $rank=$Member->rank->name;
+                            $IncomeParameter=IncomeParameter::where('income_id',$PayoutIncome->income_id)->where('name',$rank)->first();
+
+                            if($payout_amount>$IncomeParameter->value_1){
+                                $payout_amount=$IncomeParameter->value_1;
+                            }
+
+                            $income_tds=($payout_amount*$tds_percentage)/100;
+                            $income_admin_fee=($payout_amount*$admin_fee_percent)/100;
+                            $payout_amount=$payout_amount-$income_tds;                        
+                            $payout_amount=$payout_amount-$income_admin_fee;
+
+                            $TransactionType=TransactionType::where('name','Consistency Bonus')->first();
+                            $MemberPayoutIncome=new MemberPayoutIncome;
+                            $MemberPayoutIncome->payout_id=$payout->id;
+                            $MemberPayoutIncome->income_id=$PayoutIncome->income_id;
+                            $MemberPayoutIncome->member_id=$Member->id;
+                            $MemberPayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                            $MemberPayoutIncome->income_payout_parameter_1_value=$PayoutIncome->income_payout_parameter_1_value;
+                            $MemberPayoutIncome->payout_amount=$payout_amount;
+                            $MemberPayoutIncome->tds=$income_tds;
+                            $MemberPayoutIncome->admin_fee=$income_admin_fee;
+                            $MemberPayoutIncome->save();
+                        }                                               
+                        
                     }else{
 
                         
                         $FundIncomeParameter=IncomeParameter::where('income_id',$PayoutIncome->income_id)->where('name','matching_pv')->first();
+                        $matching_pv=$FundIncomeParameter->value_1;
 
                         if($PayoutIncome->income->code=='TRIP_ALL' || $PayoutIncome->income->code=='VEHICLE_ALL' || $PayoutIncome->income->code=='HOUSE_ALL' || $PayoutIncome->income->code=='SUPER_GROWTH_ALL'){
 
                             // Get all qualifier whose rank is greator than or equals to gold and satisfies matching pv condtion
-                            $matching_pv=$FundIncomeParameter->value_1;
+                            
                             $income_payout_amount=0;
 
                             $is_qualify=MemberPayout::where('payout_id',$payout->id)
@@ -393,7 +419,7 @@ class GeneratePayoutListener
 
                             // Get all qualifier whose rank is greator than or equals to diamond and satisfies matching pv condtion
 
-                            $matching_pv=$FundIncomeParameter->value_1;
+                            
                             $income_payout_amount=0;
 
                             $is_qualify=MemberPayout::where('payout_id',$payout->id)
@@ -412,7 +438,7 @@ class GeneratePayoutListener
                         if($PayoutIncome->income->code=='TRIP_DIPLOMAT' || $PayoutIncome->income->code=='VEHICLE_DIPLOMAT' || $PayoutIncome->income->code=='HOUSE_DIPLOMAT' || $PayoutIncome->income->code=='SUPER_GROWTH_DIPLOMAT'){
 
                             // Get all qualifier whose rank is greator than or equals to diplomat and satisfies matching pv condtion
-                            $matching_pv=$FundIncomeParameter->value_1;
+                            
                             $income_payout_amount=0;
 
                             $is_qualify=MemberPayout::where('payout_id',$payout->id)

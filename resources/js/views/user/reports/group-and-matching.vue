@@ -63,6 +63,16 @@
           <span >{{ getMatched(row.legs) }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Carry Forwarded" min-width="140px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ getCarryForward(row.legs) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Carry Forwarded Leg" min-width="170px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ getCarryForwardLeg(row.legs) }}</span>
+        </template>
+      </el-table-column>
       
     </el-table>
 
@@ -189,8 +199,36 @@ export default {
          pv.push(parseFloat(legs[key].pv));
          group_pv+=parseFloat(legs[key].pv);
       }
-      pv.sort();      
-      return (group_pv-pv[0]);
+       pv.sort();     
+      return (group_pv-pv[3]);
+    },
+    getCarryForward(legs){
+      let pv=[];
+      let group_pv=0;
+      for (let key in legs) {
+         pv.push(parseFloat(legs[key].pv));
+         group_pv+=parseFloat(legs[key].pv);
+      }
+       pv.sort();     
+      return (pv[3]-pv[2]);
+    },
+    getCarryForwardLeg(legs){
+      let pv=[];
+      let group_pv=0;
+      for (let key in legs) {
+         pv.push(parseFloat(legs[key].pv));
+         group_pv+=parseFloat(legs[key].pv);
+      }
+      let carry_index=pv.indexOf(Math.max.apply(window,pv));
+      if(carry_index==0){
+        return 'A';
+      }else if(carry_index==1){
+        return 'B';
+      }else if(carry_index==2){
+        return 'C';
+      }else if(carry_index==3){
+        return 'D';
+      }
     },
     handleFilter() {
       this.listQuery.page = 1;
