@@ -143,7 +143,7 @@ class PayoutsController extends Controller
             }
 
             if($income_id){
-                $PayoutIncome=$PayoutIncome->whereIn('income_id',[$income_id]);
+                $PayoutIncome=$PayoutIncome->whereIn('income_id',$income_id);
             }
             
             $PayoutIncome=$PayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit);
