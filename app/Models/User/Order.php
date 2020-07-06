@@ -20,7 +20,7 @@ class Order extends Model {
 
     public function products()
     {
-        return $this->hasMany('App\Models\User\OrderProduct')->with('product:id,name,product_number,pv,qty,qty_unit,retail_amount,retail_base,retail_gst,shipping_fee,gst_rate,discount_amount,discount_rate,cover_image_thumbnail,brand_name');
+        return $this->hasMany('App\Models\User\OrderProduct')->with('product:id,name,product_number,pv,qty,qty_unit,retail_amount,retail_base,retail_gst,dp_amount,dp_base,dp_gst,shipping_fee,gst_rate,dp_gst_rate,discount_amount,discount_rate,cover_image_thumbnail,brand_name');
     }
 
     public function packages()

@@ -5,105 +5,120 @@
       <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
         <div id="page-wrap">
 
-          <div id="header">INVOICE</div>
-          
-          <div id="identity">
-          
-                  <div id="address">
-                    <span style="font-size: 25px;font-weight: bold;">{{company_details.company_name}}</span><br><br>
+          <table id="items" style="border: none;">
+            
+              <tr class="item-row" >
+                  <td class="item-name" style="border: none;">
+                     <img id="image" src="images/logo.png" height="150px"   alt="logo" /><br>
+                    <span style="font-size: 18px;font-weight: bold;">{{company_details.company_name}}</span><br><br>
                     {{company_details.address}}<br>
                     {{company_details.city}}<br>
                     {{company_details.state}}, {{company_details.pincode}}<br>
                     {{company_details.contact_phone}}<br>
                     {{company_details.contact_email}}<br>
-                  </div>
-
-                  <div id="logo">             
-                    <img id="image" src="images/logo.png" height="40%" width="40%"  alt="logo" />
-                  </div>
-
-          
-          </div>
-          
-          <div style="clear:both"></div>
-          
-          <div id="customer">
-
-                  <div id="customer-title">{{user.username}}<br>{{user.name}}</div>
-
-                  <table id="meta">
+                    GSTN - 19AAHCV1338G1Z8<br></td>
+                  
+                  <td class="cost" style ="vertical-align:bottom;border: none;"> 
+                    <table id="meta" style="border: none;">
                       <tr>
                           <td class="meta-head">Invoice #</td>
                           <td><div>{{order.order_no}}</div></td>
                       </tr>
                       <tr>
-
-                          <td class="meta-head">Date</td>
-                          <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
+                          <td class="meta-head">ORDER #</td>
+                          <td><div>{{order.order_no}}</div></td>
                       </tr>
                       <tr>
-                          <td class="meta-head">Invoice Amount</td>
-                          <td><div class="due">{{order.final_amount}}</div></td>
+
+                          <td class="meta-head">Invoice Date</td>
+                          <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
+                      </tr>
+                       <tr>
+
+                          <td class="meta-head">Order Date</td>
+                          <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
                       </tr>
 
-                  </table>
-          
-          </div>
+                  </table></td>
+              </tr>
+          </table>
+
+          <table id="items">
+            
+              <tr class="item-row" >
+                  <td class="item-name">
+                    
+                    <span style="font-size: 15px;font-weight: bold;">Shipping to</span><br><br>
+                    <span style="font-size: 15px;font-weight: bold;">{{order.shipping_address.full_name}}</span><br>
+                    <span style="font-size: 15px;">{{order.shipping_address.address}}, {{order.shipping_address.landmark}}, {{order.shipping_address.city}}, {{order.shipping_address.state}}, {{order.shipping_address.pincode}}</span>
+                  </td>
+                  <td class="item-name">
+                    
+                    <span style="font-size: 15px;font-weight: bold;">Billing to</span><br><br>
+                    <span style="font-size: 15px;font-weight: bold;">{{order.billing_address.full_name}}</span><br>
+                    <span style="font-size: 15px;">{{order.billing_address.address}}, {{order.billing_address.landmark}}, {{order.billing_address.city}}, {{order.billing_address.state}}, {{order.billing_address.pincode}}</span>
+                  </td>
+                  
+              </tr>
+          </table>
+
           
           <table id="items">
           
             <tr>
-                <th>Item</th>                
-                <th>Unit Cost</th>
+                <th>Product</th>                
+                <th>MRP</th>
+                <th>DP</th>
+                <th>Discount</th>
                 <th>Quantity</th>
                 <th>PV</th>
-                <th>Price</th>
+                <th>GST</th>
+                <th>GST %</th>
+                <th>Total</th>
             </tr>
             
             <tr class="item-row"  v-for="product in order.products" :key="product.id">
                 <td class="item-name"><div>{{product.product.name}}</div></td>
                 
                 <td class="cost"><div >{{product.product.retail_amount}}</div></td>
+                <td class="cost"><div >{{product.product.dp_amount}}</div></td>
+                <td class="cost"><div >{{product.product.retail_amount-product.product.dp_amount}}</div></td>
                 <td class="qty"><div >{{product.qty}}</div></td>
-                <td class="description"><div>{{product.product.pv}} PV</div></td>
-                <td class="total"><div >{{product.product.retail_amount*product.qty}}</div></td>
+                <td class="description"><div>{{product.product.pv}}</div></td>
+                <td class="description"><div>{{product.product.dp_gst}}</div></td>
+                <td class="description"><div>{{product.product.dp_gst_rate}}</div></td>
+                <td class="total"><div >{{product.product.dp_amount*product.qty}}</div></td>
             </tr>
 
             <tr>
-              <td colspan="5"  style="padding-top:40px;border-top: none"></td>
+              <td colspan="9"  style="padding-top:40px;border-top: none"></td>
             </tr>
             <tr>
-                <td colspan="2" class="blank"> </td>
-                <td colspan="2" class="total-line">Subtotal</td>
+                <td colspan="5" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
+                <td colspan="3" class="total-line">Base Price Total</td>
                 <td class="total-value"><div id="subtotal">{{order.amount}}</div></td>
             </tr>
             <tr>
 
-                <td colspan="2" class="blank"> </td>
-                <td colspan="2" class="total-line">GST</td>
+                <td colspan="3" class="total-line">GST</td>
                 <td class="total-value"><div id="total">{{order.gst}}</div></td>
             </tr>
             <tr>
-                <td colspan="2" class="blank"> </td>
-                <td colspan="2" class="total-line">Shipping</td>
+                <td colspan="5" class="blank"> </td>
+                <td colspan="3" class="total-line">Shipping</td>
 
                 <td class="total-value"><div id="paid">{{order.shipping_fee}}</div></td>
             </tr>
             <tr>
-                <td colspan="2" class="blank"> </td>
-                <td colspan="2" class="total-line">Admin Charge</td>
+                <td colspan="5" class="blank" rowspan="2"> <b>Terms & Condition</b>
+                  Thanks for choosing Vision4u Biznet Marketing Private Limited !,If you have any question about your order , don't hestitate to connect with us at info.vision4ubiz@gmail.com or give us a call at 8707339573 .10 A.M. to 6 P.M. Mon - Sat.
+                </td>
+                <td colspan="3" class="total-line">Admin Charge</td>
 
                 <td class="total-value"><div id="paid">{{order.admin_fee}}</div></td>
             </tr>
             <tr>
-                <td colspan="2" class="blank"> </td>
-                <td colspan="2" class="total-line">Discount</td>
-
-                <td class="total-value"><div id="paid">{{order.discount}}</div></td>
-            </tr>
-            <tr>
-                <td colspan="2" class="blank"> </td>
-                <td colspan="2" class="total-line balance">Final Amount</td>
+                <td colspan="3" class="total-line balance">Final Amount</td>
                 <td class="total-value balance"><div class="due">{{order.final_amount}}</div></td>
             </tr>
           
@@ -180,10 +195,10 @@ table td, table th { border: 1px solid black; padding: 5px; }
 
 #header { height: 35px; width: 100%; margin: 20px 0; background: #222; text-align: center; color: white; font: bold 15px Helvetica, Sans-Serif; text-decoration: uppercase; letter-spacing: 20px; padding: 8px 0px; }
 
-#address { width: 250px; margin-bottom: 50px;  float: left; font: 14px Georgia, Serif;}
+#address { margin-left: 20px;width: 100%; margin-bottom: 50px;  float: left; font: 14px Georgia, Serif;}
 #customer { overflow: hidden; }
 
-#logo { text-align: right; float: right; position: relative; margin-top: 25px; border: 1px solid #fff; max-width: 540px; max-height: 100px; overflow: hidden; }
+#logo {  float: left; position: relative;  border: 1px solid #fff;   width: 100%;}
 #logoctr { display: none; }
 #logohelp { text-align: left; display: none; font-style: italic; padding: 10px 5px;}
 #logohelp input { margin-bottom: 5px; }
@@ -193,12 +208,12 @@ table td, table th { border: 1px solid black; padding: 5px; }
 #customer-title { font-size: 20px; font-weight: bold; float: left; }
 
 #meta { margin-top: 1px; width: 300px; float: right; }
-#meta td { text-align: right;  }
-#meta td.meta-head { text-align: left; background: #eee; }
+#meta td { text-align: right; border: none; }
+#meta td.meta-head { text-align: right; }
 
 #items { clear: both; width: 100%; margin: 30px 0 0 0; border: 1px solid black; }
 #items th { background: #eee; }
-#items tr.item-row td { border: 0; vertical-align: top; }
+#items tr.item-row td { vertical-align: top; }
 #items td.description { width: 150px; text-align: right;}
 #items td.qty {text-align: right;}
 #items td.cost {text-align: right; width: 150px;}
@@ -207,7 +222,7 @@ table td, table th { border: 1px solid black; padding: 5px; }
 #items td.total-line { border-right: 0; text-align: right; }
 #items td.total-value { border-left: 0; padding: 10px; }
 #items td.balance { background: #eee; }
-#items td.blank { border: 0; }
+#items td.blank {  }
 
 #terms { text-align: center; margin: 20px 0 0 0; }
 #terms h5 { text-transform: uppercase; font: 13px Helvetica, Sans-Serif; letter-spacing: 10px; border-bottom: 1px solid black; padding: 0 0 8px 0; margin: 0 0 8px 0; }

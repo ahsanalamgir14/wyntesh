@@ -18,7 +18,7 @@ Route::get('/', function (Request $request) {
 });
 
 Route::get('mail', 'Auth\AuthController@mailCheck');
-Route::get('payout', '\App\Http\Controllers\Admin\CronsController@delete3MonthHoldIncome');
+Route::get('import', '\App\Http\Controllers\Admin\CronsController@Import');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');

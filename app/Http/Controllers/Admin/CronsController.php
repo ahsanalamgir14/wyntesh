@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use DB;
+use App\Imports\UsersImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Admin\Member;
 use App\Models\Admin\Income;
@@ -65,5 +67,11 @@ class CronsController extends Controller
 
     }
 
+    public function Import()
+    {
+        Excel::import(new UsersImport, storage_path('app/public/revised genealogy.xlsx'));
+        
+        echo 'done';
+    }
 
 }

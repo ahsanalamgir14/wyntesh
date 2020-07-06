@@ -123,7 +123,7 @@ class ShoppingController extends Controller
         ->get()->pluck('value', 'key')->toArray();
 
         $Orders=Order::select();
-        $Orders=$Orders->with('products','shipping_address','packages');
+        $Orders=$Orders->with('products','shipping_address','billing_address','packages');
         $Orders=$Orders->where('id',$id);
         $Orders=$Orders->where('user_id',$user->id);
         $Orders=$Orders->first();
