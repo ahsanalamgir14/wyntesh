@@ -1,14 +1,12 @@
 <template>
   <div class="app-container">
     <el-row :gutter="40" class="panel-group">
-
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel" >
           <div class="card-panel-icon-wrapper icon-message">
             <i class="fas fa-wallet card-panel-icon" style="color: #27AE60;" ></i>
           </div>
-          <div class="card-panel-description">
-            
+          <div class="card-panel-description">            
             <count-to :start-val="0" :end-val="balance" :duration="3000" class="card-panel-num" />
             <div class="card-panel-text">
               Wallet Balance
@@ -19,6 +17,23 @@
     </el-row>
     <div class="filter-container">
 
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-plus"
+        @click="$router.push('/wallet/credit-requests')"
+      >Credit Request</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        disabled
+        icon="el-icon-plus"
+      >Add Balance Online</el-button>
+      <br>
       <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
         <el-option
           v-for="item in statuses"
@@ -27,7 +42,6 @@
           :value="item.name">
         </el-option>
       </el-select>
-
 
       <el-date-picker
         v-model="dateRangeFilter"

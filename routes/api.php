@@ -61,6 +61,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('payout/stats', 'DashboardController@payoutStats');
     Route::get('order/stats', 'DashboardController@orderStats');
     Route::get('downline/stats', 'DashboardController@downlineStats');
+    Route::get('referral/stats', 'DashboardController@referralStats');
     Route::get('downline/latest', 'DashboardController@latestDownlines');
     Route::get('transactions/latest', 'DashboardController@latestTransactions');
 

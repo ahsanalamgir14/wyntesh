@@ -39,12 +39,27 @@
       
       <el-table-column label="Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.total_payout }}</span>
+          <span >{{ parseFloat(row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Admin Fee" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.admin_fee }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="TDS%" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ Math.ceil((parseFloat(row.tds)*100)/parseFloat(parseFloat(row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds))) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="TDS" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.tds }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Payable" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.total_payout }}</span>
         </template>
       </el-table-column>
     </el-table>

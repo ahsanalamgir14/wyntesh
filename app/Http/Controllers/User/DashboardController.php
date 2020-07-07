@@ -158,6 +158,53 @@ class DashboardController extends Controller
         return response()->json($response, 200);
     }
 
+    public function referralStats(){
+        $User=JWTAuth::user();
+        $from=Carbon::now()->subDays(7)->format('Y-m-d');
+        $to=Carbon::now()->format('Y-m-d');
+        $MembersController=new MembersController; 
+        $mydownlines=Member::whereBetween('created_at', [$from,$to])
+                    ->where('sponsor_id',$User->member_id)
+                    ->groupBy('date')
+                    ->orderBy('date', 'ASC')
+                    ->get(array(
+                        DB::raw('Date(created_at) as date'),
+                        DB::raw('count(*) as count')
+                    ));
+
+        $ar=[];
+
+        for ($i=7; $i >= 1 ; $i--) {
+
+            if(count($mydownlines)){
+                foreach ($mydownlines as $downline) {
+                    if($downline->date==Carbon::now()->subDays($i)->format('Y-m-d') ){
+                        $ar[$i]['date']=Carbon::parse($downline->date)->format('m-d');
+                        $ar[$i]['count']=floor($downline->count);
+                    }else{
+                        if(!isset($ar[$i])){
+                            $ar[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+                            $ar[$i]['count']=0;
+                        }
+                        
+                    }
+                }   
+            }else{
+                $ar[$i]['date']=Carbon::now()->subDays($i)->format('m-d');
+                $ar[$i]['count']=0;
+            }
+                        
+        }
+
+        $downlines=[];
+        foreach ($ar as $o) {
+            $downlines[]=$o;
+        }
+
+        $response = array('status' => true,'message'=>'Stats recieved','referrals'=>$downlines);             
+        return response()->json($response, 200);
+    }
+
     public function payoutStats(){
         $User=JWTAuth::user();
         $dt = Carbon::now()->modify('-7 months');        

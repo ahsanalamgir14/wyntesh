@@ -29,6 +29,7 @@
               <div class="user-name text-center" >
                 <span >{{ temp.name }}</span>
                 <br>
+                <div style="margin-top: 10px;"><span >{{ temp.username }}</span></div>
                 <div style="margin-top: 10px;">
                   <el-tag style="font-size: 16px;" type="primary">{{ temp.member.rank.name }}</el-tag>
                 </div>
@@ -44,7 +45,7 @@
                 {{ temp.created_at | parseTime('{y}-{m}-{d}') }}
               </div>
               <div style="margin-top:10px;">
-                <el-button type="warning" size="mini" round v-clipboard:copy="referral_link" v-clipboard:success="onCopy" >Copy referral link</el-button>
+                <el-button type="warning" style="width: 100%" size="mini" round v-clipboard:copy="referral_link" v-clipboard:success="onCopy" >Copy referral link</el-button>
               </div>                
             </div>
           </div>
@@ -93,7 +94,7 @@
                   
                   <count-to :start-val="0" :end-val="dashboardStats.balance" :duration="3000" class="card-panel-num" />
                   <div class="card-panel-text">
-                    Wallet Balance
+                    E Wallet
                   </div>
                 </div>
               </div>
@@ -201,7 +202,7 @@
     <el-row :gutter="10" >      
       <el-col :xs="24" :sm="24" :md="12" :lg="12">        
         <el-card shadow="never">
-          <bar-chart :chartData="downlineData" ></bar-chart>
+          <bar-chart :chartData="payoutData" ></bar-chart>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="24" :md="12" :lg="12">        
@@ -210,15 +211,15 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-row :gutter="10" >      
+    <el-row :gutter="10" >            
       <el-col :xs="24" :sm="24" :md="12" :lg="12">        
         <el-card shadow="never">
-          <bar-chart :chartData="payoutData" ></bar-chart>
+          <bar-chart :chartData="downlineData" ></bar-chart>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="24" :md="12" :lg="12">        
         <el-card shadow="never">
-          <line-chart :chartData="orderData" ></line-chart>
+          <line-chart :chartData="referralData" ></line-chart>
         </el-card>
       </el-col>
     </el-row>
@@ -289,7 +290,7 @@ import CountTo from 'vue-count-to';
 import { parseTime } from "@/utils";
 import { getProfile } from "@/api/user/members";
 import { getNotice } from "@/api/user/notices";
-import { dashboardStats,orderStats,downlineStats,latestDownlines,latestTransactions,payoutStats } from "@/api/user/dashboard";
+import { dashboardStats,orderStats,downlineStats,latestDownlines,latestTransactions,payoutStats,referralStats } from "@/api/user/dashboard";
 
 
 import defaultSettings from '@/settings';
@@ -307,6 +308,7 @@ export default {
       dashboardStats:{},
       downlineData:{},
       payoutData:{},
+      referralData:{},
       orderData:{},
       referral_link:'',
       downlines:[],
@@ -352,6 +354,10 @@ export default {
     this.getDashboardStats();
     await downlineStats().then(response => {
       this.downlineData = { labels:response.downlines.map(function (el) { return el.date; }), data:response.downlines.map(function (el) { return el.count; }), title:'Downlines', color:'#e39c39' };
+    });
+
+    await referralStats().then(response => {
+      this.referralData = { labels:response.referrals.map(function (el) { return el.date; }), data:response.referrals.map(function (el) { return el.count; }), title:'Referrals', color:'#e39c39' };
     });
 
     await latestDownlines().then(response => {

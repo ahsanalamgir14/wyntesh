@@ -114,12 +114,12 @@
             </div>         
             <div class="cal-amount"><span>₹ {{temp.distributor_discount}}</span></div>
           </div>
-          <div class="calculations">
+          <!-- <div class="calculations">
             <div class="cal-title">
               <span>Product Discount</span>
             </div>         
             <div class="cal-amount"><span>₹ {{temp.discount}}</span></div>
-          </div>
+          </div> -->
           <div class="calculations">
             <div class="cal-title">
               <span>Total PV</span>
@@ -332,6 +332,7 @@
 
 <script>
 import { getMyCart, addToCart, removeFromCart, updateCartQty, placeOrder } from "@/api/user/shopping";
+import { getSettings } from "@/api/user/settings";
 import { getIncomeHoldingPayouts } from "@/api/user/payouts";
 import { getAllAddresses } from "@/api/user/addresses";
 import { getMyBalance } from "@/api/user/wallet";
@@ -378,6 +379,7 @@ export default {
       },
       categories:[],
       cartProducts:[],
+      settings:{shipping_charge:0},
       incomeHoldingPayouts:[],
       temp: {
         subtotal:0,
@@ -442,23 +444,38 @@ export default {
     };
   },
   created() {    
+    this.getSettings();
     this.getMyCart();
     this.getAllAddresses();
     this.getMyBalance();
     this.getIncomeHoldingPayouts();
+
   },
   methods: {        
     getMyCart(){
       getMyCart().then(response => {
         this.cartProducts = response.data;   
         this.calculateFinal();
-        if(this.temp.shipping>=1500){
-          this.temp.shipping-=100;
-          this.temp.grand_total-=100;
+        if(this.temp.grand_total>=1500){
+          this.temp.shipping=0;
+        }else{
+          this.temp.shipping=parseFloat(this.settings.shipping_charge);
+          this.temp.grand_total+=this.temp.shipping;
         }
         if(this.cartProducts.length==0){
           this.$router.push('/shopping/products')
         }     
+      });
+    },
+    getSettings() {      
+      getSettings().then(response => {
+        this.settings = response.data
+        if(this.temp.grand_total>=1500){
+          this.temp.shipping=0;
+        }else{
+          this.temp.shipping=parseFloat(this.settings.shipping_charge);
+          this.temp.grand_total+=this.temp.shipping;
+        }
       });
     },
     resetBillingAddress(){

@@ -225,7 +225,7 @@
                       <div class="cal-title">
                         <span>Discount</span>
                       </div>         
-                      <div class="cal-amount"><span>₹ {{temp.discount}}</span></div>
+                      <div class="cal-amount"><span>₹ {{temp.distributor_discount}}</span></div>
                     </div>
                     <div class="calculations">
                       <div class="cal-grand">

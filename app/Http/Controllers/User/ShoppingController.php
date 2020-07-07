@@ -16,6 +16,7 @@ use App\Models\Superadmin\PaymentMode;
 use App\Models\User\Address;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\Setting;
+use App\Models\Admin\CompanySetting;
 use Validator;
 use JWTAuth;
 use Carbon\Carbon;
@@ -216,7 +217,8 @@ class ShoppingController extends Controller
         $User=JWTAuth::user();
 
         $balance=$User->member->wallet_balance;
-
+        $shipping_charge=CompanySetting::getValue('shipping_charge');
+        
         if($balance < $request->grand_total){
             $response = array('status' => false,'message'=>'You do not have enough balance place order');
             return response()->json($response, 400);
@@ -236,7 +238,7 @@ class ShoppingController extends Controller
         foreach ($Cart as $item) {
             $subtotal+=floatval($item->products->dp_base)*intval($item->qty);
             $total_gst+=floatval($item->products->dp_gst)*intval($item->qty);
-            $shipping+=floatval($item->products->shipping_fee)*intval($item->qty);
+            //$shipping+=floatval($item->products->shipping_fee)*intval($item->qty);
             $admin+=floatval($item->products->admin_fee)*intval($item->qty);
             $discount+=floatval($item->products->discount_amount)*intval($item->qty);
             $pv+=floatval($item->products->pv?:0)*intval($item->qty);
@@ -244,9 +246,10 @@ class ShoppingController extends Controller
             $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->dp_amount)*intval($item->qty));
         }
 
-         if($shipping>=1500){
-          $shipping-=100;
-          $grand_total-=100;
+         if($grand_total>=1500){
+          $shipping=0;          
+        }else{
+          $grand_total+=$shipping_charge;  
         }
 
         if($grand_total != $request->grand_total){

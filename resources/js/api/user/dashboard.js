@@ -28,6 +28,13 @@ export function downlineStats() {
   })
 }
 
+export function referralStats() {
+  return request({
+    url: '/user/referral/stats',
+    method: 'get'
+  })
+}
+
 export function latestDownlines() {
   return request({
     url: '/user/downline/latest',

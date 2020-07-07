@@ -48,7 +48,7 @@
         </div>
       </el-col>
       <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
-        <div class="shopping-cart">
+        <div class="shopping-cart" v-if="cartProducts.length != 0">
           <!-- Title -->
           <div class="title">
             Cart Total
@@ -83,12 +83,12 @@
             </div>         
             <div class="cal-amount"><span>₹ {{temp.distributor_discount}}</span></div>
           </div>
-          <div class="calculations">
+         <!--  <div class="calculations">
             <div class="cal-title">
               <span>Product Discount</span>
             </div>         
             <div class="cal-amount"><span>₹ {{temp.discount}}</span></div>
-          </div>
+          </div> -->
           <div class="calculations">
             <div class="cal-title">
               <span>Total PV</span>
@@ -133,6 +133,7 @@
 
 <script>
 import { getMyCart, addToCart, removeFromCart, updateCartQty } from "@/api/user/shopping";
+import { getSettings } from "@/api/user/settings";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination";
@@ -169,6 +170,7 @@ export default {
       },
       categories:[],
       cartProducts:[],
+      settings:{shipping_charge:0},
       temp: {
         subtotal:0,
         total_gst: 0,
@@ -186,17 +188,31 @@ export default {
       buttonLoading: false
     };
   },
-  created() {    
-    this.getMyCart();
+  created() {
+    this.getSettings();    
+    this.getMyCart();    
   },
   methods: {        
     getMyCart(){
       getMyCart().then(response => {
         this.cartProducts = response.data;   
         this.calculateFinal();
-        if(this.temp.shipping>=1500){
-          this.temp.shipping-=100;
-          this.temp.grand_total-=100;
+        if(this.temp.grand_total>=1500){
+          this.temp.shipping=0;
+        }else{
+          this.temp.shipping=parseFloat(this.settings.shipping_charge);
+          this.temp.grand_total+=this.temp.shipping;
+        }
+      });
+    },
+    getSettings() {      
+      getSettings().then(response => {
+        this.settings = response.data
+        if(this.temp.grand_total>=1500){
+          this.temp.shipping=0;
+        }else{
+          this.temp.shipping=parseFloat(this.settings.shipping_charge);
+          this.temp.grand_total+=this.temp.shipping;
         }
       });
     },
@@ -206,7 +222,7 @@ export default {
           this.temp.subtotal+=parseFloat(cart.products.dp_base)*parseInt(cart.qty);
           this.temp.distributor_discount+=parseFloat(cart.products.retail_amount-cart.products.dp_amount)*parseInt(cart.qty);
           this.temp.total_gst+=parseFloat(cart.products.dp_gst)*parseInt(cart.qty);
-          this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
+          // this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
           this.temp.discount+=parseFloat(cart.products.discount_amount)*parseInt(cart.qty);
           this.temp.pv+=parseFloat(cart.products.pv)*parseInt(cart.qty);
