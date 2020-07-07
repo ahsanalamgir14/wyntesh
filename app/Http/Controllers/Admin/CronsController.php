@@ -69,7 +69,7 @@ class CronsController extends Controller
 
     public function Import()
     {
-        Excel::import(new UsersImport, storage_path('app/public/revised genealogy.xlsx'));
+        Excel::import(new UsersImport, storage_path('app/public/genealogy revised v4u.xlsx'));
         
         echo 'done';
     }

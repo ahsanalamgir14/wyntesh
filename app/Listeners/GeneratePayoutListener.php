@@ -137,9 +137,11 @@ class GeneratePayoutListener
             // Count total of all values;
             $total_mached_bv+=$matched_bv;
             $total_carry_forward_bv+=$carry_forward;
-            
+            $Member->total_matched_bv+=$matched_bv;
+            $Member->save();
             // Save Matched bv and total carry_forward to member payout.
             $MemberPayout->total_matched_bv=$matched_bv;
+            
             $MemberPayout->total_carry_forward_bv=$carry_forward;
             $MemberPayout->save();
 
@@ -202,13 +204,12 @@ class GeneratePayoutListener
                     
                     $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
 
-                    $booster_matched_bv=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',15000)->whereIn('member_id',$booster_ids)->sum('total_matched_bv');
+                    $booster_matched_bv=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->sum('total_matched_bv');
 
-                    $booster_member_ids=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',15000)->whereIn('member_id',$booster_ids)->get()->pluck('member_id');
+                    $booster_member_ids=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->get()->pluck('member_id');
 
-                    $matched_bv=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$matching_pv)->whereNotIn('member_id',$booster_member_ids)->sum('total_matched_bv');
+                    $matched_bv=Member::where('total_matched_bv','>=',$matching_pv)->whereNotIn('id',$booster_member_ids)->sum('total_matched_bv');
                     
-
                     $all_matched=$matched_bv+$booster_matched_bv;
 
                     $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
@@ -356,9 +357,10 @@ class GeneratePayoutListener
 
                         $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
 
-                        $booster_member_ids=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',15000)->whereIn('member_id',$booster_ids)->get()->pluck('member_id')->toArray();
-                        
-                        $consistency_eligible=MemberPayout::where('payout_id',$payout->id)->where('total_matched_bv','>=',$ConsistencyIncomeParameter->value_1)->whereNotIn('member_id',$booster_member_ids)->get()->pluck('member_id')->toArray();
+                        $booster_member_ids=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->get()->pluck('id')->toArray();
+
+
+                        $consistency_eligible=Member::where('total_matched_bv','>=',$ConsistencyIncomeParameter->value_1)->whereNotIn('id',$booster_member_ids)->get()->pluck('id')->toArray();
 
                         $eligible_members=array_merge($booster_member_ids,$consistency_eligible);
 
@@ -505,7 +507,6 @@ class GeneratePayoutListener
                         
                         $franchise_income=0;
 
-                        Log::info('Member - '.$Member->id.', Sponsor Payout - '.$SponsorPayout.', Parameter Value - '.$IncomeParameter->value_1);
 
                         if($SponsorPayout!=0){
                             

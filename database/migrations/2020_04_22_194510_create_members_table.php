@@ -23,9 +23,10 @@ class CreateMembersTable extends Migration
             $table->integer('level');
             $table->integer('rank_id')->default(0)->nullable();
             $table->timestamp('rank_updated_at')->nullable();
-            $table->decimal('wallet_balance', 10, 2)->nullable();
-            $table->decimal('current_personal_pv', 10, 2)->default(0)->nullable();
-            $table->decimal('total_personal_pv', 10, 2)->default(0)->nullable();
+            $table->decimal('wallet_balance', 12, 2)->nullable();
+            $table->decimal('current_personal_pv', 12, 2)->default(0)->nullable();
+            $table->decimal('total_personal_pv', 12, 2)->default(0)->nullable();
+            $table->decimal('total_matched_bv', 12, 2)->default(0)->nullable();
             $table->timestamps();
         });
     }
