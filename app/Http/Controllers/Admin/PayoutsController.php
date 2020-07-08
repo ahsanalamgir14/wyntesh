@@ -202,7 +202,7 @@ class PayoutsController extends Controller
             $MemberMonthlyLegPv=MemberMonthlyLegPv::selectRaw('*')
                 ->whereYear('created_at', '=', $year)
                 ->whereMonth('created_at', '=', $month)
-            ->where('member_id',$Member)->get();  
+            ->where('member_id',$Member)->orderBy('position','asc')->get();  
             $monthly_pvs[]=array('month'=>$val->month,'legs'=>$MemberMonthlyLegPv);
         }
         
