@@ -80,6 +80,11 @@
           <span >{{ row.user.name }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Rank" width="130px" align="center">
+        <template slot-scope="{row}">
+          <el-tag type="warning">{{ row.rank?row.rank.name:''}}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="Parent" width="110px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.parent.user.username}}</span>

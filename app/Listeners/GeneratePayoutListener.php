@@ -11,6 +11,7 @@ use App\Models\Admin\Sale;
 use App\Models\Admin\Member;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\Rank;
+use App\Models\Admin\RankLog;
 use App\Models\Admin\CompanySetting;
 use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutIncome;
@@ -44,7 +45,7 @@ class GeneratePayoutListener
     public function handle(GeneratePayoutEvent $event)
     {
         $payout=$event->payout;
-        $this->updateRank();
+        $this->updateRank($payout);
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
         
@@ -616,7 +617,7 @@ class GeneratePayoutListener
 
     }
 
-    public function updateRank(){
+    public function updateRank($payout){
         $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
         $MembersController=new MembersController;
@@ -662,7 +663,11 @@ class GeneratePayoutListener
 
             } 
             
-            
+            $RankLog=new RankLog;
+            $RankLog->payout_id=$payout->id;
+            $RankLog->member_id=$Member->id;
+            $RankLog->rank_id=$Member->rank_id;
+            $RankLog->save();
         }
     }
 }

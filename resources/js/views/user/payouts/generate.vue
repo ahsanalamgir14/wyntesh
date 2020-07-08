@@ -59,6 +59,11 @@
           <span >{{ row.admin_fee }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Rank" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.rank?row.rank.name:'' }}</span>
+        </template>
+      </el-table-column>
       <!-- <el-table-column label="Sales Start Date" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
