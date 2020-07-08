@@ -10,7 +10,7 @@ use JWTAuth;
 use DB;
 use Carbon\Carbon;
 
-class PayoutsController extends Controller
+class RanksController extends Controller
 {    
 
     
