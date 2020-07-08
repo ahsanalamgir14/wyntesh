@@ -7,12 +7,14 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\Payout;
 use App\Models\Admin\Member;
+use App\Models\User\User;
 use App\Models\Admin\PayoutType;
 use App\Models\Admin\PayoutIncome;
 use App\Events\GenerateMonthlyPayoutEvent;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
+use App\Models\Admin\MemberMonthlyLegPv;
 
 use App\Models\User\Order;
 use App\Models\Superadmin\TransactionType;
@@ -150,6 +152,61 @@ class PayoutsController extends Controller
         }
    
         $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$PayoutIncome);
+        return response()->json($response, 200);
+    }
+
+    public function getGroupAndMatchingPvs(Request $request)
+    {   
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $member_id=$request->member_id;
+        $Member='';
+        
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if($member_id){
+            $User=User::where('username',$member_id)->first();
+            if($User){
+                $Member=$User->member->id;    
+            }else{
+                $response = array('status' => false,'message'=>"Member not found");
+                return response()->json($response, 404);
+            }
+            
+        }else{
+            $response = array('status' => false,'message'=>"Member Id is required.");
+            return response()->json($response, 400);
+        }
+
+        $distinct_months=MemberMonthlyLegPv::selectRaw('distinct(DATE_FORMAT(created_at,"%Y-%m")) as month')->orderBy('created_at','desc')->paginate($limit);
+
+        $monthly_pvs=array();
+        foreach ($distinct_months as $val) {
+            $date=date_create($val->month);
+            $month= date_format($date,"m");
+            $year= date_format($date,"Y");
+            $MemberMonthlyLegPv=MemberMonthlyLegPv::selectRaw('*')
+                ->whereYear('created_at', '=', $year)
+                ->whereMonth('created_at', '=', $month)
+            ->where('member_id',$Member)->get();  
+            $monthly_pvs[]=array('month'=>$val->month,'legs'=>$MemberMonthlyLegPv);
+        }
+        
+        $response = array('status' => true,'message'=>"Member Leg Pvs retrieved.",'data'=>$monthly_pvs,'total'=>count($distinct_months));
         return response()->json($response, 200);
     }
 

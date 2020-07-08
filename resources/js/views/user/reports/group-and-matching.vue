@@ -178,7 +178,6 @@ export default {
     },
     calculateGroupPV(legs){
       let group_pv=0;
-      console.log(legs);
       for (let key in legs) {
          group_pv+=parseFloat(legs[key].pv);
       }
@@ -195,30 +194,40 @@ export default {
     getMatched(legs){
       let pv=[];
       let group_pv=0;
-      for (let key in legs) {
-         pv.push(parseFloat(legs[key].pv));
-         group_pv+=parseFloat(legs[key].pv);
-      }
+
+      [0,1,2,3].forEach(function(key) {
+        pv.push(parseFloat(legs[key]?legs[key].pv:0));
+        group_pv+=parseFloat(legs[key]?legs[key].pv:0);
+      });
+
+      // for (let key in legs) {
+      //    pv.push(parseFloat(legs[key].pv));
+      //    group_pv+=parseFloat(legs[key].pv);
+      // }
        pv.sort();     
       return (group_pv-pv[3]);
     },
     getCarryForward(legs){
       let pv=[];
       let group_pv=0;
-      for (let key in legs) {
-         pv.push(parseFloat(legs[key].pv));
-         group_pv+=parseFloat(legs[key].pv);
-      }
+
+      [0,1,2,3].forEach(function(key) {
+        pv.push(parseFloat(legs[key]?legs[key].pv:0));
+        group_pv+=parseFloat(legs[key]?legs[key].pv:0);
+      });
+
        pv.sort();     
       return (pv[3]-pv[2]);
     },
     getCarryForwardLeg(legs){
       let pv=[];
       let group_pv=0;
-      for (let key in legs) {
-         pv.push(parseFloat(legs[key].pv));
-         group_pv+=parseFloat(legs[key].pv);
-      }
+
+      [0,1,2,3].forEach(function(key) {
+        pv.push(parseFloat(legs[key]?legs[key].pv:0));
+        group_pv+=parseFloat(legs[key]?legs[key].pv:0);
+      });
+      
       let carry_index=pv.indexOf(Math.max.apply(window,pv));
       if(carry_index==0){
         return 'A';

@@ -29,7 +29,7 @@ class DashboardController extends Controller
     	
         $MembersController=new MembersController;
         $total_group_bv=MemberMonthlyLegPv::where('member_id',$User->member->id)->sum('pv');
-        $total_matched=MemberPayout::where('member_id',$User->member->id)->sum('total_matched_bv');
+        $total_matched=$User->member->total_matched_bv;
     	$downlines=count($MembersController->getChildsOfParent($User->member->id));
         $referrals=$User->member->sponsored->count();
     	$total_purchase= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('final_amount'));

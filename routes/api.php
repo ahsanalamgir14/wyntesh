@@ -18,7 +18,7 @@ Route::get('/', function (Request $request) {
 });
 
 Route::get('mail', 'Auth\AuthController@mailCheck');
-Route::get('import', '\App\Http\Controllers\Admin\CronsController@Import');
+Route::get('import', '\App\Http\Controllers\Admin\CronsController@PVImport');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
@@ -324,6 +324,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('payout-incomes/member', 'PayoutsController@getMemberPayoutIncomes');
     Route::get('income-holdings/member', 'PayoutsController@getMemberIncomeHoldings');
     Route::post('payout/release/member-holding', 'PayoutsController@releaseMemberHoldPayout');
+    Route::get('group-and-matching-pvs', 'PayoutsController@getGroupAndMatchingPvs');
 
     Route::get('tds/member', 'PayoutsController@getMemberTDS');
 });

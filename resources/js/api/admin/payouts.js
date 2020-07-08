@@ -63,3 +63,11 @@ export function releaseMemberHoldPayout(data) {
     data
   })
 }
+
+export function getGroupAndMatchingPvs(query) {
+  return request({
+    url: '/admin/group-and-matching-pvs',
+    method: 'get',
+    params: query
+  })
+}
