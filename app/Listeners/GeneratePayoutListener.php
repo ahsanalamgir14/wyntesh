@@ -23,7 +23,7 @@ use App\Models\Superadmin\TransactionType;
 use App\Http\Controllers\User\MembersController;
 use Illuminate\Support\Facades\Log;
 use DB;
-
+use Carbon\Carbon;
 class GeneratePayoutListener 
 {
     /**
@@ -617,6 +617,7 @@ class GeneratePayoutListener
         $payout->total_payout=$total_payout_amount;
         $payout->tds=$total_tds;
         $payout->admin_fee=$total_admin_fee;
+        $payout->ended_at=Carbon::now();
         $payout->save();
 
     }

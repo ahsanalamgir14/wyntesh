@@ -59,6 +59,7 @@ class CronsController extends Controller
         $Payout->tds=0;
         $Payout->sales_amount=0;
         $Payout->total_payout=0;
+        $Payout->started_at=Carbon::now();
         $Payout->save();
 
         foreach ($incomes as $income) {

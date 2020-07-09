@@ -26,6 +26,8 @@ class CreatePayoutsTable extends Migration
             $table->decimal('total_payout', 10, 2)->default(0);
             $table->decimal('tds', 10, 2)->default(0);
             $table->decimal('admin_fee', 10, 2)->default(0);
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
             $table->timestamps();
         });
     }
