@@ -24,7 +24,7 @@ use App\Http\Controllers\User\MembersController;
 use Illuminate\Support\Facades\Log;
 use DB;
 
-class GeneratePayoutListener
+class GeneratePayoutListener 
 {
     /**
      * Create the event listener.
@@ -203,15 +203,17 @@ class GeneratePayoutListener
                 // matching point value calculation for various income
                 if($income->code=='CONSISTENCY'){
                     
-                    $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
+                    // $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
 
-                    $booster_matched_bv=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->sum('total_matched_bv');
+                    // $booster_matched_bv=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->sum('total_matched_bv');
 
-                    $booster_member_ids=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->get()->pluck('member_id');
+                    // $booster_member_ids=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->get()->pluck('member_id');
 
-                    $matched_bv=Member::where('total_matched_bv','>=',$matching_pv)->whereNotIn('id',$booster_member_ids)->sum('total_matched_bv');
+                    // $matched_bv=Member::where('total_matched_bv','>=',$matching_pv)->whereNotIn('id',$booster_member_ids)->sum('total_matched_bv');
+
+                    $matched_bv=Member::where('total_matched_bv','>=',$matching_pv)->sum('total_matched_bv');
                     
-                    $all_matched=$matched_bv+$booster_matched_bv;
+                    $all_matched=$matched_bv;
 
                     $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
 
@@ -356,14 +358,16 @@ class GeneratePayoutListener
 
                         $ConsistencyIncomeParameter=IncomeParameter::where('income_id',$PayoutIncome->income_id)->where('name','matching_pv')->first();
 
-                        $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
+                        // $booster_ids=Member::whereBetween('created_at',[$payout->sales_start_date,$payout->sales_end_date])->get()->pluck('id');
 
-                        $booster_member_ids=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->get()->pluck('id')->toArray();
+                        // $booster_member_ids=Member::where('total_matched_bv','>=',15000)->whereIn('id',$booster_ids)->get()->pluck('id')->toArray();
 
 
-                        $consistency_eligible=Member::where('total_matched_bv','>=',$ConsistencyIncomeParameter->value_1)->whereNotIn('id',$booster_member_ids)->get()->pluck('id')->toArray();
+                        // $consistency_eligible=Member::where('total_matched_bv','>=',$ConsistencyIncomeParameter->value_1)->whereNotIn('id',$booster_member_ids)->get()->pluck('id')->toArray();
 
-                        $eligible_members=array_merge($booster_member_ids,$consistency_eligible);
+                         $consistency_eligible=Member::where('total_matched_bv','>=',$ConsistencyIncomeParameter->value_1)->pluck('id')->toArray();
+
+                        $eligible_members=$consistency_eligible;
 
                         if(in_array($Member->id, $eligible_members)){
                             $payout_amount=$MemberPayout->total_matched_bv*$PayoutIncome->income_payout_parameter_1_value;

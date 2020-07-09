@@ -39,10 +39,13 @@ class CronsController extends Controller
     }
 
     public function generateMonthlyPayout(){
-      $dt = Carbon::now();
-      $dt->modify('-2 months');
-      $from= $dt->firstOfMonth()->toDateString('Y-m-d');
-      $to= $dt->endOfMonth()->toDateString('Y-m-d');
+      // $dt = Carbon::now();
+      // $dt->modify('-2 months');
+      // $from= $dt->firstOfMonth()->toDateString('Y-m-d');
+      // $to= $dt->endOfMonth()->toDateString('Y-m-d');
+
+        $from='2020-06-23';
+        $to='2020-07-03';
       $incomes=Income::all();
 
       $PayoutType=PayoutType::where('name','Monthly')->first();

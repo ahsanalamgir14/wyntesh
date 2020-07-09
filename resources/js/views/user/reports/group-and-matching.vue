@@ -181,7 +181,7 @@ export default {
       for (let key in legs) {
          group_pv+=parseFloat(legs[key].pv);
       }
-      return group_pv;
+      return Math.round(group_pv);
     },
     getPositionPV(legs,position){
       let pv=0;
@@ -204,8 +204,10 @@ export default {
       //    pv.push(parseFloat(legs[key].pv));
       //    group_pv+=parseFloat(legs[key].pv);
       // }
-       pv.sort();     
-      return (group_pv-pv[3]);
+      pv.sort(function(a, b) {
+        return a - b;
+      });     
+      return Math.round((group_pv-pv[3]));
     },
     getCarryForward(legs){
       let pv=[];
@@ -216,8 +218,10 @@ export default {
         group_pv+=parseFloat(legs[key]?legs[key].pv:0);
       });
 
-       pv.sort();     
-      return (pv[3]-pv[2]);
+      pv.sort(function(a, b) {
+        return a - b;
+      });     
+      return Math.round((pv[3]-pv[2]));
     },
     getCarryForwardLeg(legs){
       let pv=[];
