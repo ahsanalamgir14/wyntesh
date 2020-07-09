@@ -14,45 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $permissions=[
-           [
-               'name' => 'role-read'
-           ],
-       ];
-
-       $roles=[
-           
-           [
-               'name' => 'superadmin'
-           ],
-           [
-               'name' => 'admin'
-           ]
-           ,
-           [
-               'name' => 'user'
-           ]
-       ];
-
-
-        $user=[
-           
-               'name' => 'Super Admin',
-               'username' => 'superadmin',
-               'email' => 'sadmin@admin.com',
-               'contact' => '9724332304',
-               'password' => bcrypt('123456')     
-       	];
-       	
-       	foreach ($permissions as $key=>$value){
-        	Permission::create($value);
-      	}
-
-       	foreach ($roles as $key=>$value){
-        	Role::create($value);
-      	}
-
-       	$user=User::create($user);
-       	$user->assignRole('superadmin');
+       $files_arr = scandir( dirname(__FILE__) ); //store filenames into $files_array
+       // dd($files_arr);
+            foreach ($files_arr as $key => $file){
+                if ($file !== 'DatabaseSeeder.php' && $file[0] !== "." ){
+                $this->call(explode('.', $file)[0] );
+                }
+            }
     }
 }
