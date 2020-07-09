@@ -44,8 +44,8 @@ class CronsController extends Controller
       // $from= $dt->firstOfMonth()->toDateString('Y-m-d');
       // $to= $dt->endOfMonth()->toDateString('Y-m-d');
 
-        $from='2020-06-23';
-        $to='2020-07-03';
+        $from='2020-06-01';
+        $to='2020-07-01';
       $incomes=Income::all();
 
       $PayoutType=PayoutType::where('name','Monthly')->first();
@@ -91,39 +91,48 @@ class CronsController extends Controller
 
                $member_total_bv=$data->june;
 
-                $path=$Member->path;
-                $position=$Member->position;
+               $Sale=new Sale;
+               $Sale->member_id=$Member->id;
+               $Sale->order_id=1;
+               $Sale->is_withhold_purchase=0;
+               $Sale->pv=$member_total_bv;
+               $Sale->created_at='2020-06-05';
+               $Sale->final_amount_company=$member_total_bv*4;
+               $Sale->save();
 
-                $uplines=explode('/', $path);        
-                $uplines=array_reverse($uplines);
-                $uplines=array_filter($uplines, 'strlen');            
-                array_shift($uplines);
+                // $path=$Member->path;
+                // $position=$Member->position;
 
-                $year=date('2020');
-                $month=date('06');
+                // $uplines=explode('/', $path);        
+                // $uplines=array_reverse($uplines);
+                // $uplines=array_filter($uplines, 'strlen');            
+                // array_shift($uplines);
 
-                foreach ($uplines as $upline) {
-                    $MembersLegPv=MemberMonthlyLegPv::where('member_id',$upline)->where('position',$position)
-                        ->whereYear('created_at', '=', $year)
-                        ->whereMonth('created_at', '=', $month)
-                        ->first();
-                    $UplineMember=Member::where('id',$upline)->first();
+                // $year=date('2020');
+                // $month=date('06');
+
+                // foreach ($uplines as $upline) {
+                //     $MembersLegPv=MemberMonthlyLegPv::where('member_id',$upline)->where('position',$position)
+                //         ->whereYear('created_at', '=', $year)
+                //         ->whereMonth('created_at', '=', $month)
+                //         ->first();
+                //     $UplineMember=Member::where('id',$upline)->first();
                   
-                    if($MembersLegPv){                    
-                        //$MembersLegPv->current_pv+=$member_total_bv;
-                        $MembersLegPv->pv+=$member_total_bv;
-                        $MembersLegPv->save();
-                    }else{
-                        $MembersLegPv=new MemberMonthlyLegPv;
-                        $MembersLegPv->member_id=$upline;
-                        $MembersLegPv->position=$position;
-                        //$MembersLegPv->current_pv=$member_total_bv;
-                        $MembersLegPv->pv=$member_total_bv;
-                        $MembersLegPv->created_at='2020-06-05';
-                        $MembersLegPv->save();
-                    }
-                    $position=$UplineMember->position;
-                } 
+                //     if($MembersLegPv){                    
+                //         //$MembersLegPv->current_pv+=$member_total_bv;
+                //         $MembersLegPv->pv+=$member_total_bv;
+                //         $MembersLegPv->save();
+                //     }else{
+                //         $MembersLegPv=new MemberMonthlyLegPv;
+                //         $MembersLegPv->member_id=$upline;
+                //         $MembersLegPv->position=$position;
+                //         //$MembersLegPv->current_pv=$member_total_bv;
+                //         $MembersLegPv->pv=$member_total_bv;
+                //         $MembersLegPv->created_at='2020-06-05';
+                //         $MembersLegPv->save();
+                //     }
+                //     $position=$UplineMember->position;
+                // } 
             }
             
         }
