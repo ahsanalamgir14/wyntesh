@@ -4,10 +4,10 @@ export default {
   /**
    * @type {String}
    */
-  title: 'Vision4U',
+  title: 'Wyntash',
   theme: variables.theme,
   totalLegs:4,
-  baseUrl:'http://localhost:8000/',
+  baseUrl:'https://business.wyntash.in/',
   /**
    * @type {boolean} true | false
    * @description Whether show the settings right-panel
