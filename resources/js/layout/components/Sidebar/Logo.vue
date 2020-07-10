@@ -2,42 +2,42 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <img  v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 v-else class="sidebar-title">{{settings.company_name}} </h1>
+        <img v-if="logo" :src="logo" class="sidebar-logo">
+        <h1 v-else class="sidebar-title">{{ settings.company_name }} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 class="sidebar-title">{{settings.company_name}} </h1>
+        <h1 class="sidebar-title">{{ settings.company_name }} </h1>
       </router-link>
     </transition>
   </div>
 </template>
 
 <script>
-import logo from '@/assets/images/hader_logo.png'
-import { getPublicSettings } from "@/api/user/settings";
+import logo from '@/assets/images/hader_logo.png';
+import { getPublicSettings } from '@/api/user/settings';
 
 export default {
   name: 'SidebarLogo',
   props: {
     collapse: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
+  },
+  data() {
+    return {
+      settings: {},
+      title: 'MLM World',
+      logo: logo,
+    };
   },
   created() {
     getPublicSettings().then(response => {
       this.settings = response.data;
     });
   },
-  data() {
-    return {
-      settings:{},
-      title: 'MLM World',
-      logo: logo
-    }
-  }
-}
+};
 </script>
 
 <style lang="scss" scoped>

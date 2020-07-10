@@ -1,24 +1,24 @@
 <template>
   <el-row>
-    <el-col  :xs="24" :sm="24" :md="10" :lg="10" :xl="10" >
-      <div class="welcome-container"> 
+    <el-col :xs="24" :sm="24" :md="10" :lg="10" :xl="10">
+      <div class="welcome-container">
         <div class="logo-text">
-          <img  v-if="logo" :src="logo" class="sidebar-logo">
-          <h2>Welcome to {{settings.company_name}}</h2>
+          <img v-if="logo" :src="logo" class="sidebar-logo">
+          <h2>Welcome to {{ settings.company_name }}</h2>
         </div>
         <!-- <div class="footer">
           <a href="http://infex.in" target="_self">Home</a>
           <a href="http://infex.in" target="_self">Contact</a>
         </div> -->
       </div>
-      
+
     </el-col>
-    <el-col  :xs="24" :sm="24" :md="14" :lg="14" :xl="14" >
+    <el-col :xs="24" :sm="24" :md="14" :lg="14" :xl="14">
       <div class="login-container">
         <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
           <h3 class="title">
             {{ $t('login.title') }}
-          </h3>      
+          </h3>
           <el-form-item prop="username">
             <span class="svg-container">
               <svg-icon icon-class="user" />
@@ -30,7 +30,8 @@
               <svg-icon icon-class="password" />
             </span>
             <el-input
-              v-model="loginForm.password"LangSelect
+              v-model="loginForm.password"
+              lang-select
               :type="pwdType"
               name="password"
               auto-complete="on"
@@ -43,24 +44,24 @@
           </el-form-item>
           <el-form-item class="item-btn">
             <router-link to="/forgot-password">Forgot Password ?</span></router-link>
-            <el-button :loading="loading"  icon="el-icon-unlock" type="primary"  @click.native.prevent="handleLogin">
+            <el-button :loading="loading" icon="el-icon-unlock" type="primary" @click.native.prevent="handleLogin">
               Sign in
             </el-button>
-          </el-form-item>  
+          </el-form-item>
           <el-form-item class="register-btn">
             <router-link to="/register">Are you not a member yet ? <span>Register here.</span></router-link>
-          </el-form-item>     
+          </el-form-item>
         </el-form>
       </div>
     </el-col>
-    
+
   </el-row>
 </template>
 
 <script>
 import { validEmail } from '@/utils/validate';
-import logo from '@/assets/images/logo.png'
-import { getPublicSettings } from "@/api/user/settings";
+import logo from '@/assets/images/logo.png';
+import { getPublicSettings } from '@/api/user/settings';
 
 export default {
   name: 'Login',
@@ -86,10 +87,10 @@ export default {
       },
       logo: logo,
       loginRules: {
-        username: [{ required: true, trigger: 'blur', message: 'Username is required', }],
+        username: [{ required: true, trigger: 'blur', message: 'Username is required' }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
       },
-      settings:{},
+      settings: {},
       loading: false,
       pwdType: 'password',
       redirect: undefined,
@@ -125,7 +126,7 @@ export default {
               this.$router.push({ path: this.redirect || '/' });
               this.loading = false;
               const recaptcha = this.$recaptchaInstance;
-              recaptcha.hideBadge()
+              recaptcha.hideBadge();
             })
             .catch((error) => {
               this.loading = false;
@@ -187,7 +188,7 @@ $light_gray:#eee;
       padding: 12px 5px 12px 15px;
       color: #495057;
       height: 47px;
-      
+
       &:-webkit-autofill {
         -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
         -webkit-text-fill-color: #454545 !important;
@@ -204,9 +205,9 @@ $light_gray:#eee;
     border:none;
     width:100%;
     .el-button{
-      float:right;  
+      float:right;
     }
-    
+
   }
   .register-btn{
     border:none;
@@ -225,7 +226,7 @@ $bg:#2d3a4b;
 $dark_gray:#889aa4;
 $light_gray:#eee;
 .login-container {
-   
+
   .login-form {
 
     width: 520px;

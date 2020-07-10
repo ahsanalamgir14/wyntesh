@@ -17,9 +17,7 @@
     "lint": "eslint --ext .js,.vue resources/js"
   },
   "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+    
   },
   "lint-staged": {
     "resources/**/*.{js,vue}": [
