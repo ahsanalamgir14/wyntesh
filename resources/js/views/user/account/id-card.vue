@@ -8,7 +8,7 @@
           <div class="id-card-holder">
             <div class="id-card">
               <div class="header">
-                <img src="@/assets/images/logo.png" >
+                <img src="@/assets/images/dark_logo.png" >
               </div>
               <h2>{{company_details.company_name}}</h2>
               <div class="photo">
@@ -57,10 +57,10 @@ export default {
   },
   created() {
     getWelcomeLetter().then(response => {
-      if(response.data){
-        this.temp = response.data; 
         this.user_details=response.user;
         this.company_details=response.company_details;
+      if(response.data){
+        this.temp = response.data; 
         this.hashTags();
       }      
     });
@@ -128,7 +128,7 @@ export default {
       margin: 0 auto;
     }
     .header img {
-      width: 50px;
+      width: 87px;
         margin-top: 15px;
     }
     .photo img {
