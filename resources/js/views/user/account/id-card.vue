@@ -12,7 +12,13 @@
               </div>
               <h2>{{company_details.company_name}}</h2>
               <div class="photo">
-                <img src="@/assets/images/avatar.png">
+                <div v-if="user_details.profile_picture!='' ">
+                    <img :src="user_details.profile_picture">
+                </div>
+                <div v-else>
+                    <img src="@/assets/images/avatar.png">
+                </div>
+
               </div>
               <h2>{{user_details.name}}</h2>
               <h2>{{user_details.username}}</h2>
@@ -134,6 +140,7 @@ export default {
     .photo img {
       width: 80px;
         margin-top: 15px;
+        border-radius: 50px;
     }
     h2 {
       font-size: 15px;
