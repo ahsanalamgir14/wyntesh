@@ -1,6 +1,6 @@
 <?php
 use Illuminate\Database\Seeder;
-use App\Models\Superadmin\Status;
+use App\Models\Superadmin\Status ;
 
 class statuses extends Seeder
 {

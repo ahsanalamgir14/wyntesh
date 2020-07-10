@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import logo from '@/assets/images/logo.png'
+import logo from '@/assets/images/hader_logo.png'
 import { getPublicSettings } from "@/api/user/settings";
 
 export default {

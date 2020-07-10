@@ -81,6 +81,7 @@ class userSeeder extends Seeder
     	
     	$kyc=[
        		'member_id' => 1,
+          'verification_status' => "pending",
         ];
        	
        	foreach ($permissions as $key=>$value){
@@ -93,9 +94,9 @@ class userSeeder extends Seeder
 
        	foreach ($user as $key=>$value){
         	$users = User::create($value);
-       		if($key == 1){
+       		if($key == 0){
        			$users->assignRole('superadmin');
-       		}else if($key == 2){
+       		}else if($key == 1){
 				$users->assignRole('admin');
        		}else{
        			$users->assignRole('user');
