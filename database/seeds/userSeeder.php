@@ -70,7 +70,7 @@ class userSeeder extends Seeder
            	'position' => '',
            	'sponsor_id' => '',
            	'parent_id' => '',
-           	'path' => '\1',
+           	'path' => '/1',
            	'wallet_balance' => 1336,
            	'current_personal_pv' => '0.00',
            	'total_personal_pv' => '0.00',

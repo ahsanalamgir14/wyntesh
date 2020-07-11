@@ -31,7 +31,7 @@ class CreateOrdersTable extends Migration
             $table->string('tracking_no',32)->nullable();
             $table->string('delivery_status',32)->nullable();
             $table->boolean('is_withhold_purchase')->default(0)->nullable();
-            $table->bigInteger('payout_id');
+            $table->bigInteger('payout_id')->nullable();
             $table->decimal('pv', 8, 2)->default(0)->nullable();
             $table->string('remarks',1024)->nullable();
             $table->bigInteger('billing_address_id')->nullable();            

@@ -144,7 +144,7 @@ class ShoppingController extends Controller
 
     public function updateOrder(Request $request){
         $User=JWTAuth::user();
-        $validate = Validator::make($request->all(), [           
+        $validate = Validator::make($request->all(), [        
             'delivery_status' => "required",
             'id' => "required|integer",
         ]);

@@ -453,7 +453,7 @@ class MembersController extends Controller
         $Member->position=$request->position;
         $Member->sponsor_id=$Sponsor->member->id;
         $Member->parent_id=$Parent->id;
-        
+        $Member->rank_id=1;
         $Member->level=$level;
         $Member->wallet_balance=0;
         $Member->save();

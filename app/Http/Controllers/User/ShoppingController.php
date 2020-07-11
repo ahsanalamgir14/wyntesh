@@ -284,7 +284,7 @@ class ShoppingController extends Controller
             $Order->discount=$discount;
             $Order->gst=$total_gst;
             $Order->shipping_fee=$shipping;
-            $Order->payout_id=$request->payout_id;
+            $Order->payout_id=$request->payout_id?1:0;
             $Order->is_withhold_purchase=$request->payout_id?1:0;
             $Order->admin_fee=$admin;
             $Order->final_amount=$grand_total;
