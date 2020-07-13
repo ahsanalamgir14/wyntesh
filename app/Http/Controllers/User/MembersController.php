@@ -508,7 +508,7 @@ class MembersController extends Controller
             'contact'=>$request->contact,
             'gender'=>$request->gender,
             'dob'=>$request->dob,
-            'is_active'=>0,
+            'is_active'=>1,
             'verified_at'=>Carbon::now()
         ]);
 
@@ -531,7 +531,7 @@ class MembersController extends Controller
         $Member->position=$request->position;
         $Member->sponsor_id=$Sponsor->member->id;
         $Member->parent_id=$Parent->member->id;
-        
+        $Member->rank_id=1;
         $Member->level=$level;
         $Member->wallet_balance=0;
         $Member->save();
