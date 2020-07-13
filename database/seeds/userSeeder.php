@@ -61,6 +61,7 @@ class userSeeder extends Seeder
                	'email' => 'service@mlmworld.in',
                	'contact' => '9099701652',
                	'password' => bcrypt('123456'),
+                'is_active' => 1,
                	'verified_at'=>date("y-m-d h:i:s")
        		],
        	];
@@ -71,10 +72,10 @@ class userSeeder extends Seeder
            	'sponsor_id' => '',
            	'parent_id' => '',
            	'path' => '/1',
-           	'wallet_balance' => 1336,
+           	'wallet_balance' => 100000,
            	'current_personal_pv' => '0.00',
            	'total_personal_pv' => '0.00',
-           	'total_matched_bv' => 71029,
+           	'total_matched_bv' => 0,
            	'rank_id' => 1,
            	'level' => 0
        	];

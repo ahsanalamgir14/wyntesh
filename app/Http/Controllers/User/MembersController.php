@@ -439,7 +439,7 @@ class MembersController extends Controller
             'contact'=>$request->contact,
             'gender'=>$request->gender,
             'dob'=>$request->dob,
-            'is_active'=>0,
+            'is_active'=>1,
             'verified_at'=>Carbon::now()
         ]);
 
