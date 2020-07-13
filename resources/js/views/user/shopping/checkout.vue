@@ -9,7 +9,7 @@
     <el-row :gutter="10" v-if="step==0" style="margin-top: 20px;">
       <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
         <el-form ref="pinTransferForm" label-position="top" :model="payout">
-          <el-row :gutter="20">
+         <!--  <el-row :gutter="20">
             <el-col  :xs="24" :sm="24" :md="5" :lg="5" :xl="5" >
               <el-form-item label="Payout You want to release" prop="payout_id">            
                 <el-select v-model="payout.payout_id" @change="handleChangePayout"  clearable  style="width:200px;" filterable placeholder="Select Payout">
@@ -42,7 +42,7 @@
                 />
               </el-form-item>
             </el-col>
-          </el-row>
+          </el-row> -->
         </el-form>
       </el-col>
       <el-col  :xs="24" :sm="24" :md="16" :lg="16" :xl="16" >
@@ -75,7 +75,7 @@
               <el-input style="width: 80px;" v-model="product.qty" @change="updateCartQty(product.product_id,product.qty)" type="number"  min="1"  :max="product.products.stock" />
             </div>
             <div class="total-price">{{product.products.pv*product.qty}} PV</div>
-            <div class="total-price">₹ {{product.products.dp_amount*product.qty}}</div>
+            <div class="total-price">₹ {{product.products.retail_amount*product.qty}}</div>
           </div>
         </div>
       </el-col>
@@ -108,12 +108,12 @@
             </div>         
             <div class="cal-amount"><span>₹ {{temp.admin}}</span></div>
           </div>
-          <div class="calculations">
+         <!--  <div class="calculations">
             <div class="cal-title">
               <span>Distributor Discount</span>
             </div>         
             <div class="cal-amount"><span>₹ {{temp.distributor_discount}}</span></div>
-          </div>
+          </div> -->
           <!-- <div class="calculations">
             <div class="cal-title">
               <span>Product Discount</span>
@@ -551,9 +551,9 @@ export default {
     calculateFinal() {
       this.resetTemp();
         this.cartProducts.forEach((cart)=>{
-          this.temp.subtotal+=parseFloat(cart.products.dp_base)*parseInt(cart.qty);
-          this.temp.distributor_discount+=parseFloat(cart.products.retail_amount-cart.products.dp_amount)*parseInt(cart.qty);
-          this.temp.total_gst+=parseFloat(cart.products.dp_gst)*parseInt(cart.qty);
+          this.temp.subtotal+=parseFloat(cart.products.retail_base)*parseInt(cart.qty);
+          this.temp.distributor_discount+=parseFloat(cart.products.retail_amount-cart.products.retail_amount)*parseInt(cart.qty);
+          this.temp.total_gst+=parseFloat(cart.products.retail_gst)*parseInt(cart.qty);
           this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
           this.temp.discount+=parseFloat(cart.products.discount_amount)*parseInt(cart.qty);

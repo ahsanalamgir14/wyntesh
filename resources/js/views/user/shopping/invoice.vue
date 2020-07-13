@@ -9,7 +9,7 @@
             
               <tr class="item-row" >
                   <td class="item-name" style="border: none;">
-                     <img id="image" src="images/logo.png" height="150px"   alt="logo" /><br>
+                     <img id="image" src="images/dark_logo.png" height="150px"   alt="logo" style="width: 50% !important;height: 50% !important;" /><br>
                     <span style="font-size: 18px;font-weight: bold;">{{company_details.company_name}}</span><br><br>
                     {{company_details.address}}<br>
                     {{company_details.city}}<br>
@@ -68,8 +68,8 @@
             <tr>
                 <th>Product</th>                
                 <th>MRP</th>
-                <th>DP</th>
-                <th>Discount</th>
+                <!-- <th>retail</th> -->
+                <!-- <th>Discount</th> -->
                 <th>Quantity</th>
                 <th>PV</th>
                 <th>GST</th>
@@ -79,22 +79,22 @@
             
             <tr class="item-row"  v-for="product in order.products" :key="product.id">
                 <td class="item-name"><div>{{product.product.name}}</div></td>
-                
-                <td class="cost"><div >{{product.product.retail_amount}}</div></td>
-                <td class="cost"><div >{{product.product.dp_amount}}</div></td>
-                <td class="cost"><div >{{product.product.retail_amount-product.product.dp_amount}}</div></td>
+                <td class="cost"><div >{{product.amount}}</div></td>
+                <!-- <td class="cost"><div >{{product.product.retail_amount}}</div></td> -->
+                <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
                 <td class="qty"><div >{{product.qty}}</div></td>
-                <td class="description"><div>{{product.product.pv}}</div></td>
-                <td class="description"><div>{{product.product.dp_gst}}</div></td>
-                <td class="description"><div>{{product.product.dp_gst_rate}}</div></td>
-                <td class="total"><div >{{product.product.dp_amount*product.qty}}</div></td>
+                <td class="description"><div>{{product.pv}}</div></td>
+                <td class="description"><div>{{product.gst}}</div></td>
+                <td class="description"><div>{{product.gst_rate}}</div></td>
+
+                <td class="total"><div >{{product.final_amount*product.qty}}</div></td>
             </tr>
 
             <tr>
-              <td colspan="9"  style="padding-top:40px;border-top: none"></td>
+              <td colspan="7"  style="padding-top:40px;border-top: none"></td>
             </tr>
             <tr>
-                <td colspan="5" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
+                <td colspan="3" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
                 <td colspan="3" class="total-line">Base Price Total</td>
                 <td class="total-value"><div id="subtotal">{{order.amount}}</div></td>
             </tr>
@@ -104,14 +104,13 @@
                 <td class="total-value"><div id="total">{{order.gst}}</div></td>
             </tr>
             <tr>
-                <td colspan="5" class="blank"> </td>
+                <td colspan="3" class="blank"> </td>
                 <td colspan="3" class="total-line">Shipping</td>
 
                 <td class="total-value"><div id="paid">{{order.shipping_fee}}</div></td>
             </tr>
             <tr>
-                <td colspan="5" class="blank" rowspan="2"> <b>Terms & Condition</b>
-                  Thanks for choosing Vision4u Biznet Marketing Private Limited !,If you have any question about your order , don't hestitate to connect with us at info.vision4ubiz@gmail.com or give us a call at 8707339573 .10 A.M. to 6 P.M. Mon - Sat.
+                <td colspan="3" class="blank" rowspan="2"> 
                 </td>
                 <td colspan="3" class="total-line">Admin Charge</td>
 

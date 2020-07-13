@@ -64,6 +64,16 @@ class TransactionTypes extends Seeder
                	'is_active' 		=> '1',
                	'created_at' 		=> date('Y-m-d')
            ],
+           [
+                'name'        => 'Cashback Income',
+                'is_active'     => '1',
+                'created_at'    => date('Y-m-d')
+           ],
+           [
+                'name'        => 'Cashback Refund',
+                'is_active'     => '1',
+                'created_at'    => date('Y-m-d')
+           ],
         ];
 
 

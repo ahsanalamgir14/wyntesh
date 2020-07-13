@@ -60,6 +60,7 @@ class ShoppingController extends Controller
 
     public function getMyOrders(Request $request)
     {
+
         $user=JWTAuth::user();
         $page=$request->page;
         $limit=$request->limit;
@@ -236,14 +237,15 @@ class ShoppingController extends Controller
         $distributor_discount=0;
 
         foreach ($Cart as $item) {
-            $subtotal+=floatval($item->products->dp_base)*intval($item->qty);
-            $total_gst+=floatval($item->products->dp_gst)*intval($item->qty);
+            $subtotal+=floatval($item->products->retail_base)*intval($item->qty);
+            $total_gst+=floatval($item->products->retail_gst)*intval($item->qty);
             //$shipping+=floatval($item->products->shipping_fee)*intval($item->qty);
             $admin+=floatval($item->products->admin_fee)*intval($item->qty);
             $discount+=floatval($item->products->discount_amount)*intval($item->qty);
             $pv+=floatval($item->products->pv?:0)*intval($item->qty);
             $grand_total=$subtotal+$total_gst+$shipping+$admin-$discount;
-            $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->dp_amount)*intval($item->qty));
+            $distributor_discount=0;
+            // $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->retail_amount)*intval($item->qty));
         }
 
          if($grand_total>=1500){
@@ -302,8 +304,8 @@ class ShoppingController extends Controller
                 $OrderProduct=new OrderProduct;
                 $OrderProduct->order_id=$Order->id;
                 $OrderProduct->product_id=$item->products->id;
-                $OrderProduct->amount=floatval($item->products->dp_base)*intval($item->qty);
-                $OrderProduct->gst=floatval($item->products->dp_gst)*intval($item->qty);
+                $OrderProduct->amount=floatval($item->products->retail_base)*intval($item->qty);
+                $OrderProduct->gst=floatval($item->products->retail_gst)*intval($item->qty);
                 $OrderProduct->gst_rate=$item->products->gst_rate;
                 $OrderProduct->shipping_fee=floatval($item->products->shipping_fee)*intval($item->qty);
                 $OrderProduct->admin_fee=floatval($item->products->admin_fee)*intval($item->qty);

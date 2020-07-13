@@ -39,7 +39,7 @@
               <el-input style="width: 80px;" v-model="product.qty" @change="updateCartQty(product.product_id,product.qty)" type="number"  min="1"  :max="product.products.stock" />
             </div>
          
-            <div class="total-price">₹ {{product.products.dp_amount*product.qty}}</div>
+            <div class="total-price">₹ {{product.products.retail_amount*product.qty}}</div>
           </div>
           <div class="empty-cart" v-if="cartProducts.length == 0">
               <h2 style="text-align: center;">Your cart is empty, buy something.</h2>
@@ -77,12 +77,12 @@
             </div>         
             <div class="cal-amount"><span>₹ {{temp.admin}}</span></div>
           </div>
-          <div class="calculations">
+        <!--   <div class="calculations">
             <div class="cal-title">
               <span>Distributor Discount</span>
             </div>         
             <div class="cal-amount"><span>₹ {{temp.distributor_discount}}</span></div>
-          </div>
+          </div> -->
          <!--  <div class="calculations">
             <div class="cal-title">
               <span>Product Discount</span>
@@ -219,9 +219,9 @@ export default {
     calculateFinal() {
       this.resetTemp();
         this.cartProducts.forEach((cart)=>{
-          this.temp.subtotal+=parseFloat(cart.products.dp_base)*parseInt(cart.qty);
-          this.temp.distributor_discount+=parseFloat(cart.products.retail_amount-cart.products.dp_amount)*parseInt(cart.qty);
-          this.temp.total_gst+=parseFloat(cart.products.dp_gst)*parseInt(cart.qty);
+          this.temp.subtotal+=parseFloat(cart.products.retail_base)*parseInt(cart.qty);
+          // this.temp.distributor_discount+=parseFloat(cart.products.retail_amount-cart.products.dp_amount)*parseInt(cart.qty);
+          this.temp.total_gst+=parseFloat(cart.products.retail_gst)*parseInt(cart.qty);
           // this.temp.shipping+=parseFloat(cart.products.shipping_fee)*parseInt(cart.qty);
           this.temp.admin+=parseFloat(cart.products.admin_fee)*parseInt(cart.qty);
           this.temp.discount+=parseFloat(cart.products.discount_amount)*parseInt(cart.qty);

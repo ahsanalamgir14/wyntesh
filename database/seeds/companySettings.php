@@ -32,6 +32,10 @@ class companySettings extends Seeder
            [
                'key' => 'admin_fee_percent',
                'value' => '3'
+           ],
+           [
+               'key' => 'cashback_percent',
+               'value' => '5'
            ]
        ];
 

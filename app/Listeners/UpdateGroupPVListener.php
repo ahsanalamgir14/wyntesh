@@ -61,7 +61,7 @@ class UpdateGroupPVListener implements ShouldQueue
                 
                 $MemberMonthlyLegPv->save();
             }else{
-                Log::info('PV - '.$order->pv);
+                // Log::info('PV - '.$order->pv);
                 $MemberMonthlyLegPv=new MemberMonthlyLegPv;
                 $MemberMonthlyLegPv->member_id=$upline;
                 $MemberMonthlyLegPv->position=$position;

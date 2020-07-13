@@ -172,6 +172,7 @@
                    
                       <div class="total-price">₹ {{product.final_amount}}</div>
                     </div>
+
                     <div class="item"  v-for="pack in temp.packages" :key="pack.id">
                       
                       <div class="image" v-lazy-container="{ selector: 'img' }">
@@ -189,6 +190,8 @@
                    
                       <div class="total-price">₹ {{pack.final_amount}}</div>
                     </div>
+
+                    
                   </div>
                 </el-col>
                 <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >

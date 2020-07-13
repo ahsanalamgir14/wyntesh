@@ -14,6 +14,7 @@ use App\Models\Admin\Pin;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WalletTransaction;
 use App\Http\Controllers\User\MembersController;
+use App\Models\Superadmin\TransactionType;
 use JWTAuth;
 use Carbon\Carbon;
 use DB;
@@ -41,6 +42,9 @@ class DashboardController extends Controller
         $balance=floatval($User->member->wallet_balance);
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
 
+        $TransactionType=TransactionType::where('name','Cashback Income')->first();
+        $cashback_income=WalletTransaction::where('member_id',$User->member->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
+        
         $response = array(
             'status' => true,
             'message'=>'Stats recieved',
@@ -58,6 +62,7 @@ class DashboardController extends Controller
                 'total_group_bv'=>$total_group_bv,
                 'total_matched'=>$total_matched,
                 'distributor_discount'=>$distributor_discount,
+                'cashback_income'=>$cashback_income,
             )
         );             
         return response()->json($response, 200);

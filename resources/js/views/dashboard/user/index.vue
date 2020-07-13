@@ -53,7 +53,7 @@
       </el-col>
       <el-col :xs="24" :sm="24" :md="18" :lg="18" >
         <el-row :gutter="10" class="panel-group">
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+         <!--  <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/network/downlines">
               <div class="card-panel gr14" >
                 <div class="card-panel-icon-wrapper " >
@@ -83,7 +83,24 @@
                 </div>
               </div>
             </router-link>
-          </el-col>
+          </el-col> -->
+            <el-col :xs="12" :sm="12" :lg="24" class="card-panel-col">
+                <router-link to="/member/payouts/all">
+                  <div class="card-panel gr2" >
+                    <div class="card-panel-icon-wrapper icon-money" style="width:100px;">
+                      <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+                    </div>
+                    <div class="card-panel-description" style="float: left;margin-left: 14px;">
+                      
+                      <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
+                      <div class="card-panel-text">
+                        Total Payout
+                      </div>
+                    </div>
+                  </div>
+                </router-link>
+            </el-col>
+
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/wallet">
               <div class="card-panel gr2" >
@@ -103,7 +120,7 @@
           
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/withdrawals">
-              <div class="card-panel gr17" >
+              <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-message">
                   <i class="fas fa-wallet card-panel-icon"  ></i>
                 </div>
@@ -117,22 +134,7 @@
               </div>
             </router-link>
           </el-col>
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <router-link to="/member/payouts/all">
-              <div class="card-panel gr8" >
-                <div class="card-panel-icon-wrapper icon-money">
-                  <i class="fas fa-rupee-sign card-panel-icon"  ></i>
-                </div>
-                <div class="card-panel-description">
-                  
-                  <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
-                  <div class="card-panel-text">
-                    Total Payout
-                  </div>
-                </div>
-              </div>
-            </router-link>
-          </el-col>
+       
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <div class="card-panel gr2" >
               <div class="card-panel-icon-wrapper icon-shopping">
@@ -140,9 +142,9 @@
               </div>
               <div class="card-panel-description">
                 
-                <count-to :start-val="0" :end-val="parseInt(dashboardStats.distributor_discount)" :duration="3600" class="card-panel-num" />
+                <count-to :start-val="0" :end-val="parseInt(dashboardStats.cashback_income)" :duration="3600" class="card-panel-num" />
                 <div class="card-panel-text">
-                  Total Discount
+                  Total Cashback
                 </div>
               </div>
             </div>

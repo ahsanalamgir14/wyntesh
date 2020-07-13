@@ -40,16 +40,6 @@
           <div style="padding: 14px;">
             <span>{{product.name}}</span>
             <el-row style="margin-top: 20px;">
-              <el-col :span="12" class="price">
-               <span style="text-align: left;"> DP <br>
-                {{product.dp_amount}}</span>
-              </el-col>
-              <el-col :span="12" class="price" style="text-align: right;">
-                <span>PV <br>
-                {{product.pv}}</span>
-              </el-col>
-            </el-row>
-            <el-row style="margin-top: 20px;">
               <el-col :span="8" class="price">
                <span style="text-align: left;"> MRP <br>
                 {{product.retail_amount}}</span>
@@ -59,8 +49,8 @@
                 {{product.qty_unit}}</span>
               </el-col>
               <el-col :span="10" class="price" style="text-align: right;">
-                <span>Discount <br>
-                {{product.retail_amount-product.dp_amount}}</span>
+                <span>PV<br>
+                {{product.pv}}</span>
               </el-col>
             </el-row>
             <div class="clearfix" style="margin:0 auto;width: 50%;margin-top: 20px;">

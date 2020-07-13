@@ -182,7 +182,7 @@
             </el-tab-pane>
             <el-tab-pane v-loading="updating" label="Profile Image and KYC Images" name="kyc-images">
               <el-row :gutter="20">                
-                <el-col :span="8">                              
+                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                                
                   <div class="img-upload">
                     <el-form-item  prop="profile_picture">
                       <label for="Profile Picture">Profile Picture</label>
@@ -207,7 +207,7 @@
                     </el-form-item>
                   </div>
                 </el-col>
-                <el-col :span="8">                            
+                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                                
                   <div class="img-upload">
                     <el-form-item  prop="adhar_image">
                       <label for="Adhar Front Image">Adhar Front Image</label>
@@ -232,7 +232,7 @@
                     </el-form-item>
                   </div>                 
                 </el-col>
-                <el-col :span="8">                              
+                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                                   
                   <div class="img-upload">
                     <el-form-item  prop="adhar_image_back">
                       <label for="Adhar Back Image">Adhar Back Image</label>
@@ -260,7 +260,7 @@
               </el-row>
               <el-row :gutter="20">
 
-                <el-col :span="8">
+                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
                   <div class="img-upload">
                     <el-form-item  prop="pan_image">
                       <label for="Pan Image">Pan Image</label>
@@ -285,7 +285,7 @@
                     </el-form-item>
                   </div>
                 </el-col>
-                <el-col :span="8">
+                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
                   <div class="img-upload">
                     <el-form-item  prop="pan_image">
                       <label for="Bank/Cheque Image Image">Bank/Cheque Image</label>
