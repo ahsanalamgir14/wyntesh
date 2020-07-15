@@ -132,8 +132,13 @@ export default {
   width: 40px;
   display: inline-block;
     cursor: pointer;
-    color: #5a5e66;
+    color: #fcfdff;
     vertical-align: 18px;
+}
+
+
+.navbar .right-menu .right-menu-item{
+    color: #fcfdff !important;
 }
 
 .navbar {
