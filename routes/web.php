@@ -14,6 +14,8 @@
 Route::get('/', function () {
     return view('welcome');
 });
+// Route::get("payoutcheck","Admin\PayoutsController@generateManualPayout");
+
 
 Route::group(['middleware' => 'web'], function () {
     Route::get(env('LARAVUE_PATH'), 'HomeController@index')->where('any', '.*')->name('vueapp');

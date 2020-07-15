@@ -40,40 +40,7 @@ class GenerateMonthlyPayoutListener
     public function handle(GenerateMonthlyPayoutEvent $event)
     {
         $Payout=$event->payout;
-        $Members=Member::orderBy('level','desc')->get();
-        $sales_start_date=$Payout->sales_start_date;
-        $sales_end_date=$Payout->sales_end_date;
-
-        foreach ($Members as $Member) {
-            $member_total_bv=Sale::whereBetween('created_at', [$Payout->sales_start_date, $Payout->sales_end_date])->where('member_id',$Member->id)->sum('pv');
-
-            $path=$Member->path;
-            $position=$Member->position;
-
-            $uplines=explode('/', $path);        
-            $uplines=array_reverse($uplines);
-            $uplines=array_filter($uplines, 'strlen');            
-            array_shift($uplines);
-
-            foreach ($uplines as $upline) {
-                $MembersLegPv=MembersLegPv::where('member_id',$upline)->where('position',$position)->first();
-                $UplineMember=Member::where('id',$upline)->first();
-              
-                if($MembersLegPv){                    
-                    $MembersLegPv->current_pv+=$member_total_bv;
-                    $MembersLegPv->total_pv+=$member_total_bv;
-                    $MembersLegPv->save();
-                }else{
-                    $MembersLegPv=new MembersLegPv;
-                    $MembersLegPv->member_id=$upline;
-                    $MembersLegPv->position=$position;
-                    $MembersLegPv->current_pv=$member_total_bv;
-                    $MembersLegPv->total_pv=$member_total_bv;
-                    $MembersLegPv->save();
-                }
-                $position=$UplineMember->position;
-            }
-        }
+        
 
         event(new GeneratePayoutEvent($Payout));
 

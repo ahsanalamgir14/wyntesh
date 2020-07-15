@@ -100,7 +100,7 @@ class PayoutsController extends Controller
             $PayoutIncome->payout_amount=0;
             $PayoutIncome->save();
         }
-
+    
         event(new GenerateMonthlyPayoutEvent($Payout));
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');

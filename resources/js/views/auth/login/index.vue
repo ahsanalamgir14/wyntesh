@@ -174,7 +174,7 @@ $light_gray:#eee;
   background: url('~@/assets/images/bg-4.jpg');
   .logo-text{
     text-align: center;
-    padding-top: 55%;
+    padding-top: 45%;
   }
   img{
 
@@ -253,7 +253,7 @@ $light_gray:#eee;
 
     width: 520px;
     max-width: 100%;
-    padding: 164px 35px 15px 35px;
+    padding: 35px 35px 15px 35px;
     margin: 120px auto;
   }
   .tips {

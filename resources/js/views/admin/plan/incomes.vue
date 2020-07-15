@@ -454,7 +454,7 @@ export default {
     handleCreate() {
       this.resetTemp();
       this.dialogStatus = "create";
-      this.dialogTitle="Create Parameter";
+      this.dialogTitle="Create Income";
       this.dialogIncomeVisible = true;
       this.$nextTick(() => {
         this.$refs["incomeForm"].clearValidate();

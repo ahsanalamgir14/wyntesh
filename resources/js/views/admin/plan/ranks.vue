@@ -297,7 +297,8 @@ export default {
       });      
     },
     handleEdit(row) {
-      this.temp = Object.assign({}, row);      
+      this.temp = Object.assign({}, row);   
+      this.temp.leg_rank=this.temp.leg_rank?this.temp.leg_rank.id:null;   
       this.is_updating = true;
       this.dialogTitle="Update Rank"
       this.dialogRanksVisible = true;
