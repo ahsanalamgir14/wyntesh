@@ -456,6 +456,7 @@ export default {
     }
 }
 
+
 .dashboard-editor-container {
   padding: 20px;
   background-color: rgb(240, 242, 245);
@@ -482,6 +483,8 @@ export default {
 }
 
 
+   
+    
 .panel-group {
   
   .card-panel-col {

@@ -149,17 +149,17 @@ $light_gray:#eee;
 
 @media only screen and (max-width: 500px) {
     .welcome-container{
-        height: 25vh !important; 
+        height: 55vh !important; 
         .logo-text{
             text-align: center;
-            padding-top: 5% !important;
+            padding-top: 40% !important;
         }
     }
     .login-container {
         .login-form {
             width: 520px;
             max-width: 100%;
-            padding: 35px 35px 15px 35px;
+            padding: 35px 35px 15px 35px !important;
             margin: 3px auto !important;
         }
     }
@@ -174,7 +174,7 @@ $light_gray:#eee;
   background: url('~@/assets/images/bg-4.jpg');
   .logo-text{
     text-align: center;
-    padding-top: 30%;
+    padding-top: 55%;
   }
   img{
 
@@ -253,7 +253,7 @@ $light_gray:#eee;
 
     width: 520px;
     max-width: 100%;
-    padding: 35px 35px 15px 35px;
+    padding: 164px 35px 15px 35px;
     margin: 120px auto;
   }
   .tips {
