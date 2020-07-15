@@ -9,6 +9,33 @@
 @import 'laravue';
 @import url(https://fonts.googleapis.com/css?family=Roboto:300,400,500);
 
+
+
+
+.el-breadcrumb__inner a, .el-breadcrumb__inner.is-link {
+    font-weight: 700;
+    text-decoration: none;
+    transition: color .2s cubic-bezier(.645,.045,.355,1);
+    color: #ffffff !important;
+}
+
+.cart-btn[data-v-30ad33bc] {
+    width: 40px;
+    display: inline-block;
+    cursor: pointer;
+    color: #f4f5f9;
+    vertical-align: 18px;
+}
+.navbar .right-menu .right-menu-item[data-v-30ad33bc] {
+    font-size: 18px;
+    color: #ffffff;
+}
+.navbar .hamburger-container[data-v-30ad33bc]{
+  margin: 4px 4px !important;
+
+}
+
+
 body {
   height: 100%;
   -moz-osx-font-smoothing: grayscale;
@@ -269,6 +296,7 @@ aside {
  .el-date-editor.el-input, .el-date-editor.el-input__inner {
     width: 220px;
 }
+
 
 hr {
     border: none;

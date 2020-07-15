@@ -46,24 +46,17 @@ class TransactionTypes extends Seeder
                	'is_active' 		=> '1',
                	'created_at' 		=> date('Y-m-d')
            ],
-
            [
-               	'name' 				=> 'Direct Joining Bonus',
-               	'is_active' 		=> '1',
-               	'created_at' 		=> date('Y-m-d')
+                'name'        => 'Order Refund',
+                'is_active'     => '1',
+                'created_at'    => date('Y-m-d')
+           ],      [
+                'name'        => 'Debit (Admin)',
+                'is_active'     => '1',
+                'created_at'    => date('Y-m-d')
            ],
 
-           [
-               	'name' 				=> 'Joining Income',
-               	'is_active' 		=> '1',
-               	'created_at' 		=> date('Y-m-d')
-           ],
-
-           [
-               	'name' 				=> 'Royalty Income',
-               	'is_active' 		=> '1',
-               	'created_at' 		=> date('Y-m-d')
-           ],
+           
            [
                 'name'        => 'Cashback Income',
                 'is_active'     => '1',

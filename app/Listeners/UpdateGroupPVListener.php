@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Events\UpdateGroupPVEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Models\Admin\MemberMonthlyLegPv;
+use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\Member;
 use Illuminate\Support\Facades\Log;
 
@@ -42,31 +42,32 @@ class UpdateGroupPVListener implements ShouldQueue
         $uplines=array_filter($uplines, 'strlen');
         
         array_shift($uplines);
-        $year=date('Y');
+        $date=date('Y-m-d');
         $month=date('m');
+        Log::info($uplines);
         foreach ($uplines as $upline) {
-            $MemberMonthlyLegPv=MemberMonthlyLegPv::where('member_id',$upline)
+            $MembersLegPv=MembersLegPv::where('member_id',$upline)
                 ->where('position',$position)
-                ->whereYear('created_at', '=', $year)
-                ->whereMonth('created_at', '=', $month)
+                ->whereDate('created_at', '=', $date)
+                // ->whereMonth('created_at', '=', $month)
                 ->first();
             $Members=Member::where('id',$upline)->first();
             Log::info('PV - '.$order->pv);
-            if($MemberMonthlyLegPv){
+            if($MembersLegPv){
                 if($type=='add'){
-                    $MemberMonthlyLegPv->pv+=$order->pv;    
+                    $MembersLegPv->pv+=$order->pv;    
                 }else if($type=='subtract'){
-                    $MemberMonthlyLegPv->pv-=$order->pv;    
+                    $MembersLegPv->pv-=$order->pv;    
                 }
                 
-                $MemberMonthlyLegPv->save();
+                $MembersLegPv->save();
             }else{
                 // Log::info('PV - '.$order->pv);
-                $MemberMonthlyLegPv=new MemberMonthlyLegPv;
-                $MemberMonthlyLegPv->member_id=$upline;
-                $MemberMonthlyLegPv->position=$position;
-                $MemberMonthlyLegPv->pv=$order->pv;
-                $MemberMonthlyLegPv->save();
+                $MembersLegPv=new MembersLegPv;
+                $MembersLegPv->member_id=$upline;
+                $MembersLegPv->position=$position;
+                $MembersLegPv->pv=$order->pv;
+                $MembersLegPv->save();
             }
             $position=$Members->position;
         }

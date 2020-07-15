@@ -25,7 +25,7 @@ class MembersController extends Controller
         $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
         foreach ($Members as $Member) {
-            $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('total_pv');
+            $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('pv');
             $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
             $counts=array();
             
@@ -125,7 +125,7 @@ class MembersController extends Controller
 
     public function adminGeneology(){
         $zero=Member::with('children.children')->with('kyc')->with('user')->with('rank')
-        ->withCount(['leg_pv as group_pv' => function($query){
+        ->withCount(['leg as group_pv' => function($query){
            $query->select(DB::raw('sum(pv)'));
         }])
         ->where('level',0)->first();
@@ -137,7 +137,7 @@ class MembersController extends Controller
         $User=User::where('username',$id)->first();
         if($User){
             $zero=Member::with('children.children')->with('kyc')->with('user')
-            ->withCount(['leg_pv as group_pv' => function($query){
+            ->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }])
             ->with('rank')->where('user_id',$User->id)->first();
@@ -153,7 +153,7 @@ class MembersController extends Controller
     public function myGeneology(){
         $id=JWTAuth::user()->id;
         $zero=Member::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->with('rank')
-            ->withCount(['leg_pv as group_pv' => function($query){
+            ->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }])
             ->where('user_id',$id)->first();
@@ -196,7 +196,7 @@ class MembersController extends Controller
                 });
             }
 
-            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }]);
 
@@ -231,7 +231,7 @@ class MembersController extends Controller
                 });
             }
 
-            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }]);
        
@@ -254,7 +254,7 @@ class MembersController extends Controller
             if(in_array($my_member_id,$pathArray)){
                 $zero=Member::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')
                 ->with('user')->with('rank')
-                ->withCount(['leg_pv as group_pv' => function($query){
+                ->withCount(['leg as group_pv' => function($query){
                    $query->select(DB::raw('sum(pv)'));
                 }])
                 ->where('user_id',$User->id)->first();
@@ -587,7 +587,7 @@ class MembersController extends Controller
                 });
             }
 
-            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }]);
 
@@ -611,7 +611,7 @@ class MembersController extends Controller
                 });
             });
 
-            $Members=$Members->withCount(['leg_pv as group_pv' => function($query){
+            $Members=$Members->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }]);
 

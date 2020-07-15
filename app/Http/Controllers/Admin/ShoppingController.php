@@ -227,9 +227,6 @@ class ShoppingController extends Controller
                 }
 
 
-
-
-
                 event(new UpdateGroupPVEvent($Order,$Order->user,'add'));
             }
 

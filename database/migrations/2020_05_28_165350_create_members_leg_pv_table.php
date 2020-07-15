@@ -16,9 +16,9 @@ class CreateMembersLegPvTable extends Migration
         Schema::create('members_leg_pv', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('member_id');
+            $table->bigInteger('payout_id')->nullable();
             $table->integer('position');
-            $table->decimal('current_pv', 10, 2)->default(0); //0 on payout + carry forwarded
-            $table->decimal('total_pv', 10, 2)->default(0);
+            $table->decimal('pv', 10, 2)->default(0); //0 on payout + carry forwarded
             $table->timestamps();
         });
     }

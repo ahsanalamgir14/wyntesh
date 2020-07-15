@@ -33,6 +33,12 @@
                 <div style="margin-top: 10px;">
                   <el-tag style="font-size: 16px;" type="primary">{{ temp.member.rank.name }}</el-tag>
                 </div>
+                <div class="avatar-wrapper">
+                    <img :src="temp.profile_picture?temp.profile_picture:'/images/avatar.png'" class="user-avatar">
+                </div>
+
+
+
                 <div style="margin-top: 10px;">
                   <el-tag v-if="temp.kyc.verification_status=='verified'" type="success">Verified</el-tag>
                   <el-tag v-if="temp.kyc.verification_status=='pending'" type="warning">KYC - Pending</el-tag>
@@ -84,13 +90,13 @@
               </div>
             </router-link>
           </el-col> -->
-            <el-col :xs="12" :sm="12" :lg="24" class="card-panel-col">
+            <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
                 <router-link to="/member/payouts/all">
                   <div class="card-panel gr2" >
-                    <div class="card-panel-icon-wrapper icon-money" style="width:100px;">
+                    <div class="card-panel-icon-wrapper icon-money payout" style="width:100px;">
                       <i class="fas fa-rupee-sign card-panel-icon"  ></i>
                     </div>
-                    <div class="card-panel-description" style="float: left;margin-left: 14px;">
+                    <div class="card-panel-description" style="float: left;margin-left: 14px; width: 98%;">
                       
                       <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
                       <div class="card-panel-text">
@@ -234,7 +240,7 @@
           </div>
           <el-table
             :data="downlines"
-            style="width: 100%">
+            style="width: 100%" border>
             <el-table-column label="Name" min-width="150px">
               <template slot-scope="{row}">
                 <span  >{{ row.user.name }}</span>
@@ -260,7 +266,7 @@
           </div>
           <el-table
             :data="transitions"
-            style="width: 100%">
+            style="width: 100%" border>
             <el-table-column label="Type" min-width="150px">
               <template slot-scope="{row}">
                 <span  >{{ row.transaction.name }}</span>
@@ -288,6 +294,7 @@
 <script>
 import BarChart from './components/BarChart';
 import LineChart from './components/LineChart';
+import PanThumb from '@/components/PanThumb';
 import CountTo from 'vue-count-to';
 import { parseTime } from "@/utils";
 import { getProfile } from "@/api/user/members";
@@ -304,6 +311,7 @@ export default {
     CountTo,
     BarChart,
     LineChart,
+    PanThumb,
   },
   data() {
     return {
@@ -329,6 +337,7 @@ export default {
           contact: undefined,
           member:{rank:{name:undefined}},
           gender: "m",
+          profile_picture:undefined,
           kyc:{
             address:undefined,
             pincode:undefined,
@@ -418,6 +427,35 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+
+@media only screen and (max-width: 600px) { 
+    .payout{
+        width:100% !important ;
+    }
+        tr{
+        th{
+            div{
+                color:red !important;
+            }
+        }
+    }
+    
+}
+
+@media only screen and (max-width: 400px) {
+   .payout{
+        width:100% !important;
+    }
+    tr{
+        th{
+            div{
+                color:red !important;
+            }
+        }
+    }
+}
+
 .dashboard-editor-container {
   padding: 20px;
   background-color: rgb(240, 242, 245);
@@ -661,5 +699,12 @@ export default {
     padding-top: 20px;
   }
 }
+.user-avatar{
+    width: 100px;
+    height: 100px;
+    margin-top: 10px;
+    border-radius: 50px;
+}
+
 
 </style>

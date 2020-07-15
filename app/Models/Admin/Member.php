@@ -32,17 +32,11 @@ class Member extends Model
     public function getGroupPvAttribute()
     {
         $group_pv=0;
-        $legs=$this->leg_pv;
+        $legs=$this->leg;
         foreach ($legs as $leg) {
             $group_pv+=$leg->pv;
         }
         return $group_pv;
-    }
-
-
-    public function leg_pv()
-    {
-        return $this->hasMany('App\Models\Admin\MemberMonthlyLegPv');
     }
 
     public function parent()
@@ -54,7 +48,7 @@ class Member extends Model
     {
         return $this->hasMany(self::class, 'parent_id')->with('user:id,username,name,is_active')->with('kyc:id,member_id,verification_status,is_verified')->with('leg')->with('rank')
             ->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(total_pv)'));
+               $query->select(DB::raw('sum(pv)'));
             }]);
     }
 

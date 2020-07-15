@@ -145,6 +145,28 @@ export default {
 $bg:#2d3a4b;
 $light_gray:#eee;
 
+
+
+@media only screen and (max-width: 500px) {
+    .welcome-container{
+        height: 25vh !important; 
+        .logo-text{
+            text-align: center;
+            padding-top: 5% !important;
+        }
+    }
+    .login-container {
+        .login-form {
+            width: 520px;
+            max-width: 100%;
+            padding: 35px 35px 15px 35px;
+            margin: 3px auto !important;
+        }
+    }
+}
+
+
+
 .welcome-container{
   width: 100%;
   height: 100vh;

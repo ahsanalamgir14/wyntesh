@@ -1,56 +1,52 @@
 <template>
-  <div class="navbar">
-    <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
+    <div class="navbar">
+        <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
-    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
+        <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
 
-    <div class="right-menu">
-      <template v-if="device!=='mobile'">
-        <!-- <search id="header-search" class="right-menu-item" /> -->
+        <div class="right-menu">
+            <el-badge v-if="roles.includes('user')" :value="cartCount" class="item" style="margin-right: 20px;">
+                <router-link to="/shopping/cart"><i class="fas fa-shopping-cart cart-btn""></i></router-link>
+            </el-badge>
+          
+            <template v-if="device!=='mobile'">
+                <screenfull id="screenfull" class="right-menu-item hover-effect" />
+                <el-tooltip content="Global Size" effect="dark" placement="bottom">
+                    <size-select id="size-select" class="right-menu-item hover-effect" />
+                </el-tooltip>
 
-        
-        <el-badge v-if="roles.includes('user')" :value="cartCount" class="item" style="margin-right: 20px;">
-          <router-link to="/shopping/cart"><i class="fas fa-shopping-cart cart-btn""></i></router-link>
-        </el-badge>
+            </template>
 
-        <screenfull id="screenfull" class="right-menu-item hover-effect" />
-
-        <el-tooltip content="Global Size" effect="dark" placement="bottom">
-            <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
-
-      </template>
-
-      <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
-          <div class="avatar-wrapper">
-            <img :src="avatar" class="user-avatar">
-          </div>
-          <el-dropdown-menu slot="dropdown">
-            <!-- <router-link to="/profile/index">
-              <el-dropdown-item>Profile</el-dropdown-item>
-            </router-link> -->
-            <router-link to="/">
-              <el-dropdown-item>Dashboard</el-dropdown-item>
-            </router-link>
-            <router-link v-if="roles.includes('user')" to="/my/profile">
-              <el-dropdown-item>Profile</el-dropdown-item>
-            </router-link>
-            <a :href="telescopeURL" target="_blank" v-if="roles.includes('superadmin')"> 
-              <el-dropdown-item>Monitoring</el-dropdown-item>
-            </a>
-            <router-link v-if="roles.includes('user')" to="/wallet/wallet">
-              <el-dropdown-item>Wallet</el-dropdown-item>
-            </router-link>
-            <a href="#" @click="showChangePassword()">
-              <el-dropdown-item >Change Password</el-dropdown-item>
-            </a>
-            <el-dropdown-item divided>
-              <span style="display:block;" @click="logout">Log Out</span>
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+                <div class="avatar-wrapper">
+                    <img :src="avatar" class="user-avatar">
+                </div>
+                <el-dropdown-menu slot="dropdown">
+                    <!-- <router-link to="/profile/index">
+                    <el-dropdown-item>Profile</el-dropdown-item>
+                    </router-link> -->
+                    <router-link to="/">
+                        <el-dropdown-item>Dashboard</el-dropdown-item>
+                    </router-link>
+                    <router-link v-if="roles.includes('user')" to="/my/profile">
+                        <el-dropdown-item>Profile</el-dropdown-item>
+                    </router-link>
+                    <a :href="telescopeURL" target="_blank" v-if="roles.includes('superadmin')"> 
+                        <el-dropdown-item>Monitoring</el-dropdown-item>
+                    </a>
+                    <router-link v-if="roles.includes('user')" to="/wallet/wallet">
+                        <el-dropdown-item>Wallet</el-dropdown-item>
+                    </router-link>
+                    <a href="#" @click="showChangePassword()">
+                        <el-dropdown-item >Change Password</el-dropdown-item>
+                    </a>
+                    <el-dropdown-item divided>
+                        <span style="display:block;" @click="logout">Log Out</span>
+                    </el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -124,10 +120,12 @@ export default {
 
 <style lang="scss" scoped>
 
+
+
 @media only screen and (max-device-width: 480px) {
-  .app-breadcrumb.el-breadcrumb {
-    display:none;
-  }
+    .app-breadcrumb.el-breadcrumb {
+       display:none;
+    }
 }
 
 .cart-btn{
@@ -142,7 +140,7 @@ export default {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #fff;
+  background: #2b2f3a;
   box-shadow: 0 1px 4px rgba(0,21,41,.08);
 
   .hamburger-container {
