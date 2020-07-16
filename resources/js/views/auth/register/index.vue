@@ -297,7 +297,7 @@ $dark_gray:#889aa4;
         height: 25vh !important; 
         img{
             height:20%;
-            width:57% !important;
+            width:70% !important;
         }
         .logo-text{
             text-align: center;
@@ -327,7 +327,7 @@ $dark_gray:#889aa4;
   img{
 
     height:20%;
-    width:20%;
+    width:57%;
   }
   h2{
     color:#fff;

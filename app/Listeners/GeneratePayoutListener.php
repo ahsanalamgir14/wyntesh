@@ -48,7 +48,7 @@ class GeneratePayoutListener
         $this->updateRank($payout);
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
-        dd($income_ids);
+    
        
 
         // Get Income Ids of Payout 
@@ -58,7 +58,7 @@ class GeneratePayoutListener
 
             // Get Payout income from payout id
             $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
-            if($income->code=='MATACHING'){
+            if($income->code=='SQUAD'){
 
                 $percent_of_total_company_bv=0;
 

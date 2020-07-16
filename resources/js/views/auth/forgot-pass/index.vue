@@ -124,7 +124,7 @@ $light_gray:#eee;
   img{
 
     height:20%;
-    width:20%;
+    width:57%;
   }
   h2{
     color:#fff;
