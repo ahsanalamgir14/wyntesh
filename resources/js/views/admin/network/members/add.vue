@@ -16,7 +16,7 @@
               <el-form-item prop="sponsor_code" label="Sponsor Code">               
                 <el-input v-model="registerForm.sponsor_code" v-on:blur="handleCheckSponsorCode()" name="sponsor_code" type="text" auto-complete="on" placeholder="Enter sponsor code" />
               </el-form-item>
-              <el-form-item prop="sponsor_name" label="Spondor Name">
+              <el-form-item prop="sponsor_name" label="Sponsor Name">
                 
                 <el-input v-model="registerForm.sponsor_name" disabled name="sponsor_name" type="text" auto-complete="on" placeholder="Sponsor name." />
               </el-form-item>

@@ -200,7 +200,7 @@ class MembersController extends Controller
                $query->select(DB::raw('sum(pv)'));
             }]);
 
-            $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
+            $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked','rank')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $Members=Member::select();
             $Members=$Members->where('sponsor_id',$User->member->id);
@@ -235,7 +235,7 @@ class MembersController extends Controller
                $query->select(DB::raw('sum(pv)'));
             }]);
        
-            $Members=$Members->with('parent','sponsor','user')->orderBy('id',$sort)->paginate($limit);
+            $Members=$Members->with('parent','sponsor','user','rank')->orderBy('id',$sort)->paginate($limit);
             
         }  
        
@@ -591,7 +591,7 @@ class MembersController extends Controller
                $query->select(DB::raw('sum(pv)'));
             }]);
 
-            $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked')->orderBy('id',$sort)->paginate($limit);    
+            $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked','rank')->orderBy('id',$sort)->paginate($limit);    
         }else{
             $Members=Member::select();
             $Members=$Members->whereIn('id',$memberIds);
@@ -626,7 +626,7 @@ class MembersController extends Controller
                 });
             }
        
-            $Members=$Members->with('parent','sponsor','user')->orderBy('id',$sort)->paginate($limit);
+            $Members=$Members->with('parent','sponsor','user','rank')->orderBy('id',$sort)->paginate($limit);
             
         }
 

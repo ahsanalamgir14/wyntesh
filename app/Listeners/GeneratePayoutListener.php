@@ -45,11 +45,116 @@ class GeneratePayoutListener
     public function handle(GeneratePayoutEvent $event)
     {
         $payout=$event->payout;
-        $this->updateRank($payout);
+        //$this->updateRank($payout);
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
     
-       
+
+         //Get total Sales amount/ Total BV Turnover of duration
+        $sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->sum('final_amount_company');
+
+        $total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->sum('pv');
+
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+        })->get();
+
+        $total_mached_bv=0;
+        $total_carry_forward_bv=0;
+
+        foreach ($Members as $Member) {
+
+            // Personal Sales amount and BV of Member
+            $member_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('final_amount_company');
+
+            $member_total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('pv');
+
+            // Personal Sales amount and BV of Group/Legs
+            $member_leg_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->whereIn('member_id',$Member->children->pluck('id'))->sum('final_amount_company');
+
+            $member_leg_total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->whereIn('member_id',$Member->children->pluck('id'))->sum('pv');
+
+            // Entry in Member payout
+            $MemberPayout=new MemberPayout;
+            $MemberPayout->member_id=$Member->id;
+            $MemberPayout->payout_id=$payout->id;
+            $MemberPayout->sales_pv=$member_total_bv;
+            $MemberPayout->sales_amount=$member_sales_amount;
+            $MemberPayout->group_sales_pv=$member_leg_total_bv;
+            $MemberPayout->group_sales_amount=$member_leg_sales_amount;
+            $MemberPayout->total_payout=0;
+            $MemberPayout->save();
+
+            $matched_bv=0;
+            $carry_forward=0;
+            $carry_forward_position=0;
+            $leg_1_pv=0;
+            $leg_2_pv=0;
+
+            //Counting Carry forward and Matched points of Member Legs.
+
+            //Getting Member Legs in decenting based on current PV
+            $legs=MembersLegPv::where('member_id',$Member->id)->orderBy('pv','desc')->get();
+            
+            foreach ($legs as $key => $leg) {
+                if($key==0){
+                    $leg_1_pv=$leg->pv;
+                    $carry_forward_position=$leg->position;
+
+                    // If only 1 leg then no matching bonus, carry forward all current pv
+                    if($legs->count()==1){
+                        $carry_forward=$leg->pv;                        
+                        // Reset Leg Current Pv to Carry Forward;
+
+                        // add carryforword entry
+
+
+                       /* $leg->current_pv=0;
+                        $leg->save();*/
+                    }
+                    continue;
+                }
+
+                if($key==1){                    
+                    $leg_2_pv=$leg->current_pv;
+
+                    // Count carry forward
+                    $carry_forward=$leg_1_pv-$leg_2_pv;
+                }
+                            
+                // Add current pv to matched_bv of all legs except strong one.
+                $matched_bv+=$leg->current_pv;
+
+
+                // Reset Leg Current Pv to Carry Forward;
+                $leg->current_pv=0;
+                $leg->save();
+            }
+
+            
+            // Carry Forward PV in leg 1
+            $leg1=MembersLegPv::where('member_id',$Member->id)->where('position',$carry_forward_position)->first();
+            if($leg1){
+                $leg1->current_pv=$carry_forward;
+                $leg1->save();
+            }
+            // Count total of all values;
+            $total_mached_bv+=$matched_bv;
+            $total_carry_forward_bv+=$carry_forward;
+            
+            // Save Matched bv and total carry_forward to member payout.
+            $MemberPayout->total_matched_bv=$matched_bv;
+            $MemberPayout->total_carry_forward_bv=$carry_forward;
+            $MemberPayout->save();
+
+        }
+
+        // Save total values to payouts.
+        $payout->sales_bv=$total_bv;
+        $payout->sales_amount=$sales_amount;
+        $payout->total_matched_bv=$total_mached_bv;
+        $payout->total_carry_forward_bv=$total_carry_forward_bv;
+        $payout->save();
 
         // Get Income Ids of Payout 
         $Incomes=Income::whereIn('id',$income_ids)->get();
@@ -60,33 +165,33 @@ class GeneratePayoutListener
             $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
             if($income->code=='SQUAD'){
 
-                $percent_of_total_company_bv=0;
+                $weekly_company_turnover_percent=0;
 
                 foreach ($income->income_parameters as $parameter) {
                     // Get parameter for matching bonus income.
                     
-                    if($parameter->name=='percent_of_total_company_bv'){
-                        $percent_of_total_company_bv=$parameter->value_1;
+                    if($parameter->name=='weekly_company_turnover_percent'){
+                        $weekly_company_turnover_percent=$parameter->value_1;
                     }  
                     
                     
                 }
 
                 // Counting matching point value based on parameters and plan criteria
-                $PayoutIncome->income_payout_parameter_1_name='matching_point_value';
+                $PayoutIncome->income_payout_parameter_1_name='sbp';
                 if($payout->total_matched_bv==0){
-                    $matching_point_value=0;
+                    $income_factor=0;
                 }else{
-                    $matching_point_value=(($payout->sales_bv*$percent_of_total_company_bv)/100)/$payout->total_matched_bv;    
+                    $income_factor=(($payout->sales_bv*$weekly_company_turnover_percent)/100)/$payout->total_matched_bv;    
                 }
                 
-                $PayoutIncome->income_payout_parameter_1_value=round($matching_point_value,4);
+                $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
                 $PayoutIncome->save();
             }
 
         }
     }
-     public function updateRank($payout){
+    public function updateRank($payout){
         $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
         $MembersController=new MembersController;

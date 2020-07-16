@@ -58,7 +58,7 @@
       @sort-change="sortChange"
       >
      
-      <el-table-column
+    <!--   <el-table-column
         label="Sr.No"
         prop="id"
         sortable="custom"
@@ -69,48 +69,43 @@
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
-      </el-table-column> 
-       <el-table-column label="ID" width="110px" align="center">
+      </el-table-column>  -->
+       <el-table-column label="ID" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Name" min-width="110px" >
+      <el-table-column label="Name" width="200px" >
         <template slot-scope="{row}">
           <span >{{ row.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Rank" width="130px" align="center">
+      <el-table-column label="Rank" width="165px" align="center">
         <template slot-scope="{row}">
           <el-tag type="warning">{{ row.rank?row.rank.name:''}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Parent" width="110px" align="center">
+      <el-table-column label="Parent" width="210px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.parent.user.username}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sponsor" width="110px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.sponsor.user.username }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="DOJ" width="150px" align="center">
+      <el-table-column label="DOJ" width="210px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Personal BV" width="140px" align="right">
+      <el-table-column label="Personal BV" width="210px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.total_personal_pv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Group BV" width="140px" align="right">
+      <el-table-column label="Group BV" width="210px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.group_pv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Status" class-name="status-col" width="100">
+      <el-table-column label="Status" class-name="status-col" width="240px">
         <template slot-scope="{row}">
           <el-tag :type="row.user.is_active | statusFilter">{{ row.user.is_active?'Active':'Deactive' }}</el-tag>
         </template>
@@ -262,7 +257,6 @@ export default {
           "ID",
           "Name",
           "Parent",
-          "Sponsor",
           "DOJ",          
           "Status"
         ];
@@ -270,7 +264,6 @@ export default {
           "id",
           "name",
           "parent",
-          "sponsor",
           "doj",
           "status"
         ];
@@ -294,8 +287,6 @@ export default {
             return v.user.name
           }else if(j=='parent') {
             return v.parent.user.username
-          }else if(j=='sponsor') {
-            return v.sponsor.user.username
           }else if(j=='status') {
             return v.user.is_active?'Active':'Inactive'
           }
