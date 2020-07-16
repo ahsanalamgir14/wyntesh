@@ -94,8 +94,12 @@ class GeneratePayoutListener
             //Counting Carry forward and Matched points of Member Legs.
 
             //Getting Member Legs in decenting based on current PV
-            $legs=MembersLegPv::where('member_id',$Member->id)->orderBy('pv','desc')->get();
+            // $legs=MembersLegPv::where('member_id',$Member->id)->orderBy('pv','desc')->get();
             
+
+            $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])->whereBetween('created_at', ['2020-07-14', '2020-07-17'])->where('member_id',6)->orderBy('totalPv','desc')->groupBy('position')->get();
+            // MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as pvtotal')])->where('member_id',6)->orderBy('pvtotal','desc')->get();
+
             foreach ($legs as $key => $leg) {
                 if($key==0){
                     $leg_1_pv=$leg->pv;

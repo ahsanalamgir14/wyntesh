@@ -8,6 +8,15 @@ export function login(data) {
   })
 }
 
+
+export function admin_login(data) {
+  return request({
+    url: '/auth/a/login',
+    method: 'post',
+    data
+  })
+}
+
 export function changePassword(data) {
   return request({
     url: '/auth/change-password',

@@ -98,9 +98,16 @@
           </el-button>
         </template>
       </el-table-column>
+
        <el-table-column label="ID" width="100px">
         <template slot-scope="{row}">
           <span class="link-type" @click="handleEdit(row)">{{ row.username }}</span>
+        </template>
+      </el-table-column>
+
+       <el-table-column label="Login" width="100px">
+        <template slot-scope="{row}">
+          <span class="link-type" ><a :href="loginLink(row)">Login</a></span>
         </template>
       </el-table-column>
 
@@ -293,9 +300,12 @@ import {
   changeUserActivationStatus
 } from "@/api/admin/users";
 import waves from "@/directive/waves"; // waves directive
+import { getToken } from '@/utils/auth';
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
 import axios from "axios";
+import defaultSettings from '@/settings';
+const { baseUrl } = defaultSettings;
 
 export default {
   name: "ComplexTable",
@@ -388,6 +398,9 @@ export default {
           this.listLoading = false;
         }, 1 * 100);
       });
+    },
+    loginLink(row){
+      return baseUrl+'#/login?token='+getToken()+'&username='+row.username;
     },
     handleFilter() {
       this.listQuery.page = 1;

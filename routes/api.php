@@ -25,6 +25,7 @@ Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDe
 // Authentication Routes
 Route::group(['prefix' => 'auth'], function ($router) {
     Route::post('login', 'Auth\AuthController@login');
+    Route::post('a/login', 'Auth\AuthController@admin_login');
     Route::post('register', 'Auth\AuthController@register'); 
     Route::post('auth/google', 'Auth\AuthController@google');
     Route::post('change-password', 'Auth\AuthController@changePassword');

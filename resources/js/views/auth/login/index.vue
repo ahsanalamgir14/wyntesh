@@ -105,6 +105,17 @@ export default {
     },
   },
   created() {
+
+    let username=this.$route.query.username;
+    let token=this.$route.query.token;
+
+    if(username && token){
+      this.loginForm.username=username;
+      this.loginForm.token=token;
+      this.handleAdminLogin();
+    }
+
+
     getPublicSettings().then(response => {
       this.settings = response.data;
     });
@@ -116,6 +127,19 @@ export default {
       } else {
         this.pwdType = 'password';
       }
+    },
+    handleAdminLogin() {
+      this.loading = true;
+      this.$store.dispatch('user/admin_login', this.loginForm)
+        .then(() => {
+          this.$router.push({ path: this.redirect || '/' });
+          this.loading = false;
+          const recaptcha = this.$recaptchaInstance;
+          recaptcha.hideBadge()
+        })
+        .catch((error) => {
+          this.loading = false;
+        });
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {

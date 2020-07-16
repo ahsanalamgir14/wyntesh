@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/auth';
+import { login, logout, getInfo ,admin_login} from '@/api/auth';
 import { getSettings } from "@/api/user/settings";
 import avatar from '@/assets/images/avatar.png'
 import { getToken, setToken, removeToken } from '@/utils/auth';
@@ -61,6 +61,25 @@ const actions = {
         });
     });
   },
+
+  admin_login({ commit }, userInfo) {
+    const { username, token } = userInfo;
+    console.log(userInfo);
+    return new Promise((resolve, reject) => {
+      admin_login({ username: username.trim(), token: token })
+        .then(response => {
+          let role=response.user.roles;
+            commit('SET_TOKEN', response.access_token);
+            commit('SET_PERMISSIONS', response.user.permissions);
+            setToken(response.access_token);
+            resolve();
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  },
+
 
   // get user info
   getInfo({ commit, state }) {

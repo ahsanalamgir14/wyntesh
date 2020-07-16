@@ -126,6 +126,48 @@ class AuthController extends Controller
             
     }
 
+    public function admin_login(Request $request)
+    {   
+
+        $token = $request->token;
+        JWTAuth::setToken($token);
+        try {
+                $user = JWTAuth::parseToken()->authenticate();
+            if(!$user){
+                $response = array('status' => false,'message'=>'Token is Invalid');
+                return response()->json($response, 401);
+            }
+        } catch (Exception $e) {
+            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
+                $response = array('status' => false,'message'=>'Token is Invalid');
+                return response()->json($response, 401);
+            }else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
+                $response = array('status' => false,'message'=>'Token is Expired');
+                return response()->json($response, 401);
+            }else{
+                $response = array('status' => false,'message'=>'Authorization Token not found');
+                return response()->json($response, 401);
+            }
+        }
+        if($user->roles[0]->name!='admin'){
+            return response()->json(['status'=>false,'message' => 'You do not have enough rights'], 401);
+        }
+
+        $username=isset($request->username)?$request->username:'';
+        $User=User::where('username',$username)->first();
+
+       
+        if ($User)
+        {
+            $token=JWTAuth::fromUser($User);            
+            return $this->respondWithToken($token);
+        }else{
+            return response()->json(['status'=>false,'message' => 'invalid_credentials'], 401);            
+        }
+            
+    }
+
+
 
     public function emailVerify(Request $request)
     {
