@@ -97,7 +97,7 @@ class GeneratePayoutListener
             // $legs=MembersLegPv::where('member_id',$Member->id)->orderBy('pv','desc')->get();
             
 
-            $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])->whereBetween('created_at', ['2020-07-14', '2020-07-17'])->where('member_id',6)->orderBy('totalPv','desc')->groupBy('position')->get();
+            $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])->whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',6)->orderBy('totalPv','desc')->groupBy('position')->get();
             // MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as pvtotal')])->where('member_id',6)->orderBy('pvtotal','desc')->get();
 
             foreach ($legs as $key => $leg) {
