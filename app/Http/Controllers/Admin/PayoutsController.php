@@ -67,20 +67,21 @@ class PayoutsController extends Controller
     }
   
     public function generateManualPayout(Request $request){
-        
+
         $PayoutType=PayoutType::where('name','Monthly')->first();
 
-
-        $validate = Validator::make($request->all(), [
+        $request->date_range    = ['2020-07-17','2020-07-20'];        
+        $request->incomes       = ['3'];        
+      /*  $validate = Validator::make($request->all(), [
             'date_range' => 'required',
             'incomes' => 'required',
-        ]);
+        ]);*/
 
-        if($validate->fails()){
+      /*  if($validate->fails()){
             $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
             return response()->json($response, 400);
         }
-
+*/
         $date_range=$request->date_range;
         
         $Payout=new Payout;
@@ -100,7 +101,7 @@ class PayoutsController extends Controller
             $PayoutIncome->payout_amount=0;
             $PayoutIncome->save();
         }
-    
+
         event(new GenerateMonthlyPayoutEvent($Payout));
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');

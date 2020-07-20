@@ -14,7 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
-// Route::get("payoutcheck","Admin\PayoutsController@generateManualPayout");
+Route::get("payoutcheck","Admin\PayoutsController@generateManualPayout");
 
 
 Route::group(['middleware' => 'web'], function () {

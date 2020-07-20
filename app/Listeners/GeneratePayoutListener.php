@@ -19,6 +19,7 @@ use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\MemberCarryForwardPv;
 use App\Models\Superadmin\TransactionType;
 use App\Http\Controllers\User\MembersController;
 use Illuminate\Support\Facades\Log;
@@ -48,31 +49,43 @@ class GeneratePayoutListener
         //$this->updateRank($payout);
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
-    
 
          //Get total Sales amount/ Total BV Turnover of duration
-        $sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->sum('final_amount_company');
+        $sales_amount=Sale::whereDate('created_at','<=', $payout->sales_end_date)
+                            ->whereDate('created_at','>=', $payout->sales_start_date)
+                            ->sum('final_amount_company');
 
         $total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->sum('pv');
+      
+
 
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
         })->get();
-
+        // dd($Members);
         $total_mached_bv=0;
         $total_carry_forward_bv=0;
 
         foreach ($Members as $Member) {
 
             // Personal Sales amount and BV of Member
-            $member_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('final_amount_company');
+            $member_sales_amount=Sale::whereDate('created_at','<=',$payout->sales_end_date)
+                                ->whereDate('created_at','>=',$payout->sales_start_date)
+                                ->where('member_id',$Member->id)->sum('final_amount_company');
 
-            $member_total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',$Member->id)->sum('pv');
+            $member_total_bv=Sale::whereDate('created_at','<=',$payout->sales_end_date)
+                                    ->whereDate('created_at','>=',$payout->sales_start_date)
+                                    ->where('member_id',$Member->id)->sum('pv');
 
+        
             // Personal Sales amount and BV of Group/Legs
-            $member_leg_sales_amount=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->whereIn('member_id',$Member->children->pluck('id'))->sum('final_amount_company');
+            $member_leg_sales_amount=Sale::whereDate('created_at','<=',$payout->sales_end_date)
+                                    ->whereDate('created_at','>=',$payout->sales_start_date)
+                                    ->whereIn('member_id',$Member->children->pluck('id'))->sum('final_amount_company');
 
-            $member_leg_total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->whereIn('member_id',$Member->children->pluck('id'))->sum('pv');
+            $member_leg_total_bv=Sale::whereDate('created_at','<=',$payout->sales_end_date)
+                                ->whereDate('created_at','>=',$payout->sales_start_date)
+                                ->whereIn('member_id',$Member->children->pluck('id'))->sum('pv');
 
             // Entry in Member payout
             $MemberPayout=new MemberPayout;
@@ -97,52 +110,48 @@ class GeneratePayoutListener
             // $legs=MembersLegPv::where('member_id',$Member->id)->orderBy('pv','desc')->get();
             
 
-            $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])->whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->where('member_id',6)->orderBy('totalPv','desc')->groupBy('position')->get();
-            // MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as pvtotal')])->where('member_id',6)->orderBy('pvtotal','desc')->get();
-
+            $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
+                        ->whereDate('created_at','<=',$payout->sales_end_date)
+                        ->whereDate('created_at','>=',$payout->sales_start_date)
+                        ->where('member_id',$Member->id)
+                        ->orderBy('totalPv','desc')
+                        ->groupBy('position')
+                        ->get();
+           
+           
             foreach ($legs as $key => $leg) {
                 if($key==0){
-                    $leg_1_pv=$leg->pv;
+                    $leg_1_pv=$leg->totalPv;
                     $carry_forward_position=$leg->position;
 
                     // If only 1 leg then no matching bonus, carry forward all current pv
                     if($legs->count()==1){
-                        $carry_forward=$leg->pv;                        
-                        // Reset Leg Current Pv to Carry Forward;
-
-                        // add carryforword entry
-
-
-                       /* $leg->current_pv=0;
-                        $leg->save();*/
+                        $carry_forward=$leg->totalPv;                        
                     }
                     continue;
                 }
 
-                if($key==1){                    
-                    $leg_2_pv=$leg->current_pv;
-
+                if($key==1){
+                    $leg_2_pv=$leg->totalPv;
                     // Count carry forward
                     $carry_forward=$leg_1_pv-$leg_2_pv;
                 }
                             
                 // Add current pv to matched_bv of all legs except strong one.
-                $matched_bv+=$leg->current_pv;
-
-
-                // Reset Leg Current Pv to Carry Forward;
-                $leg->current_pv=0;
-                $leg->save();
+                $matched_bv+=$leg->totalPv;
             }
-
-            
-            // Carry Forward PV in leg 1
-            $leg1=MembersLegPv::where('member_id',$Member->id)->where('position',$carry_forward_position)->first();
-            if($leg1){
-                $leg1->current_pv=$carry_forward;
-                $leg1->save();
+            // dd($carry_forward);
+            if(!$legs->isEmpty()){
+                $MemberCarryForwardPv=new MemberCarryForwardPv;
+                $MemberCarryForwardPv->member_id            =$Member->id;
+                $MemberCarryForwardPv->payout_id            =$payout->id;
+                $MemberCarryForwardPv->position             =$carry_forward_position;
+                $MemberCarryForwardPv->pv                   =$carry_forward;
+                $MemberCarryForwardPv->save();
             }
+         
             // Count total of all values;
+            $matched_bv = floatval($matched_bv)/24;
             $total_mached_bv+=$matched_bv;
             $total_carry_forward_bv+=$carry_forward;
             
@@ -177,8 +186,6 @@ class GeneratePayoutListener
                     if($parameter->name=='weekly_company_turnover_percent'){
                         $weekly_company_turnover_percent=$parameter->value_1;
                     }  
-                    
-                    
                 }
 
                 // Counting matching point value based on parameters and plan criteria
@@ -194,7 +201,32 @@ class GeneratePayoutListener
             }
 
         }
+
+
+        foreach ($Members as $Member) {
+            $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
+            $Incomes = Income::whereIn('id',$income_ids)->get();
+            $totalIncomeValue = "";
+            foreach($Incomes as $income){
+                if($income->code=='SQUAD'){
+                    $payoutIcome = PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
+                    $factor = $payoutIcome->income_payout_parameter_1_value;
+                    $totalIncomeValue = $memberPayout->total_matched_bv*$factor; 
+                }
+                if($totalIncomeValue!="0.0"){
+                    $MemberPayoutIncome = new MemberPayoutIncome;
+                    $MemberPayoutIncome->member_id                              = $Member->id;
+                    $MemberPayoutIncome->payout_id                              = $payout->id;
+                    $MemberPayoutIncome->income_id                              = $income->id;
+                    $MemberPayoutIncome->payout_amount                          = $totalIncomeValue;
+                    $MemberPayoutIncome->income_payout_parameter_1_name         = $income->income_payout_parameter_1_name;
+                    $MemberPayoutIncome->income_payout_parameter_1_value        = $income->income_payout_parameter_1_value;
+                    $MemberPayoutIncome->save();
+                }
+            }
+        }
     }
+
     public function updateRank($payout){
         $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
