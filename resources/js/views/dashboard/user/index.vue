@@ -142,20 +142,6 @@
           </el-col>
        
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <div class="card-panel gr2" >
-              <div class="card-panel-icon-wrapper icon-shopping">
-                <i class="fas fa-tags card-panel-icon"  ></i>
-              </div>
-              <div class="card-panel-description">
-                
-                <count-to :start-val="0" :end-val="parseInt(dashboardStats.cashback_income)" :duration="3600" class="card-panel-num" />
-                <div class="card-panel-text">
-                  Total Cashback
-                </div>
-              </div>
-            </div>
-          </el-col>
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/personal-pv">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-shopping">

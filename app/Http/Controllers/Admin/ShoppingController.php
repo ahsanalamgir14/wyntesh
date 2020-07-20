@@ -235,7 +235,7 @@ class ShoppingController extends Controller
                     $Order->user->member->sponsor->wallet_balance += ($Order->pv*$incmParam)/100;
                     $Order->user->member->sponsor->save();
 
-                    $TransactionType=TransactionType::where('name','Affiliate Income Credit')->first();
+                    $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
                     $WalletTransaction=new WalletTransaction;
                     $WalletTransaction->member_id           = $Order->user->member->id;
                     $WalletTransaction->balance             = $Order->user->member->sponsor->wallet_balance;
@@ -312,7 +312,7 @@ class ShoppingController extends Controller
                 $Order->user->member->sponsor->save();
 
                 if($Order->user->member->sponsor){
-                    $TransactionType=TransactionType::where('name','Affiliate Income Debit')->first();
+                    $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
                     $WalletTransaction=new WalletTransaction;
                     $WalletTransaction->member_id            =$Order->user->member->id;
                     $WalletTransaction->balance              =$Order->user->member->sponsor->wallet_balance;
