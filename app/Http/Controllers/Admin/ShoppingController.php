@@ -183,6 +183,7 @@ class ShoppingController extends Controller
             $ExistingSale=Sale::where('order_id',$Order->id)->first();
             // dd($request->delivery_status);
             if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){
+              
                 $final_amount_company=($Order->final_amount)-($Order->gst)-($Order->shipping_fee)-($Order->admin_fee);
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
@@ -195,22 +196,7 @@ class ShoppingController extends Controller
                 }
 
                 $Sale->save();
-                $cashback_percent=CompanySetting::getValue('cashback_percent');
-                $cashback_amount = $Order->final_amount*$cashback_percent/100;
-                $Order->user->member->wallet_balance+=$cashback_amount;
-                $Order->user->member->current_personal_pv+=$Order->pv;
-                $Order->user->member->total_personal_pv+=$Order->pv;
-                $Order->user->member->save();
-
-                $TransactionType=TransactionType::where('name','Cashback Income')->first();
-                $WalletTransaction=new WalletTransaction;
-                $WalletTransaction->member_id=$Order->user->member->id;
-                $WalletTransaction->balance=$Order->user->member->wallet_balance;
-                $WalletTransaction->amount=$cashback_amount;
-                $WalletTransaction->transaction_type_id=$TransactionType->id;
-                $WalletTransaction->transaction_by=$User->id;
-                $WalletTransaction->note='Order Confirm';
-                $WalletTransaction->save();
+               
 
                 if(!$Order->user->is_active){
                     $minimum_purchase=CompanySetting::getValue('minimum_purchase');
@@ -228,14 +214,17 @@ class ShoppingController extends Controller
 
                 // Add Affiliate bonus to sponser
                 $Incomes=Income::where("code","AFFILIATE")->with('income_parameters')->first();
-                $Incomes->income_parameters[0]->value_1 = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
-                $incmParam = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
 
+                $Incomes->income_parameters[0]->value_1 = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
+
+                $incmParam = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
+           
                 if($Order->user->member->sponsor){
                     $Order->user->member->sponsor->wallet_balance += ($Order->pv*$incmParam)/100;
                     $Order->user->member->sponsor->save();
 
                     $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
+
                     $WalletTransaction=new WalletTransaction;
                     $WalletTransaction->member_id           = $Order->user->member->id;
                     $WalletTransaction->balance             = $Order->user->member->sponsor->wallet_balance;
@@ -243,7 +232,7 @@ class ShoppingController extends Controller
                     $WalletTransaction->transaction_type_id = $TransactionType->id;
                     $WalletTransaction->transaction_by      = $User->id;
                     $WalletTransaction->transfered_to       = $Order->user->member->sponsor->user->id;
-                    $WalletTransaction->note                = 'Oreder Confirm';
+                    $WalletTransaction->note                = 'Affiliate Bonus';
                     $WalletTransaction->save();
                 }
                 
@@ -320,12 +309,9 @@ class ShoppingController extends Controller
                     $WalletTransaction->transaction_type_id  =$TransactionType->id;
                     $WalletTransaction->transfered_from      =$Order->user->member->sponsor->user->id;
                     $WalletTransaction->transaction_by       =$User->id;
-                    $WalletTransaction->note                 ='Order return';
+                    $WalletTransaction->note                 ='Affiliate Bonus Debit';
                     $WalletTransaction->save();
                 }
-
-
-
                 event(new UpdateGroupPVEvent($Order,$Order->user,'subtract'));
             }
 

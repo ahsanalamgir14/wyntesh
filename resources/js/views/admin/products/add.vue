@@ -290,7 +290,7 @@ export default {
         discount_rate:undefined,
         discount_amount:undefined,
         admin_fee:undefined,
-        shipping_fee:undefined,        
+        shipping_fee:0.00,        
         pv:undefined,                
         stock:1,
         cover_image:undefined,

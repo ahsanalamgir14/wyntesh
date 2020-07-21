@@ -71,7 +71,7 @@ class PayoutsController extends Controller
         $PayoutType=PayoutType::where('name','Monthly')->first();
 
         $request->date_range    = ['2020-07-17','2020-07-20'];        
-        $request->incomes       = ['3'];        
+        $request->incomes       = ['3','4'];        
       /*  $validate = Validator::make($request->all(), [
             'date_range' => 'required',
             'incomes' => 'required',

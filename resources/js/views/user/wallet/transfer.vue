@@ -65,7 +65,7 @@
         type="success"
         icon="el-icon-upload"
         @click="shotTransferPopup()"
-      >{{ kyc_status?'Transfer Balance':'Verify your KYC First to ransfer Balance'}}</el-button>
+      >{{ kyc_status?'Transfer Balance':'Verify your KYC First to Transfer Balance'}}</el-button>
     </div>
 
     <el-table

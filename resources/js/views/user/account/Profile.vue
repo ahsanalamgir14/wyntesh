@@ -285,6 +285,7 @@
                     </el-form-item>
                   </div>
                 </el-col>
+
                 <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
                   <div class="img-upload">
                     <el-form-item  prop="pan_image">
@@ -310,6 +311,32 @@
                     </el-form-item>
                   </div>
                 </el-col>
+
+              <!--   <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
+                  <div class="img-upload">
+                    <el-form-item  prop="pan_image">
+                      <label for="Bank/Cheque Image Image">Distributor Contract</label>
+                      <el-upload
+                        class="avatar-uploader"
+                        action="#"
+                         ref="upload"
+                        :show-file-list="true"
+                        :auto-upload="false"
+                        :on-change="handleChequeChange"
+                        :on-remove="handleChequeRemove"
+                        :limit="1"
+                        :file-list="chequefileList"
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg">
+                        
+                        <img v-if="temp.kyc.cheque_image" :src="temp.kyc?temp.kyc.cheque_image:''" class="avatar">
+                        <i v-if="temp.kyc.cheque_image"  slot="default" class="el-icon-plus"></i>
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                      </el-upload> 
+                      <a  v-if="temp.kyc.cheque_image" :href="temp.kyc?temp.kyc.cheque_image:''" target="_blank">View full image.</a>                     
+                    </el-form-item>
+                  </div>
+                </el-col> -->
               </el-row>
               <el-form-item style="margin-top:20px;">
                 <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">

@@ -175,7 +175,10 @@ class GeneratePayoutListener
             // Get Payout income from payout id
             $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
             if($income->code=='SQUAD'){
-                $this->PayoutIncomeFactor($income,$PayoutIncome,$payout);
+                $this->PayoutSquadIncomeFactor($income,$PayoutIncome,$payout);
+            }
+            if($income->code=='ELEVATION'){
+                $this->PayoutElevationIncomeFactor($income,$PayoutIncome,$payout);
             }
         }
 
@@ -183,14 +186,92 @@ class GeneratePayoutListener
         foreach ($Members as $Member) {
             $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
             $Incomes = Income::whereIn('id',$income_ids)->get();
-            
-
             foreach($Incomes as $income){
                 if($income->code=='SQUAD'){
                     $this->PayoutSquadIncome($income,$payout,$memberPayout,$Member);
                 }
             }
         }
+    }
+
+  
+
+    public function PayoutElevationIncomeFactor($income,$PayoutIncome,$payout) {
+        $weekly_company_turnover_percent=0;
+        
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='monthly_company_turnover_percent'){
+                $weekly_company_turnover_percent=$parameter->value_1;
+            }
+        }
+
+        // Counting matching point value based on parameters and plan criteria
+        $PayoutIncome->income_payout_parameter_1_name='ebp';
+        if($payout->total_matched_bv==0){
+            $income_factor=0;
+        }else{
+            $income_factor=(($payout->sales_bv*$weekly_company_turnover_percent)/100)/$payout->total_matched_bv;    
+        }
+        
+        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
+        $PayoutIncome->save();
+    }
+
+    public function PayoutSquadIncomeFactor($income,$PayoutIncome,$payout) {
+        $weekly_company_turnover_percent=0;
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='weekly_company_turnover_percent'){
+                $weekly_company_turnover_percent=$parameter->value_1;
+            }
+        }
+        // Counting matching point value based on parameters and plan criteria
+        $PayoutIncome->income_payout_parameter_1_name='sbp';
+        if($payout->total_matched_bv==0){
+            $income_factor=0;
+        }else{
+            $income_factor=(($payout->sales_bv*$weekly_company_turnover_percent)/100)/$payout->total_matched_bv;    
+        }
+        
+        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
+        $PayoutIncome->save();
+    }
+
+    public function PayoutSquadIncome($income,$payout,$memberPayout,$Member) {
+
+        $totalIncomeValue = "";
+        $payoutIcome = PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
+        $factor = $payoutIcome->income_payout_parameter_1_value;
+        $totalIncomeValue = $memberPayout->total_matched_bv*$factor;
+
+
+        if($totalIncomeValue!="0.0"){
+
+            $Member->wallet_balance += $totalIncomeValue;
+            $Member->save();
+
+            $WalletTransaction=new WalletTransaction;
+            $WalletTransaction->member_id            = $Member->id;
+            $WalletTransaction->balance              = $Member->wallet_balance;
+            $WalletTransaction->amount               = $totalIncomeValue;
+            $WalletTransaction->transaction_by       = $Member->id;;
+            $WalletTransaction->note                 = 'Affiliate Bonus';
+            $this->commonWalletTransectionEntry($WalletTransaction,'Affiliate Bonus');
+
+            $MemberPayoutIncome = new MemberPayoutIncome;
+            $MemberPayoutIncome->member_id                              = $Member->id;
+            $MemberPayoutIncome->payout_id                              = $payout->id;
+            $MemberPayoutIncome->income_id                              = $income->id;
+            $MemberPayoutIncome->payout_amount                          = $totalIncomeValue;
+            $MemberPayoutIncome->income_payout_parameter_1_name         = $income->income_payout_parameter_1_name;
+            $MemberPayoutIncome->income_payout_parameter_1_value        = $income->income_payout_parameter_1_value;
+            $MemberPayoutIncome->save();
+        }
+    }
+
+    public function commonWalletTransectionEntry($WalletTransaction,$transectointype) {
+        $TransactionType=TransactionType::where('name',$transectointype)->first();
+        $WalletTransaction->transaction_type_id  = $TransactionType->id;
+        $WalletTransaction->save();
     }
 
     public function updateRank($payout){
@@ -229,8 +310,7 @@ class GeneratePayoutListener
                     }
 
                 }
-
-            } 
+            }
             $RankLog=new RankLog;
             $RankLog->payout_id=$payout->id;
             $RankLog->member_id=$Member->id;
@@ -238,40 +318,5 @@ class GeneratePayoutListener
             $RankLog->save();
         }
     }
-    public function PayoutIncomeFactor($income,$PayoutIncome,$payout) {
-        $weekly_company_turnover_percent=0;
-        foreach ($income->income_parameters as $parameter) {
-            if($parameter->name=='weekly_company_turnover_percent'){
-                $weekly_company_turnover_percent=$parameter->value_1;
-            }
-        }
-        // Counting matching point value based on parameters and plan criteria
-        $PayoutIncome->income_payout_parameter_1_name='sbp';
-        if($payout->total_matched_bv==0){
-            $income_factor=0;
-        }else{
-            $income_factor=(($payout->sales_bv*$weekly_company_turnover_percent)/100)/$payout->total_matched_bv;    
-        }
-        
-        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
-        $PayoutIncome->save();
-    }
 
-    public function PayoutSquadIncome($income,$payout,$memberPayout,$Member) {
-
-        $totalIncomeValue = "";
-        $payoutIcome = PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
-        $factor = $payoutIcome->income_payout_parameter_1_value;
-        $totalIncomeValue = $memberPayout->total_matched_bv*$factor;
-        if($totalIncomeValue!="0.0"){
-            $MemberPayoutIncome = new MemberPayoutIncome;
-            $MemberPayoutIncome->member_id                              = $Member->id;
-            $MemberPayoutIncome->payout_id                              = $payout->id;
-            $MemberPayoutIncome->income_id                              = $income->id;
-            $MemberPayoutIncome->payout_amount                          = $totalIncomeValue;
-            $MemberPayoutIncome->income_payout_parameter_1_name         = $income->income_payout_parameter_1_name;
-            $MemberPayoutIncome->income_payout_parameter_1_value        = $income->income_payout_parameter_1_value;
-            $MemberPayoutIncome->save();
-        }
-    }
 }
