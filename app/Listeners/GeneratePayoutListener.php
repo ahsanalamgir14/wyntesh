@@ -172,29 +172,25 @@ class GeneratePayoutListener
         // Get Income Ids of Payout 
         $Incomes=Income::whereIn('id',$income_ids)->get();
         foreach ($Incomes as $income) {
-
             // Get Payout income from payout id
             $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
             if($income->code=='SQUAD'){
                 $this->PayoutIncomeFactor($income,$PayoutIncome,$payout);
-                // $this->PayoutSquadIncome($income,$PayoutIncome,$payout);
             }
-
         }
 
 
         foreach ($Members as $Member) {
             $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
             $Incomes = Income::whereIn('id',$income_ids)->get();
-            $totalIncomeValue = "";
+            
+
             foreach($Incomes as $income){
                 if($income->code=='SQUAD'){
-                    $this->PayoutSquadIncome($income,$PayoutIncome,$payout);
+                    $this->PayoutSquadIncome($income,$payout,$memberPayout,$Member);
                 }
-
             }
         }
-
     }
 
     public function updateRank($payout){
@@ -261,7 +257,9 @@ class GeneratePayoutListener
         $PayoutIncome->save();
     }
 
-    public function PayoutSquadIncome($income,$PayoutIncome,$payout) {
+    public function PayoutSquadIncome($income,$payout,$memberPayout,$Member) {
+
+        $totalIncomeValue = "";
         $payoutIcome = PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
         $factor = $payoutIcome->income_payout_parameter_1_value;
         $totalIncomeValue = $memberPayout->total_matched_bv*$factor;
