@@ -30,7 +30,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('jwt.verify', ['except' => ['login','register','emailVerify','mailcheck','google']]);
+        $this->middleware('jwt.verify', ['except' => ['login','register','emailVerify','mailcheck','google','edu']]);
     }
 
 
@@ -90,7 +90,7 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request)
-    {	
+    {
 
         $credentials = request(['username','email', 'password']);
 
@@ -124,6 +124,38 @@ class AuthController extends Controller
             return response()->json(['status'=>false,'message' => 'invalid_credentials'], 401);            
         }
             
+    }
+
+    public function edu(Request $request){
+
+        $credentials = request(['username', 'password']);
+        $username=isset($request->username)?$request->username:'';
+        $password=$request->password;
+      
+        if(!empty($username)  && !empty($password)){
+            $credentials=['username' => $credentials['username'], 'password' => $credentials['password']];
+        }else {
+            return response()->json(['status'=>false,'message' => 'Username and password required'], 401);            
+        }
+
+        if ($token = JWTAuth::attempt($credentials))
+        {
+            $user=JWTAuth::user();
+            $userinfo['name']           = $user->name;
+            $userinfo['joining_date']   = date('d-m-Y h:i:s',strtotime($user->created_at)); ;
+            $userinfo['dob']            = date('d-m-Y',strtotime($user->dob));
+            $userinfo['contact']        = $user->contact;
+            $userinfo['email']          = $user->email;  
+            if($user->member->total_personal_pv >=2000 && $user->member->total_personal_pv < 3700){
+                $userinfo['package']  = "Intermidiate";  
+            }elseif($user->member->total_personal_pv>=3700){
+                $userinfo['package']  = "Expert";  
+            }
+            $response = array('status' => true,'message'=>"Education info.",'data'=>$userinfo);
+            return response()->json($response, 400);
+        }else{
+            return response()->json(['status'=>false,'message' => 'invalid_credentials'], 401);            
+        }
     }
 
     public function admin_login(Request $request)

@@ -17,6 +17,7 @@ Route::get('/', function (Request $request) {
     return 'Working';
 });
 
+Route::get('edu', 'Auth\AuthController@edu');
 Route::get('mail', 'Auth\AuthController@mailCheck');
 Route::get('import', '\App\Http\Controllers\Admin\CronsController@PVImport');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');

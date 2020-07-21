@@ -7,7 +7,7 @@ export default {
   title: 'Wyntash',
   theme: variables.theme,
   totalLegs:4,
-  baseUrl:'http://wyntash-soft.mlmsoftwaredemo.org/',
+  baseUrl:'https://business.wyntash.in/',
   /**
    * @type {boolean} true | false
    * @description Whether show the settings right-panel
