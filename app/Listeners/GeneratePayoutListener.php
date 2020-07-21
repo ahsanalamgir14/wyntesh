@@ -171,33 +171,13 @@ class GeneratePayoutListener
 
         // Get Income Ids of Payout 
         $Incomes=Income::whereIn('id',$income_ids)->get();
-        
         foreach ($Incomes as $income) {
 
             // Get Payout income from payout id
             $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
             if($income->code=='SQUAD'){
-
-                $weekly_company_turnover_percent=0;
-
-                foreach ($income->income_parameters as $parameter) {
-                    // Get parameter for matching bonus income.
-                    
-                    if($parameter->name=='weekly_company_turnover_percent'){
-                        $weekly_company_turnover_percent=$parameter->value_1;
-                    }  
-                }
-
-                // Counting matching point value based on parameters and plan criteria
-                $PayoutIncome->income_payout_parameter_1_name='sbp';
-                if($payout->total_matched_bv==0){
-                    $income_factor=0;
-                }else{
-                    $income_factor=(($payout->sales_bv*$weekly_company_turnover_percent)/100)/$payout->total_matched_bv;    
-                }
-                
-                $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
-                $PayoutIncome->save();
+                $this->PayoutIncomeFactor($income,$PayoutIncome,$payout);
+                // $this->PayoutSquadIncome($income,$PayoutIncome,$payout);
             }
 
         }
@@ -209,22 +189,12 @@ class GeneratePayoutListener
             $totalIncomeValue = "";
             foreach($Incomes as $income){
                 if($income->code=='SQUAD'){
-                    $payoutIcome = PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
-                    $factor = $payoutIcome->income_payout_parameter_1_value;
-                    $totalIncomeValue = $memberPayout->total_matched_bv*$factor; 
+                    $this->PayoutSquadIncome($income,$PayoutIncome,$payout);
                 }
-                if($totalIncomeValue!="0.0"){
-                    $MemberPayoutIncome = new MemberPayoutIncome;
-                    $MemberPayoutIncome->member_id                              = $Member->id;
-                    $MemberPayoutIncome->payout_id                              = $payout->id;
-                    $MemberPayoutIncome->income_id                              = $income->id;
-                    $MemberPayoutIncome->payout_amount                          = $totalIncomeValue;
-                    $MemberPayoutIncome->income_payout_parameter_1_name         = $income->income_payout_parameter_1_name;
-                    $MemberPayoutIncome->income_payout_parameter_1_value        = $income->income_payout_parameter_1_value;
-                    $MemberPayoutIncome->save();
-                }
+
             }
         }
+
     }
 
     public function updateRank($payout){
@@ -235,24 +205,17 @@ class GeneratePayoutListener
             $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('pv');
             $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
             $counts=array();
-            
             foreach ($children as $child) {
                 $child_ids=$MembersController->getChildsOfParent($child);
                 $child_ids[]=$child;
-
-               $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
-               //if($Member->id==1)
-                
+                $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
                 $check_rank=array_unique($check_rank);
-              foreach ($check_rank as $check) {
-                        $counts[]=$check;
-               }                           
+                foreach ($check_rank as $check) {
+                    $counts[]=$check;
+                }                           
             }
-            
             $counts=array_count_values($counts);
-
             foreach ($Ranks as $Rank) {
-               
                 if($Rank->bv_to){
                     if($group_pv >= $Rank->bv_from ){
                        
@@ -272,12 +235,45 @@ class GeneratePayoutListener
                 }
 
             } 
-            
             $RankLog=new RankLog;
             $RankLog->payout_id=$payout->id;
             $RankLog->member_id=$Member->id;
             $RankLog->rank_id=$Member->rank_id;
             $RankLog->save();
+        }
+    }
+    public function PayoutIncomeFactor($income,$PayoutIncome,$payout) {
+        $weekly_company_turnover_percent=0;
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='weekly_company_turnover_percent'){
+                $weekly_company_turnover_percent=$parameter->value_1;
+            }
+        }
+        // Counting matching point value based on parameters and plan criteria
+        $PayoutIncome->income_payout_parameter_1_name='sbp';
+        if($payout->total_matched_bv==0){
+            $income_factor=0;
+        }else{
+            $income_factor=(($payout->sales_bv*$weekly_company_turnover_percent)/100)/$payout->total_matched_bv;    
+        }
+        
+        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
+        $PayoutIncome->save();
+    }
+
+    public function PayoutSquadIncome($income,$PayoutIncome,$payout) {
+        $payoutIcome = PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
+        $factor = $payoutIcome->income_payout_parameter_1_value;
+        $totalIncomeValue = $memberPayout->total_matched_bv*$factor;
+        if($totalIncomeValue!="0.0"){
+            $MemberPayoutIncome = new MemberPayoutIncome;
+            $MemberPayoutIncome->member_id                              = $Member->id;
+            $MemberPayoutIncome->payout_id                              = $payout->id;
+            $MemberPayoutIncome->income_id                              = $income->id;
+            $MemberPayoutIncome->payout_amount                          = $totalIncomeValue;
+            $MemberPayoutIncome->income_payout_parameter_1_name         = $income->income_payout_parameter_1_name;
+            $MemberPayoutIncome->income_payout_parameter_1_value        = $income->income_payout_parameter_1_value;
+            $MemberPayoutIncome->save();
         }
     }
 }

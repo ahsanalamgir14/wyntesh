@@ -10,7 +10,7 @@ use App\Models\Admin\Member;
 use App\Models\User\User;
 use App\Models\Admin\PayoutType;
 use App\Models\Admin\PayoutIncome;
-use App\Events\GenerateMonthlyPayoutEvent;
+use App\Events\GeneratePayoutEvent;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
@@ -102,7 +102,8 @@ class PayoutsController extends Controller
             $PayoutIncome->save();
         }
 
-        event(new GenerateMonthlyPayoutEvent($Payout));
+        // event(new GenerateMonthlyPayoutEvent($Payout));
+           event(new GeneratePayoutEvent($Payout));
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');
         return response()->json($response, 200);
