@@ -45,7 +45,7 @@
                 <p class="product-cat"><el-tag size="mini" type="warning" effect="dark" :key="cat.name" v-for="cat in temp.categories" >{{cat.name}}</el-tag></p>
                 <p class="product-qty">{{temp.qty}} {{temp.qty_unit}}</p>
                 <p class="product-qty"><b>{{temp.stock}}</b> Units left (Hurry up)</p>
-                <p class="product-price" slot="reference">DP - ₹ {{temp.dp_amount}} /- 
+                <!-- <p class="product-price" slot="reference">DP - ₹ {{temp.dp_amount}} /- 
                   <el-popover                  
                       placement="right"
                       width="200"
@@ -58,7 +58,7 @@
                         <p><b>DP</b> : {{temp.dp_amount}}</p>
                       </div>
                   </el-popover>
-                </p>
+                </p> -->
                 <p class="product-price" slot="reference">MRP - ₹ {{temp.retail_amount}} /- 
                   <el-popover                  
                       placement="right"

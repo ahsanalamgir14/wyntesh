@@ -16,9 +16,7 @@
     "report": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --report --config=node_modules/laravel-mix/setup/webpack.config.js",
     "lint": "eslint --ext .js,.vue resources/js"
   },
-  "husky": {
-    
-  },
+  "husky": {},
   "lint-staged": {
     "resources/**/*.{js,vue}": [
       "eslint --fix",
