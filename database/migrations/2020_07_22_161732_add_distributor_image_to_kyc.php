@@ -14,7 +14,7 @@ class AddDistributorImageToKyc extends Migration
     public function up()
     {
         Schema::table('kyc', function (Blueprint $table) {
-              $table->string('distributor_image')->after('cheque_image')->nullable();
+              $table->text('distributor_image')->after('cheque_image')->nullable();
         });
     }
 
