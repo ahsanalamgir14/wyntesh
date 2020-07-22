@@ -244,6 +244,24 @@ class KycController extends Controller
                 $Kyc->cheque_image=$cdn_url;
                 $Kyc->save();
             }
+            if($request->hasFile('distributor_image')){
+                $file = $request->file('distributor_image');
+                $str=rand(); 
+                $randomID = md5($str);
+                $filename=$randomID.'-'.$Kyc->id.".".$file->getClientOriginalExtension();          
+                $project_directory=env('DO_STORE_PATH');
+
+                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
+                
+                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
+                
+                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+                $Kyc->distributor_image=$cdn_url;
+                $Kyc->save();
+            }
+
+         
 
             
             $Kyc= Kyc::with('member.user')->find($request->id);

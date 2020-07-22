@@ -29,11 +29,11 @@
     >
       <el-table-column label="Month" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.month }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Group PV" min-width="150px" align="right">
+      <el-table-column label="Group BV" min-width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ calculateGroupPV(row.legs) }}</span>
         </template>
@@ -60,19 +60,19 @@
       </el-table-column>
       <el-table-column label="Matched" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ getMatched(row.legs) }}</span>
+          <span >{{ row.total_matched_bv }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Carry Forwarded" min-width="140px" align="right">
         <template slot-scope="{row}">
-          <span >{{ getCarryForward(row.legs) }}</span>
+          <span >{{ row.total_carry_forward_bv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Carry Forwarded Leg" min-width="170px" align="right">
+     <!--  <el-table-column label="Carry Forwarded Leg" min-width="170px" align="right">
         <template slot-scope="{row}">
           <span >{{ getCarryForwardLeg(row.legs) }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       
     </el-table>
 
@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import { getGroupAndMatchingPvs, } from "@/api/user/payouts";
+import { fetchPayouts, } from "@/api/user/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
@@ -168,9 +168,9 @@ export default {
   methods: {
     getList() {
       this.listLoading = true;
-      getGroupAndMatchingPvs(this.listQuery).then(response => {
-        this.list = response.data;
-        this.total = response.total;
+      fetchPayouts(this.listQuery).then(response => {
+        this.list = response.data.data;
+        this.total = response.data.total;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);

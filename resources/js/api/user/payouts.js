@@ -47,3 +47,13 @@ export function getGroupAndMatchingPvs(query) {
     params: query
   })
 }
+
+
+
+export function getRankLogs(query) {
+  return request({
+    url: '/user/rank-logs',
+    method: 'get',
+    params: query
+  })
+}

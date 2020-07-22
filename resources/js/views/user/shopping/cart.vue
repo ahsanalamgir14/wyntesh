@@ -197,23 +197,15 @@ export default {
       getMyCart().then(response => {
         this.cartProducts = response.data;   
         this.calculateFinal();
-        if(this.temp.grand_total>=1500){
-          this.temp.shipping=0;
-        }else{
-          this.temp.shipping=parseFloat(this.settings.shipping_charge);
-          this.temp.grand_total+=this.temp.shipping;
-        }
+        this.temp.shipping=parseFloat(this.settings.shipping_charge);
+        this.temp.grand_total+=this.temp.shipping;
       });
     },
     getSettings() {      
       getSettings().then(response => {
-        this.settings = response.data
-        if(this.temp.grand_total>=1500){
-          this.temp.shipping=0;
-        }else{
+        this.settings = response.data  
           this.temp.shipping=parseFloat(this.settings.shipping_charge);
           this.temp.grand_total+=this.temp.shipping;
-        }
       });
     },
     calculateFinal() {

@@ -64,6 +64,15 @@ export function releaseMemberHoldPayout(data) {
   })
 }
 
+export function getMonthlyOverview(query) {
+  return request({
+    url: '/admin/get-monthly-overview',
+    method: 'get',
+    params: query
+  })
+}
+
+
 export function getGroupAndMatchingPvs(query) {
   return request({
     url: '/admin/group-and-matching-pvs',

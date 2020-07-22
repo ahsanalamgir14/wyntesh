@@ -556,6 +556,12 @@ export const asyncRoutes = [
         meta: { title: 'Member Business', icon: 'fas fa-users', color:'color:#5742f5', affix: true, roles: ['admin'] }
       },
       {
+        path: 'monthly-overview',
+        component: () => import('@/views/admin/reports/monthly-overview'),
+        name: 'Monthly Overview',
+        meta: { title: 'Monthly Overview', icon: 'fas fa-users', color:'color:#5742f5', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'joining-report',
         component: () => import('@/views/admin/reports/joining-report'),
         name: 'Joinings',
@@ -1049,6 +1055,16 @@ export const asyncRoutes = [
         component: () => import('@/views/user/reports/tds-report'),
         name: 'TDS',
         meta: { title: 'TDS', icon: 'fas fa-hand-holding-usd', color:'color:#62a832', affix: true, roles: ['user'] }
+      },{
+        path: 'rank-logs',
+        component: () => import('@/views/user/reports/rank-logs'),
+        name: 'Rank Logs',
+        meta: { title: 'Rank Logs', icon: 'fas fa-trophy', color: 'color:#0377fc', affix: true, roles: ['user'] },
+      },{
+        path: 'group-business',
+        component: () => import('@/views/user/reports/group-business'),
+        name: 'Current Business',
+        meta: { title: 'Current Business', icon: 'fas fa-percent', color: 'color:#fcba03', affix: true, roles: ['user'] },
       },
       {
         path: 'group-and-matching',

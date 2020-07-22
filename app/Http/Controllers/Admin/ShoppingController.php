@@ -19,6 +19,7 @@ use App\Models\Admin\ActivationLog;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\Member;
 use App\Models\Admin\Income;
+use App\Models\Admin\Payout;
 use App\Models\User\Address;
 use App\Models\User\User;
 use Validator;
@@ -83,6 +84,85 @@ class ShoppingController extends Controller
        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
         return response()->json($response, 200);
     }
+
+    public function getMonthlyOverview(Request $request) {
+       
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $month=$request->month;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$month ){     
+            $month = date('m');
+            $year = date('Y');
+            
+            $Orders=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])
+                    ->whereYear('created_at', '=', $year)
+                    ->whereMonth('created_at', '=', $month);
+
+            $order_count=$Orders->count();
+            $order_total_pv=$Orders->sum('pv');
+            $order_total_amount=$Orders->sum('final_amount');
+            $order_total_gst=$Orders->sum('gst');
+            $total_tds=0;
+            $total_admin_fee=0;
+            $Payout=Payout::whereYear('sales_start_date', '=', $year)
+                    ->whereMonth('sales_start_date', '=', $month)->first();
+
+            if($Payout){
+                $total_tds=$Payout->tds;
+                $total_admin_fee=$Payout->admin_fee;
+            }
+
+            $monthly_business=[['order_count'=>$order_count,'order_total_pv'=>$order_total_pv,'order_total_amount'=>$order_total_amount,'order_total_gst'=>$order_total_gst,'total_tds'=>$total_tds,'total_admin_fee'=>$total_admin_fee]];
+        }else{
+
+            $month=$month.'-01';
+            $date=Carbon::parse($month);
+            $month = $date->month;
+            $year = $date->year;
+
+            $Orders=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])
+                    ->whereYear('created_at', '=', $year)
+                    ->whereMonth('created_at', '=', $month);
+
+            $order_count=$Orders->count();
+            $order_total_pv=$Orders->sum('pv');
+            $order_total_amount=$Orders->sum('final_amount');
+            $order_total_gst=$Orders->sum('gst');
+            $total_tds=0;
+            $total_admin_fee=0;
+            $Payout=Payout::whereYear('sales_start_date', '=', $year)
+                    ->whereMonth('sales_start_date', '=', $month)->first();
+
+            if($Payout){
+                $total_tds=$Payout->tds;
+                $total_admin_fee=$Payout->admin_fee;
+            }
+
+            $monthly_business=[['order_count'=>$order_count,'order_total_pv'=>$order_total_pv,'order_total_amount'=>$order_total_amount,'order_total_gst'=>$order_total_gst,'total_tds'=>$total_tds,'total_admin_fee'=>$total_admin_fee]];
+        }
+        
+       $response = array('status' => true,'message'=>"Monthly Business summury retrieved.",'data'=>$monthly_business);
+        return response()->json($response, 200);
+    }
+
+
 
     public function getAllOrders(Request $request)
     {

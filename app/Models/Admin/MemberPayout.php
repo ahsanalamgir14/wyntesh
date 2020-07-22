@@ -9,7 +9,7 @@ class MemberPayout extends Model
 {
     protected $table = 'member_payouts';
     public $timestamps = true;
-    protected $appends = ['rank'];
+    protected $appends = ['rank','legs'];
     public function payout()
     {
         return $this->belongsTo('App\Models\Admin\Payout');
@@ -27,9 +27,25 @@ class MemberPayout extends Model
 
     }
 
-    public function member()
+    public function getLegsAttribute()
     {
-        return $this->belongsTo('App\Models\Admin\Member');
-    }  
+        if($this->payout){
+            $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
+           ->whereDate('created_at','<=',$this->payout->sales_end_date)
+           ->whereDate('created_at','>=',$this->payout->sales_start_date)
+           ->where('member_id',$this->member->id)
+           ->orderBy('totalPv','desc')
+           ->groupBy('position')
+           ->get();
+           return $legs; 
+       }else{
+        return '';
+    }    
+}
+
+public function member()
+{
+    return $this->belongsTo('App\Models\Admin\Member');
+}  
 
 }

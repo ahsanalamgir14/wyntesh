@@ -141,6 +141,8 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('income-holding-payouts', 'PayoutsController@getIncomeHoldingPayouts');
     Route::get('group-and-matching-pvs', 'PayoutsController@getGroupAndMatchingPvs');
     Route::get('personal-pv-monthly', 'ShoppingController@getPersonalPVMonthly');
+    Route::get('rank-logs', 'RanksController@getRankLogs');
+
 
 });
 
@@ -326,6 +328,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('payout-incomes/member', 'PayoutsController@getMemberPayoutIncomes');
     Route::get('income-holdings/member', 'PayoutsController@getMemberIncomeHoldings');
     Route::post('payout/release/member-holding', 'PayoutsController@releaseMemberHoldPayout');
+    Route::get('get-monthly-overview', 'ShoppingController@getMonthlyOverview');
     Route::get('group-and-matching-pvs', 'PayoutsController@getGroupAndMatchingPvs');
 
     Route::get('tds/member', 'PayoutsController@getMemberTDS');

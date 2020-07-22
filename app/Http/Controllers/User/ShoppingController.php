@@ -24,7 +24,7 @@ use App\Events\OrderPlacedEvent;
 
 class ShoppingController extends Controller
 {
-   
+
     public function getCategories(Request $request)
     {
         $page=$request->page;
@@ -54,7 +54,7 @@ class ShoppingController extends Controller
             $Categories=$Categories->with('parent')->orderBy('id',$sort)->paginate($limit);
         }
         
-       $response = array('status' => true,'message'=>"Categories retrieved.",'data'=>$Categories);
+        $response = array('status' => true,'message'=>"Categories retrieved.",'data'=>$Categories);
         return response()->json($response, 200);
     }
 
@@ -111,7 +111,7 @@ class ShoppingController extends Controller
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
-       $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
         return response()->json($response, 200);
     }
 
@@ -131,7 +131,7 @@ class ShoppingController extends Controller
         $Orders=$Orders->first();
 
         
-       $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders, 'user'=>$user_details,'company_details'=>$settings);
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders, 'user'=>$user_details,'company_details'=>$settings);
         return response()->json($response, 200);
     }
 
@@ -248,11 +248,10 @@ class ShoppingController extends Controller
             // $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->retail_amount)*intval($item->qty));
         }
 
-         if($grand_total>=1500){
-          $shipping=0;          
-        }else{
-          $grand_total+=$shipping_charge;  
-        }
+        
+        $grand_total+=$shipping_charge;  
+        $shipping=$shipping_charge;
+        
 
         if($grand_total != $request->grand_total){
             $response = array('status' => false,'message'=>'Order data mismatch. try again');
@@ -361,8 +360,8 @@ class ShoppingController extends Controller
 
         $Orders=Order::selectRaw('*,YEAR(created_at) year, MONTH(created_at) month, sum(pv) as total_pv')
         ->groupBy('year','month')
-       ->where('user_id',$user->id)->whereNotIn('delivery_status',['Order Returned','Order Created','Order Cancelled'])->paginate($limit);
-   
+        ->where('user_id',$user->id)->whereNotIn('delivery_status',['Order Returned','Order Created','Order Cancelled'])->paginate($limit);
+
         $response = array('status' => true,'message'=>"Personal PV History retrieved.",'data'=>$Orders);
         return response()->json($response, 200);
     }

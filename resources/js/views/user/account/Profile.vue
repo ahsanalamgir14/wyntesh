@@ -289,7 +289,7 @@
                 <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
                   <div class="img-upload">
                     <el-form-item  prop="pan_image">
-                      <label for="Bank/Cheque Image Image">Bank/Cheque Image</label>
+                      <label for="Bank/Cheque Image Image">Bank Details</label>
                       <el-upload
                         class="avatar-uploader"
                         action="#"
@@ -312,31 +312,32 @@
                   </div>
                 </el-col>
 
-              <!--   <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
+                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
                   <div class="img-upload">
                     <el-form-item  prop="pan_image">
-                      <label for="Bank/Cheque Image Image">Distributor Contract</label>
+                      <label for="Distributor Contract">Distributor Contract</label>
                       <el-upload
                         class="avatar-uploader"
                         action="#"
                          ref="upload"
                         :show-file-list="true"
                         :auto-upload="false"
-                        :on-change="handleChequeChange"
-                        :on-remove="handleChequeRemove"
+                        :on-change="handleDistributerChange"
+                        :on-remove="handleDistributerRemove"
                         :limit="1"
-                        :file-list="chequefileList"
+                        :file-list="distributerfileList"
                         :on-exceed="handleExceed"
                         accept="image/png, image/jpeg">
                         
-                        <img v-if="temp.kyc.cheque_image" :src="temp.kyc?temp.kyc.cheque_image:''" class="avatar">
-                        <i v-if="temp.kyc.cheque_image"  slot="default" class="el-icon-plus"></i>
+                        <img v-if="temp.kyc.distributor_image" :src="temp.kyc?temp.kyc.distributor_image:''" class="avatar">
+                        <i v-if="temp.kyc.distributor_image"  slot="default" class="el-icon-plus"></i>
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                       </el-upload> 
-                      <a  v-if="temp.kyc.cheque_image" :href="temp.kyc?temp.kyc.cheque_image:''" target="_blank">View full image.</a>                     
+                      <a  v-if="temp.kyc.distributor_image" :href="temp.kyc?temp.kyc.distributor_image:''" target="_blank">View full image.</a>                     
                     </el-form-item>
                   </div>
-                </el-col> -->
+                </el-col>
+
               </el-row>
               <el-form-item style="margin-top:20px;">
                 <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
@@ -379,7 +380,9 @@ export default {
       panfileList:[],
       panfile:undefined,
       chequefileList:[],
+      distributerfileList:[],
       chequefile:undefined,
+      distributerFile:undefined,
       temp:{
           id: undefined,
           name: undefined,
@@ -493,9 +496,25 @@ export default {
       }      
       this.chequefile=f.raw      
     },
+     handleDistributerChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.distributerFile=f.raw      
+    },
+     distributor_image(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.distributerFile=f.raw      
+    },
     handleChequeRemove(file, fileList) {
        this.chequefile=undefined;
        this.chequefileList=[];
+    },
+    handleDistributerRemove(file, fileList) {
+       this.distributerFile=undefined;
+       this.distributerfileList=[];
     },
     handleExceed(files, fileList) {
       this.$message.warning(`You can not select more than one file, please remove first.`);
@@ -536,6 +555,7 @@ export default {
       form.append('profile_picture', this.profilefile);
       form.append('pan_image', this.panfile);
       form.append('cheque_image', this.chequefile);
+      form.append('distributor_image', this.distributerFile);
 
       updateProfile(form).then((response) => {
         this.updating = false;
@@ -556,7 +576,9 @@ export default {
         this.panfile=undefined
         this.panfileList=[];
         this.chequefile=undefined
+        this.distributerFile=undefined
         this.chequefileList=[];
+        this.distributerfileList=[];
       }).catch((err)=>{
         this.updating = false;
         this.buttonLoading=false;

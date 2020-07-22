@@ -42,8 +42,8 @@ class DashboardController extends Controller
         $balance=floatval($User->member->wallet_balance);
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
 
-        // $TransactionType=TransactionType::where('name','Cashback Income')->first();
-        // $cashback_income=WalletTransaction::where('member_id',$User->member->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
+        $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
+        $affiliateIncome=WalletTransaction::where('member_id',$User->member->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
         
         $response = array(
             'status' => true,
@@ -62,6 +62,7 @@ class DashboardController extends Controller
                 'total_group_bv'=>$total_group_bv,
                 'total_matched'=>$total_matched,
                 'distributor_discount'=>$distributor_discount,
+                'affiliateIncome'=>$affiliateIncome,
                 // 'cashback_income'=>$cashback_income,
             )
         );             

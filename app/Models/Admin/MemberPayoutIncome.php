@@ -26,7 +26,9 @@ class MemberPayoutIncome extends Model
     {
         $group_pv=0;
         $MemberPayout=MemberPayout::where('payout_id',$this->payout_id)->where('member_id',$this->member_id)->first();
-        $group_pv=$MemberPayout->group_sales_pv?$MemberPayout->group_sales_pv:0;
+        if($MemberPayout){
+            $group_pv=$MemberPayout->group_sales_pv?$MemberPayout->group_sales_pv:0;
+        }
         return $group_pv;
     }
 

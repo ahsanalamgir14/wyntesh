@@ -250,10 +250,11 @@
                   </el-form-item>
                 </div>
               </el-col>
+         
               <el-col :span="8">
                 <div class="img-upload">
                   <el-form-item  prop="pan_image">
-                    <label for="Bank/Cheque Image Image">Bank/Cheque Image</label>
+                    <label for="Bank/Cheque Image Image">Bank Details</label>
                     <el-upload
                       class="avatar-uploader"
                       action="#"
@@ -275,6 +276,33 @@
                   </el-form-item>
                 </div>
               </el-col>
+                
+                <el-col :span="8">
+                    <div class="img-upload">
+                      <el-form-item  prop="pan_image">
+                        <label for="Distributor Contract">Distributor Contract</label>
+                        <el-upload
+                          class="avatar-uploader"
+                          action="#"
+                           ref="upload"
+                          :show-file-list="true"
+                          :auto-upload="false"
+                          :on-change="handleDistributerChange"
+                          :on-remove="handleDistributerRemove"
+                          :limit="1"
+                          :file-list="distributerfileList"
+                          :on-exceed="handleExceed"
+                          accept="image/png, image/jpeg">
+                          
+                          <img v-if="temp.distributor_image" :src="temp?temp.distributor_image:''" class="avatar">
+                          <i v-if="temp.distributor_image"  slot="default" class="el-icon-plus"></i>
+                          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload> 
+                        <a  v-if="temp.distributor_image" :href="temp?temp.distributor_image:''" target="_blank">View full image.</a>                     
+                      </el-form-item>
+                    </div>
+                </el-col>
+
             </el-row>
             
           </el-tab-pane>
@@ -359,6 +387,7 @@ export default {
       panfile:undefined,
       chequefile:undefined,
       chequefileList:[],
+      distributerfileList:[],
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
@@ -446,6 +475,22 @@ export default {
         fl.shift()  
       }      
       this.chequefile=f.raw      
+    },
+    handleDistributerChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.distributerFile=f.raw      
+    },
+    distributor_image(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.distributerFile=f.raw      
+    },
+    handleDistributerRemove(file, fileList) {
+       this.distributerFile=undefined;
+       this.distributerfileList=[];
     },
     handleChequeRemove(file, fileList) {
        this.chequefile=undefined;
@@ -553,6 +598,7 @@ export default {
       form.append('adhar_image_back', this.adharBackfile);
       form.append('pan_image', this.panfile);
       form.append('cheque_image', this.chequefile);
+      form.append('distributor_image', this.distributerFile);
 
       updateKyc(form).then((response) => {
         this.updating = false;
@@ -577,8 +623,10 @@ export default {
         this.adharBackfile=undefined;
         this.panfile=undefined
         this.panfileList=[];
-        this.chequefile=undefined
+        this.chequefile=undefined;
         this.chequefileList=[];
+        this.distributerFile=undefined;
+        this.distributerfileList=[];
       }).catch((res)=>{
         this.buttonLoading=false;
       });
