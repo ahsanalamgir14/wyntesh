@@ -101,7 +101,7 @@
               <el-select v-model="temp.tags" multiple clearable placeholder="Tags">
                 <el-option 
                   v-for="tag in tags"
-                  :key="tag.id"
+                  :key="tag.name"
                   :label="tag.name"
                   :value="tag.name"
                   style="width: 100%"
@@ -342,7 +342,7 @@ export default {
       this.fileList=[];
       this.file=undefined;
       this.temp = Object.assign({}, row); // copy obj
-      // this.temp.tags = row.tags.split(',');
+      this.temp.tags = row.tags.split(',');
       this.dialogStatus = "update";
       this.dialogGalleryVisible = true;
       this.$nextTick(() => {
