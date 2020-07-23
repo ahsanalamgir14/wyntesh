@@ -43,7 +43,7 @@ class DashboardController extends Controller
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
 
         $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
-        $affiliateIncome=WalletTransaction::where('member_id',$User->member->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
+        $affiliateIncome=WalletTransaction::where('transfered_to',$User->member->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
         
         $response = array(
             'status' => true,

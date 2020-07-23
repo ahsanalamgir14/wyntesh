@@ -84,7 +84,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="140" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="200" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button
             type="primary"
@@ -99,6 +99,13 @@
             circle
             icon="el-icon-edit"
             @click="handleUpdateOrder(row)"
+          ></el-button>
+          <el-button
+            type="warning"
+            :loading="buttonLoading"
+            circle
+            icon="el-icon-printer"
+            @click="invoice(row.id)"
           ></el-button>
         </template>
       </el-table-column>
@@ -459,6 +466,10 @@ export default {
       this.dialogOrderDetailsVisible=true;
       this.orderTitle='Order #'+row.order_no;
       this.temp=row;
+    },
+    invoice(id){
+        let routeData = this.$router.resolve({path: '/invoice/'+id});
+        window.open(routeData.href, '_blank');
     },
     handleUpdateOrder(row){
       let row_data = Object.assign({}, row);

@@ -117,8 +117,13 @@ class ShoppingController extends Controller
 
     public function getOrder($id)
     {
+        // dd($id);
         $user=JWTAuth::user();
-
+        $rolesArray = array();
+        foreach (JWTAuth::user()->roles as $key => $value) {
+            array_push($rolesArray,$value->name);
+        }
+        // dd($rolesArray);
         $user_details=array('name' => $user->name,'username'=>$user->username );
         
         $settings= Setting::orWhere('is_public',1)
@@ -127,7 +132,9 @@ class ShoppingController extends Controller
         $Orders=Order::select();
         $Orders=$Orders->with('products','shipping_address','billing_address','packages');
         $Orders=$Orders->where('id',$id);
-        $Orders=$Orders->where('user_id',$user->id);
+        if(!in_array("admin",$rolesArray)){
+            $Orders=$Orders->where('user_id',$user->id);
+        }
         $Orders=$Orders->first();
 
         

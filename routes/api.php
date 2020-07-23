@@ -79,7 +79,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::post('tickets/add/message', '\App\Http\Controllers\Admin\SupportController@addUserMessage');
 
     Route::post('auth/update-password','\App\Http\Controllers\Auth\AuthController@changePassword');
-   
+    
     Route::get('geneology', 'MembersController@myGeneology');
     Route::get('geneology/member/{id}', 'MembersController@myMemberGeneology');
     Route::get('downlines', 'MembersController@getDownlines');
@@ -133,7 +133,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::post('order/place', 'ShoppingController@placeOrder');
     Route::get('orders', 'ShoppingController@getMyOrders');
-    Route::get('order/{id}', 'ShoppingController@getOrder');
+    
 
     Route::get('payouts', 'PayoutsController@getPayouts');
     Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
@@ -149,19 +149,21 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user','namespace'=>'User'], function($router)
 {   
   
+    Route::get('order/{id}', 'ShoppingController@getOrder');
+
     Route::get('packages/all', 'ConfigController@allPackages');
     Route::get('transaction-types/all', 'ConfigController@allTransactionTypes');
     Route::get('payment-modes/all', 'ConfigController@allPaymentModes');
     Route::get('bank-partners/all', 'ConfigController@allBankPartners');
     Route::get('incomes/all', '\App\Http\Controllers\Admin\IncomesController@getAllIncomes');
 
-    
+  
 });
 
 // Admin Routes
 Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','namespace'=>'Admin'], function($router)
 {   
- 
+   
     Route::get('stats', 'DashboardController@stats');
     Route::get('order/stats', 'DashboardController@orderStats');
     Route::get('activation/stats', 'DashboardController@pinActivations');
@@ -186,7 +188,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::delete('user/{id}/delete', 'UserAndRoleController@deleteUser');
     Route::post('user/change-status', 'UserAndRoleController@changeUserStatus');
     Route::post('user/change-status/activation', 'UserAndRoleController@changeUserActivationStatus');
-   
+    
     Route::get('inquiries', 'InquiriesController@index');
     Route::post('inquiry/change-status', 'InquiriesController@changeInquiryStatus');
     Route::delete('inquiry/{id}/delete', 'InquiriesController@destroy');
