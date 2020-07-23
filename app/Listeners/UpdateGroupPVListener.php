@@ -44,7 +44,7 @@ class UpdateGroupPVListener implements ShouldQueue
         array_shift($uplines);
         $date=date('Y-m-d');
         $month=date('m');
-        Log::info($uplines);
+        // Log::info($uplines);
         foreach ($uplines as $upline) {
             $MembersLegPv=MembersLegPv::where('member_id',$upline)
                 ->where('position',$position)
@@ -52,7 +52,7 @@ class UpdateGroupPVListener implements ShouldQueue
                 // ->whereMonth('created_at', '=', $month)
                 ->first();
             $Members=Member::where('id',$upline)->first();
-            Log::info('PV - '.$order->pv);
+            // Log::info('PV - '.$order->pv);
             if($MembersLegPv){
                 if($type=='add'){
                     $MembersLegPv->pv+=$order->pv;    
