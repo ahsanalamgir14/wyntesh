@@ -103,7 +103,7 @@
                   v-for="tag in tags"
                   :key="tag.id"
                   :label="tag.name"
-                  :value="tag.id"
+                  :value="tag.name"
                   style="width: 100%"
                   >
                 </el-option>
