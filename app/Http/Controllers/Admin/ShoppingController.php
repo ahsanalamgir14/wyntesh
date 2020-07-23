@@ -31,10 +31,10 @@ use DB;
 
 class ShoppingController extends Controller
 {
-   
+
     public function getNewOrders(Request $request)
     {
-       
+
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
@@ -81,12 +81,12 @@ class ShoppingController extends Controller
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
-       $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
         return response()->json($response, 200);
     }
 
     public function getMonthlyOverview(Request $request) {
-       
+
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
@@ -112,8 +112,8 @@ class ShoppingController extends Controller
             $year = date('Y');
             
             $Orders=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])
-                    ->whereYear('created_at', '=', $year)
-                    ->whereMonth('created_at', '=', $month);
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month);
 
             $order_count=$Orders->count();
             $order_total_pv=$Orders->sum('pv');
@@ -122,7 +122,7 @@ class ShoppingController extends Controller
             $total_tds=0;
             $total_admin_fee=0;
             $Payout=Payout::whereYear('sales_start_date', '=', $year)
-                    ->whereMonth('sales_start_date', '=', $month)->first();
+            ->whereMonth('sales_start_date', '=', $month)->first();
 
             if($Payout){
                 $total_tds=$Payout->tds;
@@ -138,8 +138,8 @@ class ShoppingController extends Controller
             $year = $date->year;
 
             $Orders=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])
-                    ->whereYear('created_at', '=', $year)
-                    ->whereMonth('created_at', '=', $month);
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month);
 
             $order_count=$Orders->count();
             $order_total_pv=$Orders->sum('pv');
@@ -148,7 +148,7 @@ class ShoppingController extends Controller
             $total_tds=0;
             $total_admin_fee=0;
             $Payout=Payout::whereYear('sales_start_date', '=', $year)
-                    ->whereMonth('sales_start_date', '=', $month)->first();
+            ->whereMonth('sales_start_date', '=', $month)->first();
 
             if($Payout){
                 $total_tds=$Payout->tds;
@@ -158,7 +158,7 @@ class ShoppingController extends Controller
             $monthly_business=[['order_count'=>$order_count,'order_total_pv'=>$order_total_pv,'order_total_amount'=>$order_total_amount,'order_total_gst'=>$order_total_gst,'total_tds'=>$total_tds,'total_admin_fee'=>$total_admin_fee]];
         }
         
-       $response = array('status' => true,'message'=>"Monthly Business summury retrieved.",'data'=>$monthly_business);
+        $response = array('status' => true,'message'=>"Monthly Business summury retrieved.",'data'=>$monthly_business);
         return response()->json($response, 200);
     }
 
@@ -166,7 +166,7 @@ class ShoppingController extends Controller
 
     public function getAllOrders(Request $request)
     {
-       
+
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
@@ -215,12 +215,12 @@ class ShoppingController extends Controller
                 $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
                 $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
             }
-             $order_total=$order_total->first();
+            $order_total=$order_total->first();
             $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
-       $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders,'sum'=>$order_total);
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders,'sum'=>$order_total);
         return response()->json($response, 200);
     }
 
@@ -263,7 +263,7 @@ class ShoppingController extends Controller
             $ExistingSale=Sale::where('order_id',$Order->id)->first();
             // dd($request->delivery_status);
             if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){
-              
+
                 $final_amount_company=($Order->final_amount)-($Order->gst)-($Order->shipping_fee)-($Order->admin_fee);
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
@@ -276,7 +276,9 @@ class ShoppingController extends Controller
                 }
 
                 $Sale->save();
-               
+
+                $Order->user->member->total_personal_pv+=$Order->pv;
+                $Order->user->member->save(); 
 
                 if(!$Order->user->is_active){
                     $minimum_purchase=CompanySetting::getValue('minimum_purchase');
@@ -298,7 +300,7 @@ class ShoppingController extends Controller
                 $Incomes->income_parameters[0]->value_1 = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
 
                 $incmParam = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
-           
+
                 if($Order->user->member->sponsor){
                     $Order->user->member->sponsor->wallet_balance += ($Order->pv*$incmParam)/100;
                     $Order->user->member->sponsor->save();
@@ -322,14 +324,14 @@ class ShoppingController extends Controller
             if(($request->delivery_status=='Order Cancelled' || $request->delivery_status=='Order Returned')){
 
                 if($old_status !== 'Order Created'){
-                    
+
                     // Remove Affiliate bonus to sponser
                     $Incomes=Income::where("code","AFFILIATE")->with('income_parameters')->first();
                     $Incomes->income_parameters[0]->value_1 = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
                     $incmParam = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
 
                     if($Order->user->member->sponsor){
-                        
+
                         $Order->user->member->sponsor->wallet_balance -= ($Order->pv*$incmParam)/100;
                         $Order->user->member->sponsor->save();
                         $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
@@ -345,6 +347,8 @@ class ShoppingController extends Controller
                     }
                 }
                 
+                $Order->user->member->total_personal_pv-=$Order->pv;
+                $Order->user->member->save();
 
                 $minimum_purchase=CompanySetting::getValue('minimum_purchase');
                 if($Order->user->is_active){
