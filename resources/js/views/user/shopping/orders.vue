@@ -74,7 +74,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" width="100" class-name="small-padding">
+      <el-table-column label="Actions" align="center" width="200" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button
             type="primary"

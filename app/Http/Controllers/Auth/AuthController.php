@@ -146,9 +146,9 @@ class AuthController extends Controller
             $userinfo['dob']            = date('d-m-Y',strtotime($user->dob));
             $userinfo['contact']        = $user->contact;
             $userinfo['email']          = $user->email;  
-            if($user->member->total_personal_pv >=2000 && $user->member->total_personal_pv < 3700){
+            if($user->member->total_personal_pv >=2000 && $user->member->total_personal_pv < 3500){
                 $userinfo['package']  = "Intermidiate";  
-            }elseif($user->member->total_personal_pv>=3700){
+            }elseif($user->member->total_personal_pv>=3500){
                 $userinfo['package']  = "Expert";  
             }
             $response = array('status' => true,'message'=>"Education info.",'data'=>$userinfo);

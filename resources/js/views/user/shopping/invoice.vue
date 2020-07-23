@@ -34,7 +34,7 @@
                           <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
                       </tr>
                        <tr>
-
+ 
                           <td class="meta-head">Order Date</td>
                           <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
                       </tr>
@@ -146,7 +146,15 @@ export default {
   name: "Invoice",
   data() {
     return {
-      order:{},
+      order:{
+            shipping_address:{
+                full_name : undefined
+            },
+            billing_address:{
+                full_name : undefined
+            }
+            
+        },
       company_details:{},
       user:{},
     };
@@ -162,6 +170,7 @@ export default {
         this.company_details = response.company_details;
         this.user = response.user;
         //this.calculateFinal();     
+        // console.log(this.order.shipping_address.full_name);
       });
     },
     print(){

@@ -20,6 +20,7 @@
               <el-form-item label="Quantity Unit" prop="qty_unit">
                 <el-input v-model="temp.qty_unit" />
               </el-form-item>
+          
               
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
@@ -34,6 +35,9 @@
               </el-form-item>
               <el-form-item label="Total Base Price" prop="cost_amount">
                 <el-input type="number" min="1" v-model="temp.cost_amount" />
+              </el-form-item>
+                  <el-form-item label="Is Active" prop="is_active">
+                <el-checkbox v-model="temp.is_active" border>Is Active?</el-checkbox>
               </el-form-item>
               
             </el-col>
@@ -268,6 +272,7 @@ export default {
       imageFile:undefined,
       dialogAddImageVisible:false,
       temp: {
+        is_active:false,
         product_number:undefined,
         name:undefined,
         brand_name:undefined,
@@ -365,6 +370,11 @@ export default {
       this.is_updating=true;
       getProduct(id).then((response)=>{
         this.temp=response.data;
+        if(response.data.is_active === 1){
+            this.temp.is_active = true;
+        }else{
+            this.temp.is_active = false;
+        }
         var keys = [];
         response.data.categories.map(cat => {
             keys.push(cat.id);
@@ -498,6 +508,12 @@ export default {
 
           updateProduct(form).then((response) => {
             this.temp=response.data;
+            if(response.data.is_active === 1){
+                this.temp.is_active = true;
+            }else{
+                this.temp.is_active = false;
+            }
+        
             this.fileList=[];
             this.loading=false;
             this.buttonLoading=false;

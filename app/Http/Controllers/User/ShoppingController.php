@@ -129,16 +129,19 @@ class ShoppingController extends Controller
         $settings= Setting::orWhere('is_public',1)
         ->get()->pluck('value', 'key')->toArray();
 
-        $Orders=Order::select();
-        $Orders=$Orders->with('products','shipping_address','billing_address','packages');
-        $Orders=$Orders->where('id',$id);
+        $Orders = Order::select();
+        $Orders = $Orders->with('products','shipping_address','billing_address','packages');
+        $Orders = $Orders->where('id',$id);
         if(!in_array("admin",$rolesArray)){
-            $Orders=$Orders->where('user_id',$user->id);
+            $Orders = $Orders->where('user_id',$user->id);
         }
         $Orders=$Orders->first();
 
-        
-        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders, 'user'=>$user_details,'company_details'=>$settings);
+        if($Orders){
+            $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders, 'user'=>$user_details,'company_details'=>$settings);
+        }else{
+            $response = array('status' => false,'message'=>"Orders retrieved.",'data'=>[], 'user'=>[],'company_details'=>[]);
+        }     
         return response()->json($response, 200);
     }
 
