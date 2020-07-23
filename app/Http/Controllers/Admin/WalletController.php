@@ -28,7 +28,7 @@ class WalletController extends Controller
     public function withdrawalRequests(Request $request)
     {
         
-       
+     
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
@@ -56,7 +56,7 @@ class WalletController extends Controller
             $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
         }else{
             $WithdrawalRequests=WithdrawalRequest::select();
-           
+            
             $WithdrawalRequests=$WithdrawalRequests->where(function ($query)use($search) {
                 $query=$query->orWhereHas('member.user',function($q)use($search){
                     $q->where('username','like','%'.$search.'%');
@@ -77,7 +77,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Pin requests retrieved.",'data'=>$WithdrawalRequests);
+        $response = array('status' => true,'message'=>"Pin requests retrieved.",'data'=>$WithdrawalRequests);
         return response()->json($response, 200);
     }
 
@@ -208,7 +208,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals,'total'=>$withdrawals_total);
+        $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals,'total'=>$withdrawals_total);
         return response()->json($response, 200);
     }
 
@@ -248,7 +248,7 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
-           
+            
             if($date_range){
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
@@ -287,14 +287,14 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
         return response()->json($response, 200);
     }
 
     public function getWalletTransfers(Request $request)
     {
         $User=JWTAuth::user();
-       
+        
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
@@ -332,7 +332,7 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
-           
+            
             if($date_range){
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
@@ -366,7 +366,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Wallet transfers retrieved.",'data'=>$WalletTransactions);
+        $response = array('status' => true,'message'=>"Wallet transfers retrieved.",'data'=>$WalletTransactions);
         return response()->json($response, 200);
     }
 
@@ -388,7 +388,7 @@ class WalletController extends Controller
 
         $balance=floatval($transfered_from_user->member->wallet_balance);
         $amount=floatval($request->amount);
-      
+        
         if($balance < $amount){
             $response = array('status' => false,'message'=>'Member does not have enough balance to transfer');
             return response()->json($response, 400);
@@ -411,6 +411,10 @@ class WalletController extends Controller
             $final_balance=$balance-$amount;
             $transfered_from_user->member->wallet_balance=$final_balance;
             $transfered_from_user->member->save();
+
+            $transfered_to_user->member->wallet_balance+=$amount;
+            $transfered_to_user->member->save();
+            
 
             $response = array('status' => true,'message'=>'Balance transfered successfully.');
             return response()->json($response, 200);
@@ -475,8 +479,8 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Credit requests retrieved.",'data'=>$CreditRequests);
-            return response()->json($response, 200);
+        $response = array('status' => true,'message'=>"Credit requests retrieved.",'data'=>$CreditRequests);
+        return response()->json($response, 200);
     }
 
     public function approveCreditRequest(Request $request)
@@ -522,7 +526,7 @@ class WalletController extends Controller
     public function rejectCreditRequest(Request $request){
         $CreditRequest= CreditRequest::find($request->id);         
         
-         if($CreditRequest){
+        if($CreditRequest){
             $CreditRequest->status='Rejected';
             $CreditRequest->note=$request->note;
             $CreditRequest->save(); 
@@ -568,7 +572,7 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
-           
+            
             if($date_range){
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
@@ -587,7 +591,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
         return response()->json($response, 200);
     }
 
@@ -598,7 +602,7 @@ class WalletController extends Controller
 
         $transfered_from_user=$user;
         $transfered_to_user=$Member;
-  
+        
         if(!$transfered_to_user){
             $response = array('status' => false,'message'=>'Member not found.');
             return response()->json($response, 404);
@@ -641,7 +645,7 @@ class WalletController extends Controller
 
         $transfered_from_user=$user;
         $debited_from=$Member;
-  
+        
         if(!$debited_from){
             $response = array('status' => false,'message'=>'Member not found.');
             return response()->json($response, 404);
@@ -685,7 +689,7 @@ class WalletController extends Controller
     {
         $WithdrawalRequest= WithdrawalRequest::find($request->id);
         
-         if($WithdrawalRequest){
+        if($WithdrawalRequest){
             $amount=$WithdrawalRequest->amount;
             $WithdrawalRequest->member->wallet_balance+=$amount;
             $WithdrawalRequest->member->save();
@@ -711,7 +715,7 @@ class WalletController extends Controller
     {
         $WithdrawalRequest= WithdrawalRequest::where('request_status','Pending')->find($id);
         
-         if($WithdrawalRequest){
+        if($WithdrawalRequest){
             $WithdrawalRequest->delete(); 
             $response = array('status' => true,'message'=>'Withdrawal request successfully deleted.');             
             return response()->json($response, 200);

@@ -292,13 +292,13 @@
                           :limit="1"
                           :file-list="distributerfileList"
                           :on-exceed="handleExceed"
-                          accept="image/png, image/jpeg">
+                         accept="image/png, image/jpeg , .docx , .pdf">
                           
-                          <img v-if="temp.distributor_image" :src="temp?temp.distributor_image:''" class="avatar">
+                          <img v-if="temp.distributor_image" :src="documentimg" class="avatar">
                           <i v-if="temp.distributor_image"  slot="default" class="el-icon-plus"></i>
                           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         </el-upload> 
-                        <a  v-if="temp.distributor_image" :href="temp?temp.distributor_image:''" target="_blank">View full image.</a>                     
+                        <a  v-if="temp.distributor_image" :href="temp?temp.distributor_image:''" target="_blank">View.</a>                     
                       </el-form-item>
                     </div>
                 </el-col>
@@ -349,6 +349,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
 import axios from "axios";
 import Tinymce from '@/components/Tinymce'
+import documentimg from '@/assets/images/document.png'
 
 export default {
   name: "ComplexTable",
@@ -369,6 +370,7 @@ export default {
     return {
       kycsTabs:'kyc',
       updating:false,
+      documentimg: documentimg,
       tableKey: 0,
       list: [],
       total: 5,
@@ -432,6 +434,7 @@ export default {
   },
   created() {
     this.getList();
+    console.log(documentimg)
   },
   methods: {
    handleAdharChange(f, fl){     

@@ -327,13 +327,13 @@
                         :limit="1"
                         :file-list="distributerfileList"
                         :on-exceed="handleExceed"
-                        accept="image/png, image/jpeg">
+                        accept="image/png, image/jpeg , .docx , .pdf">
                         
-                        <img v-if="temp.kyc.distributor_image" :src="temp.kyc?temp.kyc.distributor_image:''" class="avatar">
+                        <img v-if="temp.kyc.distributor_image" :src="temp.kyc?temp.kyc.distributor_image?temp.kyc.distributor_image:'':documentimg" class="avatar">
                         <i v-if="temp.kyc.distributor_image"  slot="default" class="el-icon-plus"></i>
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                       </el-upload> 
-                      <a  v-if="temp.kyc.distributor_image" :href="temp.kyc?temp.kyc.distributor_image:''" target="_blank">View full image.</a>                     
+                      <a  v-if="temp.kyc.distributor_image" :href="temp.kyc?temp.kyc.distributor_image:''" target="_blank">View</a>                     
                     </el-form-item>
                   </div>
                 </el-col>
@@ -360,6 +360,8 @@ import { updateProfile,getProfile } from "@/api/user/members";
 import PanThumb from '@/components/PanThumb';
 import { parseTime } from "@/utils";
 import defaultSettings from '@/settings';
+import documentimg from '@/assets/images/document.png'
+
 const { baseUrl } = defaultSettings;
 //const userResource = new Resource('users');
 export default {
@@ -369,6 +371,7 @@ export default {
     return {
       activeActivity: 'details',
       updating: false,
+      documentimg: documentimg,
       buttonLoading:false,
       referral_link:'',
       adharfileList:[],
@@ -444,6 +447,7 @@ export default {
     });
   },
   methods: {
+    
     handleAdharChange(f, fl){     
       if(fl.length > 1){
         fl.shift()  

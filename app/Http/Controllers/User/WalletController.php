@@ -59,7 +59,7 @@ class WalletController extends Controller
             $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
         }else{
             $WithdrawalRequests=WithdrawalRequest::select();
-           
+
 
             if($date_range){
                 $WithdrawalRequests=$WithdrawalRequests->whereDate('created_at','>=', $date_range[0]);
@@ -76,7 +76,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$WithdrawalRequests,'balance'=>$balance,'kyc_status'=>$kyc_status);
+        $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$WithdrawalRequests,'balance'=>$balance,'kyc_status'=>$kyc_status);
         return response()->json($response, 200);
     }
 
@@ -133,7 +133,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals,'total'=>$withdrawals_total);
+        $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$Withdrawals,'total'=>$withdrawals_total);
         return response()->json($response, 200);
     }
 
@@ -179,7 +179,7 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
-           
+
             if($date_range){
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
@@ -213,7 +213,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
         return response()->json($response, 200);
     }
 
@@ -260,11 +260,11 @@ class WalletController extends Controller
                 $query=$query->orWhere('transfered_to',$User->id);
                 $query=$query->orWhere('transaction_by',$User->id);                
             });
-           
+
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
-           
+
             if($date_range){
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
@@ -297,7 +297,7 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Wallet transfers retrieved.",'data'=>$WalletTransactions,'balance'=>$balance,'kyc_status'=>$kyc_status);
+        $response = array('status' => true,'message'=>"Wallet transfers retrieved.",'data'=>$WalletTransactions,'balance'=>$balance,'kyc_status'=>$kyc_status);
         return response()->json($response, 200);
     }
 
@@ -307,7 +307,7 @@ class WalletController extends Controller
         $balance=$user->member->wallet_balance;
         $kyc_status=$user->member->kyc->is_verified;               
         $amount=$request->debit;
-      
+
         if($balance < $amount){
             $response = array('status' => false,'message'=>'You do not have enough balance to withdraw');
             return response()->json($response, 400);
@@ -347,7 +347,7 @@ class WalletController extends Controller
             $response = array('status' => false,'message'=>'Transfer to member not found.');
             return response()->json($response, 404);
         }
-      
+
         if($balance < $amount){
             $response = array('status' => false,'message'=>'You do not have enough balance to make transfer.');
             return response()->json($response, 400);
@@ -376,6 +376,9 @@ class WalletController extends Controller
             $user->member->wallet_balance=$final_balance;
             $user->member->save();
 
+            $member_user->member->wallet_balance+=$amount;
+            $member_user->member->save();
+            
             $response = array('status' => true,'message'=>'Balance transfered successfully.');
             return response()->json($response, 200);
 
@@ -438,8 +441,8 @@ class WalletController extends Controller
         }
 
         
-       $response = array('status' => true,'message'=>"Credit requests retrieved.",'data'=>$CreditRequests);
-            return response()->json($response, 200);
+        $response = array('status' => true,'message'=>"Credit requests retrieved.",'data'=>$CreditRequests);
+        return response()->json($response, 200);
     }
 
     public function createCreditRequest(Request $request)
@@ -495,7 +498,7 @@ class WalletController extends Controller
         return response()->json($response, 200);
     }
 
-   
+
     /**
      * Remove the specified resource from storage.
      *
@@ -507,7 +510,7 @@ class WalletController extends Controller
         $member_id=JWTAuth::user()->member->id;
         $WithdrawalRequest= WithdrawalRequest::where('member_id',$member_id)->where('id',$id)->first();
         
-         if($WithdrawalRequest){
+        if($WithdrawalRequest){
             $amount=$WithdrawalRequest->amount;
             $WithdrawalRequest->member->wallet_balance+=$amount;
             $WithdrawalRequest->member->save();

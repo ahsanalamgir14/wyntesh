@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\Gallery;
+use App\Models\User\Tags;
 use Storage;
 
 class GalleryController extends Controller
@@ -41,11 +42,11 @@ class GalleryController extends Controller
             $Gallery=$Gallery->orWhere('title','like','%'.$search.'%');
             $Gallery=$Gallery->orderBy('id',$sort)->paginate($limit);
         }
-   
-       $response = array('status' => true,'message'=>"Gallery images retrieved.",'data'=>$Gallery);
-            return response()->json($response, 200);
+        $tags = Tags::where('is_active', true)->get();
+        $response = array('status' => true,'message'=>"Gallery images retrieved.",'data'=>$Gallery,'tags'=>$tags);
+        return response()->json($response, 200);
     }
-  
+
 
     public function createGallery(Request $request){
         $validate=Gallery::validator($request);
@@ -75,56 +76,56 @@ class GalleryController extends Controller
             $Gallery->image=$cdn_url;
             $Gallery->save();
         }
-       
+
         $response = array('status' => true,'message'=>'Gallery image created successfully.','data'=>$Gallery);
         return response()->json($response, 200);
     }
 
     public function updateGallery(Request $request){        
-       
+
         $Gallery=Gallery::find($request->id);
         
         if(!$Gallery){
-             $response = array('status' => false,'message'=>'Gallery image not found');
-            return response()->json($response, 404);
-        }
+           $response = array('status' => false,'message'=>'Gallery image not found');
+           return response()->json($response, 404);
+       }
 
-        $Gallery->title=$request->title;
-        $Gallery->tags=$request->tags;
+       $Gallery->title=$request->title;
+       $Gallery->tags=$request->tags;
+       $Gallery->save();
+
+       if($request->hasFile('file')){
+        $file = $request->file('file');
+        $str=rand(); 
+        $randomID = md5($str);
+        $filename=$randomID.'-'.$Gallery->id.".".$file->getClientOriginalExtension();          
+        $project_directory=env('DO_STORE_PATH');
+
+        $store=Storage::disk('spaces')->put($project_directory.'/gallery/'.$filename, file_get_contents($file->getRealPath()), 'public');
+
+        $url=Storage::disk('spaces')->url($project_directory.'/gallery/'.$filename);
+
+        $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+        $Gallery->image=$cdn_url;
         $Gallery->save();
+    }
 
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Gallery->id.".".$file->getClientOriginalExtension();          
-            $project_directory=env('DO_STORE_PATH');
+    $response = array('status' => true,'message'=>'Gallery image updated successfully.','data'=>$Gallery);
+    return response()->json($response, 200);
+}
 
-            $store=Storage::disk('spaces')->put($project_directory.'/gallery/'.$filename, file_get_contents($file->getRealPath()), 'public');
-            
-            $url=Storage::disk('spaces')->url($project_directory.'/gallery/'.$filename);
-            
-            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+public function deleteGallery($id){
+    $Gallery= Gallery::find($id);         
 
-            $Gallery->image=$cdn_url;
-            $Gallery->save();
-        }
-
-        $response = array('status' => true,'message'=>'Gallery image updated successfully.','data'=>$Gallery);
+    if($Gallery){
+        $Gallery->delete(); 
+        $response = array('status' => true,'message'=>'Gallery successfully deleted.');             
         return response()->json($response, 200);
+    }else{
+        $response = array('status' => false,'message'=>'Gallery not found','data' => array());
+        return response()->json($response, 404);
     }
-
-    public function deleteGallery($id){
-        $Gallery= Gallery::find($id);         
-        
-         if($Gallery){
-            $Gallery->delete(); 
-            $response = array('status' => true,'message'=>'Gallery successfully deleted.');             
-            return response()->json($response, 200);
-        }else{
-            $response = array('status' => false,'message'=>'Gallery not found','data' => array());
-            return response()->json($response, 404);
-        }
-    }
+}
 
 }
