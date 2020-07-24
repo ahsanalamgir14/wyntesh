@@ -29,15 +29,15 @@ class Kernel extends ConsoleKernel
     {   
         $schedule->command('telescope:prune')->daily();
         
-        $schedule->call(function () {
-            $CronsController=new CronsController;
-            $CronsController->delete3MonthHoldIncome();
-        })->dailyAt('03:00');
+        // $schedule->call(function () {
+        //     $CronsController=new CronsController;
+        //     $CronsController->delete3MonthHoldIncome();
+        // })->dailyAt('03:00');
 
-        $schedule->call(function () {
-            $CronsController=new CronsController;
-            $CronsController->generateMonthlyPayout();
-        })->monthlyOn(1, '01:00');
+        // $schedule->call(function () {
+        //     $CronsController=new CronsController;
+        //     $CronsController->generateMonthlyPayout();
+        // })->monthlyOn(1, '01:00');
 
         // $schedule->call(function () {
         //     $CronsController=new CronsController;
