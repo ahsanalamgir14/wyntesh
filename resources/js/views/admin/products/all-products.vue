@@ -53,12 +53,14 @@
               icon="el-icon-edit"
               @click="handleEdit(row)"
               ></el-button>
-          <el-button
-              circle
-              type="danger"
-              icon="el-icon-delete"
-              @click="deleteData(row)"
-              ></el-button>
+
+             <el-button icon="el-icon-turn-off"
+            circle v-if="row.is_active!=1" type="info" @click="handleModifyActivationStatus(row,1)">
+          </el-button>
+          <el-button icon="el-icon-open" circle v-if="row.is_active!=0" type="success" @click="handleModifyActivationStatus(row,0)">
+          </el-button>
+
+          </el-button>
         </template>
       </el-table-column>
       <el-table-column label="Name" min-width="200px">
@@ -115,6 +117,7 @@
 import {
   fetchProducts,
   deleteProduct,
+  changeProductActivationStatus,
 } from "@/api/admin/products-and-categories";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -146,7 +149,13 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        sort: "+id"
+        sort: "+id",
+        is_active: 'all',
+      },
+      productStatusLog:{
+        user_id:undefined,
+        is_active:0,
+        remarks:undefined,
       },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
@@ -160,7 +169,47 @@ export default {
     this.getList();
   },
   methods: {
+    handleModifyActivationStatus(row,status) {
+      this.resetUserStatus();
+      let temp = Object.assign({}, row);
+      this.productStatusLog.product_id=temp.id;
+      this.productStatusLog.is_active=status;
+      this.dialogUserActivationStatus=true;
+      this.updateProductActivationStatus(status);
+    },
+
+   updateProductActivationStatus(status){    
+      changeProductActivationStatus(this.productStatusLog).then((response) => {
+
+        this.getList();
+        this.dialogUserActivationStatus=false;
+
+        if(status){
+            this.productStatusLog.is_active = 0;
+        }else{
+            this.productStatusLog.is_active = 1;
+        }
+
+
+
+        this.$notify({
+          title: "Success",
+          message: response.message,
+          type: "success",
+          duration: 2000
+        })
+      })
+
+    },
     
+    resetUserStatus(){
+      this.productStatusLog = {
+        product_id:undefined,
+        is_active:0,
+        remarks:undefined,
+      };
+    },
+ 
     getList() {
       this.listLoading = true;
       fetchProducts(this.listQuery).then(response => {
@@ -176,18 +225,6 @@ export default {
     },
     handleEdit(row) {
       this.$router.push({ path: '/products/edit', query: { id: row.id } });
-    },
-    deleteData(row) {
-        deleteProduct(row.id).then((data) => {
-            this.dialogCategoryVisible = false;
-            this.getList();
-            this.$notify({
-                title: "Success",
-                message: data.message,
-                type: "success",
-                duration: 2000
-            });
-        });
     },
     handleFilter() {
       this.listQuery.page = 1;

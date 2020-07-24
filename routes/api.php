@@ -53,7 +53,7 @@ Route::post('member/add', 'User\MembersController@addMember');
 // User Routes
 Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','namespace'=>'User'], function($router)
 {   
-  
+
     Route::get('settings','SettingsController@getMemberSettings');
     Route::get('statuses/all', '\App\Http\Controllers\Superadmin\StatusesController@getAllStatuses');
     Route::get('notice', '\App\Http\Controllers\Admin\NoticesController@get');
@@ -148,7 +148,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
 Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user','namespace'=>'User'], function($router)
 {   
-  
+
     Route::get('order/{id}', 'ShoppingController@getOrder');
 
     Route::get('packages/all', 'ConfigController@allPackages');
@@ -157,13 +157,13 @@ Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user
     Route::get('bank-partners/all', 'ConfigController@allBankPartners');
     Route::get('incomes/all', '\App\Http\Controllers\Admin\IncomesController@getAllIncomes');
 
-  
+
 });
 
 // Admin Routes
 Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','namespace'=>'Admin'], function($router)
 {   
-   
+
     Route::get('stats', 'DashboardController@stats');
     Route::get('order/stats', 'DashboardController@orderStats');
     Route::get('activation/stats', 'DashboardController@pinActivations');
@@ -293,6 +293,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('categories', 'ProductsAndCategoryController@getCategories');
     Route::get('categories/all', 'ProductsAndCategoryController@getAllCategories');
     Route::delete('categories/{id}/delete', 'ProductsAndCategoryController@deleteCategory');
+    Route::post('categories/change-status/activation', 'ProductsAndCategoryController@changeProductActivationStatus');
 
     Route::post('products','ProductsAndCategoryController@createProduct');
     Route::post('products/update', 'ProductsAndCategoryController@updateProduct');
@@ -382,7 +383,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' =>
 // Superadmin Routes
 Route::group(['middleware' => ['jwt.verify','role:superadmin'],'prefix' => 'superadmin','namespace'=>'Superadmin'], function($router)
 {   
-    
+
     Route::get('users', 'UserAndRoleController@getAdminUsers');
     Route::post('user','UserAndRoleController@createAdminUser');
     Route::post('user/update', 'UserAndRoleController@updateAdminUser');

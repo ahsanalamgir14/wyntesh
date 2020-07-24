@@ -47,97 +47,124 @@ class ProductsAndCategoryController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getAllCategories()
-    {           
-        $Categories=Category::all();                  
-        $response = array('status' => true,'message'=>"Categories retrieved.",'data'=>$Categories);
-        return response()->json($response, 200);
-    }
+    public function changeProductActivationStatus(Request $request){
+       /* $User=User::find($request->user_id);
+       $Admin=JWTAuth::user();*/
+       $product = Product::where('id',$request->product_id)->first();
+     
+       if($product){
+        $product->is_active = $request->is_active;
+        $product->save();
 
-    public function createCategory(Request $request){
-        $validate = Validator::make($request->all(), [           
-            'name' => "required"
-        ]);
-
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
-            return response()->json($response, 400);
+        if($request->is_active){
+            $message='Product activated successfully.';
+        }else{
+            $message='Product deactivated successfully.';                
         }
 
-        $Category=new Category;
-        $Category->name=$request->name;
-        $Category->parent_id=$request->parent_id;
-        $Category->save();
 
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Category->id.".".$file->getClientOriginalExtension();          
-            $project_directory=env('DO_STORE_PATH');
-
-            $store=Storage::disk('spaces')->put($project_directory.'/categories/'.$filename, file_get_contents($file->getRealPath()), 'public');
-            
-            $url=Storage::disk('spaces')->url($project_directory.'/categories/'.$filename);
-            
-            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $Category->image=$cdn_url;
-            $Category->save();
-        }
-
-        $response = array('status' => true,'message'=>'Category created successfully.','data'=>$Category);
-        return response()->json($response, 200);
-    }
-
-    public function updateCategory(Request $request){        
-
-        $validate = Validator::make($request->all(), [           
-            'name' => "required"
-        ]);
-
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
-            return response()->json($response, 400);
-        }
-
-        $Category=Category::find($request->id);
-        $Category->name=$request->name;
-        $Category->parent_id=$request->parent_id;
-        $Category->save();
-
-        if($request->hasFile('file')){
-            $file = $request->file('file');
-            $str=rand(); 
-            $randomID = md5($str);
-            $filename=$randomID.'-'.$Category->id.".".$file->getClientOriginalExtension();          
-            $project_directory=env('DO_STORE_PATH');
-
-            $store=Storage::disk('spaces')->put($project_directory.'/categories/'.$filename, file_get_contents($file->getRealPath()), 'public');
-            
-            $url=Storage::disk('spaces')->url($project_directory.'/categories/'.$filename);
-            
-            $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-            $Category->image=$cdn_url;
-            $Category->save();
-        }
-
-        $response = array('status' => true,'message'=>'Category updated successfully.','data'=>$Category);
-        return response()->json($response, 200);
-    }
-
-    public function deleteCategory($id)
-    {
-     $Categories= Categories::find($id);                 
-     if($Categories){
-        $Categories->delete(); 
-        $response = array('status' => true,'message'=>'Category successfully deleted.');             
+        $response = array('status' => true,'message'=>$message);
         return response()->json($response, 200);
     }else{
-        $response = array('status' => false,'message'=>'Categories not found');
-        return response()->json($response, 404);
+        $response = array('status' => false,'message'=>'Product not found');
+        return response()->json($response, 400);
     }
+}
+
+
+
+public function getAllCategories()
+{           
+    $Categories=Category::all();                  
+    $response = array('status' => true,'message'=>"Categories retrieved.",'data'=>$Categories);
+    return response()->json($response, 200);
+}
+
+public function createCategory(Request $request){
+    $validate = Validator::make($request->all(), [           
+        'name' => "required"
+    ]);
+
+    if($validate->fails()){
+        $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+        return response()->json($response, 400);
+    }
+
+    $Category=new Category;
+    $Category->name=$request->name;
+    $Category->parent_id=$request->parent_id;
+    $Category->save();
+
+    if($request->hasFile('file')){
+        $file = $request->file('file');
+        $str=rand(); 
+        $randomID = md5($str);
+        $filename=$randomID.'-'.$Category->id.".".$file->getClientOriginalExtension();          
+        $project_directory=env('DO_STORE_PATH');
+
+        $store=Storage::disk('spaces')->put($project_directory.'/categories/'.$filename, file_get_contents($file->getRealPath()), 'public');
+
+        $url=Storage::disk('spaces')->url($project_directory.'/categories/'.$filename);
+
+        $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+        $Category->image=$cdn_url;
+        $Category->save();
+    }
+
+    $response = array('status' => true,'message'=>'Category created successfully.','data'=>$Category);
+    return response()->json($response, 200);
+}
+
+public function updateCategory(Request $request){        
+
+    $validate = Validator::make($request->all(), [           
+        'name' => "required"
+    ]);
+
+    if($validate->fails()){
+        $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+        return response()->json($response, 400);
+    }
+
+    $Category=Category::find($request->id);
+    $Category->name=$request->name;
+    $Category->parent_id=$request->parent_id;
+    $Category->save();
+
+    if($request->hasFile('file')){
+        $file = $request->file('file');
+        $str=rand(); 
+        $randomID = md5($str);
+        $filename=$randomID.'-'.$Category->id.".".$file->getClientOriginalExtension();          
+        $project_directory=env('DO_STORE_PATH');
+
+        $store=Storage::disk('spaces')->put($project_directory.'/categories/'.$filename, file_get_contents($file->getRealPath()), 'public');
+
+        $url=Storage::disk('spaces')->url($project_directory.'/categories/'.$filename);
+
+        $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
+
+        $Category->image=$cdn_url;
+        $Category->save();
+    }
+
+    $response = array('status' => true,'message'=>'Category updated successfully.','data'=>$Category);
+    return response()->json($response, 200);
+}
+
+public function deleteCategory($id)
+{
+ $Categories= Category::find($id);                 
+
+ if($Categories){
+    $Categories->delete(); 
+    $response = array('status' => true,'message'=>'Category successfully deleted.');             
+    return response()->json($response, 200);
+}else{
+    $response = array('status' => false,'message'=>'Categories not found');
+    return response()->json($response, 404);
+}
 }
 
 public function getProducts(Request $request)
@@ -163,7 +190,7 @@ public function getProducts(Request $request)
     }
 
     if(!$search && !$category_id){           
-        $Products=Product::with('categories')->orderBy('id',$sort)->paginate($limit);    
+        $Products=Product::with('categories')->where('is_active',1)->orderBy('id',$sort)->paginate($limit);    
     }else{
         $Products=Product::select();
 
@@ -177,7 +204,7 @@ public function getProducts(Request $request)
             });    
         }
 
-        $Products=$Products->with('categories')->orderBy('id',$sort)->paginate($limit);
+        $Products=$Products->with('categories')->where('is_active',1)->orderBy('id',$sort)->paginate($limit);
     }
 
     $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
@@ -298,7 +325,7 @@ public function updateProduct(Request $request){
     if($request->is_active == "false"){
         $isActive = 0;
     }
-     
+
     $Product->product_number=$request->product_number;
     $Product->name=$request->name;
     $Product->brand_name=$request->brand_name;

@@ -427,7 +427,7 @@ export default {
       this.userStatusLog.is_active=status;
       this.dialogUserActivationStatus=true;
     },
-    updateUserActivationStatus(){      
+    updateUserActivationStatus(){
       changeUserActivationStatus(this.userStatusLog).then((response) => {
         this.getList();
         this.dialogUserActivationStatus=false;

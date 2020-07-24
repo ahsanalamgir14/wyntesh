@@ -22,6 +22,14 @@ export function deleteCategory(id) {
   })
 }
 
+export function changeProductActivationStatus(data) {
+  return request({
+    url: '/admin/categories/change-status/activation',
+    method: 'post',
+    data
+  })
+}
+
 
 export function createCategory(data) {
   return request({
