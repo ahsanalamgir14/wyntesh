@@ -10,6 +10,7 @@ use App\Models\Admin\ProductImage;
 use Validator;
 use Image;
 use Storage;
+use JWTAuth;
 
 class ProductsAndCategoryController extends Controller
 {
@@ -51,7 +52,7 @@ class ProductsAndCategoryController extends Controller
        /* $User=User::find($request->user_id);
        $Admin=JWTAuth::user();*/
        $product = Product::where('id',$request->product_id)->first();
-     
+
        if($product){
         $product->is_active = $request->is_active;
         $product->save();
@@ -64,12 +65,12 @@ class ProductsAndCategoryController extends Controller
 
 
         $response = array('status' => true,'message'=>$message);
-        return response()->json($response, 200);
-    }else{
-        $response = array('status' => false,'message'=>'Product not found');
-        return response()->json($response, 400);
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Product not found');
+            return response()->json($response, 400);
+        }
     }
-}
 
 
 
@@ -169,6 +170,12 @@ public function deleteCategory($id)
 
 public function getProducts(Request $request)
 {
+    $user=JWTAuth::user();
+    $rolesArray = array();
+    foreach (JWTAuth::user()->roles as $key => $value) {
+        array_push($rolesArray,$value->name);
+    }
+
     $page=$request->page;
     $limit=$request->limit;
     $sort=$request->sort;
@@ -189,22 +196,30 @@ public function getProducts(Request $request)
         $sort = 'desc';
     }
 
-    if(!$search && !$category_id){           
-        $Products=Product::with('categories')->where('is_active',1)->orderBy('id',$sort)->paginate($limit);    
+    if(!$search && !$category_id){
+        $Products=Product::with('categories');
+        if(!in_array("admin",$rolesArray)){
+             $Products= $Products->where('is_active',1);
+        }
+        $Products=$Products->orderBy('id',$sort);
+        $Products=$Products->paginate($limit);    
     }else{
         $Products=Product::select();
-
         $Products=$Products->where(function ($query)use($search) {
             $query->orWhere('name','like','%'.$search.'%');             
         });
-
         if($category_id){
             $Products=$Products->whereHas('categories', function($q)use($category_id){
                 $q->where('categories.id',$category_id);
             });    
         }
 
-        $Products=$Products->with('categories')->where('is_active',1)->orderBy('id',$sort)->paginate($limit);
+        $Products = $Products->with('categories');
+        if(!in_array("admin",$rolesArray)) {
+            $Products = $Products->where('is_active',1);
+        }
+        $Products = $Products->orderBy('id',$sort);
+        $Products = $Products->paginate($limit);
     }
 
     $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
