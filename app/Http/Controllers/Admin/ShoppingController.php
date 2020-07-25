@@ -322,8 +322,8 @@ class ShoppingController extends Controller
             }
 
             if(($request->delivery_status=='Order Cancelled' || $request->delivery_status=='Order Returned')){
-
-                if($old_status !== 'Order Created'){
+ 
+               if($old_status !== 'Order Created'){
 
                     // Remove Affiliate bonus to sponser
                     $Incomes=Income::where("code","AFFILIATE")->with('income_parameters')->first();
@@ -349,6 +349,8 @@ class ShoppingController extends Controller
                         $WalletTransaction->note                 ='Affiliate Bonus Debit';
                         $WalletTransaction->save();
                     }
+
+                    event(new UpdateGroupPVEvent($Order,$Order->user,'subtract'));
                 }
                 
 
@@ -382,10 +384,10 @@ class ShoppingController extends Controller
                 $WalletTransaction->save();
 
                 $final_balance=$balance+$Order->final_amount;
-                $Order->User->member->wallet_balance=$final_balance;
+                $Order->User->emmber->wallet_balance=$final_balance;
                 $Order->User->member->save();
                 
-                event(new UpdateGroupPVEvent($Order,$Order->user,'subtract'));
+                
             }
 
             event(new OrderUpdateEvent($Order,$Order->user));
