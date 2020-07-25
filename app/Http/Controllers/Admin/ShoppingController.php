@@ -384,7 +384,7 @@ class ShoppingController extends Controller
                 $WalletTransaction->save();
 
                 $final_balance=$balance+$Order->final_amount;
-                $Order->User->emmber->wallet_balance=$final_balance;
+                $Order->User->member->wallet_balance=$final_balance;
                 $Order->User->member->save();
                 
                 
