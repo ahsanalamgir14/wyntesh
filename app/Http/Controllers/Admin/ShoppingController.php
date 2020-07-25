@@ -334,6 +334,10 @@ class ShoppingController extends Controller
 
                         $Order->user->member->sponsor->wallet_balance -= ($Order->pv*$incmParam)/100;
                         $Order->user->member->sponsor->save();
+                        
+                        $Order->user->member->total_personal_pv-=$Order->pv;
+                        $Order->user->member->save();
+                   
                         $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
                         $WalletTransaction=new WalletTransaction;
                         $WalletTransaction->member_id            =$Order->user->member->id;
@@ -347,8 +351,6 @@ class ShoppingController extends Controller
                     }
                 }
                 
-                $Order->user->member->total_personal_pv-=$Order->pv;
-                $Order->user->member->save();
 
                 $minimum_purchase=CompanySetting::getValue('minimum_purchase');
                 if($Order->user->is_active){
