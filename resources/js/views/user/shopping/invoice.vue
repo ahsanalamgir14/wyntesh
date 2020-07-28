@@ -11,17 +11,18 @@
                   <td class="item-name" style="border: none;">
                      <img id="image" src="images/dark_logo.png" height="150px"   alt="logo" style="width: 50% !important;height: 50% !important;" /><br>
                     <span style="font-size: 18px;font-weight: bold;">{{company_details.company_name}}</span><br><br>
+                    CIN - U74999TZ2020PTC033882<br>
                     {{company_details.address}}<br>
                     {{company_details.city}}<br>
                     {{company_details.state}}, {{company_details.pincode}}<br>
                     {{company_details.contact_phone}}<br>
                     {{company_details.contact_email}}<br>
-                    GSTN - 19AAHCV1338G1Z8<br></td>
+                    GSTN - 33AACW6547R1ZM<br></td>
                   
                   <td class="cost" style ="vertical-align:bottom;border: none;"> 
                     <table id="meta" style="border: none;">
                       <tr>
-                          <td class="meta-head">Invoice #</td>
+                          <td class="meta-head">TAX Invoice #</td>
                           <td><div>{{order.order_no}}</div></td>
                       </tr>
                       <tr>
@@ -30,7 +31,7 @@
                       </tr>
                       <tr>
 
-                          <td class="meta-head">Invoice Date</td>
+                          <td class="meta-head">TAX Invoice Date</td>
                           <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
                       </tr>
                        <tr>
@@ -72,6 +73,10 @@
                 <!-- <th>Discount</th> -->
                 <th>Quantity</th>
                 <th>PV</th>
+                <th>CGST</th>
+                <th>CGST %</th>
+                <th>SGST</th>
+                <th>GST %</th>
                 <th>GST</th>
                 <th>GST %</th>
                 <th>Total</th>
@@ -84,6 +89,10 @@
                 <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
                 <td class="qty"><div >{{product.qty}}</div></td>
                 <td class="description"><div>{{product.pv}}</div></td>
+                <td class="description"><div>{{product.gst/2}}</div></td>
+                <td class="description"><div>{{product.gst_rate/2}}</div></td>
+                <td class="description"><div>{{product.gst/2}}</div></td>
+                <td class="description"><div>{{product.gst_rate/2}}</div></td>
                 <td class="description"><div>{{product.gst}}</div></td>
                 <td class="description"><div>{{product.gst_rate}}</div></td>
 
@@ -91,26 +100,36 @@
             </tr>
 
             <tr>
-              <td colspan="7"  style="padding-top:40px;border-top: none"></td>
+              <td colspan="11"  style="padding-top:40px;border-top: none"></td>
             </tr>
             <tr>
-                <td colspan="3" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
+                <td colspan="7" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
                 <td colspan="3" class="total-line">Base Price Total</td>
                 <td class="total-value"><div id="subtotal">{{order.amount}}</div></td>
             </tr>
             <tr>
 
+                <td colspan="3" class="total-line">CGST</td>
+                <td class="total-value"><div id="total">{{order.gst/2}}</div></td>
+            </tr>
+            <tr>
+                <td colspan="7" class="blank"> </td>
+                <td colspan="3" class="total-line">SGST</td>
+                <td class="total-value"><div id="total">{{order.gst/2}}</div></td>
+            </tr>
+            <tr>
+              <td colspan="7" class="blank"> </td>
                 <td colspan="3" class="total-line">GST</td>
                 <td class="total-value"><div id="total">{{order.gst}}</div></td>
             </tr>
             <tr>
-                <td colspan="3" class="blank"> </td>
+                <td colspan="7" class="blank"> </td>
                 <td colspan="3" class="total-line">Shipping</td>
 
                 <td class="total-value"><div id="paid">{{order.shipping_fee}}</div></td>
             </tr>
             <tr>
-                <td colspan="3" class="blank" rowspan="2"> 
+                <td colspan="7" class="blank" rowspan="2"> 
                 </td>
                 <td colspan="3" class="total-line">Admin Charge</td>
 
