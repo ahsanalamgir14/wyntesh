@@ -290,7 +290,6 @@ export default {
         limit: 10,
         search:undefined,
         sort: "-id",
-        date_range:''
       },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
@@ -346,8 +345,9 @@ export default {
       this.listLoading = true;
      
       myAffiliateBonus(this.listQuery).then(response => {
-        this.list = response.data.data;
-        this.total = response.data.total;
+        console.log(response);
+        this.list = response.data;
+        this.total = response.total;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
