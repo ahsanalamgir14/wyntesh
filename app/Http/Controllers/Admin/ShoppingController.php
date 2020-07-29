@@ -277,6 +277,7 @@ class ShoppingController extends Controller
 
                 $Sale->save();
 
+                $Order->user->member->current_personal_pv+=$Order->pv;
                 $Order->user->member->total_personal_pv+=$Order->pv;
                 $Order->user->member->save(); 
 
@@ -335,6 +336,7 @@ class ShoppingController extends Controller
                         $Order->user->member->sponsor->wallet_balance -= ($Order->pv*$incmParam)/100;
                         $Order->user->member->sponsor->save();
                         
+                        $Order->user->member->current_personal_pv-=$Order->pv;
                         $Order->user->member->total_personal_pv-=$Order->pv;
                         $Order->user->member->save();
                    

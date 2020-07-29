@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\UpdateGroupPVEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
@@ -11,6 +12,9 @@ use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\Payout;
 use App\Models\Admin\MemberCarryForwardPv;
+use App\Models\User\Order;
+use App\Models\User\User;
+use App\Models\Admin\Sale;
 use JWTAuth;
 use DB;
 use Carbon\Carbon;
@@ -18,7 +22,32 @@ use Carbon\Carbon;
 class PayoutsController extends Controller
 {    
 
+    public function payout_pro(Request $request){
 
+        $Order  = Order::with('user')->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->limit(5)->get();
+      
+        foreach ($Order as $key => $value) {
+            // dd($value);
+            $userdata = User::where("id",$value->user_id)->with('member')->first();
+
+            // Entry in sale table
+            $sale = new Sale();
+            $sale->member_id                        = $userdata->member->id; 
+            $sale->order_id                         = $value->id; 
+            $sale->pv                               = $value->pv; 
+            $sale->final_amount_company             = $value->final_amount; 
+            $sale->created_at                       = $value->created_at; 
+            $sale->save();
+
+            // Update memebr info pvs info
+            $userdata->member->current_personal_pv  += $value->pv;
+            $userdata->member->total_personal_pv    += $value->pv;
+            $userdata->save();
+
+            event(new UpdateGroupPVEvent($value,$value->user,'add'));
+
+        }
+    }
     public function getPayouts(Request $request)
     {
         $user=JWTAuth::user();
