@@ -140,12 +140,40 @@ class ShoppingController extends Controller
         }
         $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
 
-        $affiliateBonus= WalletTransaction::addSelect(['*', \DB::raw('sum(amount) as totalAmount'),\DB::raw('date(created_at) as dates')]);
+        $affiliateBonus= WalletTransaction::Select('created_at', \DB::raw('sum(amount) as totalAmount'),\DB::raw('date(created_at) as dates'));
         $affiliateBonus=$affiliateBonus->where('transaction_type_id',$TransactionType->id);
         $affiliateBonus=$affiliateBonus->where('member_id',$user->member->id);
         $affiliateBonus=$affiliateBonus->groupBy('dates');
         $affiliateBonus=$affiliateBonus->orderBy('id',$sort);
         $affiliateBonus=$affiliateBonus->paginate($limit);
+
+       /* $affiliateBonus=$affiliateBonus->groupBy('date')
+        $affiliateBonus=$affiliateBonus->orderBy('date', 'DESC')
+        $affiliateBonus=$affiliateBonus->get(array(
+            DB::raw('Date(created_at) as date'),
+            DB::raw('COUNT(*) as "views"')
+        ));*/
+
+        // select('id','title', DB::raw('DATE(created_at) as date'))
+
+
+
+     /*   $affiliateBonus= WalletTransaction::select('*');
+        $affiliateBonus=$affiliateBonus->where('transaction_type_id',$TransactionType->id);
+        $affiliateBonus=$affiliateBonus->where('member_id',$user->member->id);
+        $affiliateBonus=$affiliateBonus->orderBy('id',$sort);
+        $affiliateBonus=$affiliateBonus->paginate($limit);
+        $data = array();
+        foreach($affiliateBonus as $value){
+            $newdate = date('y-m-d',strtotime($value->created_at));
+            if(!in_array($newdate,$data)){
+                array_push($data,$newdate);
+            }
+
+        }
+
+
+        dd($data);*/
         $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$affiliateBonus);
         return response()->json($response, 200);
     }
