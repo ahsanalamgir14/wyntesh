@@ -133,6 +133,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::post('order/place', 'ShoppingController@placeOrder');
     Route::get('orders', 'ShoppingController@getMyOrders');
+    Route::get('affiliatebonus', 'ShoppingController@myAffiliateBonus');
     
 
     Route::get('payouts', 'PayoutsController@getPayouts');

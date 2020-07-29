@@ -73,12 +73,12 @@
                 <!-- <th>Discount</th> -->
                 <th>Quantity</th>
                 <th>PV</th>
-                <th>CGST</th>
                 <th>CGST %</th>
+                <th>CGST</th>
+                <th>GST %</th>
                 <th>SGST</th>
                 <th>GST %</th>
                 <th>GST</th>
-                <th>GST %</th>
                 <th>Total</th>
             </tr>
             
@@ -89,14 +89,31 @@
                 <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
                 <td class="qty"><div >{{product.qty}}</div></td>
                 <td class="description"><div>{{product.pv}}</div></td>
-                <td class="description"><div>{{product.gst/2}}</div></td>
                 <td class="description"><div>{{product.gst_rate/2}}</div></td>
                 <td class="description"><div>{{product.gst/2}}</div></td>
                 <td class="description"><div>{{product.gst_rate/2}}</div></td>
-                <td class="description"><div>{{product.gst}}</div></td>
-                <td class="description"><div>{{product.gst_rate}}</div></td>
+                <td class="description"><div>{{product.gst/2}}</div></td>
+                <td class="description"><div>0.00</div></td>
+                <td class="description"><div>0.00</div></td>
 
                 <td class="total"><div >{{product.final_amount*product.qty}}</div></td>
+            </tr>
+
+            <tr class="item-row">
+                <td class="item-name"><div>Shipping</div></td>
+                <td class="cost"><div >{{order.shipping_fee}}</div></td>
+                <!-- <td class="cost"><div >{{product.product.retail_amount}}</div></td> -->
+                <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
+                <td class="qty"><div ></div></td>
+                <td class="description"><div></div></td>
+                <td class="description"><div>2.5</div></td>
+                <td class="description"><div>{{parseInt(order.shipping_fee)*2.5/100}}</div></td>
+                <td class="description"><div>2.5</div></td>
+                <td class="description"><div>{{parseInt(order.shipping_fee)*2.5/100}}</div></td>
+                <td class="description"><div></div></td>
+                <td class="description"><div></div></td>
+
+                <td class="total"><div >{{(parseInt(order.shipping_fee)*5/100)+parseInt(order.shipping_fee)}}</div></td>
             </tr>
 
             <tr>
@@ -120,13 +137,13 @@
             <tr>
               <td colspan="7" class="blank"> </td>
                 <td colspan="3" class="total-line">GST</td>
-                <td class="total-value"><div id="total">{{order.gst}}</div></td>
+                <td class="total-value"><div id="total">0.00</div></td>
             </tr>
             <tr>
                 <td colspan="7" class="blank"> </td>
                 <td colspan="3" class="total-line">Shipping</td>
 
-                <td class="total-value"><div id="paid">{{order.shipping_fee}}</div></td>
+                <td class="total-value"><div id="paid">{{(parseInt(order.shipping_fee)*5/100)+parseInt(order.shipping_fee)}}</div></td>
             </tr>
             <tr>
                 <td colspan="7" class="blank" rowspan="2"> 
@@ -137,7 +154,7 @@
             </tr>
             <tr>
                 <td colspan="3" class="total-line balance">Final Amount</td>
-                <td class="total-value balance"><div class="due">{{order.final_amount}}</div></td>
+                <td class="total-value balance"><div class="due">{{parseInt(order.final_amount)+parseInt(order.shipping_fee)*5/100}}</div></td>
             </tr>
           
           </table>

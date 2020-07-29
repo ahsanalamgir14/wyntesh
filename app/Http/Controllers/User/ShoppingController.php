@@ -115,6 +115,41 @@ class ShoppingController extends Controller
         return response()->json($response, 200);
     }
 
+    public function myAffiliateBonus(Request $request) {
+        // dd("Asdasd");
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $delivery_status=$request->delivery_status;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+        $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
+
+        $affiliateBonus= WalletTransaction::addSelect(['*', \DB::raw('sum(amount) as totalAmount'),\DB::raw('date(created_at) as dates')]);
+        $affiliateBonus=$affiliateBonus->where('transaction_type_id',$TransactionType->id);
+        $affiliateBonus=$affiliateBonus->where('member_id',$user->member->id);
+        $affiliateBonus=$affiliateBonus->groupBy('dates');
+        $affiliateBonus=$affiliateBonus->orderBy('id',$sort);
+        $affiliateBonus=$affiliateBonus->paginate($limit);
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$affiliateBonus);
+        return response()->json($response, 200);
+    }
+
     public function getOrder($id)
     {
         // dd($id);
@@ -125,7 +160,7 @@ class ShoppingController extends Controller
         }
         // dd($rolesArray);
         $user_details=array('name' => $user->name,'username'=>$user->username );
-        
+
         $settings= Setting::orWhere('is_public',1)
         ->get()->pluck('value', 'key')->toArray();
 
@@ -229,7 +264,7 @@ class ShoppingController extends Controller
 
         $balance=$User->member->wallet_balance;
         $shipping_charge=CompanySetting::getValue('shipping_charge');
-        
+
         if($balance < $request->grand_total){
             $response = array('status' => false,'message'=>'You do not have enough balance place order');
             return response()->json($response, 400);
@@ -258,10 +293,10 @@ class ShoppingController extends Controller
             // $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->retail_amount)*intval($item->qty));
         }
 
-        
+
         $grand_total+=$shipping_charge;  
         $shipping=$shipping_charge;
-        
+
 
         if($grand_total != $request->grand_total){
             $response = array('status' => false,'message'=>'Order data mismatch. try again');
@@ -336,7 +371,7 @@ class ShoppingController extends Controller
             event(new OrderPlacedEvent($Order,$User));
 
             Cart::where('user_id',$User->id)->delete();
-            
+
             $response = array('status' => true,'message'=>'Your order has been placed successfully','data'=>$Order);
             return response()->json($response, 200);
 
@@ -454,7 +489,7 @@ class ShoppingController extends Controller
 
             $User->is_active=1;
             $User->save();
-            
+
             $response = array('status' => true,'message'=>'Pin Redeemed successfully');
             return response()->json($response, 200);
 

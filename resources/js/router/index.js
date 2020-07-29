@@ -1083,6 +1083,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/reports/personal-pv-monthly'),
         name: 'Personal Monthly PV',
         meta: { title: 'Personal Monthly PV', icon: 'fas fa-list-alt', color:'color:#fcba03', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'affiliate-bonus',
+        component: () => import('@/views/user/reports/affiliate-bonus'),
+        name: 'Affiliate Bonus',
+        meta: { title: 'Affiliate Bonus', icon: 'fas fa-list-alt', color:'color:#fcba03', affix: true, roles: ['user'] }
       }
     ]
   },

@@ -74,6 +74,14 @@ export function placeOrder(data) {
   })
 }
 
+export function myAffiliateBonus(query) {
+  return request({
+    url: '/user/affiliatebonus',
+    method: 'get',
+    params: query
+  })
+}
+
 export function myOrders(query) {
   return request({
     url: '/user/orders',
