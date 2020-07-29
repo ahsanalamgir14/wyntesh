@@ -62,29 +62,34 @@
           <span >{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Name" width="130px" align="right">
+      <el-table-column label="Name" min-width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.member.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Payout Month" width="150px" align="center">
+      <el-table-column label="Payout Duration" width="200px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Matched BV" width="130px" align="right">
+      <el-table-column label="Matched BV" width="120px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.total_matched_bv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Amount" width="130px" align="right">
+      <el-table-column label="Amount" width="120px" align="right">
         <template slot-scope="{row}">
-          <span >{{ parseFloat(row.total_payout)+parseFloat(row.tds)+parseFloat(row.admin_fee) }}</span>
+          <span >{{ Math.round(parseFloat(row.total_payout)+parseFloat(row.tds)+parseFloat(row.admin_fee)) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="TDS" width="120px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ Math.round(parseFloat(row.tds)) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Net Payable" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.total_payout }}</span>
+          <span >{{ Math.round(row.total_payout) }}</span>
         </template>
       </el-table-column>
        

@@ -55,7 +55,7 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="Income" min-width="300px">
+      <el-table-column label="Income" min-width="150px">
         <template slot-scope="{row}">
           <span >{{ row.income?row.income.name:'' }}</span>
         </template>
@@ -71,17 +71,23 @@
           <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Income Payout" width="130px" align="right">
+      <el-table-column label="Amount" width="120px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout_amount }}</span>
+          <span >{{ Math.round(parseFloat(row.payout_amount)+parseFloat(row.tds)+parseFloat(row.admin_fee)) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS" width="130px" align="right">
+      <el-table-column label="TDS" width="100px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.tds }}</span>
+          <span >{{ Math.round(row.tds) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Admin Fee" width="130px" align="right">
+
+      <el-table-column label="Payble Amount" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ Math.round(row.payout_amount) }}</span>
+        </template>
+      </el-table-column>
+      <!-- <el-table-column label="Admin Fee" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.admin_fee }}</span>
         </template>
@@ -95,7 +101,7 @@
         <template slot-scope="{row}">
           <span >{{ row.income_payout_parameter_1_value }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
        <el-table-column label="Generated at" width="150px" align="center">
         <template slot-scope="{row}">

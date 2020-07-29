@@ -43,9 +43,9 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="Month" width="150px" align="center">
+      <el-table-column label="Payout Duration" width="200px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.sales_start_date | parseTime('{y}-{m}') }}</span>
+          <span>{{ row.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ row.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Sales BV" width="130px" align="right">

@@ -70,18 +70,19 @@ class PayoutsController extends Controller
 
         $PayoutType=PayoutType::where('name','Monthly')->first();
 
-        $request->date_range    = ['2020-07-20','2020-07-30'];        
-        $request->incomes       = ['3','4'];        
-      /*  $validate = Validator::make($request->all(), [
+        // $request->date_range    = ['2020-07-20','2020-07-30'];        
+        // $request->incomes       = ['3','4'];        
+        
+        $validate = Validator::make($request->all(), [
             'date_range' => 'required',
             'incomes' => 'required',
-        ]);*/
+        ]);
 
-      /*  if($validate->fails()){
+        if($validate->fails()){
             $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
             return response()->json($response, 400);
         }
-*/
+
         $date_range=$request->date_range;
         
         $Payout=new Payout;
@@ -102,8 +103,7 @@ class PayoutsController extends Controller
             $PayoutIncome->save();
         }
 
-        // event(new GenerateMonthlyPayoutEvent($Payout));
-           event(new GeneratePayoutEvent($Payout));
+        event(new GeneratePayoutEvent($Payout));
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');
         return response()->json($response, 200);
@@ -237,7 +237,7 @@ class PayoutsController extends Controller
         if(!$search && !$month){
             $MemberPayout=MemberPayout::select();
             
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->where('total_payout','>',0)->orderBy('id',$sort)->paginate($limit);
         }else{
             $MemberPayout=MemberPayout::select();
             $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
@@ -255,7 +255,7 @@ class PayoutsController extends Controller
                 });
             }
 
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->where('total_payout','>',0)->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout);

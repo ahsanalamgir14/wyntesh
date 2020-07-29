@@ -100,6 +100,16 @@
           <span >{{ row.sales_amount }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Total Matched" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.total_matched_bv }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Carry Forwarded" width="150px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.total_carry_forward_bv }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Total Payout" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.total_payout }}</span>

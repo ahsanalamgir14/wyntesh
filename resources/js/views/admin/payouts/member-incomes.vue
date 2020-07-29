@@ -78,30 +78,25 @@
           <span >{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Name" width="130px" align="right">
+      <el-table-column label="Name" min-width="150px" align="left">
         <template slot-scope="{row}">
           <span >{{ row.member.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Income" min-width="300px">
+      <el-table-column label="Income" width="200px">
         <template slot-scope="{row}">
           <span >{{ row.income?row.income.name:'' }}</span>
         </template>
       </el-table-column>
       
-      <el-table-column label="Month" width="150px" align="center">
+      <el-table-column label="Payout Duration" width="200px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> 
       <el-table-column label="Total Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout_amount }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="BV" width="130px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.group_pv }}</span>
+          <span >{{ Math.round(row.payout_amount) }}</span>
         </template>
       </el-table-column>
     </el-table>

@@ -32,9 +32,15 @@ class GeneratePayoutListener
      *
      * @return void
      */
+
+    public $tds_percentage;
+    public $admin_fee_percent;
+
     public function __construct()
     {
-        //
+        $this->tds_percentage=CompanySetting::getValue('tds_percentage');
+        $this->admin_fee_percent=0;
+
     }
 
     /**
@@ -46,7 +52,7 @@ class GeneratePayoutListener
     public function handle(GeneratePayoutEvent $event)
     {
         $payout=$event->payout;
-        //$this->updateRank($payout);
+        
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
 
@@ -56,8 +62,8 @@ class GeneratePayoutListener
                             ->sum('final_amount_company');
 
         $total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->sum('pv');
+        
       
-
 
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
@@ -107,41 +113,53 @@ class GeneratePayoutListener
             //Counting Carry forward and Matched points of Member Legs.
 
             //Getting Member Legs in decenting based on current PV
-            // $legs=MembersLegPv::where('member_id',$Member->id)->orderBy('pv','desc')->get();
-            
-
+            $legs=0;
             $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
                         ->whereDate('created_at','<=',$payout->sales_end_date)
                         ->whereDate('created_at','>=',$payout->sales_start_date)
                         ->where('member_id',$Member->id)
                         ->orderBy('totalPv','desc')
                         ->groupBy('position')
-                        ->get();
-           
-           
-            foreach ($legs as $key => $leg) {
-                if($key==0){
-                    $leg_1_pv=$leg->totalPv;
-                    $carry_forward_position=$leg->position;
+                        ->get()->pluck('totalPv','position')->toArray();
+
+            $last_carry_forward=MemberCarryForwardPv::where('member_id',$Member->id)->orderBy('payout_id','desc')->first();
+
+            if($last_carry_forward){
+                if(count($legs)){
+                    $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
+                    $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
+                }
+            }
+
+            arsort($legs);
+
+            $index = 0;
+            foreach ($legs as $position => $pv) {
+                if($index==0){
+                    $leg_1_pv=$pv;
+                    $carry_forward_position=$position;
 
                     // If only 1 leg then no matching bonus, carry forward all current pv
-                    if($legs->count()==1){
-                        $carry_forward=$leg->totalPv;                        
+                    if(count($legs)==1){
+                        $carry_forward=$pv;                        
                     }
+                    $index++;
                     continue;
                 }
 
-                if($key==1){
-                    $leg_2_pv=$leg->totalPv;
+                if($index==1){
+                    $leg_2_pv=$pv;
                     // Count carry forward
                     $carry_forward=$leg_1_pv-$leg_2_pv;
                 }
-                            
+                       
                 // Add current pv to matched_bv of all legs except strong one.
-                $matched_bv+=$leg->totalPv;
+                $matched_bv+=$pv;
+                $index++;
             }
+
             // dd($carry_forward);
-            if(!$legs->isEmpty()){
+            if(count($legs)!== 0){
                 $MemberCarryForwardPv=new MemberCarryForwardPv;
                 $MemberCarryForwardPv->member_id            =$Member->id;
                 $MemberCarryForwardPv->payout_id            =$payout->id;
@@ -177,11 +195,15 @@ class GeneratePayoutListener
             if($income->code=='SQUAD'){
                 $this->PayoutSquadIncomeFactor($income,$PayoutIncome,$payout);
             }
+
             if($income->code=='ELEVATION'){
                 $this->PayoutElevationIncomeFactor($income,$PayoutIncome,$payout);
             }
         }
 
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+        })->orderBy('level','desc')->get();
 
         foreach ($Members as $Member) {
             $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
@@ -191,7 +213,43 @@ class GeneratePayoutListener
                     $this->PayoutSquadIncome($income,$payout,$memberPayout,$Member);
                 }
             }
+
+            $MemberPayout=MemberPayout::where('payout_id',$payout->id)->where('member_id',$Member->id)->first();
+            $total_member_payout_amount=MemberPayoutIncome::where('payout_id',$payout->id)->where('member_id',$Member->id)->sum('payout_amount');
+            $total_member_tds=MemberPayoutIncome::where('payout_id',$payout->id)->where('member_id',$Member->id)->sum('tds');
+            $total_member_admin_fee=MemberPayoutIncome::where('payout_id',$payout->id)->where('member_id',$Member->id)->sum('admin_fee');
+            
+            $MemberPayout->total_payout=$total_member_payout_amount;
+            $MemberPayout->tds=$total_member_tds;
+            $MemberPayout->admin_fee=$total_member_admin_fee;
+            $MemberPayout->save();
+            $Member->current_personal_pv=0;
+            $Member->save();
         }
+
+        $PayoutIncomes=PayoutIncome::where('payout_id',$payout->id)->get();
+        // Calculating income wise total payout.
+        foreach ($PayoutIncomes as $PayoutIncome) {
+            $TotalIncomePayout= MemberPayoutIncome::where('payout_id',$PayoutIncome->payout_id)->where('income_id',$PayoutIncome->income_id)->sum('payout_amount');
+            $PayoutIncome->payout_amount=$TotalIncomePayout;
+            $PayoutIncome->save();
+        }
+
+        $total_tds=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->sum('tds');
+
+        $total_admin_fee=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->sum('admin_fee');
+
+        $total_payout_amount=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->sum('payout_amount');
+
+        // Saving total payout to payout
+        // $all_income_payout_total=$all_income_payout_total-$payout_tds-$payout_admin_fee;
+        $payout->total_payout=$total_payout_amount;
+        $payout->tds=$total_tds;
+        $payout->admin_fee=$total_admin_fee;
+        $payout->ended_at=Carbon::now();
+        $payout->save();
+
+        $this->updateRank($payout);
     }
 
   
@@ -238,13 +296,17 @@ class GeneratePayoutListener
 
     public function PayoutSquadIncome($income,$payout,$memberPayout,$Member) {
 
-        $totalIncomeValue = "";
+        $totalIncomeValue = 0;
         $payoutIcome = PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
         $factor = $payoutIcome->income_payout_parameter_1_value;
         $totalIncomeValue = $memberPayout->total_matched_bv*$factor;
 
+        if($totalIncomeValue!=0){
 
-        if($totalIncomeValue!="0.0"){
+            $income_tds=($totalIncomeValue*$this->tds_percentage)/100;
+            $income_admin_fee=($totalIncomeValue*$this->admin_fee_percent)/100;
+            $totalIncomeValue=$totalIncomeValue-$income_tds;                        
+            $totalIncomeValue=$totalIncomeValue-$income_admin_fee;
 
             $Member->wallet_balance += $totalIncomeValue;
             $Member->save();
@@ -254,8 +316,8 @@ class GeneratePayoutListener
             $WalletTransaction->balance              = $Member->wallet_balance;
             $WalletTransaction->amount               = $totalIncomeValue;
             $WalletTransaction->transaction_by       = $Member->id;;
-            $WalletTransaction->note                 = 'Affiliate Bonus';
-            $this->commonWalletTransectionEntry($WalletTransaction,'Affiliate Bonus');
+            $WalletTransaction->note                 = 'Squad Bonus';
+            $this->commonWalletTransectionEntry($WalletTransaction,'Squad Bonus');
 
             $MemberPayoutIncome = new MemberPayoutIncome;
             $MemberPayoutIncome->member_id                              = $Member->id;
@@ -264,6 +326,8 @@ class GeneratePayoutListener
             $MemberPayoutIncome->payout_amount                          = $totalIncomeValue;
             $MemberPayoutIncome->income_payout_parameter_1_name         = $income->income_payout_parameter_1_name;
             $MemberPayoutIncome->income_payout_parameter_1_value        = $income->income_payout_parameter_1_value;
+            $MemberPayoutIncome->tds=$income_tds;
+            $MemberPayoutIncome->admin_fee=$income_admin_fee;
             $MemberPayoutIncome->save();
         }
     }
@@ -281,6 +345,15 @@ class GeneratePayoutListener
         foreach ($Members as $Member) {
             $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('pv');
             $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
+            $personal_pv=$Member->total_personal_pv;
+
+            $Income=Income::where('code','SQUAD')->first();
+            $SquadIncomeTotal=MemberPayoutIncome::where('income_id',$Income->id)->where('member_id',$Member->id)->sum('payout_amount');
+            $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
+            $affliate_income=WalletTransaction::where('transfered_to',$Member->user->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
+
+            $squad_plus_affiliate=$affliate_income+$SquadIncomeTotal;
+            
             $counts=array();
             foreach ($children as $child) {
                 $child_ids=$MembersController->getChildsOfParent($child);
@@ -292,25 +365,30 @@ class GeneratePayoutListener
                 }                           
             }
             $counts=array_count_values($counts);
+            
             foreach ($Ranks as $Rank) {
-                if($Rank->bv_to){
-                    if($group_pv >= $Rank->bv_from ){
-                       
-                        $Member->rank_id=$Rank->id;
-                        $Member->save();
-                    }
-
-                }else if($Rank->leg_rank){
+                if($Rank->leg_rank){
                                      
                     foreach ($counts as $key => $value) {   
-                        if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){                           
-                            $Member->rank_id=$Rank->id;
-                            $Member->save();   
+                        if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
+                            if($personal_pv >= $Rank->personal_bv_condition && $group_pv >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
+                                $Member->rank_id=$Rank->id;
+                                $Member->save(); 
+                            }                           
+                              
                         }
                     }
 
+                }else{
+
+                    if($personal_pv >= $Rank->personal_bv_condition && $group_pv >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
+                        $Member->rank_id=$Rank->id;
+                        $Member->save(); 
+                    }   
                 }
             }
+
+
             $RankLog=new RankLog;
             $RankLog->payout_id=$payout->id;
             $RankLog->member_id=$Member->id;

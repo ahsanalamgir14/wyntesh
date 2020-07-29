@@ -21,55 +21,6 @@ class MembersController extends Controller
 {    
 
 
-    public function updateRank(){
-        $Members=Member::orderBy('level','desc')->get();
-        $Ranks=Rank::all();
-        foreach ($Members as $Member) {
-            $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('pv');
-            $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
-            $counts=array();
-            
-            foreach ($children as $child) {
-                $child_ids=$this->getChildsOfParent($child);
-                $child_ids[]=$child;
-
-               $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
-               if($Member->id==1)
-                
-                $check_rank=array_unique($check_rank);
-              foreach ($check_rank as $check) {
-                        $counts[]=$check;
-               }                           
-            }
-            
-            $counts=array_count_values($counts);
-
-            foreach ($Ranks as $Rank) {
-               
-                if($Rank->bv_to){
-                    if($group_pv >= $Rank->bv_from ){
-                       
-                        $Member->rank_id=$Rank->id;
-                        $Member->save();
-                    }
-
-                }else if($Rank->leg_rank){
-                                     
-                    foreach ($counts as $key => $value) {   
-                        if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){                           
-                            $Member->rank_id=$Rank->id;
-                            $Member->save();   
-                        }
-                    }
-
-                }
-
-            } 
-            
-            
-        }
-    }
-
     public function getProfile()
     {   
         $id=JWTAuth::user()->id;
