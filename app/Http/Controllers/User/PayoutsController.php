@@ -22,9 +22,9 @@ use Carbon\Carbon;
 class PayoutsController extends Controller
 {    
 
-    public function payout_pro(Request $request){
+    public function payout_pro(){
 
-        $Order  = Order::with('user')->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->limit(5)->get();
+        $Order  = Order::with('user')->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->get();
       
         foreach ($Order as $key => $value) {
             // dd($value);
@@ -42,7 +42,7 @@ class PayoutsController extends Controller
             // Update memebr info pvs info
             $userdata->member->current_personal_pv  += $value->pv;
             $userdata->member->total_personal_pv    += $value->pv;
-            $userdata->save();
+            $userdata->member->save();
 
             event(new UpdateGroupPVEvent($value,$value->user,'add'));
 

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\CronsController;
+use App\Http\Controllers\User\PayoutsController;
 
 class Kernel extends ConsoleKernel
 {
@@ -33,6 +34,11 @@ class Kernel extends ConsoleKernel
         //     $CronsController=new CronsController;
         //     $CronsController->generateMonthlyPayout();
         // })->monthlyOn(1, '01:00');
+
+        $schedule->call(function () {
+            $PayoutsController=new PayoutsController;
+            $PayoutsController->payout_pro();
+        })->everyMinute();
 
     }
 

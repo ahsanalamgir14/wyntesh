@@ -331,6 +331,13 @@ class ShoppingController extends Controller
                     $Incomes->income_parameters[0]->value_1 = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
                     $incmParam = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
 
+                    $Sale=Sale::where('order_id',$Order->id)->first();
+                    $Sale->member_id=$Order->user->member->id;
+                    $Sale->pv=0;
+                    $Sale->order_id=$Order->id;
+                    $Sale->final_amount_company=0;
+                    $Sale->save();
+
                     if($Order->user->member->sponsor){
 
                         $Order->user->member->sponsor->wallet_balance -= ($Order->pv*$incmParam)/100;
