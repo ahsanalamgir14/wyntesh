@@ -24,6 +24,14 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
+       <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >Export</el-button>
     </div>
 
     <el-table
@@ -42,22 +50,39 @@
         type="index"
         width="50">
       </el-table-column>      
-      <el-table-column label="Month" width="150px" align="center">
+      <el-table-column label="Month" width="200px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Member" width="130px" align="right">
+      <el-table-column label="Member" width="200px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Name" width="130px" align="right">
+      <el-table-column label="Name" width="250px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.member.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS" width="130px" align="right">
+      <el-table-column label="Pan" width="200px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.member.kyc.pan }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Duration Start" width="200px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.payout.sales_start_date }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Duration End" width="200px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.payout.sales_end_date }}</span>
+        </template>
+      </el-table-column>
+      
+      <el-table-column label="TDS" width="200px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.tds }}</span>
         </template>
@@ -155,6 +180,60 @@ export default {
     this.getList();
   },
   methods: {
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "ID",
+          "Month",
+          "Member",
+          "Name",
+          "Pan",
+          "Duration Start",
+          "Duration End",
+          "TDS",
+        ];
+        const filterVal = [
+          "id",
+          "month",
+          "member",
+          "name",
+          "pan",
+          "duration_start",
+          "duration_end",
+          "tds",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "Kyc"
+        });
+        this.downloadLoading = false;
+      });
+    },formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "month") {
+            return v.payout.sales_start_date;
+          }else if (j === "member") {
+            return v.member.user.username;
+          }else if (j === "name") {
+            return v.member.user.name;
+          }else if (j === "pan") {
+            return v.member.kyc.pan;
+          }else if (j === "duration_start") {
+            return v.payout.sales_start_date;
+          }else if (j === "duration_end") {
+            return v.payout.sales_end_date;
+          }else if (j === "tds") {
+            return v.tds;
+          }else{
+            return v[j];
+          }
+        })
+      );
+    },
     getList() {
       this.listLoading = true;
       getMemberTDS(this.listQuery).then(response => {
@@ -174,8 +253,8 @@ export default {
           sums[index] = 'Final Total (All)';
           return;
         }
-        if(index===4){
-          sums[index] = this.sums.tds_amount;
+        if(index===7){
+          sums[index] = this.sums?this.sums.tds_amount:0;
           return; 
         }
       });

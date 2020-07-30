@@ -27,8 +27,6 @@ class WalletController extends Controller
      */
     public function withdrawalRequests(Request $request)
     {
-        
-     
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;

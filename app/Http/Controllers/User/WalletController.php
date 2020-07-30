@@ -11,6 +11,7 @@ use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\CreditRequest;
+use App\Models\Admin\CompanySetting;
 use App\Models\User\User;
 use Validator;
 use JWTAuth;
@@ -27,8 +28,12 @@ class WalletController extends Controller
      */
     public function withdrawalRequests(Request $request)
     {
+
+        $minimum_withdrawal=CompanySetting::getValue('minimum_withdrawal_pv');
+
         $User=JWTAuth::user();
         $balance=$User->member->wallet_balance;
+        $total_personal_pv=$User->member->total_personal_pv;
         $kyc_status=$User->member->kyc->is_verified;
 
         $page=$request->page;
@@ -76,7 +81,7 @@ class WalletController extends Controller
         }
 
         
-        $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$WithdrawalRequests,'balance'=>$balance,'kyc_status'=>$kyc_status);
+        $response = array('status' => true,'message'=>"Withdrawal requests retrieved.",'data'=>$WithdrawalRequests,'balance'=>$balance,'kyc_status'=>$kyc_status,'minimum_withdrawal'=>$minimum_withdrawal,'total_personal_pv'=>$total_personal_pv);
         return response()->json($response, 200);
     }
 
@@ -303,7 +308,12 @@ class WalletController extends Controller
 
     public function createWithdrawal(Request $request){
         $user=JWTAuth::user();
-
+        $minimum_withdrawal=CompanySetting::getValue('minimum_withdrawal_pv');
+        $total_personal_pv=$user->member->total_personal_pv;
+        if($total_personal_pv<=$minimum_withdrawal){
+            $response = array('status' => false,'message'=>'Your self purchase must be '+$minimum_withdrawal+', to withdraw your earnings.');
+            return response()->json($response, 400);
+        }
         $balance=$user->member->wallet_balance;
         $kyc_status=$user->member->kyc->is_verified;               
         $amount=$request->debit;

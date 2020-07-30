@@ -1,5 +1,14 @@
 <template>
   <div class="app-container">
+    <el-alert
+        v-if="is_active"
+        style="margin-bottom: 10px;"
+        :title="title"
+        type="error"
+        :description="msg"
+        show-icon>
+      </el-alert>
+
     <el-row :gutter="40" class="panel-group">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel" >
@@ -79,8 +88,9 @@
         class="filter-item"
         type="success"
         icon="el-icon-upload"
-        @click="dialogWithdrawVisible=true"
+        @click="checkPV"
       >{{ kyc_status?'Withdraw':'Verify your KYC First to Withdraw'}}</el-button>
+        <!-- dialogWithdrawVisible=true -->
     </div>
 
     <el-table
@@ -212,51 +222,56 @@ export default {
   },
   data() {
     return {
-      tableKey: 0,
-      list: null,
-      total: 0,
-      listLoading: true,
-      listQuery: {
-        page: 1,
-        limit: 5,
-        status:undefined,
-        sort: "+id",
-        date_range:''
-      },
-      balance:0,
-      kyc_status:0,
-      dateRangeFilter:'',
-      sortOptions: [
-        { label: "ID Ascending", key: "+id" },
-        { label: "ID Descending", key: "-id" }
-      ],
-      temp: {
-        id: undefined,
-        debit:0,
-        tds_amount:0,
-        tds_percent:0,
-        final_debit:0,
-        note:undefined,
-      },
-      statuses:[],
-      dialogWithdrawVisible:false,
-      dialogStatus: "",
-      textMap: {
-        update: "Edit",
-        create: "Create"
-      },
-      rules: {
-        debit: [
-          { type:"number", required: true, message: "Enter amount", trigger: "blur" }
+        is_active : 0,
+        title : undefined,
+        tableKey: 0,
+        list: null,
+        total: 0,
+        listLoading: true,
+        listQuery: {
+            page: 1,
+            limit: 5,
+            status:undefined,
+            sort: "+id",
+            date_range:''
+        },
+        balance:0,
+        minimum_withdrawal:0,
+        msg: undefined,
+        kyc_status:0,
+        total_personal_pv:0,
+        dateRangeFilter:'',
+        sortOptions: [
+            { label: "ID Ascending", key: "+id" },
+            { label: "ID Descending", key: "-id" }
         ],
-        final_debit: [
-          { type:"number", required: true, message: "Final Amount cannot be zero", trigger: "blur" }
-        ],
-      },
-      settings:undefined,
-      downloadLoading: false,
-      buttonLoading: false,
-      pickerOptions: {
+        temp: {
+            id: undefined,
+            debit:0,
+            tds_amount:0,
+            tds_percent:0,
+            final_debit:0,
+            note:undefined,
+        },
+        statuses:[],
+        dialogWithdrawVisible:false,
+        dialogStatus: "",
+        textMap: {
+            update: "Edit",
+            create: "Create"
+        },
+        rules: {
+            debit: [
+              { type:"number", required: true, message: "Enter amount", trigger: "blur" }
+            ],
+            final_debit: [
+              { type:"number", required: true, message: "Final Amount cannot be zero", trigger: "blur" }
+            ],
+        },
+        settings:undefined,
+        downloadLoading: false,
+        buttonLoading: false,
+        pickerOptions: {
         shortcuts: [{
           text: 'Last week',
           onClick(picker) {
@@ -265,7 +280,8 @@ export default {
             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
             picker.$emit('pick', [start, end]);
           }
-        }, {
+        }, 
+        {
           text: 'Last month',
           onClick(picker) {
             const end = new Date();
@@ -293,10 +309,14 @@ export default {
     getList() {
       this.listLoading = true;     
       fetchWithdrawalRequests(this.listQuery).then(response => {
-        this.list = response.data.data;
-        this.total = response.data.total;
-        this.balance = parseFloat(response.balance);
-        this.kyc_status = response.kyc_status;
+        this.list               = response.data.data;
+        this.total              = response.data.total;
+        this.balance            = parseFloat(response.balance);
+        this.minimum_withdrawal = parseInt(response.minimum_withdrawal);
+        this.kyc_status         = response.kyc_status;
+        this.total_personal_pv         = response.total_personal_pv;
+        // this.kyc_status         = true; // remove
+        this.setMsg();
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
@@ -304,6 +324,9 @@ export default {
         this.listLoading = false;
       });
     },
+    setMsg() {     
+        this.msg ="Your self purchase must be "+this.minimum_withdrawal+", to withdraw your earnings."; 
+    }, 
     getSettings() {      
       getSettings().then(response => {
         this.settings = response.data
@@ -401,6 +424,15 @@ export default {
           delete obj[propName];
         }
       }
+    },
+    checkPV() {
+        if(this.total_personal_pv>=this.minimum_withdrawal){
+            this.dialogWithdrawVisible=true;
+            this.is_active = 0;
+        }else{
+            this.is_active = 1;
+            this.dialogWithdrawVisible=false;
+        }
     },
     handleDownload() {
       this.downloadLoading = true;

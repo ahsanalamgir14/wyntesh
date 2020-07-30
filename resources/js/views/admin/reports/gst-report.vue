@@ -95,6 +95,16 @@
           <span>{{ row.final_amount }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Order Number" min-width="110px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.order_no }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Order Date" min-width="110px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="GST" min-width="130px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.gst }}</span>
