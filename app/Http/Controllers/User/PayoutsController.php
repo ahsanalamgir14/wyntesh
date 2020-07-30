@@ -24,7 +24,7 @@ class PayoutsController extends Controller
 
     public function payout_pro(){
 
-        $Order  = Order::with('user')->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->get();
+        $Order  = Order::with('user')->whereNotIn('delivery_status',['Order Cancelled','Order Returned','Order Created'])->get();
       
         foreach ($Order as $key => $value) {
             // dd($value);
