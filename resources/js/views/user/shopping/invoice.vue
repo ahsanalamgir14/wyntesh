@@ -84,7 +84,7 @@
             
             <tr class="item-row"  v-for="product in order.products" :key="product.id">
                 <td class="item-name"><div>{{product.product.name}}</div></td>
-                <td class="cost"><div >{{product.amount}}</div></td>
+                <td class="cost"><div >{{product.product.dp_base}}</div></td>
                 <!-- <td class="cost"><div >{{product.product.retail_amount}}</div></td> -->
                 <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
                 <td class="qty"><div >{{product.qty}}</div></td>
@@ -96,7 +96,7 @@
                 <td class="description"><div>0.00</div></td>
                 <td class="description"><div>0.00</div></td>
 
-                <td class="total"><div >{{product.final_amount*product.qty}}</div></td>
+                <td class="total"><div >{{product.final_amount}}</div></td>
             </tr>
 
             <tr class="item-row">
