@@ -28,7 +28,7 @@ class DashboardController extends Controller
         $wallet_balance=Member::sum('wallet_balance');
         $total_payout=Payout::sum('total_payout');
         $total_orders=floor(Order::whereNotIn('delivery_status',["Order Returned","Order Cancelled"])->sum('final_amount'));
-        $total_business_volume=floor(Sale::sum('pv'));
+        $total_business_volume=floor(Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('pv'));
         $pending_withdrawals=WithdrawalRequest::where('request_status','Pending')->count();
         $pending_orders=Order::where('delivery_status','Order Created')->count();
         $tickets=Ticket::count();
