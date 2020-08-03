@@ -44,7 +44,8 @@ class UpdateGroupPVListener implements ShouldQueue
         
         array_shift($uplines);
         $uplines=array_diff( $uplines, [$sponsor] );
-        $date=date('Y-m-d');
+        //$date=date('Y-m-d');
+        $date=date('Y-m-d',$order->created_at);
         $month=date('m');
         // Log::info($uplines);
         foreach ($uplines as $upline) {
