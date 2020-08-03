@@ -145,10 +145,11 @@
                   type="daterange"
                   align="right"
                   unlink-panels
+                  format="yyyy-MM-dd"
+                  value-format="yyyy-MM-dd"
                   range-separator="To"
                   start-placeholder="Sale Start date"
-                  end-placeholder="Sale End date"
-                  :picker-options="pickerOptions">
+                  end-placeholder="Sale End date">
                 </el-date-picker>
               </div>
             </el-form-item>

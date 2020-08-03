@@ -44,10 +44,8 @@ class UpdateGroupPVListener implements ShouldQueue
         
         array_shift($uplines);
         $uplines=array_diff( $uplines, [$sponsor] );
-        //$date=date('Y-m-d');
-        $od=date_create($order->created_at);
-        $date= date_format($od,"Y-m-d");
-        $month=date('m');
+        $date=date('Y-m-d');
+        //$month=date('m');
         // Log::info($uplines);
         foreach ($uplines as $upline) {
             $MembersLegPv=MembersLegPv::where('member_id',$upline)
