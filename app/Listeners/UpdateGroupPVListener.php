@@ -33,6 +33,7 @@ class UpdateGroupPVListener implements ShouldQueue
         $user=$event->user;
         $type=$event->type;
         $member=$user->member;
+        $sponsor=$member->sponsor_id;
         $path=$member->path;
 
         $position=$member->position;
@@ -42,6 +43,7 @@ class UpdateGroupPVListener implements ShouldQueue
         $uplines=array_filter($uplines, 'strlen');
         
         array_shift($uplines);
+        $uplines=array_diff( $uplines, [$sponsor] );
         $date=date('Y-m-d');
         $month=date('m');
         // Log::info($uplines);

@@ -61,7 +61,9 @@ class GeneratePayoutListener
                             ->whereDate('created_at','>=', $payout->sales_start_date)
                             ->sum('final_amount_company');
 
-        $total_bv=Sale::whereBetween('created_at', [$payout->sales_start_date, $payout->sales_end_date])->sum('pv');
+        $total_bv=Sale::whereDate('created_at','<=',$payout->sales_end_date)
+                        ->whereDate('created_at','>=',$payout->sales_start_date)
+                        ->sum('pv');
         
       
 
