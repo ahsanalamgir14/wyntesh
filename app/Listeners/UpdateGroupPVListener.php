@@ -69,6 +69,7 @@ class UpdateGroupPVListener implements ShouldQueue
                 $MembersLegPv->member_id=$upline;
                 $MembersLegPv->position=$position;
                 $MembersLegPv->pv=$order->pv;
+                $MembersLegPv->created_at=$order->created_at;
                 $MembersLegPv->save();
             }
             $position=$Members->position;
