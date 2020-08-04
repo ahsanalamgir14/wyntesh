@@ -43,17 +43,25 @@ class UpdateGroupPVListener implements ShouldQueue
         $uplines=array_filter($uplines, 'strlen');
         
         array_shift($uplines);
-        $uplines=array_diff( $uplines, [$sponsor] );
-        $date=date('Y-m-d');
-        //$month=date('m');
-        // Log::info($uplines);
+        
+        //$date=date('Y-m-d');
+        $dt=date_create($order->created_at);
+        $date= date_format($dt,"Y-m-d");
+
         foreach ($uplines as $upline) {
+
+            $Members=Member::where('id',$upline)->first();
+
+            if($upline==$sponsor){
+                $position=$Members->position;
+                continue;
+            }
+
             $MembersLegPv=MembersLegPv::where('member_id',$upline)
                 ->where('position',$position)
                 ->whereDate('created_at', '=', $date)
                 // ->whereMonth('created_at', '=', $month)
                 ->first();
-            $Members=Member::where('id',$upline)->first();
             // Log::info('PV - '.$order->pv);
             if($MembersLegPv){
                 if($type=='add'){
@@ -72,6 +80,7 @@ class UpdateGroupPVListener implements ShouldQueue
                 $MembersLegPv->created_at=$order->created_at;
                 $MembersLegPv->save();
             }
+            
             $position=$Members->position;
         }
     }

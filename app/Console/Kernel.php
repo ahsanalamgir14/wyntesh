@@ -35,10 +35,10 @@ class Kernel extends ConsoleKernel
         //     $CronsController->generateMonthlyPayout();
         // })->monthlyOn(1, '01:00');
 
-        // $schedule->call(function () {
-        //     $PayoutsController=new PayoutsController;
-        //     $PayoutsController->payout_pro();
-        // })->everyMinute();
+        $schedule->call(function () {
+            $PayoutsController=new PayoutsController;
+            $PayoutsController->payout_pro();
+        })->everyMinute();
 
     }
 

@@ -35,7 +35,7 @@ class PayoutsController extends Controller
             $sale->member_id                        = $userdata->member->id; 
             $sale->order_id                         = $value->id; 
             $sale->pv                               = $value->pv; 
-            $sale->final_amount_company             = $value->final_amount; 
+            $sale->final_amount_company             = $value->amount; 
             $sale->created_at                       = $value->created_at; 
             $sale->save();
 
