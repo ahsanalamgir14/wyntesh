@@ -179,7 +179,7 @@ export default {
     calculateGroupPV(legs){
       let group_pv=0;
       for (let key in legs) {
-         group_pv+=parseFloat(legs[key].pv);
+         group_pv+=parseFloat(legs[key].totalPv);
       }
       return Math.round(group_pv);
     },
@@ -187,7 +187,7 @@ export default {
       let pv=0;
       for (let key in legs) {
         if(legs[key].position==position)
-          pv= legs[key].pv
+          pv= legs[key].totalPv
       }
       return pv;
     },

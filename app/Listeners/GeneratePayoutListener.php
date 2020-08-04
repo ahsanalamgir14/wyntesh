@@ -174,8 +174,13 @@ class GeneratePayoutListener
             $matched_bv = floatval($matched_bv)/24;
             $total_mached_bv+=$matched_bv;
             $total_carry_forward_bv+=$carry_forward;
-            
+            if($Member->id==3){
+                Log::info($matched_bv);
+            }
             // Save Matched bv and total carry_forward to member payout.
+            $Member->total_matched_bv+=$matched_bv;
+            $Member->save();
+            
             $MemberPayout->total_matched_bv=$matched_bv;
             $MemberPayout->total_carry_forward_bv=$carry_forward;
             $MemberPayout->save();
