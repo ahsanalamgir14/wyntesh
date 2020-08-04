@@ -44,9 +44,9 @@ class UpdateGroupPVListener implements ShouldQueue
         
         array_shift($uplines);
         
-        //$date=date('Y-m-d');
-        $dt=date_create($order->created_at);
-        $date= date_format($dt,"Y-m-d");
+        $date=date('Y-m-d');
+        //$dt=date_create($order->created_at);
+        //$date= date_format($dt,"Y-m-d");
 
         foreach ($uplines as $upline) {
 
