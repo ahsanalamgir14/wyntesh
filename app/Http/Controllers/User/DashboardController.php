@@ -40,16 +40,19 @@ class DashboardController extends Controller
         $current_personal_pv=$User->member->current_personal_pv;
         $total_personal_pv=$User->member->total_personal_pv;
         $balance=floatval($User->member->wallet_balance);
-        $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
+      
 
         $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
         $affiliateIncomeCredit=WalletTransaction::where('transfered_to',$User->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
-// dd($affiliateIncomeCredit);
+
         $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
         $affiliateIncomeDebit=WalletTransaction::where('transfered_from',$User->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
         
         $affiliateIncome = $affiliateIncomeCredit-$affiliateIncomeDebit;
-        
+        $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
+        $tds=MemberPayout::where('member_id',$User->member->id)->sum('tds');
+        $total_payout = $total_payout+$tds;
+        $total_payout+=$affiliateIncome;
         $response = array(
             'status' => true,
             'message'=>'Stats recieved',
