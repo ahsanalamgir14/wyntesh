@@ -45,35 +45,29 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="Month" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }} </span>
-        </template>
-      </el-table-column>
-
       <el-table-column label="Group BV" min-width="150px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.totalPv }}</span>
+          <span >{{ calculateGroupPV(row) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Leg A" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span v-if="row.position==1">{{ row.totalPv }}</span>
+          <span >{{ getPositionPV(row,1) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Leg B" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span v-if="row.position==2">{{ row.totalPv }}</span>
+          <span >{{ getPositionPV(row,2) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Leg C" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span v-if="row.position==3">{{ row.totalPv }}</span>
+          <span >{{ getPositionPV(row,3) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Leg D" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span v-if="row.position==4">{{ row.totalPv }}</span>
+          <span >{{ getPositionPV(row,4) }}</span>
         </template>
       </el-table-column>
       
@@ -178,6 +172,7 @@ export default {
         this.list = response.data.data;
         if(Object.keys(response.data).length !== 0){
             this.total = response.total;
+            this.list=response.data.legs;
             // this.carryForward=response.carry_forward; 
             this.carryForward.payout.sales_start_date=response.data.dates;
             this.carryForward.position=response.data.position;
@@ -196,7 +191,7 @@ export default {
     calculateGroupPV(legs){
       let group_pv=0;
       for (let key in legs) {
-         group_pv+=parseFloat(legs[key].pv);
+         group_pv+=parseFloat(legs[key].totalPv);
       }
       return Math.round(group_pv);
     },
@@ -204,7 +199,7 @@ export default {
       let pv=0;
       for (let key in legs) {
         if(legs[key].position==position)
-          pv= legs[key].pv
+          pv= legs[key].totalPv
       }
       return pv;
     },

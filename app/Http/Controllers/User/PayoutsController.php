@@ -265,40 +265,35 @@ class PayoutsController extends Controller
         $user=JWTAuth::user();
         $lastPayout =Payout::orderBy('id','desc')->first();
 
+        $last_date=Carbon::createFromDate($lastPayout->sales_end_date)->addDays(1)->format('Y-m-d');
         $allPayouts =Payout::whereYear('sales_start_date', '=', date("Y"))
                     ->whereMonth('sales_start_date', '=', date("m"))
                     ->get();
         
         $monthly_pvs = array();
-        $distinct_months =MembersLegPv::selectRaw('distinct(DATE_FORMAT(created_at,"%Y-%m")) as month')->orderBy('created_at','desc')->get();
-
+      
         if($lastPayout){
 
             $carryForwordPv = MemberCarryForwardPv::where('member_id',$user->member->id)->where('payout_id',$lastPayout->id)->orderBy('created_at','desc')->first();
 
-            $payoutdata=[];
-            foreach ($allPayouts as $key => $value) {
-         
-                $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
-                        ->whereDate('created_at','>=',$value->sales_start_date)
-                        ->whereDate('created_at','<=',$value->sales_end_date)
+            $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
+                        ->whereDate('created_at','>=',$last_date)
                         ->where('member_id',$user->member->id)
                         ->orderBy('totalPv','desc')
                         ->groupBy('position')
-                        ->first();
-                $payoutdata[]=$legs;
-            }
+                        ->get();
+            $legsArray[]=$legs;
             $monthly_pvs['dates']       = date('Y-m-d',strtotime($lastPayout->sales_start_date)).'  |  '.date('Y-m-d',strtotime($lastPayout->sales_end_date));
             $monthly_pvs['position']    = $carryForwordPv->position;
             $monthly_pvs['pv']          = $carryForwordPv->pv;
-            $monthly_pvs['data']        = $payoutdata;
+            $monthly_pvs['legs']        = $legsArray;
         }
 
         
       
 
       
-        $response = array('status' => true,'message'=>"Member Leg Pvs retrieved.",'data'=>$monthly_pvs,'total'=>count($distinct_months));
+        $response = array('status' => true,'message'=>"Member Leg Pvs retrieved.",'data'=>$monthly_pvs,'total'=>1);
         return response()->json($response, 200);
     }
 
