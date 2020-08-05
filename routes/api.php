@@ -23,6 +23,7 @@ Route::get('import', '\App\Http\Controllers\Admin\CronsController@PVImport');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
+Route::get('temp-wallet-update','\App\Http\Controllers\User\SettingsController@tempWalletUpdate');
 // Authentication Routes
 Route::group(['prefix' => 'auth'], function ($router) {
     Route::post('login', 'Auth\AuthController@login');
