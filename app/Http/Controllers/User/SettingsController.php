@@ -6,43 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\CompanySetting;
 use App\Models\Admin\Setting;
-use App\Models\Admin\Member;
-use App\Models\Admin\User;
-use App\Models\Admin\WalletTransaction;
-
 class SettingsController extends Controller
 {
     
-    public function tempWalletUpdate(){ 
-        $wallets = WalletTransaction::whereIn('transaction_type_id',[8,9])->get();
-        foreach($wallets as $wallet){
-
-            $tds = ($wallet->amount)*5/100;
-            $newamount  = $wallet->amount-$tds;
-            $wallet->amount = $newamount;
-            $wallet->save();
-
-            if($wallet->transaction_type_id == 9){
-                $wallet->member->wallet_balance -= $tds;
-                $wallet->member->save();
-            }
-        }
-    }
-
-    public function tempWalletUpdateNew(){ 
-        $wallets = WalletTransaction::whereIn('transaction_type_id',[8,9])->get();
-        foreach($wallets as $wallet){
-            if($wallet->transaction_type_id == 9){
-                $wallet->member_id = $wallet->transfered_to_user->member->id;
-                $wallet->save();
-            }
-            if($wallet->transaction_type_id == 8){
-                $wallet->member_id = $wallet->transfered_from_user->member->id;
-                $wallet->save();
-            }
-        }
-    }
-
     public function getMemberSettings()
     {
         $settings= CompanySetting::
