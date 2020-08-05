@@ -75,10 +75,10 @@
                 <th>PV</th>
                 <th>CGST %</th>
                 <th>CGST</th>
-                <th>GST %</th>
-                <th>SGST</th>
-                <th>GST %</th>
-                <th>GST</th>
+                <th>IGST %</th>
+                <th>IGST</th>
+                <th>IGST %</th>
+                <th>IGST</th>
                 <th>Total</th>
             </tr>
             
@@ -131,7 +131,7 @@
             </tr>
             <tr>
                 <td colspan="7" class="blank"> </td>
-                <td colspan="3" class="total-line">SGST</td>
+                <td colspan="3" class="total-line">IGST</td>
                 <td class="total-value"><div id="total">{{order.gst/2}}</div></td>
             </tr>
             <tr>

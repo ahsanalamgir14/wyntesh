@@ -210,7 +210,8 @@ class ShoppingController extends Controller
         $Cart=Cart::where('user_id',$User->id)->with('products')->get();
         $response = array('status' => true,'message'=>'Cart product received','data'=>$Cart);
         return response()->json($response, 200);
-    }  
+    }
+    
     public function myCartCount(){
         $User=JWTAuth::user();
         $Cart=Cart::where('user_id',$User->id)->get();
@@ -368,7 +369,7 @@ class ShoppingController extends Controller
                 $OrderProduct->product_id=$item->products->id;
                 $OrderProduct->amount=floatval($item->products->retail_base)*intval($item->qty);
                 $OrderProduct->gst=floatval($item->products->retail_gst)*intval($item->qty);
-                $OrderProduct->gst_rate=$item->products->gst_rate;
+                $OrderProduct->gst_rate=$item->products->retail_gst_rate;
                 $OrderProduct->shipping_fee=floatval($item->products->shipping_fee)*intval($item->qty);
                 $OrderProduct->admin_fee=floatval($item->products->admin_fee)*intval($item->qty);
                 $OrderProduct->discount=floatval($item->products->discount_amount)*intval($item->qty);
