@@ -13,6 +13,7 @@ use App\Models\Admin\Sale;
 use App\Models\Admin\Pin;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\CompanySetting;
 use App\Http\Controllers\User\MembersController;
 use App\Models\Superadmin\TransactionType;
 use JWTAuth;
@@ -48,7 +49,12 @@ class DashboardController extends Controller
         $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
         $affiliateIncomeDebit=WalletTransaction::where('transfered_from',$User->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
         
+        $tds_percentage = CompanySetting::getValue('tds_percentage');
+
         $affiliateIncome = $affiliateIncomeCredit-$affiliateIncomeDebit;
+        
+        $affiliateIncome += ($affiliateIncome*$tds_percentage)/100;
+        
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
         $tds=MemberPayout::where('member_id',$User->member->id)->sum('tds');
         $total_payout = $total_payout+$tds;

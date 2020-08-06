@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User\User;
 use App\Models\User\Order;
+use App\Models\Admin\MemberPayout;
 use App\Models\User\Ticket;
 use App\Models\User\Kyc;
 use App\Models\Admin\Pin;
@@ -13,8 +14,11 @@ use App\Models\Admin\Sale;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\Payout;
+use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\CompanySetting;
 use App\Models\Admin\Member;
 use App\Models\Admin\Inquiry;
+use App\Models\Superadmin\TransactionType;
 use JWTAuth;
 use Carbon\Carbon;
 use DB;
@@ -36,6 +40,26 @@ class DashboardController extends Controller
         $unused_pin=Pin::where('used_at',null)->count();
         $pending_kyc=Kyc::where('verification_status','pending')->count();
         $inquiries=Inquiry::count();
+
+
+        $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
+        $affiliateIncomeCredit=WalletTransaction::where('transaction_type_id',$TransactionType->id)->sum('amount');
+
+        $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
+        $affiliateIncomeDebit=WalletTransaction::where('transaction_type_id',$TransactionType->id)->sum('amount');
+
+
+        $tds_percentage = CompanySetting::getValue('tds_percentage');
+        $affiliateIncome = $affiliateIncomeCredit-$affiliateIncomeDebit;
+        $affiliateIncome += ($affiliateIncome*$tds_percentage)/100;
+        // dd($affiliateIncome);
+
+
+        $total_payout=MemberPayout::sum('total_payout');
+        $tds=MemberPayout::sum('tds');
+        $total_payout = $total_payout+$tds;
+        $total_payout+=$affiliateIncome;
+
 
         $response = array(
             'status' => true,

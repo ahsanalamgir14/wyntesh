@@ -256,7 +256,7 @@ class GeneratePayoutListener
         $payout->ended_at=Carbon::now();
         $payout->save();
 
-        $this->updateRank($payout);
+        // $this->updateRank($payout);
     }
 
   

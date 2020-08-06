@@ -94,40 +94,40 @@
                 <el-col :span="12">            
                   
                   <el-form-item label="Adhar" prop="adhar">
-                    <el-input max="16" v-model="temp.kyc.adhar" />
+                    <el-input max="16" v-model="temp.kyc.adhar" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                  
                   <el-form-item label="City" prop="city">
-                    <el-input  v-model="temp.kyc.city" />
+                    <el-input  v-model="temp.kyc.city" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                   <el-form-item label="State" prop="state">
-                    <el-input v-model="temp.kyc.state" />
+                    <el-input v-model="temp.kyc.state" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                   <el-form-item label="Address" prop="address">
                     <el-input type="textarea"
                       :rows="2"
-                      placeholder="Address" v-model="temp.kyc.address" />
+                      placeholder="Address" v-model="temp.kyc.address" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                   <el-form-item label="Pincode" prop="pincode">
-                    <el-input v-model="temp.kyc.pincode" />
+                    <el-input v-model="temp.kyc.pincode" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
 
                 </el-col>
                 <el-col :span="12">
                    <el-form-item label="Pan" prop="pan">
-                    <el-input max="10" v-model="temp.kyc.pan" />
+                    <el-input max="10" v-model="temp.kyc.pan" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                   <el-form-item label="Bank A/C Name" prop="bank_ac_name">
-                    <el-input v-model="temp.kyc.bank_ac_name"  />
+                    <el-input v-model="temp.kyc.bank_ac_name"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                   <el-form-item label="Bank Name" prop="bank_name">
-                    <el-input v-model="temp.kyc.bank_name"  />
+                    <el-input v-model="temp.kyc.bank_name"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                   <el-form-item label="A/C No" prop="bank_ac_no">
-                    <el-input v-model="temp.kyc.bank_ac_no"  />
+                    <el-input v-model="temp.kyc.bank_ac_no"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                   <el-form-item label="IFSC Code" prop="ifsc">
-                    <el-input v-model="temp.kyc.ifsc"  />
+                    <el-input v-model="temp.kyc.ifsc"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -197,6 +197,7 @@
                         :limit="1"
                         :file-list="profilefileList"
                         :on-exceed="handleExceed"
+                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         accept="image/png, image/jpeg">
                         
                         <img v-if="temp.profile_picture" :src="temp.profile_picture?temp.profile_picture:''" class="avatar">
@@ -222,6 +223,7 @@
                         :limit="1"
                         :file-list="adharfileList"
                         :on-exceed="handleExceed"
+                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         accept="image/png, image/jpeg">
                         
                         <img v-if="temp.kyc.adhar_image" :src="temp.kyc?temp.kyc.adhar_image:''" class="avatar">
@@ -246,6 +248,7 @@
                         :on-remove="handleAdharBackRemove"
                         :limit="1"
                         :file-list="adharBackfileList"
+                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         :on-exceed="handleExceed"
                         accept="image/png, image/jpeg">
                         
@@ -274,6 +277,7 @@
                         :on-remove="handlePanRemove"
                         :limit="1"
                         :file-list="panfileList"
+                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         :on-exceed="handleExceed"
                         accept="image/png, image/jpeg">
                         
@@ -300,6 +304,7 @@
                         :on-remove="handleChequeRemove"
                         :limit="1"
                         :file-list="chequefileList"
+                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         :on-exceed="handleExceed"
                         accept="image/png, image/jpeg">
                         
@@ -324,6 +329,7 @@
                         :auto-upload="false"
                         :on-change="handleDistributerChange"
                         :on-remove="handleDistributerRemove"
+                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         :limit="1"
                         :file-list="distributerfileList"
                         :on-exceed="handleExceed"
@@ -340,11 +346,11 @@
 
               </el-row>
               <el-form-item style="margin-top:20px;">
-                <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' " @click="onSubmit">
                   Update
                 </el-button>
-                 <el-button type="success"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="submitVerification">
-                  {{temp.kyc.verification_status=='submitted'?'Submitted for apporval': 'Submit for verification'}}
+                 <el-button type="success"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' " @click="submitVerification">
+                  {{temp.kyc.verification_status=='submitted'|| temp.kyc.verification_status=='verified'?'Submitted for apporval': 'Submit for verification'}}
                 </el-button>
               </el-form-item>
             </el-tab-pane>

@@ -49,7 +49,7 @@
       </el-table-column> -->
       <el-table-column label="TDS%" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round((parseFloat(row.tds)*100)/parseFloat(parseFloat(row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds))) }}</span>
+          <span >{{ Math.round((parseFloat(row.tds)*100)/parseFloat(parseFloat(row.total_payout==0.00?1:row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds))) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="TDS" width="130px" align="right">
@@ -158,6 +158,7 @@ export default {
       this.listLoading = true;
       fetchPayouts(this.listQuery).then(response => {
         this.list = response.data.data;
+        console.log(this.list);
         this.total = response.data.total;
         setTimeout(() => {
           this.listLoading = false;

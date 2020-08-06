@@ -177,7 +177,7 @@ export default {
         page: 1,
         limit: 10,
         search:undefined,
-        sort: "+id",
+        sort: "-id",
         date_range:''
       },
       sortOptions: [
