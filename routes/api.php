@@ -134,7 +134,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::post('order/place', 'ShoppingController@placeOrder');
     Route::get('orders', 'ShoppingController@getMyOrders');
-    Route::get('affiliatebonus', 'ShoppingController@myAffiliateBonus');
+    Route::get('affiliate-bonus', 'PayoutsController@myAffiliateBonus');
     
 
     Route::get('payouts', 'PayoutsController@getPayouts');
@@ -307,6 +307,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::get('orders/new', 'ShoppingController@getNewOrders');
     Route::get('orders/all', 'ShoppingController@getAllOrders');
+    Route::get('gst/report', 'ShoppingController@getGSTReport');
     Route::post('order/update', 'ShoppingController@updateOrder');
 
     Route::post('email','EmailsController@create');

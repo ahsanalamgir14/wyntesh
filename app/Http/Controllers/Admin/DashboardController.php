@@ -19,6 +19,7 @@ use App\Models\Admin\CompanySetting;
 use App\Models\Admin\Member;
 use App\Models\Admin\Inquiry;
 use App\Models\Superadmin\TransactionType;
+use App\Models\Admin\AffiliateBonus;
 use JWTAuth;
 use Carbon\Carbon;
 use DB;
@@ -42,23 +43,14 @@ class DashboardController extends Controller
         $inquiries=Inquiry::count();
 
 
-        $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
-        $affiliateIncomeCredit=WalletTransaction::where('transaction_type_id',$TransactionType->id)->sum('amount');
-
-        $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
-        $affiliateIncomeDebit=WalletTransaction::where('transaction_type_id',$TransactionType->id)->sum('amount');
-
-
-        $tds_percentage = CompanySetting::getValue('tds_percentage');
-        $affiliateIncome = $affiliateIncomeCredit-$affiliateIncomeDebit;
-        $affiliateIncome += ($affiliateIncome*$tds_percentage)/100;
+        $affiliateIncomeWithTDS=AffiliateBonus::sum('amount');
         // dd($affiliateIncome);
 
 
         $total_payout=MemberPayout::sum('total_payout');
         $tds=MemberPayout::sum('tds');
         $total_payout = $total_payout+$tds;
-        $total_payout+=$affiliateIncome;
+        $total_payout+=$affiliateIncomeWithTDS;
 
 
         $response = array(

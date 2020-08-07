@@ -31,3 +31,11 @@ export function getAllOrders(query) {
     params: query
   })
 }
+
+export function getGSTReport(query) {
+  return request({
+    url: '/admin/gst/report',
+    method: 'get',
+    params: query
+  })
+}

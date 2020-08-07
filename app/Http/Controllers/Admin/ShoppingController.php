@@ -225,6 +225,68 @@ class ShoppingController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getGSTReport(Request $request)
+    {
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $delivery_status=$request->delivery_status;
+        $order_total='';
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$date_range && !$delivery_status){           
+            $Orders=Order::select();
+            $Orders=$Orders->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);
+            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
+            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+            $order_total=Order::select([DB::raw('sum(final_amount) as final_total'),DB::raw('sum(gst) as gst')])->first();
+        }else{
+            $Orders=Order::select();
+            $Orders=$Orders->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);            
+            $order_total=Order::select([DB::raw('sum(final_amount) as final_total'),DB::raw('sum(gst) as gst')]);
+            $Orders=$Orders->where(function ($query)use($search) {
+                $query->orWhere('order_no','like','%'.$search.'%');  
+                $query=$query->orWhereHas('user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });            
+
+            });
+
+            if($delivery_status){
+                $Orders=$Orders->where('delivery_status',$delivery_status);
+            }
+
+            if($date_range){
+                $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
+                $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
+                $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
+                $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
+            }
+            $order_total=$order_total->first();
+            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
+            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+        }
+        
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders,'sum'=>$order_total);
+        return response()->json($response, 200);
+    }
+
     public function updateOrder(Request $request){
         $User=JWTAuth::user();
         $validate = Validator::make($request->all(), [        

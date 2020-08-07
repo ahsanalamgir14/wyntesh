@@ -67,7 +67,7 @@
       </el-table-column>
       <el-table-column label="Pan" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.member.kyc.pan }}</span>
+          <span >{{ row.member.kyc?row.member.kyc.pan:'' }}</span>
         </template>
       </el-table-column>
 
@@ -84,7 +84,7 @@
       
       <el-table-column label="TDS" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.tds }}</span>
+          <span >{{ parseFloat(row.tds)+parseFloat(row.affiliate_tds) }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -207,7 +207,7 @@ export default {
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: "Kyc"
+          filename: "tds"
         });
         this.downloadLoading = false;
       });
@@ -221,13 +221,13 @@ export default {
           }else if (j === "name") {
             return v.member.user.name;
           }else if (j === "pan") {
-            return v.member.kyc.pan;
+            return v.member.kyc?v.member.kyc.pan:'';
           }else if (j === "duration_start") {
             return v.payout.sales_start_date;
           }else if (j === "duration_end") {
             return v.payout.sales_end_date;
           }else if (j === "tds") {
-            return v.tds;
+            return parseFloat(v.tds)+parseFloat(v.affiliate_tds);
           }else{
             return v[j];
           }

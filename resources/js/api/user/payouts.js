@@ -24,6 +24,13 @@ export function getPayoutIncomes(query) {
   })
 }
 
+export function myAffiliateBonus(query) {
+  return request({
+    url: '/user/affiliate-bonus',
+    method: 'get',
+    params: query
+  })
+}
 
 export function getIncomeHoldings(query) {
   return request({

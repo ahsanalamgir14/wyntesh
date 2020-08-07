@@ -85,21 +85,23 @@
           <span>{{ row.packages?row.packages[0].package.name:'' }}</span>
         </template>
       </el-table-column> -->
-      <el-table-column label="Payment Mode" width="140px" align="center">
+      <!-- <el-table-column label="Payment Mode" width="140px" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.payment_mode?row.payment_mode.name:'' | statusFilter">{{ row.payment_mode.name }}</el-tag>
         </template>
-      </el-table-column>
-      <el-table-column label="Final Amount" min-width="110px" align="right">
-        <template slot-scope="{row}">
-          <span>{{ row.final_amount }}</span>
-        </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="Order Number" min-width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.order_no }}</span>
         </template>
       </el-table-column>
+      
+      <el-table-column label="Final Amount" min-width="110px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.final_amount }}</span>
+        </template>
+      </el-table-column>
+      
       <el-table-column label="Order Date" min-width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -125,7 +127,7 @@
 </template>
 
 <script>
-import { getAllOrders,} from "@/api/admin/shopping";
+import { getGSTReport,} from "@/api/admin/shopping";
 import { getStatuesAll } from "@/api/admin/config";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -240,7 +242,7 @@ export default {
           sums[index] = this.sums.final_total;
           return; 
         }
-        if(index===3){
+        if(index===4){
           sums[index] = this.sums.gst;
           return; 
         }
@@ -251,7 +253,7 @@ export default {
     getList() {
       this.listLoading = true;
      
-      getAllOrders(this.listQuery).then(response => {
+      getGSTReport(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         this.sums=response.sum;

@@ -4,15 +4,35 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Admin\RankLog;
+use App\Models\Admin\AffiliateBonus;
 
 class MemberPayout extends Model
 {
     protected $table = 'member_payouts';
     public $timestamps = true;
-    protected $appends = ['rank','legs'];
+    protected $appends = ['rank','legs','affiliate_tds','affiliate_income'];
+
     public function payout()
     {
         return $this->belongsTo('App\Models\Admin\Payout');
+    }    
+
+    public function getAffiliateTdsAttribute()
+    {
+        $affiliate_tds=0;
+        if($this->payout){
+          $affiliate_tds=AffiliateBonus::whereDate('created_at','>=',$this->payout->sales_start_date)->whereDate('created_at','<=',$this->payout->sales_end_date)->where('member_id',$this->member_id)->sum('tds_amount');
+        }
+        return $affiliate_tds;
+    }
+
+    public function getAffiliateIncomeAttribute()
+    {
+        $affiliate_income=0;
+        if($this->payout){
+          $affiliate_income=AffiliateBonus::whereDate('created_at','>=',$this->payout->sales_start_date)->whereDate('created_at','<=',$this->payout->sales_end_date)->where('member_id',$this->member_id)->sum('amount');
+        }
+        return $affiliate_income;
     }
 
     public function getRankAttribute()

@@ -10,6 +10,7 @@ use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\MembersLegPv;
+use App\Models\Admin\AffiliateBonus;
 use App\Models\Admin\Payout;
 use App\Models\Admin\MemberCarryForwardPv;
 use App\Models\User\Order;
@@ -48,6 +49,45 @@ class PayoutsController extends Controller
 
         }
     }
+
+
+    public function myAffiliateBonus(Request $request){
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $AffiliateBonus=AffiliateBonus::select();
+        
+        $AffiliateBonus=$AffiliateBonus->where('member_id',$user->member->id);
+        
+        if($search){
+            $AffiliateBonus=$AffiliateBonus->whereHas('order',function($query)use($search){
+                $query->where('order_no','like','%'.$search.'%');
+            });
+        }
+        
+        $AffiliateBonus=$AffiliateBonus->with('order.user')->orderBy('id',$sort)->paginate($limit);
+
+        $response = array('status' => true,'message'=>"Affiliate Bonus retrieved.",'data'=>$AffiliateBonus);
+        return response()->json($response, 200);
+    }
+
     public function getPayouts(Request $request)
     {
         $user=JWTAuth::user();

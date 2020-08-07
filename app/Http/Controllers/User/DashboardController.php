@@ -49,6 +49,7 @@ class DashboardController extends Controller
         $tds=MemberPayout::where('member_id',$User->member->id)->sum('tds');
         $total_payout = $total_payout+$tds;
         $total_payout+=$affiliateIncomeWithTDS;
+        
         $response = array(
             'status' => true,
             'message'=>'Stats recieved',

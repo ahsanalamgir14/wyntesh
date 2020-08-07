@@ -286,12 +286,14 @@ class PayoutsController extends Controller
 
         if(!$search && !$month){
             $MemberPayout=MemberPayout::select();
+            $MemberPayout=$MemberPayout->where('total_payout','!=',0);
             
             $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name','member.kyc')->orderBy('id',$sort)->paginate($limit);
             $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')])->first();
         }else{
             $MemberPayout=MemberPayout::select();
             $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')]);
+
             if($search){
                 $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
                     $query=$query->orWhereHas('member.user',function($q)use($search){
@@ -304,9 +306,7 @@ class PayoutsController extends Controller
                     });
                 });
             }
-            
-            
-
+        
             if($month){
                 $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
                     $month=$month.'-01';
@@ -320,7 +320,9 @@ class PayoutsController extends Controller
                     $q->whereYear('sales_start_date',$date->year);
                 });
             }
+
             $total=$total->first();
+            $MemberPayout=$MemberPayout->where('total_payout','!=',0);
             $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
         }
    
