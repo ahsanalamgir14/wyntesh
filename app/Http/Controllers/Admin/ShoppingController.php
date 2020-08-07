@@ -19,6 +19,7 @@ use App\Models\Admin\ActivationLog;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\Member;
 use App\Models\Admin\Income;
+use App\Models\Admin\AffiliateBonus;
 use App\Models\Admin\Payout;
 use App\Models\User\Address;
 use App\Models\User\User;
@@ -305,8 +306,8 @@ class ShoppingController extends Controller
                 if($Order->user->member->sponsor){
 
                     $tds_percentage = CompanySetting::getValue('tds_percentage');
-
                     $amount = ($Order->pv*$incmParam)/100; 
+                    $tds=($amount*$tds_percentage)/100;
                     $deducted_tds_amount = $amount-($amount*$tds_percentage)/100;
 
                     $Order->user->member->sponsor->wallet_balance += $deducted_tds_amount;
@@ -321,6 +322,17 @@ class ShoppingController extends Controller
                     $WalletTransaction->transfered_to       = $Order->user->member->sponsor->user->id;
                     $WalletTransaction->note                = 'Affiliate Bonus';
                     $WalletTransaction->save();
+
+                    $AffiliateBonus=new AffiliateBonus;
+                    $AffiliateBonus->member_id=$Order->user->member->sponsor_id;
+                    $AffiliateBonus->income_id=$Incomes->id;
+                    $AffiliateBonus->order_id=$Order->id;
+                    $AffiliateBonus->amount=$amount;
+                    $AffiliateBonus->tds_percent=$tds_percentage;
+                    $AffiliateBonus->tds_amount=$tds;
+                    $AffiliateBonus->final_amount=$deducted_tds_amount;
+                    $AffiliateBonus->created_at=$Order->created_at;
+                    $AffiliateBonus->save();
                 }
 
                 
@@ -366,6 +378,13 @@ class ShoppingController extends Controller
                         $WalletTransaction->transfered_from      = $Order->user->member->sponsor->user->id;
                         $WalletTransaction->note                 = 'Affiliate Bonus Debit';
                         $WalletTransaction->save();
+
+
+                        $AffiliateBonus=AffiliateBonus::where('order_id',$Order->id)->first();
+                        if($AffiliateBonus){
+                            $AffiliateBonus->delete();
+                        }
+                        
                     }
 
                     event(new UpdateGroupPVEvent($Order,$Order->user,'subtract'));

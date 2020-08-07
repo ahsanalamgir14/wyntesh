@@ -8,7 +8,7 @@ use App\Models\Admin\CompanySetting;
 use App\Models\Admin\Setting;
 use App\Models\Admin\Member;
 use App\Models\Admin\WalletTransaction;
-use App\Models\Admin\AffliateBonus;
+use App\Models\Admin\AffiliateBonus;
 use App\Models\User\Order;
 
 class SettingsController extends Controller
@@ -16,7 +16,7 @@ class SettingsController extends Controller
 
     public function deductTds(){ 
         // $wallets = WalletTransaction::whereIn('transaction_type_id',[9])->where('member_id',101)->get();
-          $orders = Order::whereDate('created_at','>=','2020-08-05')->whereDate('created_at','<=','2020-08-07')->get();
+          $orders = Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->get();
         // foreach($wallets as $wallet){
 
         //     $tds = ($wallet->amount)*5/100;
@@ -35,10 +35,23 @@ class SettingsController extends Controller
             $amount = ($Order->pv*20)/100; 
             $tds=($amount*$tds_percentage)/100;
 
+            if($Order->user->member->sponsor_id){                
+                $AffiliateBonus=new AffiliateBonus;
+                $AffiliateBonus->member_id=$Order->user->member->sponsor_id;
+                $AffiliateBonus->income_id=2;
+                $AffiliateBonus->order_id=$Order->id;
+                $AffiliateBonus->amount=$amount;
+                $AffiliateBonus->tds_percent=$tds_percentage;
+                $AffiliateBonus->tds_amount=$tds;
+                $AffiliateBonus->final_amount=$amount-$tds;
+                $AffiliateBonus->created_at=$Order->created_at;
+                $AffiliateBonus->save();
+            }
+
             //$deducted_tds_amount = $amount-($amount*$tds_percentage)/100;
 
-            $Order->user->member->sponsor->wallet_balance -= $tds;
-            $Order->user->member->sponsor->save();
+            // $Order->user->member->sponsor->wallet_balance -= $tds;
+            // $Order->user->member->sponsor->save();
             
         }
     }

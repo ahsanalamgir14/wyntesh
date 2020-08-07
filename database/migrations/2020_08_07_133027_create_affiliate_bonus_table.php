@@ -15,6 +15,7 @@ class CreateAffiliateBonusTable extends Migration
     {
         Schema::create('affiliate_bonus', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->bigInteger('member_id');
             $table->bigInteger('income_id');
             $table->bigInteger('order_id');
             $table->decimal('amount', 10, 2)->default(0);
