@@ -307,9 +307,9 @@ class ShoppingController extends Controller
                     $tds_percentage = CompanySetting::getValue('tds_percentage');
 
                     $amount = ($Order->pv*$incmParam)/100; 
-                    $diducted_tds_amount = $amount-($amount*$tds_percentage)/100;
+                    $deducted_tds_amount = $amount-($amount*$tds_percentage)/100;
 
-                    $Order->user->member->sponsor->wallet_balance += ($Order->pv*$incmParam)/100;
+                    $Order->user->member->sponsor->wallet_balance += $deducted_tds_amount;
                     $Order->user->member->sponsor->save();
                     $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
 
@@ -317,7 +317,7 @@ class ShoppingController extends Controller
                     $WalletTransaction->member_id           = $Order->user->member->sponsor_id;
                     $WalletTransaction->balance             = $Order->user->member->sponsor->wallet_balance;
                     $WalletTransaction->transaction_type_id = $TransactionType->id;
-                    $WalletTransaction->amount              = $diducted_tds_amount;
+                    $WalletTransaction->amount              = $deducted_tds_amount;
                     $WalletTransaction->transfered_to       = $Order->user->member->sponsor->user->id;
                     $WalletTransaction->note                = 'Affiliate Bonus';
                     $WalletTransaction->save();
@@ -348,11 +348,9 @@ class ShoppingController extends Controller
 
                         $tds_percentage = CompanySetting::getValue('tds_percentage');
                         $amount = ($Order->pv*$incmParam)/100; 
-                        $diducted_tds_amount = $amount-($amount*$tds_percentage)/100;
+                        $deducted_tds_amount = $amount-($amount*$tds_percentage)/100;
 
-
-
-                        $Order->user->member->sponsor->wallet_balance -= ($Order->pv*$incmParam)/100;
+                        $Order->user->member->sponsor->wallet_balance -= $deducted_tds_amount;
                         $Order->user->member->sponsor->save();
                         
                         $Order->user->member->current_personal_pv-=$Order->pv;
@@ -363,7 +361,7 @@ class ShoppingController extends Controller
                         $WalletTransaction=new WalletTransaction;
                         $WalletTransaction->member_id            = $Order->user->member->sponsor_id;
                         $WalletTransaction->balance              = $Order->user->member->sponsor->wallet_balance;
-                        $WalletTransaction->amount               = $diducted_tds_amount;
+                        $WalletTransaction->amount               = $deducted_tds_amount;
                         $WalletTransaction->transaction_type_id  = $TransactionType->id;
                         $WalletTransaction->transfered_from      = $Order->user->member->sponsor->user->id;
                         $WalletTransaction->note                 = 'Affiliate Bonus Debit';

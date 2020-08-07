@@ -17,6 +17,7 @@ Route::get('/', function (Request $request) {
     return 'Working';
 });
 Route::get('payout-pro', 'User\PayoutsController@payout_pro');
+Route::get('deduct-tds', 'User\SettingsController@deductTds');
 Route::get('edu', 'Auth\AuthController@edu');
 Route::get('mail', 'Auth\AuthController@mailCheck');
 Route::get('import', '\App\Http\Controllers\Admin\CronsController@PVImport');
