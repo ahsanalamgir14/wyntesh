@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User\User;
 use App\Models\Admin\Member;
 use App\Models\Admin\MemberPayout;
-use App\Models\Admin\MemberMonthlyLegPv;
+use App\Models\Admin\MembersLegPv;
 use App\Models\User\Order;
 use App\Models\Admin\Sale;
 use App\Models\Admin\Pin;
@@ -31,7 +31,7 @@ class DashboardController extends Controller
                 ->find($User->id);
     	
         $MembersController=new MembersController;
-        $total_group_bv=MemberMonthlyLegPv::where('member_id',$User->member->id)->sum('pv');
+        $total_group_bv=MembersLegPv::where('member_id',$User->member->id)->sum('pv');
         $total_matched=$User->member->total_matched_bv;
     	$downlines=count($MembersController->getChildsOfParent($User->member->id));
         $referrals=$User->member->sponsored->count();

@@ -149,7 +149,7 @@
                 </div>
                 <div class="card-panel-description">
                   
-                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.current_personal_pv)" :duration="3600" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.total_personal_pv)" :duration="3600" class="card-panel-num" />
                   <div class="card-panel-text">
                     Personal PV
                   </div>
