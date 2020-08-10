@@ -25,6 +25,7 @@ class CreateKycTable extends Migration
             $table->string('pan', 10)->nullable();
             $table->string('pan_image', 2048)->nullable();
             $table->string('cheque_image', 2048)->nullable();
+            $table->string('distributor_image', 2048)->nullable();
             $table->string('city', 64)->nullable();
             $table->string('state', 64)->nullable();
             $table->string('bank_ac_name', 1024)->nullable();
