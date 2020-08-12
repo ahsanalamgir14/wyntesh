@@ -50,7 +50,7 @@
                     <el-input v-model="temp.name"  />
                   </el-form-item>
                   <el-form-item label="Email">
-                    <el-input disabled v-model="temp.email"  />
+                    <el-input  v-model="temp.email"  />
                   </el-form-item>
                   <el-form-item label="Username" prop="username">
                     <el-input disabled v-model="temp.username" />
@@ -197,7 +197,6 @@
                         :limit="1"
                         :file-list="profilefileList"
                         :on-exceed="handleExceed"
-                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         accept="image/png, image/jpeg">
                         
                         <img v-if="temp.profile_picture" :src="temp.profile_picture?temp.profile_picture:''" class="avatar">
@@ -346,7 +345,7 @@
 
               </el-row>
               <el-form-item style="margin-top:20px;">
-                <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' " @click="onSubmit">
+                <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading"  @click="onSubmit">
                   Update
                 </el-button>
                  <el-button type="success"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' " @click="submitVerification">

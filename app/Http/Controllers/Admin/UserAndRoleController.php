@@ -138,6 +138,7 @@ class UserAndRoleController extends Controller
             $User->contact=$request->contact;
             $User->gender=$request->gender;
             $User->dob=$request->dob;
+            $User->email=$request->email;
             
 
             if($request->password){

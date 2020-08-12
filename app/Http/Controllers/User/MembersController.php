@@ -232,6 +232,7 @@ class MembersController extends Controller
             $User->name=$request->name;
             $User->contact=$request->contact;
             $User->gender=$request->gender;
+            $User->email=$request->email;
             $User->dob=$request->dob;
             $User->save();
 

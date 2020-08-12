@@ -219,7 +219,7 @@
                 </el-form-item>
 
                 <el-form-item label="Email" prop="email">
-                  <el-input type="email" :disabled="this.dialogStatus!='create'" v-model="temp.email" />
+                  <el-input type="email"  v-model="temp.email" />
                 </el-form-item>
 
                 <el-form-item label="Password" prop="password">
@@ -501,13 +501,7 @@ export default {
           this.buttonLoading=true;
           const tempData = Object.assign({}, this.temp);
           updateUser(tempData).then((response) => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v);
-                this.list.splice(index, 1, response.data);
-                break;
-              }
-            }
+            this.getList();
             this.buttonLoading=false;
             this.dialogUserVisible = false;
             this.$notify({
