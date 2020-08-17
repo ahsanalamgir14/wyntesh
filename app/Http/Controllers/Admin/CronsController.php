@@ -24,10 +24,27 @@ use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\Payout;
 use App\Events\GeneratePayoutEvent;
 use App\Models\Admin\MemberIncomeHolding;
+use Illuminate\Support\Facades\Storage;
 
 class CronsController extends Controller
 {    
 
+    public function backupDatabase(){
+        $filedata = \Artisan::call('backup:run', [
+            '--only-db' => 'default'
+        ]);
+
+        $folder =  str_replace(" ","-",env('APP_NAME'));
+        $allFiles = Storage::disk('local')->allFiles($folder);
+        $filename =Storage::url($allFiles[0]);          
+
+        $file = Storage::disk('local')->get($allFiles[0]);
+        $project_directory=env('DO_STORE_PATH');
+        $store=Storage::disk('spaces')->put($project_directory.'/backup/'.$filename,$file);
+        $url=Storage::disk('spaces')->url($project_directory.'/backup/'.$filename);
+        $cdn_url=str_replace('digitaloceanspaces','cdn.digitaloceanspaces', $url);
+        Storage::delete(Storage::files($folder));
+    }
     public function generateMonthlyPayout(){
       $dt = Carbon::now();
       $day=$dt->day;
