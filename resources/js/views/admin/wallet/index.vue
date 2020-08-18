@@ -114,19 +114,33 @@
           </el-tooltip>
         </template>
       </el-table-column> 
-      <el-table-column label="Member" width="110px" align="right">
+      <el-table-column label="Beneficiary Name" width="200px" align="right">
         <template slot-scope="{row}">
-          <span class="link-type" @click="viewKyc(row)">{{ row.member.user.username }}</span>
+          <span class="link-type" @click="viewKyc(row)">{{ row.member.kyc.bank_ac_name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Amout" width="110px" align="right">
+
+      <el-table-column label="Bank Name" width="200px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.amount }}</span>
+          <span>{{ row.member.kyc.bank_name }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="Approved?" class-name="status-col" width="120">
+
+      <el-table-column label="Bank Account Number" class-name="status-col" width="200px">
         <template slot-scope="{row}">
-          <el-tag :type="row.request_status | statusFilter">{{ row.request_status }}</el-tag>
+          <span>{{ row.member.kyc.bank_ac_no }}</span>
+          
+        </template>
+
+      </el-table-column>
+      <el-table-column label="IFSC Code" class-name="status-col" width="200px">
+        <template slot-scope="{row}">
+          <span>{{ row.member.kyc.ifsc }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Amount" class-name="status-col" width="200px">
+        <template slot-scope="{row}">
+            {{ row.amount }}
         </template>
       </el-table-column>
       <el-table-column label="Created At" width="120px" align="center">
@@ -134,11 +148,7 @@
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Note" min-width="150px"align="left">
-        <template slot-scope="{row}">
-          <span >{{ row.note }}</span>
-        </template>
-      </el-table-column>
+
     </el-table>
 
     <pagination
@@ -644,17 +654,19 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "ID",
-          "Member",
+          "Beneficiary Name",
+          "Bank Name",
+          "Bank Account Number",
+          "IFSC Code",
           "Amount",
-          "Status",
-          "Created at",
         ];
         const filterVal = [
           "id",
-          "member",
-          "amount",
-          "request_status",
-          "created_at"
+          "beni",
+          "bank",
+          "banckacc",
+          "ifsc",
+          "amt",
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
@@ -670,8 +682,16 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
-          } else if(j=='member'){
-            return v.member.user.username
+          } else if(j=='beni'){
+            return v.member.kyc.bank_ac_name
+          } else if(j=='bank'){
+            return v.member.kyc.bank_name
+          } else if(j=='banckacc'){
+            return v.member.kyc.bank_ac_no
+          } else if(j=='ifsc'){
+            return v.member.kyc.ifsc
+          } else if(j=='amt'){
+            return v.amount
           }else {
             return v[j];
           }

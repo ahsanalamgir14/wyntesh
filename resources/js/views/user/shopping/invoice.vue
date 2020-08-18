@@ -50,14 +50,18 @@
                   <td class="item-name">
                     
                    <span style="font-size: 15px;font-weight: bold;">Shipping to</span><br><br>
-                    <span style="font-size: 15px;font-weight: bold;">{{order.shipping_address?order.shipping_address.full_name:''}}</span><br>
-                    <span style="font-size: 15px;">{{order.shipping_address?order.shipping_address.address:''}}, {{order.shipping_address?order.shipping_address.landmark:''}}, {{order.shipping_address?order.shipping_address.city:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.pincode:''}}</span>
+                    <span style="font-size: 15px;font-weight: bold;">{{order.shipping_address?order.shipping_address.full_name:''}}</span>
+                    <br>
+                    <span style="font-size: 15px;">Member Id : {{order.shipping_address?order.shipping_address.user.username:''}}</span>
+                    <br>
+                    <span style="font-size: 15px;">{{order.shipping_address?order.shipping_address.address:''}}, {{order.shipping_address?order.shipping_address.landmark:''}}, {{order.shipping_address?order.shipping_address.city:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.mobile_number:''}}</span>
                   </td>
                   <td class="item-name">
                     
                     <span style="font-size: 15px;font-weight: bold;">Billing to</span><br><br>
-                    <span style="font-size: 15px;font-weight: bold;">{{order.billing_address?order.billing_address.full_name:''}}</span><br>
-                    <span style="font-size: 15px;">{{order.billing_address?order.billing_address.address:''}}, {{order.billing_address?order.billing_address.landmark:''}}, {{order.billing_address?order.billing_address.city:''}}, {{order.billing_address?order.billing_address.state:''}}, {{order.billing_address?order.billing_address.pincode:''}}</span>
+                    <span style="font-size: 15px;font-weight: bold;">{{order.billing_address?order.billing_address.full_name:''}}</span><br><span style="font-size: 15px;">Member Id : {{order.shipping_address?order.shipping_address.user.username:''}}</span>
+                    <br>
+                    <span style="font-size: 15px;">{{order.billing_address?order.billing_address.address:''}}, {{order.billing_address?order.billing_address.landmark:''}}, {{order.billing_address?order.billing_address.city:''}}, {{order.billing_address?order.billing_address.state:''}}, {{order.billing_address?order.billing_address.pincode:''}}, {{order.billing_address?order.billing_address.mobile_number:''}}</span>
                   </td>
                   
               </tr>

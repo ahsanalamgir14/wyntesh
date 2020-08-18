@@ -183,7 +183,7 @@ class ShoppingController extends Controller
         ->get()->pluck('value', 'key')->toArray();
 
         $Orders = Order::select();
-        $Orders = $Orders->with('products','shipping_address','billing_address','packages');
+        $Orders = $Orders->with('products','shipping_address','shipping_address.user','billing_address','packages');
         $Orders = $Orders->where('id',$id);
         if(!in_array("admin",$rolesArray)){
             $Orders = $Orders->where('user_id',$user->id);
