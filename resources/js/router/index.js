@@ -89,6 +89,11 @@ export const constantRoutes = [
     hidden:true,
   },
   {
+    path: '/payout-report/:id',
+    component: () => import('@/views/user/payouts/payout-report'),
+    hidden: true,
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',

@@ -324,7 +324,7 @@ class PayoutsController extends Controller
                         ->get();
             $legsArray[]=$legs;
             $monthly_pvs['dates']       = date('Y-m-d',strtotime($lastPayout->sales_start_date)).'  |  '.date('Y-m-d',strtotime($lastPayout->sales_end_date));
-            $monthly_pvs['position']    = $carryForwordPv->position;
+            $monthly_pvs['position']    = $carryForwordPv->position?$carryForwordPv->position:"";
             $monthly_pvs['pv']          = $carryForwordPv->pv;
             $monthly_pvs['legs']        = $legsArray;
         }

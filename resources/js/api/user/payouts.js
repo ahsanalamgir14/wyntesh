@@ -64,3 +64,11 @@ export function getRankLogs(query) {
     params: query
   })
 }
+
+
+export function getMemberPayout(id) {
+  return request({
+    url: '/user/member-payout/'+id,
+    method: 'get'
+  })
+}

@@ -56,6 +56,17 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
+       <el-table-column label="Actions" align="center" width="100" class-name="small-padding">
+        <template slot-scope="{row}">
+          <el-button
+            type="warning"
+            :loading="buttonLoading"
+            circle
+            icon="el-icon-printer"
+            @click="payoutReport(row.id)"
+          ></el-button>
+        </template>
+      </el-table-column>
       
       <el-table-column label="Member" width="130px" align="right">
         <template slot-scope="{row}">
@@ -194,6 +205,10 @@ export default {
           this.listLoading = false;
         }, 1 * 100);
       });
+    },
+    payoutReport(id){
+      let routeData = this.$router.resolve({path: '/payout-report/'+id});
+      window.open(routeData.href, '_blank');
     },
     handleFilter() {
       this.listQuery.page = 1;

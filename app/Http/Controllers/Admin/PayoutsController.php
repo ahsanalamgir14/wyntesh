@@ -15,6 +15,8 @@ use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\MemberMonthlyLegPv;
+use App\Models\Admin\AffiliateBonus;
+use App\Models\Admin\Setting;
 
 use App\Models\User\Order;
 use App\Models\Superadmin\TransactionType;
@@ -63,6 +65,29 @@ class PayoutsController extends Controller
         }
    
         $response = array('status' => true,'message'=>"Payouts retrieved.",'data'=>$Payout);
+        return response()->json($response, 200);
+    }
+
+    public function getMemberPayout($id)
+    {
+        //$user=JWTAuth::user();
+        $settings= Setting::orWhere('is_public',1)
+        ->get()->pluck('value', 'key')->toArray();
+
+        $MemberPayout=MemberPayout::select();
+        $MemberPayout=$MemberPayout->where('id',$id);
+        $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.kyc')->first();
+        $MemberPayoutIncome=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->with('income')->get();
+        $user_details=array('name' => $MemberPayout->member->user->name,'username'=>$MemberPayout->member->user->username,'profile_picture'=>$MemberPayout->member->user->profile_picture,'rank'=>$MemberPayout->member->rank->name );
+   
+        $affiliter = AffiliateBonus::addSelect([\DB::raw('sum(final_amount) as final_amount')])
+                        ->where("member_id",$MemberPayout->member->id)
+                        ->whereDate('created_at','>=', $MemberPayout->payout->sales_start_date)
+                        ->whereDate('created_at','<=', $MemberPayout->payout->sales_end_date)
+                        ->groupBy('member_id')
+                        ->first();
+        $affiliter = $affiliter?$affiliter->final_amount:"0";
+        $response = array('status' => true,'message'=>"Member Payout retrieved.",'payout'=>$MemberPayout,'incomes'=>$MemberPayoutIncome,'company_details'=>$settings,'user'=>$user_details,'affiliter'=>$affiliter);
         return response()->json($response, 200);
     }
   
