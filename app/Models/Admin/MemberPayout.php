@@ -5,12 +5,12 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Admin\RankLog;
 use App\Models\Admin\AffiliateBonus;
-
+use Carbon\Carbon;
 class MemberPayout extends Model
 {
     protected $table = 'member_payouts';
     public $timestamps = true;
-    protected $appends = ['rank','legs','affiliate_tds','affiliate_income'];
+    protected $appends = ['rank','legs','affiliate_tds','affiliate_income','total_payout_sum'];
 
     public function payout()
     {
@@ -33,6 +33,30 @@ class MemberPayout extends Model
           $affiliate_income=AffiliateBonus::whereDate('created_at','>=',$this->payout->sales_start_date)->whereDate('created_at','<=',$this->payout->sales_end_date)->where('member_id',$this->member_id)->sum('amount');
         }
         return $affiliate_income;
+    }
+
+    public function getTotalPayoutSumAttribute()
+    {
+        $affiliate_income=0;
+        if($this->payout){
+
+            $last = new Carbon('last day of last month');
+            $last = $last->startOfMonth()->format('Y-m-d'); 
+
+            $start = new Carbon('first day of last month');
+            $start = $start->startOfMonth()->format('Y-m-d H:i:s'); 
+
+
+            $start = '2020-08-01';
+            $last = '2020-08-31';
+
+
+            $affiliate_income=AffiliateBonus::whereDate('created_at','>=',$start)->whereDate('created_at','<=',$last)->where('member_id',$this->member_id)->sum('amount');
+        }
+
+        $total_payout=$affiliate_income+$this->total_payout+$this->tds;
+
+        return $total_payout;
     }
 
     public function getRankAttribute()

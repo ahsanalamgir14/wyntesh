@@ -160,6 +160,7 @@ Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user
     Route::get('bank-partners/all', 'ConfigController@allBankPartners');
     Route::get('incomes/all', '\App\Http\Controllers\Admin\IncomesController@getAllIncomes');
     Route::get('member-payout/{id}', '\App\Http\Controllers\Admin\PayoutsController@getMemberPayout');
+    Route::get('wall-of-wyntash', '\App\Http\Controllers\Admin\PayoutsController@wallOfWyntash');
 
 
 });

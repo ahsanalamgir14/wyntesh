@@ -23,11 +23,64 @@ use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\WalletTransaction;
 use Carbon\Carbon;
 use DB;
-
+ 
 class PayoutsController extends Controller
 {    
 
     
+    public function wallOfWyntash(Request $request)
+    {
+
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+
+        $last = new Carbon('last day of last month');
+        $last = $last->startOfMonth()->format('Y-m-d'); 
+
+        $start = new Carbon('first day of last month');
+        $start = $start->startOfMonth()->format('Y-m-d H:i:s'); 
+
+        $start = '2020-08-01';
+        $last = '2020-08-31';
+        $lastdata = 10;
+        $limitn  = $page ==1?0:$page*$lastdata;
+
+
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search){
+            $results = DB::select( DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id) tmp where tmp.created_at between '".$start."' and '".$last."'  group by tmp.member_id order by total_amt desc limit $limitn, $lastdata ") );
+
+            $cnt = DB::select( DB::raw("SELECT count(*) as cnt ,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id ) tmp where tmp.created_at between '".$start."' and '".$last."'  group by tmp.member_id order by total_amt desc") );
+
+
+        }else{
+            $results = DB::select( DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id) tmp where tmp.created_at between '".$start."' and '".$last."' and tmp.member_id = $search group by tmp.member_id order by total_amt desc limit $limitn, $lastdata ") );
+            $cnt = DB::select( DB::raw("SELECT count(*) as cnt ,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id ) tmp where tmp.created_at between '".$start."' and '".$last."'   and tmp.member_id = $search group by tmp.member_id order by total_amt desc") );
+        }
+
+
+
+        $response = array('status' => true,'message'=>"Payouts retrieved.",'data'=>$results , 'total'=>count($cnt));
+        return response()->json($response, 200);
+    }
     public function getPayouts(Request $request)
     {
         $page=$request->page;

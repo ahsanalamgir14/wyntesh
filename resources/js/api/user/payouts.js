@@ -16,6 +16,14 @@ export function fetchPayouts(query) {
   })
 }
 
+export function fetchAllEliteMember(query) {
+  return request({
+    url: '/user/wall-of-wyntash',
+    method: 'get',
+    params: query
+  })
+}
+
 export function getPayoutIncomes(query) {
   return request({
     url: '/user/payout-incomes',

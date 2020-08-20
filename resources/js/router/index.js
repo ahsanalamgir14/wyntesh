@@ -105,6 +105,19 @@ export const constantRoutes = [
         meta: { title: 'Dashboard', icon: 'fas fa-tachometer-alt', color:'color:#39A8FA', affix: true }
       }
     ]
+  },
+  {
+    path: '/',
+    component: Layout,
+    redirect: '/wall-of-wyntash',
+    children: [
+      {
+        path: 'wall-of-wyntash',
+        component: () => import('@/views/user/reports/wall-of-wyntash'),
+        name: 'Wall Of Wyntash',
+        meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true }
+      }
+    ]
   }
 ]
 
