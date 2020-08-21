@@ -22,6 +22,10 @@ Route::get('payout-pro', 'User\PayoutsController@payout_pro');
 Route::get('edu', 'Auth\AuthController@edu');
 Route::get('mail', 'Auth\AuthController@mailCheck');
 Route::get('import', '\App\Http\Controllers\Admin\CronsController@PVImport');
+Route::get('wall', '\App\Http\Controllers\Admin\CronsController@WallOfWyntashReport');
+
+
+
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
@@ -138,6 +142,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('affiliate-bonus', 'PayoutsController@myAffiliateBonus');
     
 
+    Route::get('rewards', 'PayoutsController@rewards');
     Route::get('payouts', 'PayoutsController@getPayouts');
     Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
     Route::get('income-holdings', 'PayoutsController@getIncomeHoldings');
@@ -331,6 +336,11 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('marketing/sms/mass', 'MarketingController@sendMassSMS');
 
     Route::post('payout/generate', 'PayoutsController@generateManualPayout');
+    Route::get('rewards', 'PayoutsController@rewards');
+    Route::get('check-member/{code}', 'PayoutsController@memberCheck');
+    
+    Route::post('reward-add', 'PayoutsController@AddReward');
+
     Route::get('payouts', 'PayoutsController@getPayouts');
     Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
     Route::get('payouts/member', 'PayoutsController@getMemberPayouts');

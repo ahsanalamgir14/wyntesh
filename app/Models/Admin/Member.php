@@ -23,6 +23,7 @@ class Member extends Model
     {
         return $this->hasOne('App\Models\User\Kyc');
     }
+   
 
     public function leg()
     {

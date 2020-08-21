@@ -20,6 +20,7 @@ use App\Models\Admin\Member;
 use App\Models\Admin\Inquiry;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\AffiliateBonus;
+use App\Models\Admin\Reward;
 use JWTAuth;
 use Carbon\Carbon;
 use DB;
@@ -49,7 +50,8 @@ class DashboardController extends Controller
 
         $total_payout=MemberPayout::sum('total_payout');
         $tds=MemberPayout::sum('tds');
-        $total_payout = $total_payout+$tds;
+        $reward=Reward::sum('amount');
+        $total_payout = $total_payout+$tds+$reward;
         $total_payout+=$affiliateIncomeWithTDS;
 
 

@@ -18,6 +18,7 @@ use App\Models\Admin\PayoutIncome;
 use App\Models\Admin\MemberLevelPayout;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\MemberMonthlyLegPv;
+use App\Models\Admin\WallOfWyntash;
 use App\Models\User\User;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Superadmin\TransactionType;
@@ -29,6 +30,41 @@ use Illuminate\Support\Facades\Storage;
 class CronsController extends Controller
 {    
 
+    public function WallOfWyntashReport(){
+
+
+
+
+        $last = new Carbon('last day of last month');
+        $last = $last->startOfMonth()->format('Y-m-d'); 
+
+        $start = new Carbon('first day of last month');
+        $start = $start->startOfMonth()->format('Y-m-d H:i:s'); 
+
+        $start = '2020-08-01';
+        $last = '2020-08-31';
+
+        $results = DB::select(DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout+tds) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id UNION SELECT r.created_at, u.name, u.username, u.dob, k.city, r.member_id, SUM(final_amount + tds_amount) AS amt FROM `rewards` AS r LEFT JOIN `members` AS m ON m.id = r.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN kyc AS k ON k.member_id = m.id GROUP BY member_id) tmp where tmp.created_at between '".$start."' and '".$last."'  group by tmp.member_id order by total_amt desc ") );
+        WallOfWyntash::truncate();
+        foreach($results as $data){
+            if($data->username == "142040" ){
+                continue;
+            }
+
+            $bday = new \DateTime($data->dob);
+            $today = new \Datetime(date('y-m-d'));
+            $diff = $today->diff($bday);
+
+            $WallOfWyntash = new WallOfWyntash();
+            $WallOfWyntash->name = $data->name;
+            $WallOfWyntash->username = $data->username;
+            $WallOfWyntash->age = $diff->y;
+            $WallOfWyntash->city = $data->city;
+            $WallOfWyntash->total_amount = $data->total_amt;
+            $WallOfWyntash->save();
+        }
+
+    }
     public function backupDatabase(){
         $filedata = \Artisan::call('backup:run', [
             '--only-db' => 'default'

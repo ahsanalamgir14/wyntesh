@@ -527,6 +527,13 @@ export const asyncRoutes = [
         name: 'Income on Hold',
         hidden: true,
         meta: { title: 'Income on Hold', icon: 'fas fa-hand-holding-usd', color:'color:#C39BD3', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'rewards',
+        component: () => import('@/views/admin/payouts/rewards'),
+        name: 'Rewards',
+        hidden: false,
+        meta: { title: 'Rewards', icon: 'fas fa-hand-holding-usd', color:'color:#C39BD3', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -1045,6 +1052,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/payouts/incomes'),
         name: 'Incomes',
         meta: { title: 'Incomes', icon: 'fas fa-list', color:'color:#226CBF', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'rewards',
+        component: () => import('@/views/user/payouts/reward'),
+        name: 'Rewards',
+        meta: { title: 'Rewards', icon: 'fas fa-hand-holding-usd', color:'color:#226CBF', affix: true, roles: ['user'] }
       },
       {
         path: 'income-holdings',

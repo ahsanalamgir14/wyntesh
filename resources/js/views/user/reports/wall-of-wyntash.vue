@@ -27,29 +27,33 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column
-        type="index"
-        width="50">
+     
+
+      <el-table-column label="Rank" min-width="60px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.id }}</span>
+        </template>
       </el-table-column>
-      <el-table-column label="Name" min-width="200px" align="center">
+
+    <el-table-column label="Name" width="140px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.name }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Income" width="130px" align="right">
+      <el-table-column label="Income" width="100px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.total_amt }}</span>
+          <span >{{ row.total_amount }}</span>
         </template>
       </el-table-column>
      
-      <el-table-column label="Age" width="130px" align="right">
+      <el-table-column label="Age" width="50px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.dob }}</span>
+          <span >{{ row.age }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="City" width="130px" align="right">
+      <el-table-column label="City" min-width="130px" align="center">
         <template slot-scope="{row}">
           <span >{{ row.city }}</span>
         </template>
@@ -61,13 +65,18 @@
       </el-table-column> -->
     </el-table>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="listQuery.page"
-      :limit.sync="listQuery.limit"
-      @pagination="getList"
-    />
+      <div :class="{'hidden':hidden}" class="pagination-container">
+            <el-pagination
+              :current-page.sync="listQuery.page"
+              :page-size.sync="pageSize"
+              :layout="layout"
+              :page-sizes="pageSizes"
+              :total="this.total_data"
+
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
 
   </div>
 </template>
@@ -76,11 +85,11 @@
 import { fetchAllEliteMember, } from "@/api/user/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination"; 
+// import Pagination from "@/components/Pagination"; 
+import { scrollTo } from '@/utils/scroll-to';
 
 export default {
   name: "Payouts",
-  components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -96,14 +105,18 @@ export default {
   data() {
     return {
       tableKey: 0,
+      hidden: false,
+      pageSize: 10,
+      layout: 'total, sizes, prev,next, jumper',
+      pageSizes: [5,10, 15, 20, 30, 50,500,5000],
       list: null,
-      total: 0,
+      total_data: 0,
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 5,
+        limit: 10,
         search: undefined,
-        sort: "-id"
+        sort: "+id"
       },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
@@ -154,14 +167,23 @@ export default {
     getList() {
       this.listLoading = true;
       fetchAllEliteMember(this.listQuery).then(response => {
-        this.list = response.data;
-        // console.log(response.total);
-        this.total = response.total;
+        console.log(response);
+        this.list = response.data.data;
+        this.total_data = response.data.total;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
       });
     },
+
+    handleSizeChange(val) {
+      
+    },
+    handleCurrentChange(val) {
+        this.getList();
+    },
+
+
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();

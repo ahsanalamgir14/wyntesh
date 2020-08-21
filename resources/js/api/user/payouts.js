@@ -7,6 +7,13 @@ export function getAllIncomes(id) {
   })
 }
 
+export function fetchRewards(query) {
+  return request({
+    url: '/user/rewards',
+    method: 'get',
+    params: query
+  })
+}
 
 export function fetchPayouts(query) {
   return request({

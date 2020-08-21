@@ -8,6 +8,30 @@ export function fetchPayouts(query) {
   })
 }
 
+export function fetchRewards(query) {
+  return request({
+    url: '/admin/rewards',
+    method: 'get',
+    params: query
+  })
+}
+
+export function addRewrds(data) {
+  return request({
+    url: '/admin/reward-add',
+    method: 'post',
+    data
+  })
+}
+
+export function checkMember(code) {
+  return request({
+    url: '/admin/check-member/'+code,
+    method: 'get'
+  })
+}
+
+
 export function generateManualPayout(data) {
   return request({
     url: '/admin/payout/generate',

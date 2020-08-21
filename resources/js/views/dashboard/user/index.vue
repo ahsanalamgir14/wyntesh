@@ -90,7 +90,7 @@
               </div>
             </router-link>
           </el-col> -->
-            <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
+            <el-col :xs="24" :sm="24" :lg="16" class="card-panel-col">
                 <router-link to="/member/payouts/all">
                   <div class="card-panel gr2" >
                     <div class="card-panel-icon-wrapper icon-money payout" style="width:100px;">
@@ -101,6 +101,23 @@
                       <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_payout)" :duration="3200" class="card-panel-num" />
                       <div class="card-panel-text">
                         Total Payout
+                      </div>
+                    </div>
+                  </div>
+                </router-link>
+            </el-col>
+
+            <el-col :xs="24" :sm="24" :lg="8" class="card-panel-col">
+                <router-link to="/member/payouts/all">
+                  <div class="card-panel gr2" >
+                    <div class="card-panel-icon-wrapper icon-money payout" style="width:100px;">
+                      <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+                    </div>
+                    <div class="card-panel-description" style="float: left;margin: 15px 11px;width: 95%;">
+                      
+                      <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_reward)" :duration="3200" class="card-panel-num" />
+                      <div class="card-panel-text">
+                        Total Reward
                       </div>
                     </div>
                   </div>

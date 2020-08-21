@@ -12,10 +12,13 @@ use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\AffiliateBonus;
 use App\Models\Admin\Payout;
+
+use App\Models\Admin\Reward;
 use App\Models\Admin\MemberCarryForwardPv;
 use App\Models\User\Order;
 use App\Models\User\User;
 use App\Models\Admin\Sale;
+use App\Models\Admin\CompanySetting;
 use JWTAuth;
 use DB;
 use Carbon\Carbon;
@@ -87,6 +90,46 @@ class PayoutsController extends Controller
         $response = array('status' => true,'message'=>"Affiliate Bonus retrieved.",'data'=>$AffiliateBonus);
         return response()->json($response, 200);
     }
+
+    public function rewards(Request $request)
+    {
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        // $month=$request->month;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search){
+            $reward = Reward::with('member.user')->where('member_id',$user->member->id)->orderBy('id',$sort)->paginate($limit);    
+        }else{
+            $reward=Reward::with('member.user')->select();
+            if($search){
+                $reward->where('name',$search);
+            }
+            $reward=$reward->orderBy('id',$sort)->where('member_id',$user->member->id)->paginate($limit);
+        }
+
+        $tds_percentage=CompanySetting::getValue('tds_percentage');
+   
+        $response = array('status' => true,'message'=>"Reward retrieved.",'data'=>$reward,'tds'=>$tds_percentage);
+        return response()->json($response, 200);
+    }
+
 
     public function getPayouts(Request $request)
     {

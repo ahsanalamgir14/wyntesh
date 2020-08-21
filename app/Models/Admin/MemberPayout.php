@@ -35,30 +35,7 @@ class MemberPayout extends Model
         return $affiliate_income;
     }
 
-    public function getTotalPayoutSumAttribute()
-    {
-        $affiliate_income=0;
-        if($this->payout){
-
-            $last = new Carbon('last day of last month');
-            $last = $last->startOfMonth()->format('Y-m-d'); 
-
-            $start = new Carbon('first day of last month');
-            $start = $start->startOfMonth()->format('Y-m-d H:i:s'); 
-
-
-            $start = '2020-08-01';
-            $last = '2020-08-31';
-
-
-            $affiliate_income=AffiliateBonus::whereDate('created_at','>=',$start)->whereDate('created_at','<=',$last)->where('member_id',$this->member_id)->sum('amount');
-        }
-
-        $total_payout=$affiliate_income+$this->total_payout+$this->tds;
-
-        return $total_payout;
-    }
-
+   
     public function getRankAttribute()
     {
         $Rank=RankLog::where('payout_id',$this->payout_id)->where('member_id',$this->member_id)->first();

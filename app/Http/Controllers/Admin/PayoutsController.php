@@ -16,8 +16,11 @@ use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\MemberMonthlyLegPv;
 use App\Models\Admin\AffiliateBonus;
+use App\Models\Admin\Reward;
 use App\Models\Admin\Setting;
-
+use App\Models\Admin\CompanySetting;
+use JWTAuth;
+use App\Models\Admin\WallOfWyntash;
 use App\Models\User\Order;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\WalletTransaction;
@@ -30,26 +33,49 @@ class PayoutsController extends Controller
     
     public function wallOfWyntash(Request $request)
     {
-
-
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
 
+        if(!$page){
+            $page=1;
+        }
 
-        $last = new Carbon('last day of last month');
-        $last = $last->startOfMonth()->format('Y-m-d'); 
+        if(!$limit){
+            $limit=1;
+        }
 
-        $start = new Carbon('first day of last month');
-        $start = $start->startOfMonth()->format('Y-m-d H:i:s'); 
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+    
+        if(!$search){
 
-        $start = '2020-08-01';
-        $last = '2020-08-31';
-        $lastdata = 10;
-        $limitn  = $page ==1?0:$page*$lastdata;
+            $results = WallOfWyntash::orderBy('id',$sort)->paginate($limit);
+            
+        }else{
 
+            $results=WallOfWyntash::select();
+             if($search){
+                $results->where('username',$search);
+            }
+            $results=$results->orderBy('id',$sort)->paginate($limit);
+ 
+        }
+        $response = array('status' => true,'message'=>"Data retrieved.",'data'=>$results);
+        return response()->json($response, 200);
+    }
+    public function rewards(Request $request)
+    {
 
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        // $month=$request->month;
 
         if(!$page){
             $page=1;
@@ -66,21 +92,34 @@ class PayoutsController extends Controller
         }
 
         if(!$search){
-            $results = DB::select( DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id) tmp where tmp.created_at between '".$start."' and '".$last."'  group by tmp.member_id order by total_amt desc limit $limitn, $lastdata ") );
-
-            $cnt = DB::select( DB::raw("SELECT count(*) as cnt ,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id ) tmp where tmp.created_at between '".$start."' and '".$last."'  group by tmp.member_id order by total_amt desc") );
-
-
+            $reward = Reward::with('member.user')->orderBy('id',$sort)->paginate($limit);    
         }else{
-            $results = DB::select( DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id) tmp where tmp.created_at between '".$start."' and '".$last."' and tmp.member_id = $search group by tmp.member_id order by total_amt desc limit $limitn, $lastdata ") );
-            $cnt = DB::select( DB::raw("SELECT count(*) as cnt ,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id ) tmp where tmp.created_at between '".$start."' and '".$last."'   and tmp.member_id = $search group by tmp.member_id order by total_amt desc") );
+            $reward=Reward::with('member.user')->select();
+            if($search){
+                $reward->where('name',$search);
+            }
+            $reward=$reward->orderBy('id',$sort)->paginate($limit);
         }
 
-
-
-        $response = array('status' => true,'message'=>"Payouts retrieved.",'data'=>$results , 'total'=>count($cnt));
+        $tds_percentage=CompanySetting::getValue('tds_percentage');
+   
+        $response = array('status' => true,'message'=>"Reward retrieved.",'data'=>$reward,'tds'=>$tds_percentage);
         return response()->json($response, 200);
     }
+
+    public function memberCheck($code) {
+        $User=User::where('username',$code)->with('member')->role('user')->first();
+
+        if($User){
+            $response = array('status' => true,'message'=>'Sponsor recieved.','data' => $User);
+            return response()->json($response, 200);  
+        }else{
+            $response = array('status' => false,'message'=>'Member not found','data' => $User);
+            return response()->json($response, 404);  
+        }
+        
+    }
+
     public function getPayouts(Request $request)
     {
         $page=$request->page;
@@ -184,6 +223,59 @@ class PayoutsController extends Controller
         event(new GeneratePayoutEvent($Payout));
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');
+        return response()->json($response, 200);
+    }
+
+    public function AddReward(Request $request){
+            
+        $user=User::where('username',$request->member_id)->with('member')->role('user')->first();
+        if(!$user){  
+            $response = array('status' => false,'message'=>'Member not found','data' => $user);
+            return response()->json($response, 404);  
+        }
+        $validate = Validator::make($request->all(), [
+            'name' => 'required',
+            'amount' => 'required',
+            'tds_percent' => 'required',
+            'tds_amount' => 'required',
+            'member_id' => 'required',
+            'final_amount' => 'required',
+        ]);
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $oldBalance = $user->member->wallet_balance;
+
+        $user->member->wallet_balance += $request->final_amount;
+        $user->member->save();
+
+        $TransactionType=TransactionType::where('name','Credit')->first();
+
+        $WalletTransaction=new WalletTransaction;
+        $WalletTransaction->member_id= $user->member->id;
+        $WalletTransaction->amount= $request->final_amount;
+        $WalletTransaction->balance= $oldBalance + $request->final_amount;
+        $WalletTransaction->transaction_type_id=$TransactionType->id;
+        $WalletTransaction->transfered_to=$user->id;
+        $WalletTransaction->transaction_by=JWTAuth::user()->id;
+        $WalletTransaction->note='Reward Bonus';
+        $WalletTransaction->save(); 
+
+
+        $Payout=new Reward;
+        $Payout->name           = $request->name;
+        $Payout->member_id      = $request->mem_id;
+        $Payout->amount         = $request->amount;
+        $Payout->tds_percent    = $request->tds_percent;
+        $Payout->tds_amount     = $request->tds_amount;
+        $Payout->final_amount   = $request->final_amount;
+        $Payout->given_at       = date("y-m-d h:i:s");
+        $Payout->save();
+
+
+        $response = array('status' => true,'message'=>'Reward added');
         return response()->json($response, 200);
     }
 

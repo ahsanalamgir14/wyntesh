@@ -17,6 +17,8 @@ use App\Models\Admin\CompanySetting;
 use App\Http\Controllers\User\MembersController;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\AffiliateBonus;
+
+use App\Models\Admin\Reward;
 use JWTAuth;
 use Carbon\Carbon;
 use DB;
@@ -47,7 +49,9 @@ class DashboardController extends Controller
                 
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
         $tds=MemberPayout::where('member_id',$User->member->id)->sum('tds');
-        $total_payout = $total_payout+$tds;
+        $reward=Reward::where('member_id',$User->member->id)->sum('amount');
+        // dd($reward);
+        $total_payout = $total_payout+$tds+$reward;
         $total_payout+=$affiliateIncomeWithTDS;
         
         $response = array(
@@ -61,6 +65,7 @@ class DashboardController extends Controller
                 'pins_available'=>$pins_available,
                 'balance'=>$balance,
                 'total_payout'=>$total_payout,
+                'total_reward'=>$reward,
                 'current_personal_pv'=>$current_personal_pv,
                 'total_personal_pv'=>$total_personal_pv,
                 'member'=>$Member,
