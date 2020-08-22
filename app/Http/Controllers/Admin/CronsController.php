@@ -32,20 +32,19 @@ class CronsController extends Controller
 
     public function WallOfWyntashReport(){
 
-
-
-
         $last = new Carbon('last day of last month');
         $last = $last->startOfMonth()->format('Y-m-d'); 
 
         $start = new Carbon('first day of last month');
         $start = $start->startOfMonth()->format('Y-m-d H:i:s'); 
 
-        $start = '2020-08-01';
-        $last = '2020-08-31';
+        // $start = '2020-08-01';
+        // $last = '2020-08-31';
 
         $results = DB::select(DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout+tds) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id group by member_id UNION SELECT r.created_at, u.name, u.username, u.dob, k.city, r.member_id, SUM(final_amount + tds_amount) AS amt FROM `rewards` AS r LEFT JOIN `members` AS m ON m.id = r.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN kyc AS k ON k.member_id = m.id GROUP BY member_id) tmp where tmp.created_at between '".$start."' and '".$last."'  group by tmp.member_id order by total_amt desc ") );
+        
         WallOfWyntash::truncate();
+        
         foreach($results as $data){
             if($data->username == "142040" ){
                 continue;
@@ -65,6 +64,7 @@ class CronsController extends Controller
         }
 
     }
+    
     public function backupDatabase(){
         $filedata = \Artisan::call('backup:run', [
             '--only-db' => 'default'
@@ -81,110 +81,58 @@ class CronsController extends Controller
         $cdn_url=str_replace('digitaloceanspaces','cdn.digitaloceanspaces', $url);
         Storage::delete(Storage::files($folder));
     }
-    public function generateMonthlyPayout(){
-      $dt = Carbon::now();
-      $day=$dt->day;
-      $from='';
-      $to='';
-      
-    if($day=='6'){
-        $from=$dt->year.'-'.$dt->month.'-'.'1';
-        $from=$dt->year.'-'.$dt->month.'-'.'6';
-        $incomes=Income::where('code','SQUAD')->get();
-        $PayoutType=PayoutType::where('name','Weekly')->first();
-    }else if($day=='12'){
-        $from=$dt->year.'-'.$dt->month.'-'.'7';
-        $from=$dt->year.'-'.$dt->month.'-'.'12';
-        $incomes=Income::where('code','SQUAD')->get();
-        $PayoutType=PayoutType::where('name','Weekly')->first();
-    }else if($day=='18'){
-        $from=$dt->year.'-'.$dt->month.'-'.'13';
-        $from=$dt->year.'-'.$dt->month.'-'.'18';
-        $incomes=Income::where('code','SQUAD')->get();
-        $PayoutType=PayoutType::where('name','Weekly')->first();
-    }else if($day=='24'){
-        $from=$dt->year.'-'.$dt->month.'-'.'19';
-        $from=$dt->year.'-'.$dt->month.'-'.'24';
-        $incomes=Income::where('code','SQUAD')->get();
-        $PayoutType=PayoutType::where('name','Weekly')->first();
-    }else if($day==intval(date('t'))){
-        $from=$dt->year.'-'.$dt->month.'-'.'25';
-        $from=$dt->year.'-'.$dt->month.'-'.date('t');
-        $incomes=Income::all();
-        $PayoutType=PayoutType::where('name','Monthly')->first();
+
+    public function generateMonthlyPayout()
+    {
+        if($day=='6'){
+            $from=$dt->year.'-'.$dt->month.'-'.'1';
+            $from=$dt->year.'-'.$dt->month.'-'.'6';
+            $incomes=Income::where('code','SQUAD')->get();
+            $PayoutType=PayoutType::where('name','Weekly')->first();
+        }else if($day=='12'){
+            $from=$dt->year.'-'.$dt->month.'-'.'7';
+            $from=$dt->year.'-'.$dt->month.'-'.'12';
+            $incomes=Income::where('code','SQUAD')->get();
+            $PayoutType=PayoutType::where('name','Weekly')->first();
+        }else if($day=='18'){
+            $from=$dt->year.'-'.$dt->month.'-'.'13';
+            $from=$dt->year.'-'.$dt->month.'-'.'18';
+            $incomes=Income::where('code','SQUAD')->get();
+            $PayoutType=PayoutType::where('name','Weekly')->first();
+        }else if($day=='24'){
+            $from=$dt->year.'-'.$dt->month.'-'.'19';
+            $from=$dt->year.'-'.$dt->month.'-'.'24';
+            $incomes=Income::where('code','SQUAD')->get();
+            $PayoutType=PayoutType::where('name','Weekly')->first();
+        }else if($day==intval(date('t'))){
+            $from=$dt->year.'-'.$dt->month.'-'.'25';
+            $from=$dt->year.'-'.$dt->month.'-'.date('t');
+            $incomes=Income::all();
+            $PayoutType=PayoutType::where('name','Monthly')->first();
+        }
+
+        $Payout=new Payout;
+        $Payout->payout_type_id=$PayoutType->id;
+        $Payout->is_run_by_system=1;
+        $Payout->sales_start_date=$from;
+        $Payout->sales_end_date=$to;
+        $Payout->sales_bv=0;
+        $Payout->tds=0;
+        $Payout->sales_amount=0;
+        $Payout->total_payout=0;
+        $Payout->started_at=Carbon::now();
+        $Payout->save();
+
+        foreach ($incomes as $income) {
+            $PayoutIncome=new PayoutIncome;
+            $PayoutIncome->payout_id=$Payout->id;
+            $PayoutIncome->income_id=$income->id;
+            $PayoutIncome->payout_amount=0;
+            $PayoutIncome->save();
+        }
+
+        event(new GeneratePayoutEvent($Payout));
+
     }
-
-    $Payout=new Payout;
-    $Payout->payout_type_id=$PayoutType->id;
-    $Payout->is_run_by_system=1;
-    $Payout->sales_start_date=$from;
-    $Payout->sales_end_date=$to;
-    $Payout->sales_bv=0;
-    $Payout->tds=0;
-    $Payout->sales_amount=0;
-    $Payout->total_payout=0;
-    $Payout->started_at=Carbon::now();
-    $Payout->save();
-
-    foreach ($incomes as $income) {
-        $PayoutIncome=new PayoutIncome;
-        $PayoutIncome->payout_id=$Payout->id;
-        $PayoutIncome->income_id=$income->id;
-        $PayoutIncome->payout_amount=0;
-        $PayoutIncome->save();
-    }
-
-    event(new GeneratePayoutEvent($Payout));
-
-}
-
-public function PVImport(){
-    $Members=Member::orderBy('level','desc')->get();
-
-    foreach ($Members as $Member) {
-        $data=DB::table('Sheet1')->where('member_id',$Member->user->member_id)->first();
-
-        if($data){
-
-         $member_total_bv=$data->june;
-
-         $path=$Member->path;
-         $position=$Member->position;
-
-         $uplines=explode('/', $path);        
-         $uplines=array_reverse($uplines);
-         $uplines=array_filter($uplines, 'strlen');            
-         array_shift($uplines);
-
-         $year=date('2020');
-         $month=date('06');
-
-         foreach ($uplines as $upline) {
-            $MembersLegPv=MemberMonthlyLegPv::where('member_id',$upline)->where('position',$position)
-            ->whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month)
-            ->first();
-            $UplineMember=Member::where('id',$upline)->first();
-
-            if($MembersLegPv){                    
-                        //$MembersLegPv->current_pv+=$member_total_bv;
-                $MembersLegPv->pv+=$member_total_bv;
-                $MembersLegPv->save();
-            }else{
-                $MembersLegPv=new MemberMonthlyLegPv;
-                $MembersLegPv->member_id=$upline;
-                $MembersLegPv->position=$position;
-                        //$MembersLegPv->current_pv=$member_total_bv;
-                $MembersLegPv->pv=$member_total_bv;
-                $MembersLegPv->created_at='2020-06-05';
-                $MembersLegPv->save();
-            }
-            $position=$UplineMember->position;
-        } 
-    }
-
-}
-
-}
 
 }

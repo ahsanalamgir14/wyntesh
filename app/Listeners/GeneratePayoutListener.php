@@ -17,6 +17,7 @@ use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutIncome;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
+use App\Models\Admin\AffiliateBonus;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\MemberCarryForwardPv;
@@ -174,9 +175,7 @@ class GeneratePayoutListener
             $matched_bv = floatval($matched_bv)/24;
             $total_mached_bv+=$matched_bv;
             $total_carry_forward_bv+=$carry_forward;
-            if($Member->id==3){
-                Log::info($matched_bv);
-            }
+            
             // Save Matched bv and total carry_forward to member payout.
             $Member->total_matched_bv+=$matched_bv;
             $Member->save();
@@ -259,14 +258,12 @@ class GeneratePayoutListener
         // $this->updateRank($payout);
     }
 
-  
-
     public function PayoutElevationIncomeFactor($income,$PayoutIncome,$payout) {
-        $weekly_company_turnover_percent=0;
+        $monthly_company_turnover_percent=0;
         
         foreach ($income->income_parameters as $parameter) {
             if($parameter->name=='monthly_company_turnover_percent'){
-                $weekly_company_turnover_percent=$parameter->value_1;
+                $monthly_company_turnover_percent=$parameter->value_1;
             }
         }
 
@@ -275,7 +272,7 @@ class GeneratePayoutListener
         if($payout->total_matched_bv==0){
             $income_factor=0;
         }else{
-            $income_factor=(($payout->sales_bv*$weekly_company_turnover_percent)/100)/$payout->total_matched_bv;    
+            $income_factor=(($payout->sales_bv*$monthly_company_turnover_percent)/100)/$payout->total_matched_bv;    
         }
         
         $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
@@ -345,6 +342,24 @@ class GeneratePayoutListener
         $WalletTransaction->save();
     }
 
+    public function getSquadPlusAffiliate($Member){
+        
+         $results = DB::select(DB::raw("SELECT sum(amt) total_amt from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 group by member_id) tmp where tmp.member_id=".$Member->id." group by tmp.member_id ") );
+
+        if($results){
+            floatval($results[0]->total_amt);
+        }else{
+            return 0;
+        }
+    }
+    public function getSquadAffiliateEligible($criteria){
+        
+         $results = DB::select(DB::raw("SELECT  member_id from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 group by member_id) tmp where amt > ".$criteria." group by tmp.member_id ") );
+
+        $eligibles=array_column($results,'member_id')
+        return $eligibles;
+    }
+
     public function updateRank($payout){
         $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
@@ -354,12 +369,7 @@ class GeneratePayoutListener
             $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
             $personal_pv=$Member->total_personal_pv;
 
-            $Income=Income::where('code','SQUAD')->first();
-            $SquadIncomeTotal=MemberPayoutIncome::where('income_id',$Income->id)->where('member_id',$Member->id)->sum('payout_amount');
-            $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
-            $affliate_income=WalletTransaction::where('transfered_to',$Member->user->id)->where('transaction_type_id',$TransactionType->id)->sum('amount');
-
-            $squad_plus_affiliate=$affliate_income+$SquadIncomeTotal;
+            $squad_plus_affiliate=$this->getSquadPlusAffiliate($Member);
             
             $counts=array();
             foreach ($children as $child) {
@@ -394,7 +404,6 @@ class GeneratePayoutListener
                     }   
                 }
             }
-
 
             $RankLog=new RankLog;
             $RankLog->payout_id=$payout->id;

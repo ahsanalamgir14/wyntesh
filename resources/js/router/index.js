@@ -105,19 +105,6 @@ export const constantRoutes = [
         meta: { title: 'Dashboard', icon: 'fas fa-tachometer-alt', color:'color:#39A8FA', affix: true }
       }
     ]
-  },
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/wall-of-wyntash',
-    children: [
-      {
-        path: 'wall-of-wyntash',
-        component: () => import('@/views/user/reports/wall-of-wyntash'),
-        name: 'Wall Of Wyntash',
-        meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true }
-      }
-    ]
   }
 ]
 
@@ -214,6 +201,19 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/settings/notifications'),
         name: 'Notifications',
         meta: { title: 'Notifications', icon: 'fas fa-bell', color:'color:#67eb34', affix: true, roles: ['superadmin'] }
+      }
+    ]
+  },
+  {
+    path: '/top',
+    component: Layout,
+    redirect: '/wall-of-wyntash',
+    children: [
+      {
+        path: 'wall-of-wyntash',
+        component: () => import('@/views/user/reports/wall-of-wyntash'),
+        name: 'Wall Of Wyntash',
+        meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true }
       }
     ]
   },
@@ -787,6 +787,21 @@ export const asyncRoutes = [
   },
 
   //User Routes
+  
+  {
+    path: '/member',
+    component: Layout,
+    redirect: '/wall-of-wyntash',
+    children: [
+      {
+        path: 'wall-of-wyntash',
+        component: () => import('@/views/user/reports/wall-of-wyntash'),
+        name: 'Wall Of Wyntash',
+        meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true }
+      }
+    ]
+  },
+
   {
     path: '/my',
     component: Layout,
