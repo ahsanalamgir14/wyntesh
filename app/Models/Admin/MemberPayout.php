@@ -10,7 +10,7 @@ class MemberPayout extends Model
 {
     protected $table = 'member_payouts';
     public $timestamps = true;
-    protected $appends = ['rank','legs','affiliate_tds','affiliate_income','total_payout_sum'];
+    protected $appends = ['rank','legs','affiliate_tds','affiliate_income'];
 
     public function payout()
     {

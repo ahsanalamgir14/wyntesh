@@ -272,6 +272,7 @@ class GeneratePayoutListener
         if($payout->total_matched_bv==0){
             $income_factor=0;
         }else{
+            
             $income_factor=(($payout->sales_bv*$monthly_company_turnover_percent)/100)/$payout->total_matched_bv;    
         }
         
@@ -352,9 +353,9 @@ class GeneratePayoutListener
             return 0;
         }
     }
-    public function getSquadAffiliateEligible($criteria){
+    public function getSquadAffiliateEligible($from,$to,$criteria){
         
-         $results = DB::select(DB::raw("SELECT  member_id from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 group by member_id) tmp where amt > ".$criteria." group by tmp.member_id ") );
+         $results = DB::select(DB::raw("SELECT  member_id from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id where date(`ab`.`created_at`) >= '"$from.."' and date(`ab`.`created_at`) <= '".$to."' group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 and date(`tp`.`created_at`) >= '".$from."'  and date(`tp`.`created_at`) <= '".$to."' group by member_id) tmp where amt > 10000 group by tmp.member_id") );
 
         $eligibles=array_column($results,'member_id')
         return $eligibles;
