@@ -2,32 +2,32 @@ import request from '@/utils/request'
 
 // User Endpoints
 
-export function fetchWithdrawalRequests(query) {
+export function fetchTransferRequests(query) {
   return request({
-    url: '/admin/withdrawal-requests',
+    url: '/admin/transfer-requests',
     method: 'get',
     params: query
   })
 }
 
-export function deleteWithdrawalRequest(id) {
+export function deleteTransferRequest(id) {
   return request({
-    url: '/admin/withdrawal-requests/'+id+'/delete',
+    url: '/admin/transfer-requests/'+id+'/delete',
     method: 'delete'
   })
 }
 
-export function rejectWithdrawalRequest(data) {
+export function rejectTransferRequest(data) {
   return request({
-    url: '/admin/withdrawal-requests/reject',
+    url: '/admin/transfer-requests/reject',
     method: 'post',
     data
   })
 }
 
-export function approveWithdrawalRequest(data) {
+export function approveTransferRequest(data) {
   return request({
-    url: '/admin/withdrawal-requests/approve',
+    url: '/admin/transfer-requests/approve',
     method: 'post',
     data
   })

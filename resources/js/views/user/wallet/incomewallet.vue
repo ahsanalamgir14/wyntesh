@@ -18,7 +18,7 @@
           <div class="card-panel-description">            
             <count-to :start-val="0" :end-val="balance" :duration="3000" class="card-panel-num" />
             <div class="card-panel-text">
-              Wallet Balance
+              Income Wallet Balance
             </div>
           </div>
         </div>
@@ -28,22 +28,31 @@
 
       <el-button
         v-waves
+        :disabled="!kyc_status"
         :loading="downloadLoading"
         class="filter-item"
-        type="warning"
-        icon="el-icon-plus"
-        @click="$router.push('/wallet/credit-requests')"
-      >Credit Request</el-button>
+        type="success"
+        icon="el-icon-upload"
+        @click="checkPV"
+      >{{ kyc_status?'Withdraw':'Verify your KYC First to Withdraw'}}</el-button>
+
       <el-button
         v-waves
+        :disabled="!kyc_status"
         :loading="downloadLoading"
         class="filter-item"
-        type="warning"
-        disabled
-        icon="el-icon-plus"
-      >Add Balance Online</el-button>
-      <br>
-      <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
+        type="success"
+        icon="el-icon-upload"
+        @click="openDialog"
+      >{{ kyc_status?'Transfer to E-wallet':'Verify your KYC First to Withdraw'}}</el-button>
+        <!-- dialogWithdrawVisible=true -->
+    </div>
+
+    <el-row :gutter="40" class="panel-group">
+        <el-col :xs="24" :sm="24" :md="24" :lg="12" class="card-panel-col">
+        <h2>Withdraw Request</h2>
+
+        <el-select v-model="listQuery.status" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
         <el-option
           v-for="item in statuses"
           :key="item.name"
@@ -73,99 +82,199 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >Export</el-button>
-      <!-- <el-button
-        v-waves
-        :disabled="!kyc_status"
-        :loading="downloadLoading"
-        class="filter-item"
-        type="success"
-        icon="el-icon-upload"
-        @click="checkPV"
-      >{{ kyc_status?'Withdraw':'Verify your KYC First to Withdraw'}}</el-button> -->
-    </div>
+      <br/>
+      <br/>
+            <el-table
+              :key="tableKey"
+              v-loading="listLoading"
+              :data="list"
+              border
+              fit
+              highlight-current-row
+              style="width: 100%;"
+              @sort-change="sortChange"
+              >
+              <el-table-column
+                label="ID"
+                prop="id"
+                sortable="custom"
+                align="center"
+                width="80"
+                :class-name="getSortClass('id')"
+              >
+                <template slot-scope="{row}">
+                  <span>{{ row.id }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Actions" align="center" width="170px" class-name="small-padding">        
+                <template slot-scope="{row}">         
+                  <el-tooltip content="Delete" placement="right" effect="dark" v-if="row.request_status=='Pending'">
+                    <el-button
+                      circle
+                      type="danger"
+                      icon="el-icon-delete"
+                      @click="deleteRequest(row)"
+                      ></el-button>
+                  </el-tooltip>
+                </template>
+              </el-table-column> 
+              <el-table-column label="Amout" width="110px" align="right">
+                <template slot-scope="{row}">
+                  <span>{{ row.amount }}</span>
+                </template>
+              </el-table-column>
+              <!-- <el-table-column label="Expected TDS" width="160px" align="right">
+                <template slot-scope="{row}">
+                  <span>{{ (parseFloat(row.amount)*parseFloat(temp.tds_percent))/100 }}</span>
+                </template>
+              </el-table-column> -->
+              <el-table-column label="Approved?" class-name="status-col" width="120">
+                <template slot-scope="{row}">
+                  <el-tag :type="row.request_status | statusFilter">{{ row.request_status }}</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="Created At" width="120px" align="center">
+                <template slot-scope="{row}">
+                  <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Note" min-width="150px"align="left">
+                <template slot-scope="{row}">
+                  <span >{{ row.note }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
 
-    <el-table
-      :key="tableKey"
-      v-loading="listLoading"
-      :data="list"
-      border
-      fit
-      highlight-current-row
-      style="width: 100%;"
-      @sort-change="sortChange"
-      >
-      <el-table-column
-        label="ID"
-        prop="id"
-        sortable="custom"
-        align="center"
-        width="80"
-        :class-name="getSortClass('id')"
-      >
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Actions" align="center" width="170px" class-name="small-padding">        
-        <template slot-scope="{row}">         
-          <el-tooltip content="Delete" placement="right" effect="dark" v-if="row.request_status=='Pending'">
-            <el-button
-              circle
-              type="danger"
-              icon="el-icon-delete"
-              @click="deleteRequest(row)"
-              ></el-button>
-          </el-tooltip>
-        </template>
-      </el-table-column> 
-      <el-table-column label="Amout" width="110px" align="right">
-        <template slot-scope="{row}">
-          <span>{{ row.amount }}</span>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column label="Expected TDS" width="160px" align="right">
-        <template slot-scope="{row}">
-          <span>{{ (parseFloat(row.amount)*parseFloat(temp.tds_percent))/100 }}</span>
-        </template>
-      </el-table-column> -->
-      <el-table-column label="Approved?" class-name="status-col" width="120">
-        <template slot-scope="{row}">
-          <el-tag :type="row.request_status | statusFilter">{{ row.request_status }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="Created At" width="120px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Note" min-width="150px"align="left">
-        <template slot-scope="{row}">
-          <span >{{ row.note }}</span>
-        </template>
-      </el-table-column>
-    </el-table>
+            <pagination
+              v-show="total>0"
+              :total="total"
+              :page.sync="listQuery.page"
+              :limit.sync="listQuery.limit"
+              @pagination="getList"
+            />
+        </el-col>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="listQuery.page"
-      :limit.sync="listQuery.limit"
-      @pagination="getList"
-    />
+
+        <el-col :xs="24" :md="24" :sm="24" :lg="12" class="card-panel-col">
+            <h2>Transfers Request</h2>
+
+             <el-select v-model="transfer_listQuery.status" @change="handleTransferFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Status">
+                <el-option
+                  v-for="item in statuses"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name">
+                </el-option>
+              </el-select>
+
+              <el-date-picker
+                v-model="dateRangeTransferFilter"
+                class="filter-item"
+                type="daterange"
+                align="right"
+                unlink-panels
+                @change="handleTransferFilter"
+                format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd"
+                range-separator="|"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+              <el-button
+                v-waves
+                class="filter-item"
+                type="primary"
+                icon="el-icon-search"
+                @click="handleTransferFilter"
+              >Search</el-button>
+              <br/>
+              <br/>
+
+
+            <el-table
+              :key="tableKey"
+              v-loading="listLoading"
+              :data="transfer_list"
+              border
+              fit
+              highlight-current-row
+              style="width: 100%;"
+              @sort-change="sortChangeTransfer"
+              >
+
+              <el-table-column
+                label="ID"
+                prop="id"
+                sortable="custom"
+                align="center"
+                width="80"
+                :class-name="getSortClass('id')"
+              >
+                <template slot-scope="{row}">
+                  <span>{{ row.id }}</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="Actions" align="center" width="170px" class-name="small-padding">        
+                <template slot-scope="{row}">         
+                  <el-tooltip content="Delete" placement="right" effect="dark" v-if="row.status=='Pending'">
+                    <el-button
+                      circle
+                      type="danger"
+                      icon="el-icon-delete"
+                      @click="deleteTransferRequest(row)"
+                      ></el-button>
+                  </el-tooltip>
+                </template>
+              </el-table-column> 
+              <el-table-column label="Amout" width="110px" align="right">
+                <template slot-scope="{row}">
+                  <span>{{ row.amount }}</span>
+                </template>
+              </el-table-column>
+
+               <el-table-column label="Approved?" class-name="status-col" width="120">
+                <template slot-scope="{row}">
+                  <el-tag :type="row.status | statusFilter">{{ row.status }}</el-tag>
+                </template>
+              </el-table-column>
+
+
+              <!-- <el-table-column label="Expected TDS" width="160px" align="right">
+                <template slot-scope="{row}">
+                  <span>{{ (parseFloat(row.amount)*parseFloat(temp.tds_percent))/100 }}</span>
+                </template>
+              </el-table-column> -->
+              <el-table-column label="Created At" width="120px" align="center">
+                <template slot-scope="{row}">
+                  <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Note" min-width="150px"align="left">
+                <template slot-scope="{row}">
+                  <span >{{ row.note }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <pagination
+              v-show="transfer_total>0"
+              :total="transfer_total"
+              :page.sync="transfer_listQuery.page"
+              :limit.sync="transfer_listQuery.limit"
+              @pagination="getList"
+            />
+        </el-col>
+    </el-row>
+
 
     <el-dialog title="Withdraw" width="40%"  :visible.sync="dialogWithdrawVisible">
       <el-form ref="formWithdraw" :rules="rules" :model="temp">
         <el-form-item label="Amount to withdraw" prop="debit" label-width="120">
-          <el-input  type="number" min=1 @change="handleDebitChange" v-model="temp.debit" ></el-input>
+            <el-input  type="number" min=1 @change="handleDebitChange" v-model="temp.debit" ></el-input>
         </el-form-item>
+
         <el-form-item label="Expected TDS" label-width="120" prop="tds_amount">
           <el-input  type="number" disabled min=0 v-model="temp.tds_amount" ></el-input>
         </el-form-item>
@@ -187,6 +296,28 @@
       </span>
     </el-dialog>
 
+    <el-dialog title="Transfer to E-wallet" width="40%"  :visible.sync="dialogtransferVisible">
+      <el-form ref="formReqraw"  :rules="transfer_rules" :model="transfer_temp">
+        <el-form-item label="Amount to transfer" prop="debit" label-width="120">
+          <el-input  type="number" min=1 v-model="transfer_temp.debit" ></el-input>
+        </el-form-item>
+
+        <el-form-item label="Note" prop="note">
+          <el-input
+            type="textarea"
+            v-model="transfer_temp.note"
+            :rows="2"
+            placeholder="Please Enter note">
+          </el-input>
+        </el-form-item>
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogtransferVisible = false">Cancel</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="handleRquest()">Request</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -194,8 +325,11 @@
 import {
   fetchWithdrawalRequests,
   deleteWithdrawalRequest,
-  createWithdrawalRequest
-} from "@/api/user/wallet";
+  deleteTransferRequest,
+  createWithdrawalRequest,
+  createTransferRequest,
+  fetchTransfersRequests
+} from "@/api/user/incomewallet";
 import { getSettings } from "@/api/user/settings";
 import { getStatuesAll } from "@/api/user/config";
 
@@ -225,9 +359,18 @@ export default {
         title : undefined,
         tableKey: 0,
         list: null,
+        transfer_list: null,
         total: 0,
+        transfer_total: 0,
         listLoading: true,
         listQuery: {
+            page: 1,
+            limit: 5,
+            status:undefined,
+            sort: "+id",
+            date_range:''
+        },
+        transfer_listQuery: {
             page: 1,
             limit: 5,
             status:undefined,
@@ -240,6 +383,7 @@ export default {
         kyc_status:0,
         total_personal_pv:0,
         dateRangeFilter:'',
+        dateRangeTransferFilter:'',
         sortOptions: [
             { label: "ID Ascending", key: "+id" },
             { label: "ID Descending", key: "-id" }
@@ -252,8 +396,14 @@ export default {
             final_debit:0,
             note:undefined,
         },
+        transfer_temp: {
+            id: undefined,
+            debit:0,
+            note:undefined,
+        },
         statuses:[],
         dialogWithdrawVisible:false,
+        dialogtransferVisible:false,
         dialogStatus: "",
         textMap: {
             update: "Edit",
@@ -266,6 +416,11 @@ export default {
             final_debit: [
               { type:"number", required: true, message: "Final Amount cannot be zero", trigger: "blur" }
             ],
+        },
+        transfer_rules: {
+            debit: [
+              { required: true, message: "Enter amount", trigger: "blur" }
+            ]
         },
         settings:undefined,
         downloadLoading: false,
@@ -302,9 +457,24 @@ export default {
   },
   created() {
     this.getList();
+    this.getTransferList();
     this.getSettings();
   },
   methods: {
+    getTransferList() {
+      this.listLoading = true;     
+      fetchTransfersRequests(this.transfer_listQuery).then(response => {
+        console.log(response.data.data)
+        this.transfer_list               = response.data.data;
+        this.transfer_total              = response.data.total;
+        this.setMsg();
+        setTimeout(() => {
+          this.listLoading = false;
+        }, 1 * 100);
+      }).catch((er)=>{
+        this.listLoading = false;
+      });
+    },
     getList() {
       this.listLoading = true;     
       fetchWithdrawalRequests(this.listQuery).then(response => {
@@ -341,6 +511,37 @@ export default {
       this.temp.debit=parseFloat(this.temp.debit);
       this.temp.final_debit=(parseFloat(this.temp.debit, 10)-parseFloat(this.temp.tds_amount, 10));
     },
+    handleRquest(){
+      this.$refs["formReqraw"].validate(valid => {
+        if(parseFloat(this.transfer_temp.final_debit) <=0 ){
+          this.$message.error('Withdrawal amount cannot be 0.');
+          return;
+        }
+        if(parseFloat(this.balance) < parseFloat(this.transfer_temp.debit)){
+          this.$message.error('Oops, You have not enough balance to withdraw.');
+          return;
+        }
+        if (valid) {
+           this.buttonLoading=true;
+          createTransferRequest(this.transfer_temp).then((response) => {
+            this.getList();
+            this.getTransferList();
+            this.resetETemp();
+            this.dialogtransferVisible = false;
+             this.buttonLoading=false;
+            this.$notify({
+              title: "Success",
+              message: "Transfer Request Created Successfully",
+              type: "success",
+              duration: 2000
+            })
+
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
+        }
+      });
+    },
     handleWithdraw(){
       this.$refs["formWithdraw"].validate(valid => {
         if(parseFloat(this.temp.final_debit) <=0 ){
@@ -355,7 +556,9 @@ export default {
            this.buttonLoading=true;
           createWithdrawalRequest(this.temp).then((response) => {
             this.getList();
+            this.getTransferList();
             this.resetTemp();
+            this.resetETemp();
             this.dialogWithdrawVisible = false;
              this.buttonLoading=false;
             this.$notify({
@@ -385,6 +588,25 @@ export default {
               duration: 2000
           });
           this.getList();
+          this.getTransferList();
+        });
+      })
+    },
+    deleteTransferRequest(row){
+      this.$confirm('Are you sure you want to delete Transfer Request?', 'Warning', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        deleteTransferRequest(row.id).then((data) => {
+          this.$notify({
+              title: "Success",
+              message: data.message,
+              type: "success",
+              duration: 2000
+          });
+          this.getList();
+          this.getTransferList();
         });
       })
     },
@@ -398,15 +620,37 @@ export default {
       };
       this.temp.tds_percent=this.settings.tds_percentage;
     },
+    resetETemp() {
+      this.transfer_temp = {
+            id: undefined,
+            debit:0,
+            note:undefined,
+      };
+      // this.temp.tds_percent=this.settings.tds_percentage;
+    },
     handleFilter() {
       this.listQuery.page = 1;
       this.listQuery.date_range=this.dateRangeFilter;
       this.getList();
+      // this.getTransferList();
+
+    },
+    handleTransferFilter() {
+      this.transfer_listQuery.page = 1;
+      this.transfer_listQuery.date_range=this.dateRangeTransferFilter;
+      // this.getList();
+      this.getTransferList();
     },
     sortChange(data) {
       const { prop, order } = data;
       if (prop === "id") {
         this.sortByID(order);
+      }
+    },
+    sortChangeTransfer(data) {
+      const { prop, order } = data;
+      if (prop === "id") {
+        this.sortByIDTransfer(order);
       }
     },
     sortByID(order) {
@@ -416,6 +660,14 @@ export default {
         this.listQuery.sort = "-id";
       }
       this.handleFilter();
+    },
+    sortByIDTransfer(order) {
+      if (order === "ascending") {
+        this.transfer_listQuery.sort = "+id";
+      } else {
+        this.transfer_listQuery.sort = "-id";
+      }
+      this.handleTransferFilter();
     },    
     clean(obj) {
       for (var propName in obj) { 
@@ -432,6 +684,11 @@ export default {
             this.is_active = 1;
             this.dialogWithdrawVisible=false;
         }
+    },
+    openDialog() {
+        this.dialogtransferVisible=true;
+        this.resetETemp();
+        
     },
     handleDownload() {
       this.downloadLoading = true;

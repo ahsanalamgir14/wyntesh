@@ -452,6 +452,12 @@ export const asyncRoutes = [
         meta: { title: 'With. Requests', icon: 'fas fa-wallet', color:'color:#31a816', affix: true, roles: ['admin'] }
       },
       {
+        path: 'transfer-requests',
+        component: () => import('@/views/admin/wallet/transfer-request'),
+        name: 'Trans. Requests',
+        meta: { title: 'Trans. Requests', icon: 'fas fa-rupee-sign', color:'color:#31a816', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'credit-requests',
         component: () => import('@/views/admin/wallet/credit-requests'),
         name: 'Credit Requests',
@@ -480,6 +486,12 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/wallet/transactions'),
         name: 'Wallet Transactions',
         meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'income-wallet-transactions',
+        component: () => import('@/views/admin/wallet/income-transactions'),
+        name: 'Income Wallet Trans',
+        meta: { title: 'Income Wallet Trans', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -1016,6 +1028,12 @@ export const asyncRoutes = [
         meta: { title: 'My Wallet', icon: 'fas fa-wallet', color:'color:#31a816', affix: true, roles: ['user'] }
       },
       {
+        path: 'income-wallet',
+        component: () => import('@/views/user/wallet/incomewallet'),
+        name: 'My Income Wallet',
+        meta: { title: 'My Income Wallet', icon: 'fas fa-rupee-sign', color:'color:#31a816', affix: true, roles: ['user'] }
+      },
+      {
         path: 'credit-requests',
         component: () => import('@/views/user/wallet/credit-requests'),
         name: 'Credit Requests',
@@ -1038,6 +1056,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/wallet/transactions'),
         name: 'Wallet Transactions',
         meta: { title: 'Wallet Transactions', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'income-wallet-transactions',
+        component: () => import('@/views/user/wallet/income-transactions'),
+        name: 'Income Wallet Trans',
+        meta: { title: 'Income Wallet Trans', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['user'] }
       }
     ]
   },

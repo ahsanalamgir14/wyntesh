@@ -108,13 +108,25 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('withdrawal-requests', 'WalletController@withdrawalRequests');
     Route::post('withdrawal-requests', 'WalletController@createWithdrawal');
     Route::delete('withdrawal-requests/{id}/delete', 'WalletController@destroy');
+    Route::delete('transfer-requests/{id}/delete', 'WalletController@transferDestroy');
     Route::post('withdrawal-requests/reject', 'WalletController@rejectWithdrawalRequest');
+
+    Route::get('income-transfers-requests', 'WalletController@incomeTransfersRequests');
+    Route::get('income-withdrawal-requests', 'WalletController@incomeWithdrawalRequests');
+
+    Route::post('income-withdrawal-requests', 'WalletController@createIncomeWithdrawal');
+    
+    Route::post('income-transfer-requests', 'WalletController@createIncomeTransferRequests');
+    // Route::delete('income-withdrawal-requests/{id}/delete', 'WalletController@incomeDestroy');
+    Route::post('income-withdrawal-requests/reject', 'WalletController@rejectWithdrawalRequest');
 
     Route::get('wallet/balance', 'WalletController@getMyBalance');
     Route::get('withdrawals', 'WalletController@getWithdrawals');
     Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
+
+    Route::get('income-wallet-transactions', 'WalletController@getIncomeWalletTransactions');
 
     Route::get('wallet/credit-requests', 'WalletController@creditRequests');
     Route::post('wallet/credit-requests', 'WalletController@createCreditRequest');
@@ -283,10 +295,17 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('withdrawal-requests/reject', 'WalletController@rejectWithdrawalRequest');
     Route::post('withdrawal-requests/approve', 'WalletController@approveWithdrawal');
 
+
+    Route::get('transfer-requests', 'WalletController@transferRequests');
+    Route::delete('transfer-requests/{id}/delete', 'WalletController@destroyTransfer');
+    Route::post('transfer-requests/reject', 'WalletController@rejectTransferRequest');
+    Route::post('transfer-requests/approve', 'WalletController@approveTransfer');
+
     Route::get('member/balance/{code}', '\App\Http\Controllers\User\MembersController@checkMemberBalance');
 
     Route::get('withdrawals', 'WalletController@getWithdrawals');
     Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
+    Route::get('income-wallet-transactions', 'WalletController@getIncomeWalletTransactions');
     Route::get('wallet-transfers', 'WalletController@getWalletTransfers');
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
     Route::post('wallet/balance/add', 'WalletController@addBalance');

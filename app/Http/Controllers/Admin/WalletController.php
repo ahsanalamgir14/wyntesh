@@ -10,6 +10,8 @@ use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\IncomeWalletTransactions;
+use App\Models\Admin\IncomeWalletTransfers;
 use App\Models\Admin\CreditRequest;
 use App\Models\Admin\Setting;
 use App\Models\User\User;
@@ -25,6 +27,59 @@ class WalletController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function transferRequests(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $status=$request->status;
+        $date_range=$request->date_range;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$status && !$date_range){           
+            $WithdrawalRequests=IncomeWalletTransfers::select();           
+            $WithdrawalRequests=$WithdrawalRequests->with('member.user');
+            $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $WithdrawalRequests=IncomeWalletTransfers::select();
+            
+            $WithdrawalRequests=$WithdrawalRequests->where(function ($query)use($search) {
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($date_range){
+                $WithdrawalRequests=$WithdrawalRequests->whereDate('created_at','>=', $date_range[0]);
+                $WithdrawalRequests=$WithdrawalRequests->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            if($status){
+                $WithdrawalRequests=$WithdrawalRequests->where('status',$status);
+            }
+
+            $WithdrawalRequests=$WithdrawalRequests->with('member.user');
+            $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+        $response = array('status' => true,'message'=>"Pin requests retrieved.",'data'=>$WithdrawalRequests);
+        return response()->json($response, 200);
+    }
     public function withdrawalRequests(Request $request)
     {
         $page=$request->page;
@@ -51,7 +106,7 @@ class WalletController extends Controller
         if(!$search && !$status && !$date_range){           
             $WithdrawalRequests=WithdrawalRequest::select();           
             $WithdrawalRequests=$WithdrawalRequests->with('member:id,user_id','member.kyc','approver');
-            $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
+            $WithdrawalRequests=$WithdrawalRequests->where('is_income_wallet',0)->orderBy('id',$sort)->paginate($limit);
         }else{
             $WithdrawalRequests=WithdrawalRequest::select();
             
@@ -104,8 +159,9 @@ class WalletController extends Controller
             return response()->json($response, 404);
         }
 
-        $balance=$WithdrawalRequest->member->wallet_balance;        
+        // $balance=$WithdrawalRequest->member->wallet_balance;        
         $WithdrawalRequest->member->save();
+
         $WithdrawalRequest->request_status="Approved";
         $WithdrawalRequest->note=$request->note;
         $WithdrawalRequest->approved_by=$user->id;
@@ -130,15 +186,77 @@ class WalletController extends Controller
             $tran_type=$TransactionType->id;
         }
 
-        $WalletTransaction=new WalletTransaction;
-        $WalletTransaction->member_id=$WithdrawalRequest->member_id;
-        $WalletTransaction->amount=$request->final_amount;
-        $WalletTransaction->balance=$WithdrawalRequest->member->wallet_balance;
-        $WalletTransaction->transaction_type_id=$tran_type;
-        $WalletTransaction->note=$request->note;
-        $WalletTransaction->save();
+        $IncomeWalletTransactions=new IncomeWalletTransactions;
+        $IncomeWalletTransactions->member_id=$WithdrawalRequest->member_id;
+        $IncomeWalletTransactions->amount=$request->final_amount;
+        $IncomeWalletTransactions->balance=$WithdrawalRequest->member->income_wallet_balance;
+        $IncomeWalletTransactions->transaction_type_id=$tran_type;
+        $IncomeWalletTransactions->note=$request->note;
+        $IncomeWalletTransactions->save();
 
         $response = array('status' => true,'message'=>'Withdrawal request approved successfully.');
+        return response()->json($response, 200);
+
+    }
+
+
+    public function approveTransfer(Request $request){
+        $user=JWTAuth::user();
+    
+        $validate = Validator::make($request->all(), [
+            'id' => 'required|integer',
+            'amount' => "required|regex:/^\d+(\.\d{1,2})?$/",
+            'final_amount' => "required|regex:/^\d+(\.\d{1,2})?$/"
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $id=$request->id;
+
+        $IncomeWalletTransfers=IncomeWalletTransfers::find($id);
+
+        if(!$IncomeWalletTransfers){
+            $response = array('status' => false,'message'=>'Transfer request not found');
+            return response()->json($response, 404);
+        }
+        $amount=floatval($request->amount);
+        $balance=$IncomeWalletTransfers->member->wallet_balance;
+        $income_balance=$IncomeWalletTransfers->member->income_wallet_balance;
+        $IncomeWalletTransfers->member->wallet_balance+=$amount;  
+        $IncomeWalletTransfers->member->save();
+
+        $IncomeWalletTransfers->status="Approved";
+        $IncomeWalletTransfers->note=$request->note;
+        // $IncomeWalletTransfers->approved_by=$user->id;
+        $IncomeWalletTransfers->save();
+
+        $TransactionType=TransactionType::where('name','Credit')->first();
+        $WalletTransaction=new WalletTransaction;
+        $WalletTransaction->member_id=$IncomeWalletTransfers->member->id;
+        $WalletTransaction->transfered_to=$IncomeWalletTransfers->member->user->id;
+        $WalletTransaction->balance=$balance+$amount;
+        $WalletTransaction->amount=$amount;
+        $WalletTransaction->transaction_type_id=$TransactionType->id;
+        $WalletTransaction->note="Income Wallet transfer";
+        $WalletTransaction->save();
+        
+        $TransactionType=TransactionType::where('name','Debit')->first();
+        $IncomeWalletTransactions=new IncomeWalletTransactions;
+        $IncomeWalletTransactions->member_id=$IncomeWalletTransfers->member->id;
+        $IncomeWalletTransactions->transfered_to=$IncomeWalletTransfers->member->user->id;
+        $IncomeWalletTransactions->balance=$income_balance-$amount;
+        $IncomeWalletTransactions->amount=$amount;
+        $IncomeWalletTransactions->transaction_type_id=$TransactionType->id;
+        // $IncomeWalletTransactions->transaction_by=$user->id;
+        $IncomeWalletTransactions->note="Income Wallet transfer";
+        $IncomeWalletTransactions->save();
+
+
+
+        $response = array('status' => true,'message'=>'Transfer request approved successfully.');
         return response()->json($response, 200);
 
     }
@@ -246,6 +364,85 @@ class WalletController extends Controller
             $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
         }else{
             $WalletTransactions=WalletTransaction::select();
+            
+            if($date_range){
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
+                $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
+            }
+
+            if($member_id){
+                $WalletTransactions=$WalletTransactions->whereHas('member.user',function($q)use($member_id){
+                    $q->where('username','like','%'.$member_id.'%');
+                });               
+            }
+
+            if($transaction_type){
+                $WalletTransactions=$WalletTransactions->where('transaction_type_id',$transaction_type);                
+            }
+
+            if($transfered_from){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_from_user',function($q)use($transfered_from){
+                    $q->where('username','like','%'.$transfered_from.'%');
+                });               
+            }
+
+            if($transfered_to){
+                $WalletTransactions=$WalletTransactions->whereHas('transfered_to_user',function($q)use($transfered_to){
+                    $q->where('username','like','%'.$transfered_to.'%');
+                });
+            }
+
+            if($transaction_by){
+                $WalletTransactions=$WalletTransactions->whereHas('transaction_by_user',function($q)use($transaction_by){
+                    $q->where('username','like','%'.$transaction_by.'%');
+                });
+            }
+
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }
+
+        
+        $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        return response()->json($response, 200);
+    }
+
+    public function getIncomeWalletTransactions(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $transaction_type=$request->transaction_type;
+        $transfered_from=$request->transfered_from;
+        $transfered_to=$request->transfered_to;
+        $transaction_by=$request->transaction_by;
+        $member_id=$request->member_id;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$date_range && !$transaction_type && !$transfered_from && !$transfered_to && !$member_id && !$transaction_by){
+
+            $WalletTransactions=IncomeWalletTransactions::select();           
+            $WalletTransactions=$WalletTransactions->with('transaction_by_user','transfered_from_user','transfered_to_user','transaction');
+            $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        }else{
+            $WalletTransactions=IncomeWalletTransactions::select();
             
             if($date_range){
                 $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
@@ -685,15 +882,36 @@ class WalletController extends Controller
     
     public function rejectWithdrawalRequest(Request $request)
     {
+        // dd($request);
         $WithdrawalRequest= WithdrawalRequest::find($request->id);
         
         if($WithdrawalRequest){
             $amount=$WithdrawalRequest->amount;
-            $WithdrawalRequest->member->wallet_balance+=$amount;
+            $WithdrawalRequest->member->income_wallet_balance+=$amount;
             $WithdrawalRequest->member->save();
             $WithdrawalRequest->request_status='Rejected';
             $WithdrawalRequest->note=$request->note;
             $WithdrawalRequest->save(); 
+            $response = array('status' => true,'message'=>'Transfer request rejected.');             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Transfer request not found');
+            return response()->json($response, 404);
+        }
+
+    }
+    public function rejectTransferRequest(Request $request)
+    {
+        $IncomeWalletTransfers= IncomeWalletTransfers::find($request->id);
+        if($IncomeWalletTransfers){
+            $amount=$IncomeWalletTransfers->amount;
+            
+            $IncomeWalletTransfers->member->income_wallet_balance+=$amount;
+            $IncomeWalletTransfers->member->save();
+
+            $IncomeWalletTransfers->status='Rejected';
+            $IncomeWalletTransfers->note=$request->note;
+            $IncomeWalletTransfers->save(); 
             $response = array('status' => true,'message'=>'Withdrawal request rejected.');             
             return response()->json($response, 200);
         }else{
@@ -709,11 +927,40 @@ class WalletController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function destroyTransfer($id)
+    {
+
+        $IncomeWalletTransfers= IncomeWalletTransfers::where('status','Pending')->find($id);
+        
+        if($IncomeWalletTransfers){
+
+            $amount=$IncomeWalletTransfers->amount;
+            $IncomeWalletTransfers->member->income_wallet_balance+=$amount;
+            $IncomeWalletTransfers->member->save();
+
+
+            $IncomeWalletTransfers->delete(); 
+            $response = array('status' => true,'message'=>'Withdrawal request successfully deleted.');             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Withdrawal request not found');
+            return response()->json($response, 404);
+        }
+
+    }
+
     public function destroy($id)
     {
+
         $WithdrawalRequest= WithdrawalRequest::where('request_status','Pending')->find($id);
         
         if($WithdrawalRequest){
+
+            $amount=$WithdrawalRequest->amount;
+            $WithdrawalRequest->member->income_wallet_balance+=$amount;
+            $WithdrawalRequest->member->save();
+
+
             $WithdrawalRequest->delete(); 
             $response = array('status' => true,'message'=>'Withdrawal request successfully deleted.');             
             return response()->json($response, 200);
