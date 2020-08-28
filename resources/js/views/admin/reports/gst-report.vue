@@ -255,6 +255,7 @@ export default {
      
       getGSTReport(this.listQuery).then(response => {
         this.list = response.data.data;
+        console.log(response.data.data);
         this.total = response.data.total;
         this.sums=response.sum;
         setTimeout(() => {
@@ -332,7 +333,7 @@ export default {
           }else if(j === "payment_mode") {
             return v.payment_mode?v.payment_mode.name:''
           }else if(j === "package") {
-            return v.packages?v.packages[0].package.name:''
+            return v.packages[0]?v.packages[0].package.name:''
           }else {
             return v[j];
           }

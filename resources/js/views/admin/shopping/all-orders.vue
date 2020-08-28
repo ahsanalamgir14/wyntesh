@@ -603,7 +603,7 @@ export default {
             admin_fee:v.admin_fee,
             discount:v.discount,
             final_amount:v.final_amount,
-            address:ad.full_name+', '+ad.address+', '+ad.landmark+', '+ad.city+', '+ad.state+', '+ad.pincode+', '+ad.mobile_number,
+            address:ad?ad.full_name+', '+ad.address+', '+ad.landmark+', '+ad.city+', '+ad.state+', '+ad.pincode+', '+ad.mobile_number:'',
             created_at:v.created_at,
           };
           orders.push(order);
