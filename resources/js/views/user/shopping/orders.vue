@@ -40,11 +40,15 @@
       >Search</el-button>
     </div>
 
+     
+
     <el-table
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
       border
+      show-summary
+      :summary-method="getSummaries"
       fit
       highlight-current-row
       style="width: 100%;"
@@ -364,6 +368,10 @@ export default {
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
+      sums:{
+        final_total:0,
+        pv:0
+      },
       temp:{
         products:[],
         logs:[],
@@ -410,12 +418,36 @@ export default {
     });
   },
   methods: {
+    getSummaries(param) {
+        // alert(param)
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 2) {
+          sums[index] = 'Final Total (All)';
+          return;
+        }
+        console.log(index)
+        if(index===4){
+          sums[index] = this.sums.final_total;
+          return; 
+        }
+        if(index===5){
+          sums[index] = this.sums.pv;
+          return; 
+        }
+      });
+
+      return sums;
+    },
     getList() {
       this.listLoading = true;
      
       myOrders(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
+        this.sums=response.sum;
+        // console.log(this.sums);
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);

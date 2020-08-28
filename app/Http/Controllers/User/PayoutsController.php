@@ -156,7 +156,8 @@ class PayoutsController extends Controller
         if(!$search){
             $MemberPayout=MemberPayout::select();
             $MemberPayout=$MemberPayout->where('member_id',$user->member->id);
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.kyc')->orderBy('id',$sort)->paginate($limit);
+            $member_total=Order::select([DB::raw('sum(final_amount) as final_total'),DB::raw('sum(pv) as pv')])->first();
         }else{
             $MemberPayout=MemberPayout::select();
             $MemberPayout=$MemberPayout->where('member_id',$user->member->id);

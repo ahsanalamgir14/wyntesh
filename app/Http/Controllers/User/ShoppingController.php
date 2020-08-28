@@ -88,7 +88,9 @@ class ShoppingController extends Controller
             $Orders=$Orders->with('products','shipping_address','logs','payment_mode','packages');
             $Orders=$Orders->where('user_id',$user->id);
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+            $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id)->first();
         }else{
+            $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id);
             $Orders=Order::select();
             
             $Orders=$Orders->where(function ($query)use($search) {
@@ -103,15 +105,19 @@ class ShoppingController extends Controller
             if($date_range){
                 $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
                 $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
-            }
 
+                $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
+                $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
+
+            }
+            $order_total= $order_total->first();
             $Orders=$Orders->where('user_id',$user->id);
 
             $Orders=$Orders->with('products','shipping_address','logs','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
-        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders,'sum'=>$order_total);
         return response()->json($response, 200);
     }
 

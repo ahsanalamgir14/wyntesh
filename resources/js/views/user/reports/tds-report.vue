@@ -36,6 +36,12 @@
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      
+      <el-table-column label="Pan" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.member?row.member.kyc.pan:"" }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column label="Payout" width="130px" align="right">
         <template slot-scope="{row}">

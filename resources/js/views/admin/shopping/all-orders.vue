@@ -51,11 +51,14 @@
 
     
 
+    
     <el-table
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
       border
+      show-summary
+      :summary-method="getSummaries"
       fit
       highlight-current-row
       style="width: 100%;"
@@ -404,6 +407,10 @@ export default {
         tracking_no:undefined,
         remarks:undefined,
       },
+      sums:{
+        final_total:0,
+        pv:0
+      },
       deleveryStatuses:[],
       downloadLoading: false,
       buttonLoading: false,
@@ -450,12 +457,34 @@ export default {
     });
   },
   methods: {
+     getSummaries(param) {
+        // alert(param)
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 2) {
+          sums[index] = 'Final Total (All)';
+          return;
+        }
+        if(index===5){
+          sums[index] = this.sums.final_total;
+          return; 
+        }
+        if(index===6){
+          sums[index] = this.sums.pv;
+          return; 
+        }
+      });
+
+      return sums;
+    },
     getList() {
       this.listLoading = true;
      
       getAllOrders(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
+        this.sums=response.sum;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
