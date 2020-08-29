@@ -40,20 +40,20 @@ class Kernel extends ConsoleKernel
             $CronsController->generateMonthlyPayout();
         })->monthlyOn(1, '00:30');
 
-        // $schedule->call(function () {
-        //     $CronsController=new CronsController;
-        //     $CronsController->WallOfWyntashReport();
-        // });
+        $schedule->call(function () {
+            $CronsController=new CronsController;
+            $CronsController->WallOfWyntashReport();
+        });
 
         // $schedule->call(function () {
         //     $CronsController=new CronsController;
         //     $CronsController->generateMonthlyPayout();
         // })->monthlyOn(1, '01:00');
 
-        $schedule->call(function () {
-            $PayoutsController=new CronsController;
-            $PayoutsController->generateMonthlyPayout();
-        });
+        // $schedule->call(function () {
+        //     $PayoutsController=new CronsController;
+        //     $PayoutsController->generateMonthlyPayout();
+        // });
 
     }
 
