@@ -208,12 +208,18 @@ export const asyncRoutes = [
     path: '/top',
     component: Layout,
     redirect: '/wall-of-wyntash',
+    meta: {
+      title: 'Wall Of Wyntash',
+      icon: 'fas fa-hand-holding-usd',
+      roles: ['admin'],
+      color:'color:#854CE2'
+    },
     children: [
       {
         path: 'wall-of-wyntash',
         component: () => import('@/views/user/reports/wall-of-wyntash'),
         name: 'Wall Of Wyntash',
-        meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true }
+        meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true, roles: ['admin'] }
       }
     ]
   },
@@ -512,8 +518,8 @@ export const asyncRoutes = [
       {
         path: 'generate',
         component: () => import('@/views/admin/payouts/generate'),
-        name: 'Generate PINs',
-        meta: { title: 'Generate Payout', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
+        name: 'All Payouts',
+        meta: { title: 'All Payouts', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
       },
       {
         path: 'incomes',

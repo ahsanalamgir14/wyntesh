@@ -39,19 +39,15 @@ class CronsController extends Controller
         $start = new Carbon('first day of last month');
         $start = $start->startOfMonth()->format('Y-m-d H:i:s'); 
 
-        // $start = '2020-08-10';
-        // $last = '2020-08-20';
-
+        $start = '2020-07-14';
+        $last = '2020-08-31';
 
 
         $results = DB::select(DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at , u.name , u.username, u.dob , k.city , ab.member_id,sum(final_amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id where date(ab.created_at) >= '$start' and  date(ab.created_at) <= '$last' group by ab.member_id UNION SELECT tp.created_at , u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout+tds) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id where date(tp.created_at) >= '$start' and  date(tp.created_at) <= '$last' group by member_id UNION SELECT r.created_at, u.name, u.username, u.dob, k.city, r.member_id, SUM(final_amount + tds_amount) AS amt FROM `rewards` AS r LEFT JOIN `members` AS m ON m.id = r.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN kyc AS k ON k.member_id = m.id where date(r.created_at) >= '$start' and  date(r.created_at) <= '$last' GROUP BY member_id) tmp group by tmp.member_id order by total_amt desc ") );
-        // dd($results);
+
         WallOfWyntash::truncate();
         
-        foreach($results as $data){
-            // if($data->username == "142040" ){
-            //     continue;
-            // }
+        foreach($results as $data){           
 
             $bday = new \DateTime($data->dob);
             $today = new \Datetime(date('y-m-d'));
@@ -104,32 +100,43 @@ class CronsController extends Controller
 
     public function generateMonthlyPayout()
     {
+        $dt = Carbon::now();
+        $day=$dt->day;
+        $from='';
+        $to='';
+
         if($day=='6'){
             $from=$dt->year.'-'.$dt->month.'-'.'1';
-            $from=$dt->year.'-'.$dt->month.'-'.'6';
+            $to=$dt->year.'-'.$dt->month.'-'.'6';
             $incomes=Income::where('code','SQUAD')->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='12'){
             $from=$dt->year.'-'.$dt->month.'-'.'7';
-            $from=$dt->year.'-'.$dt->month.'-'.'12';
+            $to=$dt->year.'-'.$dt->month.'-'.'12';
             $incomes=Income::where('code','SQUAD')->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='18'){
             $from=$dt->year.'-'.$dt->month.'-'.'13';
-            $from=$dt->year.'-'.$dt->month.'-'.'18';
+            $to=$dt->year.'-'.$dt->month.'-'.'18';
             $incomes=Income::where('code','SQUAD')->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='24'){
             $from=$dt->year.'-'.$dt->month.'-'.'19';
-            $from=$dt->year.'-'.$dt->month.'-'.'24';
+            $to=$dt->year.'-'.$dt->month.'-'.'24';
             $incomes=Income::where('code','SQUAD')->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day==intval(date('t'))){
             $from=$dt->year.'-'.$dt->month.'-'.'25';
-            $from=$dt->year.'-'.$dt->month.'-'.date('t');
+            $to=$dt->year.'-'.$dt->month.'-'.date('t');
             $incomes=Income::all();
             $PayoutType=PayoutType::where('name','Monthly')->first();
         }
+
+        $from = '2020-08-26';
+        $to = '2020-08-31';
+        $incomes=Income::all();
+        $PayoutType=PayoutType::where('name','Monthly')->first();
+
 
         $Payout=new Payout;
         $Payout->payout_type_id=$PayoutType->id;

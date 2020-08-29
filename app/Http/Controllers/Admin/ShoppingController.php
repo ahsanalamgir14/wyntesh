@@ -196,26 +196,25 @@ class ShoppingController extends Controller
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
             $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')])->first();
         }else{
-             $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')]);
+            $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')]);
 
-            $Orders=Order::select();            
-            $order_total=Order::select([DB::raw('sum(final_amount) as final_total'),DB::raw('sum(gst) as gst')]);
+            $Orders=Order::select();
             $Orders=$Orders->where(function ($query)use($search) {
                 $query->orWhere('order_no','like','%'.$search.'%');  
                 $query=$query->orWhereHas('user',function($q)use($search){
                     $q->where('username','like','%'.$search.'%');
                 });            
-
             });
 
             if($delivery_status){
                 $Orders=$Orders->where('delivery_status',$delivery_status);
+                $order_total=$order_total->where('delivery_status',$delivery_status);
             }
 
             if($date_range){
                 $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
                 $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
-                 $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
+                $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
                 $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
             }
             $order_total= $order_total->first();
@@ -333,6 +332,9 @@ class ShoppingController extends Controller
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
                 $Sale->pv=$Order->pv;
+                $Sale->amount=$Order->final_amount;
+                $Sale->shipping_fee=$Order->shipping_fee;
+                $Sale->admin_fee=$Order->admin_fee;
                 $Sale->order_id=$Order->id;
                 $Sale->final_amount_company=$final_amount_company;
 
@@ -416,6 +418,9 @@ class ShoppingController extends Controller
                     $Sale=Sale::where('order_id',$Order->id)->first();
                     $Sale->member_id=$Order->user->member->id;
                     $Sale->pv=0;
+                    $Sale->amount=0;
+                    $Sale->shipping_fee=0;
+                    $Sale->admin_fee=0;
                     $Sale->order_id=$Order->id;
                     $Sale->final_amount_company=0;
                     $Sale->save();

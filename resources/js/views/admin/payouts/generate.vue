@@ -15,13 +15,13 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-      <el-button
+      <!-- <el-button
         class="filter-item"
         style="margin-left: 10px;"
         type="success"
         icon="el-icon-refresh-left"
         @click="handleCreate"
-      > Generate</el-button>
+      > Generate</el-button> -->
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -93,6 +93,16 @@
       <el-table-column label="Sales BV" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.sales_bv }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="GST" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.sales_gst }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Shipping" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.sales_shipping_fee }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Sales Amount" width="130px" align="right">
