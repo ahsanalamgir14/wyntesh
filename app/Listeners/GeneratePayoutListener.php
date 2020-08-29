@@ -387,7 +387,7 @@ class GeneratePayoutListener
             $IncomeWalletTransactions->member_id            = $Member->id;
             $IncomeWalletTransactions->balance              = $Member->income_wallet_balance;
             $IncomeWalletTransactions->amount               = $totalIncomeValue;
-            $IncomeWalletTransactions->transaction_by       = $Member->id;;
+            $IncomeWalletTransactions->transfered_to       = $Member->user->id;
             $IncomeWalletTransactions->note                 = 'Elevation Bonus';
             $this->commonWalletTransectionEntry($IncomeWalletTransactions,'Elevation Bonus');
 
@@ -494,7 +494,7 @@ class GeneratePayoutListener
                 $IncomeWalletTransactions->member_id            = $Member->id;
                 $IncomeWalletTransactions->balance              = $Member->income_wallet_balance;
                 $IncomeWalletTransactions->amount               = $totalIncomeValue;
-                $IncomeWalletTransactions->transaction_by       = $Member->id;;
+                $IncomeWalletTransactions->transfered_to       = $Member->user->id;
                 $IncomeWalletTransactions->note                 = 'Luxury Bonus';
                 $this->commonWalletTransectionEntry($IncomeWalletTransactions,'Luxury Bonus');
             }else{
@@ -609,7 +609,7 @@ class GeneratePayoutListener
             $IncomeWalletTransactions->member_id            = $Member->id;
             $IncomeWalletTransactions->balance              = $Member->income_wallet_balance;
             $IncomeWalletTransactions->amount               = $totalIncomeValue;
-            $IncomeWalletTransactions->transaction_by       = $Member->id;;
+            $IncomeWalletTransactions->transfered_to       = $Member->user->id;
             $IncomeWalletTransactions->note                 = 'Premium Bonus';
             $this->commonWalletTransectionEntry($IncomeWalletTransactions,'Premium Bonus');
 
@@ -669,7 +669,7 @@ class GeneratePayoutListener
             $IncomeWalletTransactions->member_id            = $Member->id;
             $IncomeWalletTransactions->balance              = $Member->income_wallet_balance;
             $IncomeWalletTransactions->amount               = $totalIncomeValue;
-            $IncomeWalletTransactions->transaction_by       = $Member->id;;
+            $IncomeWalletTransactions->transfered_to       = $Member->user->id;
             $IncomeWalletTransactions->note                 = 'Squad Bonus';
             $this->commonWalletTransectionEntry($IncomeWalletTransactions,'Squad Bonus');
 

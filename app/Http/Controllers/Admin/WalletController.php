@@ -246,7 +246,7 @@ class WalletController extends Controller
         $TransactionType=TransactionType::where('name','Debit')->first();
         $IncomeWalletTransactions=new IncomeWalletTransactions;
         $IncomeWalletTransactions->member_id=$IncomeWalletTransfers->member->id;
-        $IncomeWalletTransactions->transfered_to=$IncomeWalletTransfers->member->user->id;
+        $IncomeWalletTransactions->transfered_from=$IncomeWalletTransfers->member->user->id;
         $IncomeWalletTransactions->balance=$income_balance-$amount;
         $IncomeWalletTransactions->amount=$amount;
         $IncomeWalletTransactions->transaction_type_id=$TransactionType->id;
