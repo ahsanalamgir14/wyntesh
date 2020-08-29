@@ -35,9 +35,15 @@
         </template>
       </el-table-column>
 
-    <el-table-column label="Name" width="140px" align="center">
+      <el-table-column label="Name" width="140px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.name }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="ID" width="140px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.username }}</span>
         </template>
       </el-table-column>
 

@@ -24,6 +24,7 @@ use App\Models\Admin\WallOfWyntash;
 use App\Models\User\Order;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\IncomeWalletTransactions;
 use Carbon\Carbon;
 use DB;
  
@@ -246,22 +247,22 @@ class PayoutsController extends Controller
             return response()->json($response, 400);
         }
 
-        $oldBalance = $user->member->wallet_balance;
+        $oldBalance = $user->member->income_wallet_balance;
 
-        $user->member->wallet_balance += $request->final_amount;
+        $user->member->income_wallet_balance += $request->final_amount;
         $user->member->save();
 
         $TransactionType=TransactionType::where('name','Credit')->first();
 
-        $WalletTransaction=new WalletTransaction;
-        $WalletTransaction->member_id= $user->member->id;
-        $WalletTransaction->amount= $request->final_amount;
-        $WalletTransaction->balance= $oldBalance + $request->final_amount;
-        $WalletTransaction->transaction_type_id=$TransactionType->id;
-        $WalletTransaction->transfered_to=$user->id;
-        $WalletTransaction->transaction_by=JWTAuth::user()->id;
-        $WalletTransaction->note='Reward Bonus';
-        $WalletTransaction->save(); 
+        $IncomeWalletTransactions=new IncomeWalletTransactions;
+        $IncomeWalletTransactions->member_id= $user->member->id;
+        $IncomeWalletTransactions->amount= $request->final_amount;
+        $IncomeWalletTransactions->balance= $oldBalance + $request->final_amount;
+        $IncomeWalletTransactions->transaction_type_id=$TransactionType->id;
+        $IncomeWalletTransactions->transfered_to=$user->id;
+        $IncomeWalletTransactions->transaction_by=JWTAuth::user()->id;
+        $IncomeWalletTransactions->note='Reward Bonus';
+        $IncomeWalletTransactions->save(); 
 
 
         $Payout=new Reward;
@@ -622,22 +623,22 @@ class PayoutsController extends Controller
 
     public function releaseHoldPayout($payout_id,$user){
         
-        $TransactionType=TransactionType::where('name','Withhold Payout')->first();
+        $TransactionType=TransactionType::where('name','Credit')->first();
 
         $MemberIncomeHolding=MemberIncomeHolding::selectRaw('*, sum(amount) as withhold_amount')
        ->where('member_id',$user->member->id)->where('payout_id',$payout_id)->where('is_paid',0)->first();
 
         if($MemberIncomeHolding->withhold_amount && $TransactionType){
-            $WalletTransaction=new WalletTransaction;
-            $WalletTransaction->member_id=$user->member->id;
-            $WalletTransaction->amount=$MemberIncomeHolding->withhold_amount;
-            $WalletTransaction->balance=$MemberIncomeHolding->withhold_amount+$user->member->wallet_balance;
-            $WalletTransaction->transaction_type_id=$TransactionType->id;
-            $WalletTransaction->transfered_to=$user->id;
-            $WalletTransaction->note='Withhold Payout';
-            $WalletTransaction->save(); 
+            $IncomeWalletTransactions=new IncomeWalletTransactions;
+            $IncomeWalletTransactions->member_id=$user->member->id;
+            $IncomeWalletTransactions->amount=$MemberIncomeHolding->withhold_amount;
+            $IncomeWalletTransactions->balance=$MemberIncomeHolding->withhold_amount+$user->member->wallet_balance;
+            $IncomeWalletTransactions->transaction_type_id=$TransactionType->id;
+            $IncomeWalletTransactions->transfered_to=$user->id;
+            $IncomeWalletTransactions->note='Withhold Payout';
+            $IncomeWalletTransactions->save(); 
 
-            $user->member->wallet_balance+=$MemberIncomeHolding->withhold_amount;
+            $user->member->income_wallet_balance+=$MemberIncomeHolding->withhold_amount;
             $user->member->save();
 
             MemberIncomeHolding::where('member_id',$user->member->id)->where('payout_id',$payout_id)->where('is_paid',0)->update(['is_paid'=>1,'paid_at'=>Carbon::now()]);

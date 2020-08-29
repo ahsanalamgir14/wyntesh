@@ -48,16 +48,16 @@
           <span >{{ row.withhold_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Remaining Days" width="130px" align="right">
+      <!-- <el-table-column label="Remaining Days" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ getRemainingDays(row.created_at) }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="Payout Generation Date" min-width="180px" align="center">
+      </el-table-column> -->
+      <!-- <el-table-column label="Payout Generation Date" min-width="180px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
 
     <pagination

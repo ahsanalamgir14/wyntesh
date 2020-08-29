@@ -64,11 +64,11 @@
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="BV to release" min-width="150px" align="right">
+     <!--  <el-table-column label="BV to release" min-width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.required_bv }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="Amount" min-width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.withhold_amount }}</span>

@@ -52,6 +52,10 @@ class CronsController extends Controller
             $bday = new \DateTime($data->dob);
             $today = new \Datetime(date('y-m-d'));
             $diff = $today->diff($bday);
+            
+            if($data->username == '142040'){
+                continue;
+            }
 
             $WallOfWyntash = new WallOfWyntash();
             $WallOfWyntash->name = $data->name;

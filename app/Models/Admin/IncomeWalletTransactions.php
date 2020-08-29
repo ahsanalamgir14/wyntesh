@@ -15,7 +15,7 @@ class IncomeWalletTransactions extends Model
     use SoftDeletes;
 
 
-   public function member()
+    public function member()
     {
         return $this->belongsTo('App\Models\Admin\Member')->with('user');
     }
