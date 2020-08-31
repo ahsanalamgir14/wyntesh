@@ -19,6 +19,7 @@ class CreateWallOfWyntashTable extends Migration
             $table->string('username', 256)->nullable();
             $table->string('age', 2048)->nullable();
             $table->string('city', 2048)->nullable();
+            $table->string('profile_picture', 2048)->nullable();
             $table->string('total_amount', 2048)->nullable();
             $table->timestamps();
         });

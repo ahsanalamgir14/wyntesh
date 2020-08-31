@@ -55,22 +55,25 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="Income" min-width="150px">
+       <el-table-column label="Date" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+
+
+      <el-table-column label="Income type" min-width="150px">
         <template slot-scope="{row}">
           <span >{{ row.income?row.income.name:'' }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Sales Start Date" width="150px" align="center">
+     <!--  <el-table-column label="Sales Start Date" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="Sales End Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+      </el-table-column> -->
+
       <el-table-column label="Amount" width="120px" align="right">
         <template slot-scope="{row}">
           <span >{{ Math.round(parseFloat(row.payout_amount)+parseFloat(row.tds)+parseFloat(row.admin_fee)) }}</span>
@@ -84,7 +87,7 @@
 
       <el-table-column label="Payble Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(row.payout_amount) }}</span>
+          <span >{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ Math.round(row.payout_amount) }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="Admin Fee" width="130px" align="right">
@@ -103,7 +106,7 @@
         </template>
       </el-table-column> -->
 
-       <el-table-column label="Generated at" width="150px" align="center">
+       <el-table-column label="Period date" width="150px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>

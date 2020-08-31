@@ -39,6 +39,13 @@ export function generateManualPayout(data) {
     data
   })
 }
+export function createHoldingRequest(data) {
+  return request({
+    url: '/admin/payout/holding',
+    method: 'post',
+    data
+  })
+}
 
 export function getPayoutIncomes(query) {
   return request({

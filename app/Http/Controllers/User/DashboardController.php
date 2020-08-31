@@ -8,8 +8,10 @@ use App\Models\User\User;
 use App\Models\Admin\Member;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MembersLegPv;
+use App\Models\Admin\MemberPayoutIncome;
 use App\Models\User\Order;
 use App\Models\Admin\Sale;
+use App\Models\Admin\Income;
 use App\Models\Admin\Pin;
 use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WalletTransaction;
@@ -27,6 +29,8 @@ class DashboardController extends Controller
     
     public function stats(){
     	$User=JWTAuth::user();
+
+      
         $Member=User::with('kyc')
                 ->with('member:id,user_id,wallet_balance')
                 ->with('member.rank')
@@ -50,14 +54,37 @@ class DashboardController extends Controller
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
         $tds=MemberPayout::where('member_id',$User->member->id)->sum('tds');
         $reward=Reward::where('member_id',$User->member->id)->sum('amount');
-        // dd($reward);
+        $total_income=Member::where('id',$User->member->id)->sum('income_wallet_balance');
         $total_payout = $total_payout+$tds+$reward;
         $total_payout+=$affiliateIncomeWithTDS;
         
+        $squad_bonus_income=Income::where('code','SQUAD')->first();
+        $squad_bonus = MemberPayoutIncome::where('income_id',$squad_bonus_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+
+        $elevation_income=Income::where('code','ELEVATION')->first();
+        $elevation = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+
+        $luxury_income=Income::where('code','LUXURY')->first();
+        $luxury = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+
+        $premium_income=Income::where('code','PREMIUM')->first();
+        $premium = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+
+
+        $self_pv=Member::where('id',$User->member->id)->sum('total_personal_pv');
+        $current_personal_pv=Member::where('id',$User->member->id)->sum('current_personal_pv');
+
+
         $response = array(
             'status' => true,
             'message'=>'Stats recieved',
             'stats'=>array(
+                'current_personal_pv'=>$current_personal_pv,
+                'self_pv'=>$self_pv,
+                'premium'=>$premium,
+                'luxury'=>$luxury,
+                'elevation'=>$elevation,
+                'squad_bonus'=>$squad_bonus,
                 'downlines'=>$downlines,
                 'referrals'=>$referrals,
                 'total_purchase'=>$total_purchase,
@@ -65,6 +92,7 @@ class DashboardController extends Controller
                 'pins_available'=>$pins_available,
                 'balance'=>$balance,
                 'total_payout'=>$total_payout,
+                'total_income'=>$total_income,
                 'total_reward'=>$reward,
                 'current_personal_pv'=>$current_personal_pv,
                 'total_personal_pv'=>$total_personal_pv,

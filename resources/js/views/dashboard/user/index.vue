@@ -125,6 +125,23 @@
             </el-col>
 
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/wallet/income-wallet">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-message">
+                  <i class="fas fa-wallet card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="dashboardStats.total_income" :duration="3000" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Income wallet
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/wallet">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-message">
@@ -157,7 +174,38 @@
               </div>
             </router-link>
           </el-col>
-       
+         <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/member/payouts/incomes">
+                <div class="card-panel gr2" >
+                    <div class="card-panel-icon-wrapper icon-shopping">
+                      <i class="fas fa-coins card-panel-icon"  ></i>
+                    </div>
+                    <div class="card-panel-description">
+                        <count-to :start-val="0" :end-val="parseInt(dashboardStats.affiliateIncome)" :duration="3600" class="card-panel-num" />
+                        <div class="card-panel-text">
+                            Affiliate income
+                        </div>
+                    </div>
+                </div>
+            </router-link>
+        </el-col>
+
+         <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/member/payouts/incomes">
+                <div class="card-panel gr2" >
+                    <div class="card-panel-icon-wrapper icon-shopping">
+                      <i class="fas fa-coins card-panel-icon"  ></i>
+                    </div>
+                    <div class="card-panel-description">
+                        <count-to :start-val="0" :end-val="parseInt(dashboardStats.squad_bonus)" :duration="3600" class="card-panel-num" />
+                        <div class="card-panel-text">
+                            Squad income
+                        </div>
+                    </div>
+                </div>
+            </router-link>
+        </el-col>
+
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/personal-pv">
               <div class="card-panel gr2" >
@@ -166,14 +214,68 @@
                 </div>
                 <div class="card-panel-description">
                   
-                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.total_personal_pv)" :duration="3600" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.current_personal_pv)" :duration="3600" class="card-panel-num" />
                   <div class="card-panel-text">
-                    Personal PV
+                    Current PV
+                    </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/member/payouts/incomes">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-coins card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.elevation)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Elevation income
                   </div>
                 </div>
               </div>
             </router-link>
           </el-col>
+
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/member/payouts/incomes">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-coins card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.luxury)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                   Luxury income
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+         
+          
+    <!--       <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/reports/group-and-matching">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-coins card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.elevation)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Pro Bonus
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col> -->
+          
+
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/group-and-matching">
               <div class="card-panel gr2" >
@@ -190,6 +292,42 @@
               </div>
             </router-link>
           </el-col>
+
+           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/member/payouts/incomes">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-coins card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.premium)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                   Pro Bonus
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+
+
+          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/reports/group-and-matching">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper icon-shopping">
+                  <i class="fas fa-coins card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                  
+                  <count-to :start-val="0" :end-val="parseInt(dashboardStats.self_pv)" :duration="3600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Self PV
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
+          
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/group-and-matching">
               <div class="card-panel gr2" >
@@ -207,21 +345,7 @@
             </router-link>
           </el-col>
           
-            <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-                <router-link to="/reports/group-and-matching">
-                    <div class="card-panel gr2" >
-                        <div class="card-panel-icon-wrapper icon-shopping">
-                          <i class="fas fa-coins card-panel-icon"  ></i>
-                        </div>
-                        <div class="card-panel-description">
-                            <count-to :start-val="0" :end-val="parseInt(dashboardStats.affiliateIncome)" :duration="3600" class="card-panel-num" />
-                            <div class="card-panel-text">
-                                Total Affiliate Payout
-                            </div>
-                        </div>
-                    </div>
-                </router-link>
-            </el-col>
+           
           
         </el-row>
       </el-col>

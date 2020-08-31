@@ -108,6 +108,21 @@ class PayoutsController extends Controller
         return response()->json($response, 200);
     }
 
+    public function generateHolding(Request $request) {
+        // dd($request->member_id);
+        $memberHolding=MemberIncomeHolding::where('id',$request->id)->first();
+        if($request->debit<=$memberHolding->amount){
+            $memberHolding->amount -= $request->debit;
+            $memberHolding->save();
+
+            $response = array('status' => true,'message'=>'Amount deducted Successfully.','data' => $memberHolding);
+            return response()->json($response, 200);
+
+        }else{
+            $response = array('status' => false,'message'=>'Holding amount is not enough','data' => $memberHolding);
+            return response()->json($response, 404);  
+        }
+    }
     public function memberCheck($code) {
         $User=User::where('username',$code)->with('member')->role('user')->first();
 

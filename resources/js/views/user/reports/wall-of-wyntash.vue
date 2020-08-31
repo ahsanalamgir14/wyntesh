@@ -14,10 +14,26 @@
         type="primary"
         icon="el-icon-search"
         @click="handleFilter"
-      >Search</el-button>
+      >Search</el-button> 
     </div>
 
-    <el-table
+    <div class="row">
+        <ul class="parent">        
+            <li v-for="data in list" class="child">
+                <div class='logo'>{{data.id}}
+                </div>
+                <div class='image'>
+                    <img :src="data.profile_picture?data.profile_picture:avatar" width="50" height="50" class="imagecontent">
+                </div>
+                <div class="name">{{data.name}}<br>{{data.username}}</div>
+                <div class="age">Age:&nbsp;{{data.age}}</div>
+                <div class="city">{{data.city}}</div>
+                <div class="amount">{{data.total_amount}}</div>
+            </li>
+        </ul>
+    </div>
+
+   <!--  <el-table
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
@@ -64,12 +80,12 @@
           <span >{{ row.city }}</span>
         </template>
       </el-table-column>
-     <!--  <el-table-column label="Payable" width="130px" align="right">
+  = <el-table-column label="Payable" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.total_amt }}</span>
         </template>
-      </el-table-column> -->
-    </el-table>
+      </el-table-column> 
+    </el-table> -->
 
       <div :class="{'hidden':hidden}" class="pagination-container">
             <el-pagination
@@ -89,6 +105,7 @@
 
 <script>
 import { fetchAllEliteMember, } from "@/api/user/payouts";
+import avatar from '@/assets/images/avatar.png'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 // import Pagination from "@/components/Pagination"; 
@@ -111,6 +128,7 @@ export default {
   data() {
     return {
       tableKey: 0,
+      avatar: avatar,
       hidden: false,
       pageSize: 10,
       layout: 'total, sizes, prev,next, jumper',
@@ -173,7 +191,7 @@ export default {
     getList() {
       this.listLoading = true;
       fetchAllEliteMember(this.listQuery).then(response => {
-        console.log(response);
+        console.log(response.data.data);
         this.list = response.data.data;
         this.total_data = response.data.total;
         setTimeout(() => {
@@ -231,5 +249,187 @@ export default {
   background: #fff;
   padding: 15px 16px;
 }
+
+
+.parent .child{
+    display: flex;
+    border: solid 2px #5a4b9c;
+    border-radius: 28px;
+    padding: 1px;
+    width: 48%;
+    margin-bottom: 7px;
+}
+.parent .child .image{
+    margin: 5px 21px;
+    border-radius: 11px;
+}
+.parent .child .imagecontent{
+    border-radius: 16px;
+        margin-top: 15px;
+
+}
+.parent .child .logo{
+   margin-top: 19px !important;
+    margin-left: 7px;
+    border: solid 2px #fbc0c0;
+    background-color: #d45252;
+    width: 10%;
+    text-align: center;
+    font-weight: 600;
+    height: 0px;
+    border-radius: 29px;
+    padding: 14px 9px 32px;
+    text-align: center;
+    color: white;
+    font-size: 21px;
+
+
+}
+.parent .child .logocontent{
+    border-radius: 16px;
+    margin-top: 38px;
+}
+.parent .child .name{
+      text-align: left;
+    font-weight: 600;
+    padding: 5px;
+    font-family: sans-serif;
+    width: 40%;
+    min-width: 23%;
+    color: #615050;
+    margin: 8px 9px;
+    font-size: 21px;
+}
+.parent .child .index{
+  
+
+}
+.parent .child .amount{
+    margin: 24px 28px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #615050;
+    margin-top: 34px;
+}
+
+.parent .child .city{
+    margin: 12px;
+    border-radius: 13px;
+    padding: 11px;
+    font-weight: 600;    
+    max-width: 50%;
+    width: 27%;
+    color: #615050;
+    font-size: 20px;
+    margin-top: 24px;
+}
+
+.parent .child .age{
+    margin: 15px 7px;
+/*    background-color: #a4acb3;
+    border-radius: 13px;*/
+    padding: 12px;
+    font-weight: 600;
+    color: #0c0a0a;
+    /*border: solid 2px #111111;*/
+    width: 20%;
+
+}
+@media (min-width:450px) {
+    .parent .child .logo{
+        margin-top: -13px;
+    }
+}
+
+@media (max-width:450px) {
+   
+    .parent .child{
+         display: flex;
+        border: solid 2px #5a4b9c;
+        border-radius: 28px;
+        padding: 1px;
+        width: 118%;
+        margin-bottom: 7px;
+        margin: 10px -51px;
+        height: 68px;
+    }
+    .parent .child .image{
+        position: relative;
+        margin: 4px 4px;
+        height: 2px;
+
+    }
+    .parent .child .imagecontent{
+        border-radius: 16px;
+        width: 29px;
+        height: 31px;
+        margin-top: 7px;
+    }
+    .parent .child .logo{
+        margin: 5px 4px;
+        margin-top: 4px !important;
+        text-align: center;
+        font-size: 15px;
+        font-size: 14px;
+        right: left;
+    
+    }
+    .parent .child .logocontent{
+        border-radius: 16px;
+        margin-top: 18px;
+    }
+    .parent .child .name{
+        text-align: left;
+        font-weight: 600;
+        padding: 5px;
+        font-family: sans-serif;
+        width: 40%;
+        max-width: 100%;
+        color: #615050;
+        margin: 8px 5px;
+        font-size: 12px;
+    }
+    .parent .child .index{
+        position: absolute;
+        left: 19px;
+        top: 30px;
+        font-weight: bold;
+        font-size: 10px;
+        color: #333333;
+
+
+    }
+    .parent .child .amount{
+        margin: 23px 28px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #615050;
+    }
+    .parent .child .age{
+        margin: 0px 20px;
+        padding: 12px;
+        font-weight: 600;
+        color: #040303;
+        background-color: transparent;
+        border: none;
+        width: 20%;
+        font-size: 14px;
+        min-width: 32px;
+
+    }
+    .parent .child .city{
+        margin: 0px;
+        border-radius: 13px;
+        padding: 11px;
+        font-weight: 600;
+        min-width: 14%;
+        width: 27%;
+        color: #615050;
+        font-size: 10px;
+        margin-top: 9px;
+        margin-left: -10px;
+    }
+}
+
 
 </style>

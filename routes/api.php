@@ -354,6 +354,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('marketing/email/mass', 'MarketingController@sendMassEmail');
     Route::post('marketing/sms/mass', 'MarketingController@sendMassSMS');
 
+    Route::post('payout/holding', 'PayoutsController@generateHolding');
     Route::post('payout/generate', 'PayoutsController@generateManualPayout');
     Route::get('rewards', 'PayoutsController@rewards');
     Route::get('check-member/{code}', 'PayoutsController@memberCheck');

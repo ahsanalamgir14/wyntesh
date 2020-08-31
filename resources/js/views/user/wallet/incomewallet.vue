@@ -44,7 +44,7 @@
         type="success"
         icon="el-icon-upload"
         @click="openDialog"
-      >{{ kyc_status?'Transfer to E-wallet':'Verify your KYC First to Withdraw'}}</el-button>
+      >{{ kyc_status?'Transfer to E-wallet':'Verify your KYC First Transfer to E-wallet'}}</el-button>
         <!-- dialogWithdrawVisible=true -->
     </div>
 

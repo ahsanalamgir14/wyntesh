@@ -263,66 +263,6 @@ class PayoutsController extends Controller
         return response()->json($response, 200);
     }
 
-    /*public function getGroupAndMatchingPvs(Request $request)
-    {   
-        // matching pv;
-
-        $page=$request->page;
-        $limit=$request->limit;
-        $sort=$request->sort;
-        $search=$request->search;
-
-        if(!$page){
-            $page=1;
-        }
-
-        if(!$limit){
-            $limit=1;
-        }
-
-        if ($sort=='+id'){
-            $sort = 'asc';
-        }else{
-            $sort = 'desc';
-        }
-
-        $user=JWTAuth::user();
-        $lastPayout =Payout::orderBy('id','desc')->first();
-
-        $allPayouts =Payout::whereYear('sales_start_date', '=', date("Y"))
-                    ->whereMonth('sales_start_date', '=', date("m"))
-                    // ->orderBy('id','desc')
-                    ->get()->pluck('id');
-        dd($allPayouts);
-
-        $carryForwordPv = MemberCarryForwardPv::where('member_id',$user->member->id)->where('payout_id',$lastPayout->id)->orderBy('created_at','desc')->first();
-
-        $distinct_months =MembersLegPv::selectRaw('distinct(DATE_FORMAT(created_at,"%Y-%m")) as month')->orderBy('created_at','desc')->get();
-        // dd($distinct_months);
-        $monthly_pvs=array();
-        $monthly_pvs['dates']   = $lastPayout->sales_start_date.'-'.$lastPayout->sales_end_date;
-        $monthly_pvs['position'] = $carryForwordPv->position;
-        $monthly_pvs['pv']      = $carryForwordPv->pv;
-        $monthly_pvs['data']    = $carryForwordPv;
-
-        // foreach ($distinct_months as $val) {
-        //     $date=date_create($val->month);
-        //     $month= date_format($date,"m");
-        //     $year= date_format($date,"Y");
-        //     $MembersLegPv=MembersLegPv::selectRaw('*')
-        //     ->whereYear('created_at', '=', $year)
-        //     ->whereMonth('created_at', '=', $month)
-        //     ->where('member_id',$user->member->id)->orderBy('position','asc')->get();  
-        //     $monthly_pvs[]=array('month'=>$val->month,'legs'=>$MembersLegPv);
-        // }
-
-// dd($monthly_pvs);
-
-        // dd($distinct_months);
-        $response = array('status' => true,'message'=>"Member Leg Pvs retrieved.",'data'=>$monthly_pvs,'total'=>count($distinct_months));
-        return response()->json($response, 200);
-    }
-*/
     public function getGroupAndMatchingPvs(Request $request)
     {   
         // matching pv;
@@ -368,8 +308,8 @@ class PayoutsController extends Controller
                         ->get();
             $legsArray[]=$legs;
             $monthly_pvs['dates']       = date('Y-m-d',strtotime($lastPayout->sales_start_date)).'  |  '.date('Y-m-d',strtotime($lastPayout->sales_end_date));
-            $monthly_pvs['position']    = $carryForwordPv->position?$carryForwordPv->position:"";
-            $monthly_pvs['pv']          = $carryForwordPv->pv;
+            $monthly_pvs['position']    = $carryForwordPv?$carryForwordPv->position:"";
+            $monthly_pvs['pv']          = $carryForwordPv?$carryForwordPv->pv:"";
             $monthly_pvs['legs']        = $legsArray;
         }
 

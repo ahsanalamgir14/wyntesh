@@ -46,6 +46,27 @@
               @click="handleReleasePayout(row)"
               ></el-button>
           </el-tooltip>
+
+          <el-tooltip content="Deduction" placement="right" effect="dark" >
+            <el-button
+              circle
+              type="warning"
+              icon="el-icon-minus"
+              :loading="buttonLoading"
+              @click="handleDeduction(row)"
+              ></el-button>
+          </el-tooltip>
+
+      <!--   <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="warning"
+        icon="el-icon-minus"
+        @click="handleDeduction(row)"
+      >Deduct</el-button> -->
+
+
         </template>
       </el-table-column>
       <el-table-column label="Member" width="130px" align="right">
@@ -85,11 +106,26 @@
       @pagination="getList"
     />
 
+
+     <el-dialog title="Deduction" width="40%"  :visible.sync="dialogtransferVisible">
+      <el-form ref="formReqraw" :rules="rules" :model="holding">
+        <el-form-item label="Amount to Deduct" prop="debit" label-width="120">
+          <el-input  type="number" min=1 v-model="holding.debit" ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogtransferVisible = false">Cancel</el-button>
+        <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading" @click="handleRquest()">Deduct</el-button>
+      </span>
+    </el-dialog>
+
+
+
   </div>
 </template>
 
 <script>
-import { getMemberIncomeHoldings, releaseMemberHoldPayout} from "@/api/admin/payouts";
+import { getMemberIncomeHoldings, releaseMemberHoldPayout,createHoldingRequest} from "@/api/admin/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
@@ -112,6 +148,7 @@ export default {
   data() {
     return {
       tableKey: 0,
+      dialogtransferVisible:false,    
       list: null,
       total: 0,
       listLoading: true,
@@ -121,10 +158,19 @@ export default {
         search: undefined,
         sort: "-id"
       },
+      holding: {
+        debit: undefined,
+        id:undefined
+      },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
+      rules: {
+            debit: [
+              { required: true, message: "Enter amount", trigger: "blur" }
+            ]
+      },
       pickerOptions: {
         shortcuts: [{
           text: 'Last week',
@@ -167,6 +213,43 @@ export default {
     this.getList();
   },
   methods: {
+
+    handleRquest(){
+      this.$refs["formReqraw"].validate(valid => {
+        if(valid) {
+           this.buttonLoading=true;
+          createHoldingRequest(this.holding).then((response) => {
+            this.getList();
+            // this.getTransferList();
+            
+            this.resetETemp();
+            this.dialogtransferVisible = false;
+             this.buttonLoading=false;
+            this.$notify({
+              title: "Success",
+              message: response.message,
+              type: "success",
+              duration: 2000
+            })
+
+          }).catch((err)=>{
+            this.buttonLoading=false;
+          });
+        }
+      });
+    },
+    resetETemp() {
+      this.holding = {
+            debit: undefined,
+            id:undefined
+      };
+    },
+    handleDeduction(row){
+      let row_data = Object.assign({}, row);
+      console.log(row_data);
+      this.holding.id=row_data.id;
+      this.dialogtransferVisible=true;
+    },
     getList() {
       this.listLoading = true;
       getMemberIncomeHoldings(this.listQuery).then(response => {
