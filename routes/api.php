@@ -24,6 +24,7 @@ Route::get('mail', 'Auth\AuthController@mailCheck');
 Route::get('import', '\App\Http\Controllers\Admin\CronsController@PVImport');
 Route::get('wall', '\App\Http\Controllers\Admin\CronsController@WallOfWyntashReport');
 
+Route::get('rank', '\App\Http\Controllers\User\MembersController@updateRank');
 
 
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');

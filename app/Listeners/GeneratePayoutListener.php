@@ -698,7 +698,7 @@ class GeneratePayoutListener
          $results = DB::select(DB::raw("SELECT sum(amt) total_amt from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 group by member_id) tmp where tmp.member_id=".$Member->id." group by tmp.member_id ") );
 
         if($results){
-            floatval($results[0]->total_amt);
+            return floatval($results[0]->total_amt);
         }else{
             return 0;
         }
@@ -709,7 +709,7 @@ class GeneratePayoutListener
          $results = DB::select(DB::raw("SELECT sum(amt) total_amt from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id  group by member_id) tmp where tmp.member_id=".$Member->id." group by tmp.member_id ") );
 
         if($results){
-            floatval($results[0]->total_amt);
+            return floatval($results[0]->total_amt);
         }else{
             return 0;
         }
@@ -746,10 +746,11 @@ class GeneratePayoutListener
                 }                           
             }
             $counts=array_count_values($counts);
-            
+
             foreach ($Ranks as $Rank) {
                 if($Rank->leg_rank){
-                                     
+                
+                          
                     foreach ($counts as $key => $value) {   
                         if($Rank->name =='5% Club'){
                             if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
@@ -759,8 +760,9 @@ class GeneratePayoutListener
                                 }                           
                                   
                             }
-                        }else{                            
-                            if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
+                        }else{      
+                            if($Rank->leg_rank===$value && $Rank->leg_rank_count == $key){
+
                                 if($personal_pv >= $Rank->personal_bv_condition && $group_pv >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
                                     $Member->rank_id=$Rank->id;
                                     $Member->save(); 
