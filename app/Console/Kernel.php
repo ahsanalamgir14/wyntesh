@@ -49,7 +49,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $CronsController=new MembersController;
             $CronsController->updateRank();
-        })->monthlyOn(1, '02:25');
+        })->monthlyOn(1, '02:40');
 
         // $schedule->call(function () {
         //     $CronsController=new CronsController;
