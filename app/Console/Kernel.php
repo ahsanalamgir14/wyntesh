@@ -43,7 +43,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->WallOfWyntashReport();
-        })->monthlyOn(31, '23:00');
+        })->monthlyOn(31, '23:10');
 
         // $schedule->call(function () {
         //     $CronsController=new CronsController;
