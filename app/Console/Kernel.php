@@ -33,7 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->backupDatabase();
-        })->dailyAt('22:55');
+        })->dailyAt('23:09');
 
         $schedule->call(function () {
             $CronsController=new CronsController;
