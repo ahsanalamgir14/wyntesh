@@ -42,7 +42,7 @@ class MembersController extends Controller
         }
     }
     public function updateRank(){
-        $Members=Member::orderBy('level','desc')->where('id',11)->get();
+        $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
         $MembersController=new MembersController;
         foreach ($Members as $Member) {
@@ -97,7 +97,7 @@ class MembersController extends Controller
                     }   
                 }
             }
-
+          
             $RankLog=new RankLog;
             $RankLog->payout_id=6;
             $RankLog->member_id=$Member->id;
