@@ -17,75 +17,41 @@
       >Search</el-button> 
     </div>
 
+   
     <div class="row">
         <ul class="parent">        
-            <li v-for="data in list" class="child">
-                <div class='logo'>{{data.id}}
+              <div class="card-wrapper" v-for="data in list">
+                <div class="card-container">
+                  <div class="img-container">
+                    <img :src="data.profile_picture?data.profile_picture:avatar"  alt="">
+                  </div>
+                  
+                  <div class="content">
+                    <div class="head">
+                        <p>{{data.name}}</p>
+                        <div class="age">
+                          <span>Age :</span> <span>{{data.age}}</span>
+                        </div>
+                        <div class="city">
+                          <span>City :</span> <span>{{data.city}}</span>
+                        </div>
+                    </div>
+                    <div class="data-1">
+                        <p> <span>&#8377;</span> {{data.total_amount}}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="floating-icon">
+                    <span>{{data.id}}</span>
+                  </div>
                 </div>
-                <div class='image'>
-                    <img :src="data.profile_picture?data.profile_picture:avatar" width="50" height="50" class="imagecontent">
-                </div>
-                <div class="name">{{data.name}}<br>{{data.username}}</div>
-                <div class="age">Age:&nbsp;{{data.age}}</div>
-                <div class="city">{{data.city}}</div>
-                <div class="amount">{{data.total_amount}}</div>
-            </li>
+              </div>
+
+
+
         </ul>
     </div>
 
-   <!--  <el-table
-      :key="tableKey"
-      v-loading="listLoading"
-      :data="list"
-      border
-      fit
-      highlight-current-row
-      style="width: 100%;"
-      @sort-change="sortChange"
-    >
-     
-
-      <el-table-column label="Rank" min-width="60px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Name" width="140px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.name }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="ID" width="140px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.username }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Income" width="100px" align="center">
-        <template slot-scope="{row}">
-          <span >{{ row.total_amount }}</span>
-        </template>
-      </el-table-column>
-     
-      <el-table-column label="Age" width="50px" align="center">
-        <template slot-scope="{row}">
-          <span >{{ row.age }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="City" min-width="130px" align="center">
-        <template slot-scope="{row}">
-          <span >{{ row.city }}</span>
-        </template>
-      </el-table-column>
-  = <el-table-column label="Payable" width="130px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.total_amt }}</span>
-        </template>
-      </el-table-column> 
-    </el-table> -->
 
       <div :class="{'hidden':hidden}" class="pagination-container">
             <el-pagination
@@ -239,6 +205,10 @@ export default {
 </script>
 
 <style scoped>
+.parent{
+    padding: 0;
+}
+
 .el-drawer__body {
   padding: 20px;
 }
@@ -250,186 +220,165 @@ export default {
   padding: 15px 16px;
 }
 
+body{
+  background: #dedfe1;
+  font-family: 'Open Sans', sans-serif;
+}
+.card-wrapper{
+  position: relative;
+  padding: 20px;
+}
 
-.parent .child{
-    display: flex;
-    border: solid 2px #5a4b9c;
-    border-radius: 28px;
-    padding: 1px;
-    width: 48%;
-    margin-bottom: 7px;
+.card-container{
+  position: relative;
+  width: 580px;
+  height: 200px;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
-.parent .child .image{
-    margin: 5px 21px;
-    border-radius: 11px;
-}
-.parent .child .imagecontent{
-    border-radius: 16px;
-        margin-top: 15px;
 
+.img-container{
+  width: 36%;
+  height: 100%;
+  float: left;
+  position: relative;
 }
-.parent .child .logo{
-   margin-top: 19px !important;
-    margin-left: 7px;
-    border: solid 2px #fbc0c0;
-    background-color: #d45252;
-    width: 10%;
+
+.img-container img{
+  width: 100%;
+  height: 100%;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.content{
+  width: 60%;
+  height: 100%;
+  float: left;
+  padding: 30px 40px;
+  box-sizing: border-box;
+}
+
+.head{
+  padding-bottom: 30px;
+}
+
+.head p{
+  font-size: 28px;
+  color: #444444;
+  font-weight: 600;
+  margin: 0;
+}
+
+.head span{
+  color: #aaabaf;
+  font-size: 14px;
+}
+
+.data{
+  width: 90%; 
+  overflow: hidden;
+}
+
+.inner-data{
+  width: 50%;
+  float: left;
+  text-align: left;
+  color: #aaabaf;
+}
+
+.inner-data p{
+  font-size: 14px;
+  padding-bottom: 5px;
+}
+
+.inner-data span{
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.floating-icon{
+  position: absolute;
+    width: 70px;
+    height: 70px;
+    top: 38%;
+    right: -7%;
+    background: #1DA1F2;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.floating-icon span{
+  padding-top: 25px;
     text-align: center;
+    /* margin-left: auto; */
+    display: block;
     font-weight: 600;
-    height: 0px;
-    border-radius: 29px;
-    padding: 14px 9px 32px;
-    text-align: center;
-    color: white;
-    font-size: 21px;
-
-
+    color: #fff;
 }
-.parent .child .logocontent{
-    border-radius: 16px;
-    margin-top: 38px;
+
+.btn{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  text-transform: uppercase;
+  font-size: 12px;
+  background: #1DA1F2;
+  padding: 6px 15px;
+  border-radius: 50px;
+  color: #fff;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 1s ease;
+  cursor: pointer;
 }
-.parent .child .name{
-      text-align: left;
+
+.age span,
+.city span{
+  font-weight: 600;
+}
+
+.data-1 p{
+    font-size: 28px;
+    color: #444444;
     font-weight: 600;
-    padding: 5px;
-    font-family: sans-serif;
-    width: 40%;
-    min-width: 23%;
-    color: #615050;
-    margin: 8px 9px;
-    font-size: 21px;
-}
-.parent .child .index{
-  
-
-}
-.parent .child .amount{
-    margin: 24px 28px;
-    font-size: 22px;
-    font-weight: 600;
-    color: #615050;
-    margin-top: 34px;
+    color: #1DA1F2;
+    margin: 0;
 }
 
-.parent .child .city{
-    margin: 12px;
-    border-radius: 13px;
-    padding: 11px;
-    font-weight: 600;    
-    max-width: 50%;
-    width: 27%;
-    color: #615050;
-    font-size: 20px;
-    margin-top: 24px;
-}
-
-.parent .child .age{
-    margin: 15px 7px;
-/*    background-color: #a4acb3;
-    border-radius: 13px;*/
-    padding: 12px;
-    font-weight: 600;
-    color: #0c0a0a;
-    /*border: solid 2px #111111;*/
-    width: 20%;
-
-}
-@media (min-width:450px) {
-    .parent .child .logo{
-        margin-top: -13px;
-    }
+.btn.active{
+  opacity: 1;
 }
 
 @media (max-width:450px) {
-   
-    .parent .child{
-         display: flex;
-        border: solid 2px #5a4b9c;
-        border-radius: 28px;
-        padding: 1px;
-        width: 118%;
-        margin-bottom: 7px;
-        margin: 10px -51px;
-        height: 68px;
+    .card-wrapper{
+        width: 100%;
     }
-    .parent .child .image{
-        position: relative;
-        margin: 4px 4px;
-        height: 2px;
 
+    .card-container[data-v-33d760b4]{
+        width: 100%;
+        height: 500px;
     }
-    .parent .child .imagecontent{
-        border-radius: 16px;
-        width: 29px;
-        height: 31px;
-        margin-top: 7px;
+    .img-container[data-v-33d760b4]{
+        width: 100%;
+        height: auto;
     }
-    .parent .child .logo{
-        margin: 5px 4px;
-        margin-top: 4px !important;
-        text-align: center;
-        font-size: 15px;
-        font-size: 14px;
-        right: left;
-    
+    .img-container[data-v-33d760b4] img{
+        width: calc(100% - 60px);
+        margin-left: auto;
+        height: auto;
+        max-height: 270px;
+        display: block;
+        margin-right: auto;
     }
-    .parent .child .logocontent{
-        border-radius: 16px;
-        margin-top: 18px;
-    }
-    .parent .child .name{
-        text-align: left;
-        font-weight: 600;
-        padding: 5px;
-        font-family: sans-serif;
-        width: 40%;
-        max-width: 100%;
-        color: #615050;
-        margin: 8px 5px;
-        font-size: 12px;
-    }
-    .parent .child .index{
-        position: absolute;
-        left: 19px;
-        top: 30px;
-        font-weight: bold;
-        font-size: 10px;
-        color: #333333;
-
-
-    }
-    .parent .child .amount{
-        margin: 23px 28px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #615050;
-    }
-    .parent .child .age{
-        margin: 0px 20px;
-        padding: 12px;
-        font-weight: 600;
-        color: #040303;
-        background-color: transparent;
-        border: none;
-        width: 20%;
-        font-size: 14px;
-        min-width: 32px;
-
-    }
-    .parent .child .city{
-        margin: 0px;
-        border-radius: 13px;
-        padding: 11px;
-        font-weight: 600;
-        min-width: 14%;
-        width: 27%;
-        color: #615050;
-        font-size: 10px;
-        margin-top: 9px;
-        margin-left: -10px;
-    }
+    .content[data-v-33d760b4] {
+    width: 100%;
+    height: calc(100% - 275px - 60px);
+    /*float: left;*/
+    padding: 30px 40px;
+    box-sizing: border-box;
 }
-
+}
 
 </style>

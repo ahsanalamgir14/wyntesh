@@ -15,15 +15,7 @@
                     
                     <div class="company-info">
                       <div>Wyntash</div>
-                      Gain Financial Freedom
-                      <br/>
-                      <br/>
-                      
-                      <span>609, Emporio</span>
-                      <span></span>
-
-                      <br />
-                      
+                  
                       <span>9724332304</span>
                       <span>contact@wyntash.in</span>
                     </div>
@@ -46,18 +38,12 @@
                       <span class="bold">{{temp.id}}</span>
                     </div>
                     
-                    <div>
-                      <span class="bold">{{temp.contact_no}}</span>
-                    </div>
-                    
-                    <div>
-                      <span class="bold">{{temp.email}}</span>
-                    </div>
+                 
                     <div>
                       <span >{{temp.address}}</span>
                     </div>
-                    
-                    <div >
+                    <br><br>
+                    <div class="rankparent">
                       <span id="rank">{{rank}} </span>
                     </div>
                     
@@ -111,12 +97,12 @@
                   
                   <section id="sums">
                     <table cellpadding="0" cellspacing="0">
-                        <tr>
+                        <tr class="add">
                             <td>TOTAL INCOME :</td>
                             <td>{{temp.totalIncome}}</td>
                         </tr>
                           
-                        <tr>
+                        <tr >
                             <td>TOTAL DEDUCTIONS :</td>
                             <td>{{temp.totalDeductions}}</td>
                         </tr>
@@ -394,10 +380,10 @@ b, strong, .bold {
   text-align: right;
 }
 #memo .company-info > div:first-child {
-  line-height: 1em;
-  font-weight: bold;
-  font-size: 22px;
-  color: #B32C39;
+line-height: 3em;
+    font-weight: bold;
+    font-size: 33px;
+    color: #B32C39;
 }
 #memo .company-info span {
   font-size: 11px;
@@ -451,7 +437,6 @@ b, strong, .bold {
   min-width: 20px;
 }
 #client-info span {
-  display: block;
   min-width: 20px;
 }
 #client-info > span {
@@ -471,7 +456,7 @@ table th, table td {
 }
 
 #template_pos{
-    margin-left: 566px;box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 20px, rgba(0, 0, 0, 0.22) 0px 0px 8px;
+    margin-left: 480px;box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 20px, rgba(0, 0, 0, 0.22) 0px 0px 8px;
     width: 568px;
 }
 #items {
@@ -542,6 +527,12 @@ tr td{
   width: 0 !important;
   padding: 0 !important;
   border: none !important;
+}
+
+.add {
+    background: url("/images/total-stripe-firebrick.png") right bottom no-repeat !important;
+    border: none !important;
+    color: white;
 }
 #sums table tr.amount-total th {
   text-transform: uppercase;
@@ -615,6 +606,11 @@ tr td{
   margin-left: 26px !important;
 }
 
+#rankparent{
+        margin-bottom: 23px;
+    min-width: 20px;
+    margin-left: 0px;
+}
 #rank{
     border: solid 1px #cc9b9b;
     background-color: #458a45;
