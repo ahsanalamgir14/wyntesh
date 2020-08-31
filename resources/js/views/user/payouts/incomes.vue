@@ -87,7 +87,7 @@
 
       <el-table-column label="Payble Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ Math.round(row.payout_amount) }}</span>
+          <span >{{ Math.round(row.payout_amount) }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="Admin Fee" width="130px" align="right">
@@ -108,7 +108,7 @@
 
        <el-table-column label="Period date" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
     </el-table>

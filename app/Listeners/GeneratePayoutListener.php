@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Admin\Income;
 use App\Models\Admin\IncomeParameter;
 use App\Models\Admin\Sale;
+use App\Models\User\Order;
 use App\Models\Admin\Member;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\Rank;
@@ -53,7 +54,7 @@ class GeneratePayoutListener
     public function handle(GeneratePayoutEvent $event)
     {
         $payout=$event->payout;
-        
+
         //Get Incomes of Payout
         $income_ids=PayoutIncome::where('payout_id',$payout->id)->get()->pluck('income_id');
 
@@ -697,7 +698,7 @@ class GeneratePayoutListener
         
          $results = DB::select(DB::raw("SELECT sum(amt) total_amt from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 group by member_id) tmp where tmp.member_id=".$Member->id." group by tmp.member_id ") );
 
-        if($results){
+        if($results){            
             return floatval($results[0]->total_amt);
         }else{
             return 0;
@@ -732,25 +733,31 @@ class GeneratePayoutListener
             $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
             $personal_pv=$Member->total_personal_pv;
 
+           
             $squad_plus_affiliate=$this->getSquadPlusAffiliate($Member);
             $squad_plus_affiliate_pinnacle=$this->getSquadPlusAffiliatePinnacle($Member);
-            
+            $all_childs=[];
             $counts=array();
             foreach ($children as $child) {
                 $child_ids=$MembersController->getChildsOfParent($child);
                 $child_ids[]=$child;
+                $all_childs=array_merge($all_childs,$child_ids);
                 $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
                 $check_rank=array_unique($check_rank);
                 foreach ($check_rank as $check) {
                     $counts[]=$check;
                 }                           
             }
+
             $counts=array_count_values($counts);
 
+            $total_inr_turn_over=Order::whereHas('user.member',function($q)use($all_childs){
+                $q->whereIn('id',$all_childs);
+            })->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('final_amount');
+            
             foreach ($Ranks as $Rank) {
                 if($Rank->leg_rank){
-                
-                          
+                                     
                     foreach ($counts as $key => $value) {   
                         if($Rank->name =='5% Club'){
                             if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
@@ -760,10 +767,9 @@ class GeneratePayoutListener
                                 }                           
                                   
                             }
-                        }else{      
-                            if($Rank->leg_rank===$value && $Rank->leg_rank_count == $key){
-
-                                if($personal_pv >= $Rank->personal_bv_condition && $group_pv >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
+                        }else{                            
+                            if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
+                                if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
                                     $Member->rank_id=$Rank->id;
                                     $Member->save(); 
                                 }                           
@@ -774,7 +780,7 @@ class GeneratePayoutListener
 
                 }else{
 
-                    if($personal_pv >= $Rank->personal_bv_condition && $group_pv >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
+                    if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
                         $Member->rank_id=$Rank->id;
                         $Member->save(); 
                     }   
