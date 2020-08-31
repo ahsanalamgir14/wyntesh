@@ -335,6 +335,7 @@ class ShoppingController extends Controller
                 $Sale->amount=$Order->final_amount;
                 $Sale->shipping_fee=$Order->shipping_fee;
                 $Sale->admin_fee=$Order->admin_fee;
+                $Sale->gst=$Order->gst;
                 $Sale->order_id=$Order->id;
                 $Sale->final_amount_company=$final_amount_company;
 

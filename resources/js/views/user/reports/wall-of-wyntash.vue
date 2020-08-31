@@ -361,16 +361,16 @@ export default {
         width: 100%;
     }
 
-    .card-container[data-v-33d760b4]{
+    .card-container{
         width: 100%;
         height: 500px;
         background-color: antiquewhite;
     }
-    .img-container[data-v-33d760b4]{
+    .img-container{
         width: 100%;
         height: auto;
     }
-    .img-container[data-v-33d760b4] img{
+    .img-container img{
         width: calc(100% - 60px);
         margin-left: auto;
         height: auto;
@@ -378,7 +378,7 @@ export default {
         display: block;
         margin-right: auto;
     }
-    .content[data-v-33d760b4] {
+    .content {
     width: 100%;
     height: calc(100% - 275px - 60px);
     /*float: left;*/
