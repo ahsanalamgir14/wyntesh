@@ -38,7 +38,7 @@ class MemberPayout extends Model
    
     public function getRankAttribute()
     {
-        $Rank=RankLog::where('payout_id',$this->payout_id)->where('member_id',$this->member_id)->latest();
+        $Rank=RankLog::where('payout_id',$this->payout_id)->where('member_id',$this->member_id)->first();
         if($Rank){
             return $Rank->rank;    
         }else{
