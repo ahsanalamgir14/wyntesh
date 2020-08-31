@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-input
         v-model="listQuery.search"
-        placeholder="Search Records"
+        placeholder="Member Id"
         style="width: 200px;"
         class="filter-item"
         @keyup.enter.native="handleFilter"
@@ -19,6 +19,7 @@
 
    
     <div class="row">
+        <h1 style="margin: 21px;">Wall of wyntash</h1> 
         <ul class="parent">        
               <div class="card-wrapper" v-for="data in list">
                 <div class="card-container">
@@ -31,6 +32,9 @@
                         <p>{{data.name}}</p>
                         <div class="age">
                           <span>Age :</span> <span>{{data.age}}</span>
+                        </div>
+                        <div class="memberid">
+                          <span>Id :</span> <span>{{data.username}}</span>
                         </div>
                         <div class="city">
                           <span>City :</span> <span>{{data.city}}</span>
@@ -236,6 +240,7 @@ body{
   background: #fff;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  background-color: antiquewhite;
 }
 
 .img-container{
@@ -338,6 +343,10 @@ body{
 .city span{
   font-weight: 600;
 }
+.age span,
+.memberid span{
+  font-weight: 600;
+}
 
 .data-1 p{
     font-size: 28px;
@@ -359,6 +368,7 @@ body{
     .card-container[data-v-33d760b4]{
         width: 100%;
         height: 500px;
+        background-color: antiquewhite;
     }
     .img-container[data-v-33d760b4]{
         width: 100%;

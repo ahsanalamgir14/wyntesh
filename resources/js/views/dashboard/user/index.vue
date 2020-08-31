@@ -90,7 +90,7 @@
               </div>
             </router-link>
           </el-col> -->
-            <el-col :xs="24" :sm="24" :lg="16" class="card-panel-col">
+            <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
                 <router-link to="/member/payouts/all">
                   <div class="card-panel gr2" >
                     <div class="card-panel-icon-wrapper icon-money payout" style="width:100px;">
@@ -107,7 +107,7 @@
                 </router-link>
             </el-col>
 
-            <el-col :xs="24" :sm="24" :lg="8" class="card-panel-col">
+          <!--   <el-col :xs="24" :sm="24" :lg="8" class="card-panel-col">
                 <router-link to="/member/payouts/all">
                   <div class="card-panel gr2" >
                     <div class="card-panel-icon-wrapper icon-money payout" style="width:100px;">
@@ -122,7 +122,7 @@
                     </div>
                   </div>
                 </router-link>
-            </el-col>
+            </el-col> -->
 
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/income-wallet">
@@ -158,7 +158,7 @@
             </router-link>
           </el-col>
           
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+         <!--  <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/withdrawals">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-message">
@@ -173,12 +173,12 @@
                 </div>
               </div>
             </router-link>
-          </el-col>
+          </el-col> -->
          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/member/payouts/incomes">
                 <div class="card-panel gr2" >
                     <div class="card-panel-icon-wrapper icon-shopping">
-                      <i class="fas fa-coins card-panel-icon"  ></i>
+                      <i class="fas fa-rupee-sign card-panel-icon"  ></i>
                     </div>
                     <div class="card-panel-description">
                         <count-to :start-val="0" :end-val="parseInt(dashboardStats.affiliateIncome)" :duration="3600" class="card-panel-num" />
@@ -194,7 +194,7 @@
             <router-link to="/member/payouts/incomes">
                 <div class="card-panel gr2" >
                     <div class="card-panel-icon-wrapper icon-shopping">
-                      <i class="fas fa-coins card-panel-icon"  ></i>
+                      <i class="fas fa-rupee-sign card-panel-icon"  ></i>
                     </div>
                     <div class="card-panel-description">
                         <count-to :start-val="0" :end-val="parseInt(dashboardStats.squad_bonus)" :duration="3600" class="card-panel-num" />
@@ -206,7 +206,7 @@
             </router-link>
         </el-col>
 
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+         <!--  <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/personal-pv">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-shopping">
@@ -221,13 +221,13 @@
                 </div>
               </div>
             </router-link>
-          </el-col>
+          </el-col> -->
 
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/member/payouts/incomes">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-shopping">
-                  <i class="fas fa-coins card-panel-icon"  ></i>
+                  <i class="fas fa-rupee-sign card-panel-icon"  ></i>
                 </div>
                 <div class="card-panel-description">
                   
@@ -244,7 +244,7 @@
             <router-link to="/member/payouts/incomes">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-shopping">
-                  <i class="fas fa-coins card-panel-icon"  ></i>
+                  <i class="fas fa-rupee-sign card-panel-icon"  ></i>
                 </div>
                 <div class="card-panel-description">
                   
@@ -275,7 +275,7 @@
             </router-link>
           </el-col> -->
           
-
+<!-- 
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/group-and-matching">
               <div class="card-panel gr2" >
@@ -291,13 +291,13 @@
                 </div>
               </div>
             </router-link>
-          </el-col>
+          </el-col> -->
 
            <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/member/payouts/incomes">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-shopping">
-                  <i class="fas fa-coins card-panel-icon"  ></i>
+                  <i class="fas fa-rupee-sign card-panel-icon"  ></i>
                 </div>
                 <div class="card-panel-description">
                   
@@ -328,7 +328,7 @@
             </router-link>
           </el-col>
           
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+  <!--         <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/group-and-matching">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-shopping">
@@ -337,14 +337,14 @@
                 <div class="card-panel-description">
                   
                   <count-to :start-val="0" :end-val="parseInt(dashboardStats.total_matched)" :duration="3600" class="card-panel-num" />
-                  <div class="card-panel-text">
+                  <div class="card-panel-text"> 
                     Total Matched PV
                   </div>
                 </div>
               </div>
             </router-link>
           </el-col>
-          
+           -->
            
           
         </el-row>
