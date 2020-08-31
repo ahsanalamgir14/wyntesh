@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Http\Controllers\Admin\CronsController;
 use App\Http\Controllers\User\PayoutsController;
+use App\Http\Controllers\User\MembersController;
 
 class Kernel extends ConsoleKernel
 {
@@ -44,6 +45,11 @@ class Kernel extends ConsoleKernel
             $CronsController=new CronsController;
             $CronsController->WallOfWyntashReport();
         })->monthlyOn(1, '00:40');
+
+        $schedule->call(function () {
+            $CronsController=new MembersController;
+            $CronsController->updateRank();
+        })->monthlyOn(1, '00:55');
 
         // $schedule->call(function () {
         //     $CronsController=new CronsController;
