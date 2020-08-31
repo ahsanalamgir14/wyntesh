@@ -65,10 +65,10 @@ class DashboardController extends Controller
         $elevation = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
 
         $luxury_income=Income::where('code','LUXURY')->first();
-        $luxury = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+        $luxury = MemberPayoutIncome::where('income_id',$luxury_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
 
         $premium_income=Income::where('code','PREMIUM')->first();
-        $premium = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+        $premium = MemberPayoutIncome::where('income_id',$premium_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
 
 
         $self_pv=Member::where('id',$User->member->id)->sum('total_personal_pv');

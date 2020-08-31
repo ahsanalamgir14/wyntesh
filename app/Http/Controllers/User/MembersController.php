@@ -42,7 +42,7 @@ class MembersController extends Controller
         }
     }
     public function updateRank(){
-        $Members=Member::orderBy('level','desc')->get();
+        $Members=Member::orderBy('level','desc')->where('id',11)->get();
         $Ranks=Rank::all();
         $MembersController=new MembersController;
         foreach ($Members as $Member) {
@@ -63,9 +63,7 @@ class MembersController extends Controller
                     $counts[]=$check;
                 }                           
             }
-
             $counts=array_count_values($counts);
-
             foreach ($Ranks as $Rank) {
                 if($Rank->leg_rank){
                 
@@ -79,9 +77,9 @@ class MembersController extends Controller
                                 }                           
                                   
                             }
-                        }else{      
-                            if($Rank->leg_rank===$value && $Rank->leg_rank_count == $key){
+                        }else{     
 
+                            if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
                                 if($personal_pv >= $Rank->personal_bv_condition && $group_pv >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
                                     $Member->rank_id=$Rank->id;
                                     $Member->save(); 
