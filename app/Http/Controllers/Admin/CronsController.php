@@ -137,7 +137,7 @@ class CronsController extends Controller
             $PayoutType=PayoutType::where('name','Monthly')->first();
         }
 
-        $from = '2020-08-26';
+        $from = '2020-08-25';
         $to = '2020-08-31';
         $incomes=Income::all();
         $PayoutType=PayoutType::where('name','Monthly')->first();

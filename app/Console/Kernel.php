@@ -28,22 +28,22 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {   
-        $schedule->command('telescope:prune')->daily();
+        //$schedule->command('telescope:prune')->daily();
         
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->backupDatabase();
-        })->dailyAt('00:01');
+        })->dailyAt('22:55');
 
-        // $schedule->call(function () {
-        //     $CronsController=new CronsController;
-        //     $CronsController->generateMonthlyPayout();
-        // })->monthlyOn(1, '00:30');
+        $schedule->call(function () {
+            $CronsController=new CronsController;
+            $CronsController->generateMonthlyPayout();
+        })->monthlyOn(31, '23:00');
 
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->WallOfWyntashReport();
-        });
+        })->monthlyOn(31, '23:00');
 
         // $schedule->call(function () {
         //     $CronsController=new CronsController;
