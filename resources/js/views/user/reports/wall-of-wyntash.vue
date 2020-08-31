@@ -208,7 +208,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped type="css">
 .parent{
     padding: 0;
 }
@@ -224,10 +224,6 @@ export default {
   padding: 15px 16px;
 }
 
-body{
-  background: #dedfe1;
-  font-family: 'Open Sans', sans-serif;
-}
 .card-wrapper{
   position: relative;
   padding: 20px;
