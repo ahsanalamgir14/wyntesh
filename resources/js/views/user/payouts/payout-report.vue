@@ -15,46 +15,47 @@
                     
                     <div class="company-info">
                       <div>Wyntash</div>
-                  
-                      <span>9724332304</span>
-                      <span>contact@wyntash.in</span>
+                         
+                      <span>Income statement of Business Affiliate</span><br>
+                       <span>teamwyntash@gmail.com</span>
                     </div>
 
                   </section>
 
                   <section id="invoice-title-number">
                   
-                    <span id="title">{{temp.name}}</span>
+                    <span id="title">{{monthNumToName(temp.date) }}</span>
                     <!-- <span id="number">₹ {{temp.netPayble}}</span> -->
                     
                   </section>
                   
                   <div class="clearfix"></div>
                   
+                  <section id="client-info-name">
+                    <div>
+                      <span class="bold">{{temp.name}}</span>
+                    </div>
+                  </section>
                   <section id="client-info">
-                    <!-- <span>bill_to</span> -->
-
                     <div>
                       <span class="bold">{{temp.id}}</span>
                     </div>
-                    
-                 
-                    <div>
-                      <span >{{temp.address}}</span>
-                    </div>
-                    <br><br>
+                  </section>
+
+                  <section id="client-info-rank">
+                   
                     <div class="rankparent">
-                      <span id="rank">{{rank}} </span>
+                      <el-button id="rank" type="success" round>{{rank}}</el-button>
+                      <!-- <span id="rank">{{rank}} </span> -->
                     </div>
                     
                   
                   </section>
-                  <section style="float: right;margin-top: -35px;">
-                        <img :src="temp.pic" style="width: 136px;height: 100%; margin: 16px;" />                    
+                  <section class="imageparent">
+                        <img :src="temp.pic"  class="childimage" />                    
 
                   </section>
-                  
-                  <div class="clearfix"></div>
+
                   
                   <section id="items">
                     
@@ -72,22 +73,22 @@
 
                       <tr data-iterate="item">
                         <td>Squad Bonus</td>
-                        <td style="text-align: right;">{{squad_bonus}}</td>
+                        <td style="text-align: right;">{{squad_bonus.toFixed(2)}}</td>
                       </tr>
 
                       <tr data-iterate="item">
                         <td>Elevation Bonus</td>
-                        <td style="text-align: right;" >{{elevation_bonus}}</td>
+                        <td style="text-align: right;" >{{elevation_bonus.toFixed(2)}}</td>
                       </tr>
                       
                       <tr data-iterate="item">
                         <td>Luxury Bonus</td>
-                        <td style="text-align: right;" >{{luxury_bonus}}</td>
+                        <td style="text-align: right;" >{{luxury_bonus.toFixed(2)}}</td>
                       </tr>
 
                       <tr data-iterate="item">
                         <td>Premium Bonus</td>
-                        <td style="text-align: right;">{{premium_bonus}}</td>
+                        <td style="text-align: right;">{{premium_bonus.toFixed(2)}}</td>
                       </tr>
                     
                       
@@ -99,17 +100,17 @@
                     <table cellpadding="0" cellspacing="0">
                         <tr class="add">
                             <td>TOTAL INCOME :</td>
-                            <td>{{temp.totalIncome}}</td>
+                            <td>{{temp.totalIncome.toFixed(2)}}</td>
                         </tr>
                           
                         <tr >
-                            <td>TOTAL DEDUCTIONS :</td>
-                            <td>{{temp.totalDeductions}}</td>
+                            <td>TDS :</td>
+                            <td>{{temp.totalDeductions.toFixed(2)}}</td>
                         </tr>
 
                         <tr>
                             <td>NET PAYABLE :</td>
-                            <td>{{temp.netPayble}}</td>
+                            <td>{{temp.netPayble.toFixed(2)}}</td>
                         </tr>
 
                     </table>
@@ -155,6 +156,7 @@
                 address:undefined,
                 email :undefined,
             },
+            monthNames :["Jan", "Feb", "March", "April", "May", "June","July", "Aug", "Sep", "Oct", "Nov", "Dec"],
             rank:undefined,
             payout:{},
             company_details:{},
@@ -188,6 +190,14 @@
     // this.print(); 
 },
 methods: {    
+     monthNumToName(date){
+          let newdate = parseTime(date);
+          
+          const moonLanding = new Date(newdate);
+
+          console.log(moonLanding.getMonth());
+          return this.monthNames[moonLanding.getMonth()]+" "+moonLanding.getFullYear();
+     },
     getPayout(id){
       getMemberPayout(id).then(response => {
         console.log(response);
@@ -212,25 +222,25 @@ methods: {
         this.affiliate_bonus    = response.affiliter;
         let scope               = this
         
-        this.temp.totalIncome       = parseInt(response.payout.admin_fee) + parseInt(response.payout.tds) + parseInt(response.payout.total_payout);
-        this.temp.totalDeductions   = parseInt(response.payout.admin_fee) + parseInt(response.payout.tds);
-        this.temp.netPayble         = parseInt(response.payout.total_payout) + parseInt(response.affiliter);
+        this.temp.totalIncome       = parseFloat(response.payout.admin_fee) + parseFloat(response.payout.tds) + parseFloat(response.payout.total_payout) + parseFloat(this.affiliate_bonus);
+        this.temp.totalDeductions   = parseFloat(response.payout.admin_fee) + parseFloat(response.payout.tds);
+        this.temp.netPayble         = parseFloat(response.payout.total_payout) + parseFloat(response.affiliter);
 
         response.incomes.forEach(function (nObj) {
             console.log(nObj['income'].name)
 
             if(nObj['income'].name == "Squad Bonus"){
-                scope.squad_bonus = parseInt(nObj.payout_amount) + parseInt(nObj.admin_fee)+parseInt(nObj.tds);
+                scope.squad_bonus = parseFloat(nObj.payout_amount) + parseFloat(nObj.admin_fee)+parseFloat(nObj.tds);
             }
             if(nObj['income'].name == "Elevation Bonus"){
-                scope.elevation_bonus = parseInt(nObj.payout_amount) + parseInt(nObj.admin_fee)+parseInt(nObj.tds);
+                scope.elevation_bonus = parseFloat(nObj.payout_amount) + parseFloat(nObj.admin_fee)+parseFloat(nObj.tds);
                 console.log(nObj['income'].name);
             }
             if(nObj['income'].name == "Luxury Bonus"){
-                scope.luxury_bonus = parseInt(nObj.payout_amount) + parseInt(nObj.admin_fee)+parseInt(nObj.tds);
+                scope.luxury_bonus = parseFloat(nObj.payout_amount) + parseFloat(nObj.admin_fee)+parseFloat(nObj.tds);
             }
             if(nObj['income'].name == "Premium Bonus"){
-                scope.premium_bonus = parseInt(nObj.payout_amount) + parseInt(nObj.admin_fee)+parseInt(nObj.tds);
+                scope.premium_bonus = parseFloat(nObj.payout_amount) + parseFloat(nObj.admin_fee)+parseFloat(nObj.tds);
             }
             
              
@@ -380,15 +390,17 @@ b, strong, .bold {
   text-align: right;
 }
 #memo .company-info > div:first-child {
-line-height: 3em;
+     line-height: 82px;
     font-weight: bold;
-    font-size: 33px;
+    font-size: 49px;
     color: #B32C39;
+    text-transform: uppercase;
 }
 #memo .company-info span {
-  font-size: 11px;
-  display: inline-block;
-  min-width: 20px;
+     font-size: 15px;
+    display: inline-block;
+    min-width: 20px;
+    font-weight: 600;
 }
 #memo:after {
   content: '';
@@ -424,7 +436,26 @@ line-height: 3em;
   top: -5px;
 }
 
+#client-info-name {
+  float: left;
+  margin-left: 60px;
+  min-width: 220px;
+  text-align: left;
+  font-size: 25px;
+  line-height: 22px;
+  width: 50%;
+  margin-bottom: 10px;
+}
 #client-info {
+  float: left;
+  margin-left: 60px;
+  min-width: 220px;
+  text-align: left;
+  font-size: 25px;
+  line-height: 22px;
+  width: 50%;
+}
+#client-info-rank {
   float: left;
   margin-left: 60px;
   min-width: 220px;
@@ -612,21 +643,35 @@ tr td{
     margin-left: 0px;
 }
 #rank{
-    border: solid 1px #cc9b9b;
-    background-color: #458a45;
-    color: white;
     font-weight: 600;
-    width: 100%;
+    width: 90%;
     text-align: center;
     margin-top: 21px;
-    border-radius: 16px;
+    border-radius: 54px;
     padding: 9px;
-    max-width: 50%;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 20px, rgba(0, 0, 0, 0.22) 0px 0px 8px;
+    color: #f7f5f5;
+    font-size: 27px;
 }
 
-#rank:hover{
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 20px, rgba(0, 0, 0, 0.22) 1px 3px 8px;
+ .imageparent{
+      float: right;margin-top: -90px;
+    }
+    .childimage{
+    width: 136px;height: 100%; margin: 16px;
+  }
+
+@media (max-width:450px) {
+    #template_pos{
+        margin-left: 0px;
+        box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 20px, rgba(0, 0, 0, 0.22) 0px 0px 8px;
+    }
+
+   .imageparent{
+      float: right;margin-top:-76px;
+    }
+    .childimage{
+      width: 136px;height: 100%; margin: 16px;
+    }
 
 }
 
@@ -636,7 +681,7 @@ tr td{
         display: none;
     }
     #template_pos{
-        margin-left: 70px;
+        margin-left: 0px;
         box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 20px, rgba(0, 0, 0, 0.22) 0px 0px 8px;
     }
 

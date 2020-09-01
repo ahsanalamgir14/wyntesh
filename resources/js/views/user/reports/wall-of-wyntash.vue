@@ -18,7 +18,8 @@
     </div>
 
     <div class="row">
-        <h1 style="margin: 21px;">Wall of wyntash</h1> 
+            <img :src="bgImage" class="background-image">
+
         <ul class="parent">        
             <div class="card-wrapper" v-for="(data,index) in list">
 
@@ -72,6 +73,7 @@
 <script>
 import { fetchAllEliteMember, } from "@/api/user/payouts";
 import avatar from '@/assets/images/avatar.png'
+import bgImage from '@/assets/images/bg-image.jpg'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 // import Pagination from "@/components/Pagination"; 
@@ -95,6 +97,7 @@ export default {
     return {
       tableKey: 0,
       avatar: avatar,
+      bgImage: bgImage,
       hidden: false,
       pageSize: 10,
       layout: 'total, sizes, prev,next, jumper',
@@ -205,6 +208,20 @@ export default {
 </script>
 
 <style scoped type="css">
+@import url('https://fonts.googleapis.com/css2?family=Courgette&display=swap');
+.background-image{
+    width: 30%;
+    height: 10%;
+    margin-left: 23px;
+}
+.heading{
+  color: #68bd3e;
+  content: unset;
+  font-size: 53px;
+  text-transform: capitalize;
+  text-decoration: underline;
+  margin-left: 88px;
+}
 .parent{
     padding: 0;
 }
@@ -233,16 +250,19 @@ export default {
   background: #fff;
   border-radius: 5px;
   background-color: #ebd5f2;
+  font-family: inherit;
 }
 
 .first{
   background-color: #f2694e !important;
   color: white !important;
+  font-family: inherit;
 }
 
 .second{
   background-color: #6d47de !important;
   color: white !important;
+  font-family: inherit;
 }
 
 .img-container{
@@ -276,6 +296,7 @@ export default {
   color: #444444;
   font-weight: 600;
   margin: 0;
+  font-family: inherit;
 }
 
 .first .head p{
@@ -333,10 +354,10 @@ export default {
 }
 
 .floating-icon{
-  position: absolute;
-    width: 70px;
-    height: 70px;
-    top: 38%;
+      position: absolute;
+    width: 100px;
+    height: 100px;
+    top: 25%;
     right: -7%;
     background: #1DA1F2;
     border-radius: 50%;
@@ -344,12 +365,13 @@ export default {
 }
 
 .floating-icon span{
-  padding-top: 25px;
+  padding-top: 29px;
     text-align: center;
     /* margin-left: auto; */
     display: block;
     font-weight: 600;
     color: #fff;
+    font-size:41px;
 }
 
 .btn{
@@ -393,33 +415,71 @@ export default {
 }
 
 @media (max-width:450px) {
+
+    .background-image{
+            width: 85%;
+            margin-left: 23px !important;
+            height: 100%;
+    }
+    .floating-icon span{
+        padding-top: 19px;
+        text-align: center;
+        display: block;
+        font-weight: 600;
+        color: #fff;
+        font-size: 38px;
+    
+    }
+    .floating-icon{
+            position: absolute;
+            width: 75px;
+            height: 75px;
+            top: 36%;
+            right: -10%;
+            background: #1DA1F2;
+            border-radius: 50%;
+            cursor: pointer;
+
+    }
+
+
     .card-wrapper{
         width: 100%;
     }
 
     .card-container{
         width: 100%;
-        height: 500px;
+        height: 130px;
         background-color: #dff5df;
     }
     .img-container{
-        width: 100%;
+        
         height: auto;
     }
     .img-container img{
-        width: calc(100% - 60px);
+        
         margin-left: auto;
         height: auto;
-        max-height: 270px;
+        max-height: 130px;
         display: block;
         margin-right: auto;
     }
     .content {
-    width: 100%;
+    
     height: calc(100% - 275px - 60px);
     /*float: left;*/
-    padding: 30px 40px;
+    padding: 10px 15px;
     box-sizing: border-box;
+}
+.head {
+  padding-bottom: 10px;
+  }
+.head p{
+  font-size: 16px;
+  }
+
+  .data-1 p{
+    font-size: 16px;
 }
 }
 

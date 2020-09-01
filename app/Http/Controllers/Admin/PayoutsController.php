@@ -185,19 +185,80 @@ class PayoutsController extends Controller
         $MemberPayout=MemberPayout::select();
         $MemberPayout=$MemberPayout->where('id',$id);
         $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.kyc')->first();
+
+        // dd($MemberPayout->payout_id);
         $MemberPayoutIncome=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->with('income')->get();
         $user_details=array('name' => $MemberPayout->member->user->name,'username'=>$MemberPayout->member->user->username,'profile_picture'=>$MemberPayout->member->user->profile_picture,'rank'=>$MemberPayout->member->rank->name );
-   
+
         $affiliter = AffiliateBonus::addSelect([\DB::raw('sum(final_amount) as final_amount')])
                         ->where("member_id",$MemberPayout->member->id)
                         ->whereDate('created_at','>=', $MemberPayout->payout->sales_start_date)
                         ->whereDate('created_at','<=', $MemberPayout->payout->sales_end_date)
                         ->groupBy('member_id')
                         ->first();
+// dd($affiliter);
         $affiliter = $affiliter?$affiliter->final_amount:"0";
         $response = array('status' => true,'message'=>"Member Payout retrieved.",'payout'=>$MemberPayout,'incomes'=>$MemberPayoutIncome,'company_details'=>$settings,'user'=>$user_details,'affiliter'=>$affiliter);
         return response()->json($response, 200);
     }
+
+
+    public function getMemberPayoutIncomes(Request $request)
+    {   
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $month=$request->month;
+        $income_id=$request->income_id;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        if(!$search && !$income_id && !$month){
+            $MemberPayoutIncome=MemberPayoutIncome::select();
+            
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit); 
+        }else{
+            $MemberPayoutIncome=MemberPayoutIncome::select();
+            
+            $MemberPayoutIncome=$MemberPayoutIncome->where(function ($query)use($search) {              
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+
+            if($month){
+                $MemberPayoutIncome=$MemberPayoutIncome->whereHas('payout',function($q)use($month){
+                    $month=$month.'-01';
+                    $date=Carbon::parse($month);
+                    $q->whereMonth('sales_start_date',$date->month);
+                    $q->whereYear('sales_start_date',$date->year);
+                });
+            }
+
+            if($income_id){
+                $MemberPayoutIncome=$MemberPayoutIncome->where('income_id',$income_id);
+            }
+            
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+        }
+   
+        $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome);
+        return response()->json($response, 200);
+    }
+
   
     public function generateManualPayout(Request $request){
 
@@ -516,61 +577,6 @@ class PayoutsController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getMemberPayoutIncomes(Request $request)
-    {   
-        $page=$request->page;
-        $limit=$request->limit;
-        $sort=$request->sort;
-        $search=$request->search;
-        $month=$request->month;
-        $income_id=$request->income_id;
-
-        if(!$page){
-            $page=1;
-        }
-
-        if(!$limit){
-            $limit=1;
-        }
-
-        if ($sort=='+id'){
-            $sort = 'asc';
-        }else{
-            $sort = 'desc';
-        }
-
-        if(!$search && !$income_id && !$month){
-            $MemberPayoutIncome=MemberPayoutIncome::select();
-            
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit); 
-        }else{
-            $MemberPayoutIncome=MemberPayoutIncome::select();
-            
-            $MemberPayoutIncome=$MemberPayoutIncome->where(function ($query)use($search) {              
-                $query=$query->orWhereHas('member.user',function($q)use($search){
-                    $q->where('username','like','%'.$search.'%');
-                });
-            });
-
-            if($month){
-                $MemberPayoutIncome=$MemberPayoutIncome->whereHas('payout',function($q)use($month){
-                    $month=$month.'-01';
-                    $date=Carbon::parse($month);
-                    $q->whereMonth('sales_start_date',$date->month);
-                    $q->whereYear('sales_start_date',$date->year);
-                });
-            }
-
-            if($income_id){
-                $MemberPayoutIncome=$MemberPayoutIncome->where('income_id',$income_id);
-            }
-            
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
-        }
-   
-        $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome);
-        return response()->json($response, 200);
-    }
 
     public function getMemberIncomeHoldings(Request $request)
     {
