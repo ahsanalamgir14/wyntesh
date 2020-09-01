@@ -14,7 +14,7 @@ class AddIncomeWalletToMembers extends Migration
     public function up()
     {
         Schema::table('members', function (Blueprint $table) {
-            $table->decimal('income_wallet_balance', 12, 2)->nullable()->after('wallet_balance');
+            $table->decimal('income_wallet_balance', 12, 2)->nullable()->default(0)->after('wallet_balance');
         });
     }
 

@@ -17,42 +17,38 @@
       >Search</el-button> 
     </div>
 
-   
     <div class="row">
         <h1 style="margin: 21px;">Wall of wyntash</h1> 
         <ul class="parent">        
-              <div class="card-wrapper" v-for="data in list">
-                <div class="card-container">
-                  <div class="img-container">
-                    <img :src="data.profile_picture?data.profile_picture:avatar"  alt="">
-                  </div>
-                  
-                  <div class="content">
-                    <div class="head">
-                        <p>{{data.name}}</p>
-                        <div class="age">
-                          <span>Age :</span> <span>{{data.age}}</span>
+            <div class="card-wrapper" v-for="(data,index) in list">
+
+                <div class="card-container"  :class="[data.id==1 ? 'first' : '', data.id==2 ? 'second' : '', data.id==3 ? 'second' : '', data.id==4 ? 'second' : '', data.id==5 ? 'second' : '']">
+                    <div class="img-container">
+                        <img :src="data.profile_picture?data.profile_picture:avatar"  alt="">
+                    </div>
+
+                    <div class="content">
+                        <div class="head">
+                            <p>{{data.name}}</p>
+                            <div class="age">
+                                <span>Age :</span> <span>{{data.age}}</span>
+                            </div>
+                            <div class="memberid">
+                                <span>Id :</span> <span>{{data.username}}</span>
+                            </div>
+                            <div class="city">
+                                <span>City :</span> <span>{{data.city}}</span>
+                            </div>
                         </div>
-                        <div class="memberid">
-                          <span>Id :</span> <span>{{data.username}}</span>
-                        </div>
-                        <div class="city">
-                          <span>City :</span> <span>{{data.city}}</span>
+                        <div class="data-1">
+                            <p> <span>&#8377;</span> {{data.total_amount}}</p>
                         </div>
                     </div>
-                    <div class="data-1">
-                        <p> <span>&#8377;</span> {{data.total_amount}}</p>
+                    <div class="floating-icon">
+                        <span>{{data.id}}</span>
                     </div>
-                  </div>
-                  
-                  <div class="floating-icon">
-                    <span>{{data.id}}</span>
-                  </div>
                 </div>
-              </div>
-
-
-
+            </div>
         </ul>
     </div>
 
@@ -230,13 +226,23 @@ export default {
 }
 
 .card-container{
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 20px, rgba(0, 0, 0, 0.22) 0px 0px 8px;
   position: relative;
   width: 580px;
   height: 200px;
   background: #fff;
   border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  background-color: antiquewhite;
+  background-color: #ebd5f2;
+}
+
+.first{
+  background-color: #f2694e !important;
+  color: white !important;
+}
+
+.second{
+  background-color: #6d47de !important;
+  color: white !important;
 }
 
 .img-container{
@@ -272,8 +278,35 @@ export default {
   margin: 0;
 }
 
+.first .head p{
+   color: white !important;
+}
+
+.second .head p{
+   color: white !important;
+}
+
+
+
+.first span{
+  color: white;
+}
+
+.second span{
+  color: white;
+}
+
+
 .head span{
-  color: #aaabaf;
+  color: #67696f;
+  font-size: 14px;
+}
+.first span{
+  color: white;
+  font-size: 14px;
+}
+.second span{
+  color: white;
   font-size: 14px;
 }
 
@@ -352,6 +385,9 @@ export default {
     margin: 0;
 }
 
+.first .data-1 p, .second .data-1 p{
+    color: white;
+}
 .btn.active{
   opacity: 1;
 }
@@ -364,7 +400,7 @@ export default {
     .card-container{
         width: 100%;
         height: 500px;
-        background-color: antiquewhite;
+        background-color: #dff5df;
     }
     .img-container{
         width: 100%;

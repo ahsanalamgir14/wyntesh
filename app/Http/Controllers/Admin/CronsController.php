@@ -56,15 +56,16 @@ class CronsController extends Controller
             if($data->username == '142040'){
                 continue;
             }
-
-            $WallOfWyntash = new WallOfWyntash();
-            $WallOfWyntash->name = $data->name;
-            $WallOfWyntash->username = $data->username;
-            $WallOfWyntash->age = $diff->y;
-            $WallOfWyntash->city = $data->city;
-            $WallOfWyntash->profile_picture = $data->profile_picture;
-            $WallOfWyntash->total_amount = $data->total_amt;
-            $WallOfWyntash->save();
+            if($data->total_amt>=10000){
+                $WallOfWyntash = new WallOfWyntash();
+                $WallOfWyntash->name = $data->name;
+                $WallOfWyntash->username = $data->username;
+                $WallOfWyntash->age = $diff->y;
+                $WallOfWyntash->city = $data->city;
+                $WallOfWyntash->profile_picture = $data->profile_picture;
+                $WallOfWyntash->total_amount = $data->total_amt;
+                $WallOfWyntash->save();
+            }
         }
 
     }

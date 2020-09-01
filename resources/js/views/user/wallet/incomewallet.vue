@@ -16,7 +16,7 @@
             <i class="fas fa-wallet card-panel-icon" style="color: #27AE60;" ></i>
           </div>
           <div class="card-panel-description">            
-            <count-to :start-val="0" :end-val="balance" :duration="3000" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="Math.floor(balance)" :duration="3000" class="card-panel-num" />
             <div class="card-panel-text">
               Income Wallet Balance
             </div>
