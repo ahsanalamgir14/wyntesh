@@ -47,7 +47,7 @@
               <el-row :gutter="20">
                 <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
                   <el-form-item label="Name">
-                    <el-input v-model="temp.name"  />
+                    <el-input disabled v-model="temp.name"  />
                   </el-form-item>
                   <el-form-item label="Email">
                     <el-input  v-model="temp.email"  />
