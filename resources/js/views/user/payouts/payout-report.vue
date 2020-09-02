@@ -192,10 +192,7 @@
 methods: {    
      monthNumToName(date){
           let newdate = parseTime(date);
-          
           const moonLanding = new Date(newdate);
-
-          console.log(moonLanding.getMonth());
           return this.monthNames[moonLanding.getMonth()]+" "+moonLanding.getFullYear();
      },
     getPayout(id){

@@ -480,7 +480,7 @@ export default {
       fetchWithdrawalRequests(this.listQuery).then(response => {
         this.list               = response.data.data;
         this.total              = response.data.total;
-        this.balance            = parseFloat(response.balance);
+        this.balance            = response.balance;
         this.minimum_withdrawal = parseInt(response.minimum_withdrawal);
         this.kyc_status         = response.kyc_status;
         this.total_personal_pv         = response.total_personal_pv;
