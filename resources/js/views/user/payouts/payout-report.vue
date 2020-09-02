@@ -87,7 +87,7 @@
                       </tr>
 
                       <tr data-iterate="item">
-                        <td>Premium Bonus</td>
+                        <td>Pro Bonus</td>
                         <td style="text-align: right;">{{premium_bonus.toFixed(2)}}</td>
                       </tr>
                     
