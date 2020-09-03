@@ -49,6 +49,25 @@
           </div>
         </router-link>
       </el-col>
+
+       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <router-link to="wallet/income-wallet-transactions">
+          <div class="card-panel gr8" >
+            <div class="card-panel-icon-wrapper icon-money">
+              <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_affilite)" :duration="3200" class="card-panel-num" />
+              <div class="card-panel-text">
+               Total income wallet
+              </div>
+            </div>
+          </div>
+        </router-link>
+      </el-col>
+
+      
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <router-link to="reports//payout-monthwise">
           <div class="card-panel gr8" >
@@ -178,6 +197,14 @@
           </div>
         </router-link>
       </el-col>
+
+  
+
+
+     
+
+
+
     </el-row>
 
     <el-row :gutter="10">      

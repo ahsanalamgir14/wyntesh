@@ -65,7 +65,7 @@
       </el-table-column>
       <el-table-column label="Payable" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ parseFloat(row.total_payout)+parseFloat(row.affiliate_income) }}</span>
+          <span >{{ parseFloat(row.total_payout)+(parseFloat(row.affiliate_income)-parseFloat(row.affiliate_tds)) }}</span>
         </template>
       </el-table-column>
     </el-table>
