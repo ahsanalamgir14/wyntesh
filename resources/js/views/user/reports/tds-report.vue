@@ -45,7 +45,7 @@
 
       <el-table-column label="Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(parseFloat(row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds)+parseFloat(row.affiliate_income) +parseFloat(row.affiliate_tds)) }}</span>
+          <span >{{ Math.round(parseFloat(row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds)+parseFloat(row.affiliate_income) ) }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="Admin Fee" width="130px" align="right">
@@ -53,11 +53,11 @@
           <span >{{ Math.round(row.admin_fee) }}</span>
         </template>
       </el-table-column> -->
-      <el-table-column label="TDS%" width="130px" align="right">
+      <!-- <el-table-column label="TDS%" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ Math.round((parseFloat(row.tds)*100)/parseFloat(parseFloat(row.total_payout==0.00?1:row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds))) }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="TDS" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ Math.round(parseFloat(row.tds)+parseFloat(row.affiliate_tds)) }}</span>
@@ -164,7 +164,6 @@ export default {
       this.listLoading = true;
       fetchPayouts(this.listQuery).then(response => {
         this.list = response.data.data;
-        console.log(this.list);
         this.total = response.data.total;
         setTimeout(() => {
           this.listLoading = false;
