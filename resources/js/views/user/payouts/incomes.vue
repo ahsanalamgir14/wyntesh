@@ -220,6 +220,7 @@ export default {
     getList() {
       this.listLoading = true;
       getPayoutIncomes(this.listQuery).then(response => {
+        console.log(response.data.data);
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {
