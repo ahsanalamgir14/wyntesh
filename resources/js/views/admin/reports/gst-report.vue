@@ -95,21 +95,27 @@
           <span>{{ row.order_no }}</span>
         </template>
       </el-table-column>
-      
-      <el-table-column label="Final Amount" min-width="110px" align="right">
-        <template slot-scope="{row}">
-          <span>{{ row.final_amount }}</span>
-        </template>
-      </el-table-column>
-      
       <el-table-column label="Order Date" min-width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      
+      <el-table-column label="Base Amount" min-width="110px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.amount }}</span>
+        </template>
+      </el-table-column>
+      
       <el-table-column label="GST" min-width="130px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.gst }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Final Amount" min-width="110px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ parseFloat(row.final_amount)-parseFloat(row.shipping_fee) }}</span>
         </template>
       </el-table-column>
       
@@ -238,12 +244,16 @@ export default {
           sums[index] = 'Final Total (All)';
           return;
         }
-        if(index===2){
-          sums[index] = this.sums.final_total;
+        if(index===3){
+          sums[index] = this.sums.base_total;
           return; 
         }
         if(index===4){
           sums[index] = this.sums.gst;
+          return; 
+        }
+        if(index===5){
+          sums[index] = this.sums.final_total;
           return; 
         }
       });

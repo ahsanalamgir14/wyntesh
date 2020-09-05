@@ -256,21 +256,28 @@ class ShoppingController extends Controller
             $Orders=$Orders->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);
             $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-            $order_total=Order::select([DB::raw('sum(final_amount) as final_total'),DB::raw('sum(gst) as gst')])->first();
+            $order_total=Order::select([DB::raw('sum(amount) as base_total'),DB::raw('sum(amount+gst) as final_total'),DB::raw('sum(gst) as gst')])->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->first();
         }else{
             $Orders=Order::select();
             $Orders=$Orders->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);            
-            $order_total=Order::select([DB::raw('sum(final_amount) as final_total'),DB::raw('sum(gst) as gst')]);
-            $Orders=$Orders->where(function ($query)use($search) {
-                $query->orWhere('order_no','like','%'.$search.'%');  
-                $query=$query->orWhereHas('user',function($q)use($search){
-                    $q->where('username','like','%'.$search.'%');
-                });            
+            $order_total=Order::select([DB::raw('sum(amount) as base_total'),DB::raw('sum(amount+gst) as final_total'),DB::raw('sum(gst) as gst')]);
+            
 
-            });
+            if($search){
+                $Orders=$Orders->where(function ($query)use($search) {
+                    $query->orWhere('order_no','like','%'.$search.'%');  
+                    $query=$query->orWhereHas('user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });            
 
-            if($delivery_status){
-                $Orders=$Orders->where('delivery_status',$delivery_status);
+                });
+                $order_total=$order_total->where(function ($query)use($search) {
+                    $query->orWhere('order_no','like','%'.$search.'%');  
+                    $query=$query->orWhereHas('user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });            
+
+                });;
             }
 
             if($date_range){
@@ -279,7 +286,7 @@ class ShoppingController extends Controller
                 $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
                 $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
             }
-            $order_total=$order_total->first();
+            $order_total=$order_total->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->first();
             $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
