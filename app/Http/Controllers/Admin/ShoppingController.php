@@ -22,6 +22,7 @@ use App\Models\Admin\Income;
 use App\Models\Admin\AffiliateBonus;
 use App\Models\Admin\Payout;
 use App\Models\User\Address;
+use App\Models\Admin\IncomeWalletTransactions;
 use App\Models\User\User;
 use Validator;
 use JWTAuth;
@@ -376,7 +377,6 @@ class ShoppingController extends Controller
                 $Incomes->income_parameters[0]->value_1 = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
 
                 $incmParam = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
-
                 if($Order->user->member->sponsor){
 
                     $tds_percentage = CompanySetting::getValue('tds_percentage');
@@ -384,18 +384,20 @@ class ShoppingController extends Controller
                     $tds=($amount*$tds_percentage)/100;
                     $deducted_tds_amount = $amount-($amount*$tds_percentage)/100;
 
-                    $Order->user->member->sponsor->wallet_balance += $deducted_tds_amount;
+                    $Order->user->member->sponsor->income_wallet_balance += $deducted_tds_amount;
                     $Order->user->member->sponsor->save();
                     $TransactionType=TransactionType::where('name','Affiliate Bonus')->first();
 
-                    $WalletTransaction                      = new WalletTransaction;
-                    $WalletTransaction->member_id           = $Order->user->member->sponsor_id;
-                    $WalletTransaction->balance             = $Order->user->member->sponsor->wallet_balance;
-                    $WalletTransaction->transaction_type_id = $TransactionType->id;
-                    $WalletTransaction->amount              = $deducted_tds_amount;
-                    $WalletTransaction->transfered_to       = $Order->user->member->sponsor->user->id;
-                    $WalletTransaction->note                = 'Affiliate Bonus';
-                    $WalletTransaction->save();
+                    $IncomeWalletTransactions  = new IncomeWalletTransactions;
+                    $IncomeWalletTransactions->member_id            = $Order->user->member->sponsor_id;
+                    $IncomeWalletTransactions->balance              = $Order->user->member->sponsor->income_wallet_balance;
+                    $IncomeWalletTransactions->amount               = $deducted_tds_amount;
+                    $IncomeWalletTransactions->transaction_type_id  = $TransactionType->id;
+                    $IncomeWalletTransactions->transfered_to        = $Order->user->member->sponsor->user->id;
+                    $IncomeWalletTransactions->note                 = 'Affiliate Bonus';
+                    $IncomeWalletTransactions->save(); 
+
+
 
                     $AffiliateBonus=new AffiliateBonus;
                     $AffiliateBonus->member_id=$Order->user->member->sponsor_id;
@@ -410,7 +412,7 @@ class ShoppingController extends Controller
                 }
 
                 
-                $WalletTransaction->transfered_from         = $Order->user->member->sponsor->user->id;
+                $IncomeWalletTransactions->transfered_from         = $Order->user->member->sponsor->user->id;
                 event(new UpdateGroupPVEvent($Order,$Order->user,'add'));
             }
 
@@ -439,7 +441,7 @@ class ShoppingController extends Controller
                         $amount = ($Order->pv*$incmParam)/100; 
                         $deducted_tds_amount = $amount-($amount*$tds_percentage)/100;
 
-                        $Order->user->member->sponsor->wallet_balance -= $deducted_tds_amount;
+                        $Order->user->member->sponsor->income_wallet_balance -= $deducted_tds_amount;
                         $Order->user->member->sponsor->save();
                         
                         $Order->user->member->current_personal_pv-=$Order->pv;
@@ -447,14 +449,26 @@ class ShoppingController extends Controller
                         $Order->user->member->save();
                    
                         $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
-                        $WalletTransaction=new WalletTransaction;
-                        $WalletTransaction->member_id            = $Order->user->member->sponsor_id;
-                        $WalletTransaction->balance              = $Order->user->member->sponsor->wallet_balance;
-                        $WalletTransaction->amount               = $deducted_tds_amount;
-                        $WalletTransaction->transaction_type_id  = $TransactionType->id;
-                        $WalletTransaction->transfered_from      = $Order->user->member->sponsor->user->id;
-                        $WalletTransaction->note                 = 'Affiliate Bonus Debit';
-                        $WalletTransaction->save();
+
+                        // $WalletTransaction=new WalletTransaction;
+                        // $WalletTransaction->member_id            = $Order->user->member->sponsor_id;
+                        // $WalletTransaction->balance              = $Order->user->member->sponsor->income_wallet_balance;
+                        // $WalletTransaction->amount               = $deducted_tds_amount;
+                        // $WalletTransaction->transaction_type_id  = $TransactionType->id;
+                        // $WalletTransaction->transfered_from      = $Order->user->member->sponsor->user->id;
+                        // $WalletTransaction->note                 = 'Affiliate Bonus Debit';
+                        // $WalletTransaction->save();
+
+
+                        $IncomeWalletTransactions  = new IncomeWalletTransactions;
+                        $IncomeWalletTransactions->member_id            = $Order->user->member->sponsor_id;
+                        $IncomeWalletTransactions->balance              = $Order->user->member->sponsor->income_wallet_balance;
+                        $IncomeWalletTransactions->amount               = $deducted_tds_amount;
+                        $IncomeWalletTransactions->transaction_type_id  = $TransactionType->id;
+                        $IncomeWalletTransactions->transfered_from      = $Order->user->member->sponsor->user->id;
+                        $IncomeWalletTransactions->note                 = 'Affiliate Bonus Debit';
+                        $IncomeWalletTransactions->save(); 
+
 
 
                         $AffiliateBonus=AffiliateBonus::where('order_id',$Order->id)->first();
@@ -487,6 +501,7 @@ class ShoppingController extends Controller
 
                 $TransactionType=TransactionType::where('name','Order Refund')->first();
                 $balance=$Order->user->member->wallet_balance;
+
                 $WalletTransaction=new WalletTransaction;
                 $WalletTransaction->member_id=$Order->user->member->id;
                 $WalletTransaction->balance=$balance+$Order->final_amount;
