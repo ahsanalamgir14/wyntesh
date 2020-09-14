@@ -349,7 +349,7 @@
                   Update
                 </el-button>
                  <el-button type="success"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' " @click="submitVerification">
-                  {{temp.kyc.verification_status=='submitted'|| temp.kyc.verification_status=='verified'?'Submitted for apporval': 'Submit for verification'}}
+                  {{temp.kyc.verification_status=='submitted'|| temp.kyc.verification_status=='verified'?temp.kyc.verification_status=='verified'?'Submit for verification':'Submitted for apporval': 'Submit for verification'}}
                 </el-button>
               </el-form-item>
             </el-tab-pane>
