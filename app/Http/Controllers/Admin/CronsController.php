@@ -107,39 +107,10 @@ class CronsController extends Controller
     public function generateMonthlyPayout()
     {
         $dt = Carbon::now();
-        $day=$dt->day;
-        $from='';
-        $to='';
+        $dt->modify('-1 months');
+        $from= $dt->firstOfMonth()->toDateString('Y-m-d');
+        $to= $dt->endOfMonth()->toDateString('Y-m-d');
 
-        if($day=='6'){
-            $from=$dt->year.'-'.$dt->month.'-'.'1';
-            $to=$dt->year.'-'.$dt->month.'-'.'6';
-            $incomes=Income::where('code','SQUAD')->get();
-            $PayoutType=PayoutType::where('name','Weekly')->first();
-        }else if($day=='12'){
-            $from=$dt->year.'-'.$dt->month.'-'.'7';
-            $to=$dt->year.'-'.$dt->month.'-'.'12';
-            $incomes=Income::where('code','SQUAD')->get();
-            $PayoutType=PayoutType::where('name','Weekly')->first();
-        }else if($day=='18'){
-            $from=$dt->year.'-'.$dt->month.'-'.'13';
-            $to=$dt->year.'-'.$dt->month.'-'.'18';
-            $incomes=Income::where('code','SQUAD')->get();
-            $PayoutType=PayoutType::where('name','Weekly')->first();
-        }else if($day=='24'){
-            $from=$dt->year.'-'.$dt->month.'-'.'19';
-            $to=$dt->year.'-'.$dt->month.'-'.'24';
-            $incomes=Income::where('code','SQUAD')->get();
-            $PayoutType=PayoutType::where('name','Weekly')->first();
-        }else if($day==intval(date('t'))){
-            $from=$dt->year.'-'.$dt->month.'-'.'25';
-            $to=$dt->year.'-'.$dt->month.'-'.date('t');
-            $incomes=Income::all();
-            $PayoutType=PayoutType::where('name','Monthly')->first();
-        }
-
-        $from = '2020-08-25';
-        $to = '2020-08-31';
         $incomes=Income::all();
         $PayoutType=PayoutType::where('name','Monthly')->first();
 

@@ -73,7 +73,7 @@
 <script>
 import { fetchAllEliteMember, } from "@/api/user/payouts";
 import avatar from '@/assets/images/avatar.png'
-import bgImage from '@/assets/images/bg-image.jpg'
+import bgImage from '@/assets/images/wall-of-wyntash.jpeg'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 // import Pagination from "@/components/Pagination"; 
@@ -210,7 +210,7 @@ export default {
 <style scoped type="css">
 @import url('https://fonts.googleapis.com/css2?family=Courgette&display=swap');
 .background-image{
-    width: 30%;
+    width: 580px;
     height: 10%;
     margin-left: 23px;
 }
@@ -417,8 +417,9 @@ export default {
 @media (max-width:450px) {
 
     .background-image{
-            width: 85%;
+            width: 100%;
             margin-left: 23px !important;
+            padding-right: 45px;
             height: 100%;
     }
     .floating-icon span{

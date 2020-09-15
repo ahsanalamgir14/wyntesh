@@ -729,11 +729,9 @@ class GeneratePayoutListener
         $Ranks=Rank::all();
         $MembersController=new MembersController;
         foreach ($Members as $Member) {
-            $group_pv=MembersLegPv::where('member_id',$Member->id)->sum('pv');
             $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
             $personal_pv=$Member->total_personal_pv;
 
-           
             $squad_plus_affiliate=$this->getSquadPlusAffiliate($Member);
             $squad_plus_affiliate_pinnacle=$this->getSquadPlusAffiliatePinnacle($Member);
             $all_childs=[];
@@ -749,15 +747,15 @@ class GeneratePayoutListener
                 }                           
             }
 
-            $counts=array_count_values($counts);
-
             $total_inr_turn_over=Order::whereHas('user.member',function($q)use($all_childs){
                 $q->whereIn('id',$all_childs);
             })->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('final_amount');
-            
+
+            $counts=array_count_values($counts);
             foreach ($Ranks as $Rank) {
                 if($Rank->leg_rank){
-                                     
+                
+                          
                     foreach ($counts as $key => $value) {   
                         if($Rank->name =='5% Club'){
                             if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
@@ -767,7 +765,8 @@ class GeneratePayoutListener
                                 }                           
                                   
                             }
-                        }else{                            
+                        }else{     
+
                             if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
                                 if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
                                     $Member->rank_id=$Rank->id;
@@ -794,5 +793,6 @@ class GeneratePayoutListener
             $RankLog->save();
         }
     }
+
 
 }
