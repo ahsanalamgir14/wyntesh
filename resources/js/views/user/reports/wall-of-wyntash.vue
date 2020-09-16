@@ -360,7 +360,7 @@ export default {
     height: 100px;
     top: 25%;
     right: -7%;
-    background: #941f1f;
+    background: #ea4848;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -438,7 +438,7 @@ export default {
             height: 75px;
             top: 36%;
             right: -10%;
-            background: 941f1f;
+            background: ea4848;
             border-radius: 50%;
             cursor: pointer;
 
