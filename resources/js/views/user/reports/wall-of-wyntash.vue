@@ -23,7 +23,7 @@
         <ul class="parent">        
             <div class="card-wrapper" v-for="(data,index) in list">
 
-                <div class="card-container"  :class="[data.id==1 ? 'first' : '', data.id==2 ? 'second' : '', data.id==3 ? 'second' : '', data.id==4 ? 'second' : '', data.id==5 ? 'second' : '']">
+                <div class="card-container"  :class="[data.id==1 ? 'first' : '', data.id==2 ? 'second1' : '', data.id==3 ? 'second1' : '', data.id==4 ? 'second1' : '', data.id==5 ? 'second1' : '']">
                     <div class="img-container">
                         <img :src="data.profile_picture?data.profile_picture:avatar"  alt="">
                     </div>
@@ -249,18 +249,19 @@ export default {
   height: 200px;
   background: #fff;
   border-radius: 5px;
-  background-color: #ebd5f2;
+  background-color: #D3D3D3;
   font-family: inherit;
 }
 
 .first{
-  background-color: #f2694e !important;
+  background: rgb(255,215,0);
+  background: linear-gradient(90deg, rgba(255,215,0,1) 28%, rgba(230,182,36,1) 61%);
   color: white !important;
   font-family: inherit;
 }
 
 .second{
-  background-color: #6d47de !important;
+  background-color: #D3D3D3 !important;
   color: white !important;
   font-family: inherit;
 }
@@ -359,7 +360,7 @@ export default {
     height: 100px;
     top: 25%;
     right: -7%;
-    background: #1DA1F2;
+    background: #941f1f;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -437,7 +438,7 @@ export default {
             height: 75px;
             top: 36%;
             right: -10%;
-            background: #1DA1F2;
+            background: 941f1f;
             border-radius: 50%;
             cursor: pointer;
 
@@ -451,7 +452,7 @@ export default {
     .card-container{
         width: 100%;
         height: 130px;
-        background-color: #dff5df;
+        background-color: #D3D3D3;
     }
     .img-container{
         
