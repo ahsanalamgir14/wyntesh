@@ -18,12 +18,12 @@
     </div>
 
     <div class="row">
-            <img :src="bgImage" class="background-image">
+            <!-- <img :src="bgImage" class="background-image"> -->
 
         <ul class="parent">        
             <div class="card-wrapper" v-for="(data,index) in list">
 
-                <div class="card-container"  :class="[data.id==1 ? 'first' : '', data.id==2 ? 'second1' : '', data.id==3 ? 'second1' : '', data.id==4 ? 'second1' : '', data.id==5 ? 'second1' : '']">
+                <div class="card-container"  :class="[data.id==1 ? 'first' : '', data.id==2 ? 'second' : '', data.id==3 ? 'second' : '', data.id==4 ? 'second' : '', data.id==5 ? 'second' : '']">
                     <div class="img-container">
                         <img :src="data.profile_picture?data.profile_picture:avatar"  alt="">
                     </div>
@@ -249,7 +249,7 @@ export default {
   height: 200px;
   background: #fff;
   border-radius: 5px;
-  background-color: #D3D3D3;
+  background-color: silver;
   font-family: inherit;
 }
 
@@ -261,7 +261,8 @@ export default {
 }
 
 .second{
-  background-color: #D3D3D3 !important;
+  background: rgb(255,215,0);
+  background: linear-gradient(90deg, rgba(255,215,0,1) 28%, rgba(230,182,36,1) 61%);
   color: white !important;
   font-family: inherit;
 }
@@ -452,7 +453,7 @@ export default {
     .card-container{
         width: 100%;
         height: 130px;
-        background-color: #D3D3D3;
+        background-color: silver;
     }
     .img-container{
         

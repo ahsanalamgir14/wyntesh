@@ -113,27 +113,37 @@
               ></el-button>
           </el-tooltip>
         </template>
+
       </el-table-column> 
-      <el-table-column label="Beneficiary Name" width="200px" align="right">
+
+      <el-table-column label="Number Id" class-name="status-col" width="170px">
+        <template slot-scope="{row}">
+          <span>{{ row.member.user.username }}</span>
+          
+        </template>
+
+      </el-table-column>
+
+      <el-table-column label="Beneficiary Name" width="180px" align="right">
         <template slot-scope="{row}">
           <span class="link-type" @click="viewKyc(row)">{{ row.member.kyc.bank_ac_name }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Bank Name" width="200px" align="right">
+      <el-table-column label="Bank Name" width="180px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.member.kyc.bank_name }} </span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Bank Account Number" class-name="status-col" width="200px">
+      <el-table-column label="Bank Account Number" class-name="status-col" width="180px">
         <template slot-scope="{row}">
           <span>{{ row.member.kyc.bank_ac_no }}</span>
           
         </template>
 
       </el-table-column>
-      <el-table-column label="IFSC Code" class-name="status-col" width="200px">
+      <el-table-column label="IFSC Code" class-name="status-col" width="180px">
         <template slot-scope="{row}">
           <span>{{ row.member.kyc.ifsc }}</span>
         </template>
