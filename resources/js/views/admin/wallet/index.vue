@@ -116,7 +116,7 @@
 
       </el-table-column> 
 
-      <el-table-column label="Number Id" class-name="status-col" width="170px">
+      <el-table-column label="Member ID" class-name="status-col" width="170px">
         <template slot-scope="{row}">
           <span>{{ row.member.user.username }}</span>
           
