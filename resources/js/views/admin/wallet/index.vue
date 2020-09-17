@@ -664,6 +664,7 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "ID",
+          "Member ID",
           "Beneficiary Name",
           "Bank Name",
           "Bank Account Number",
@@ -672,6 +673,7 @@ export default {
         ];
         const filterVal = [
           "id",
+          "member_id",
           "beni",
           "bank",
           "banckacc",
@@ -692,6 +694,8 @@ export default {
         filterVal.map(j => {
           if (j === "timestamp") {
             return parseTime(v[j]);
+          } else if(j=='member_id'){
+            return v.member.user.username
           } else if(j=='beni'){
             return v.member.kyc.bank_ac_name
           } else if(j=='bank'){
