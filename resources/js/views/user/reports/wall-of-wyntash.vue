@@ -25,7 +25,7 @@
 
                 <div class="card-container"  :class="[data.id==1 ? 'first' : '', data.id==2 ? 'second' : '', data.id==3 ? 'second' : '', data.id==4 ? 'second' : '', data.id==5 ? 'second' : '']">
                     <div class="img-container">
-                        <img :src="data.profile_picture?data.profile_picture:avatar"  alt="">
+                        <img :src="data.user.profile_picture?data.user.profile_picture:avatar"  alt="">
                     </div>
 
                     <div class="content">
@@ -42,11 +42,18 @@
                             </div>
                         </div>
                         <div class="data-1">
+
                             <p> <span>&#8377;</span> {{data.total_amount}}</p>
                         </div>
                     </div>
                     <div class="floating-icon">
-                        <span>{{data.id}}</span>
+                      <div v-if="is_mobile">
+                        <i class="fas fa-crown crown" v-if="data.id==1"  ></i>
+                      </div>
+                      <div v-else>
+                        <i class="fas fa-crown fa-2x crown" v-if="data.id==1"  ></i>
+                      </div>
+                      <span>{{data.id}}</span>
                     </div>
                 </div>
             </div>
@@ -95,6 +102,7 @@ export default {
   },
   data() {
     return {
+      is_mobile:false,
       tableKey: 0,
       avatar: avatar,
       bgImage: bgImage,
@@ -155,6 +163,9 @@ export default {
   },
   created() {
     this.getList();
+    if(window.screen.width <= '550'){
+      this.is_mobile=true;
+    }
   },
   methods: {
     getList() {
@@ -416,8 +427,20 @@ export default {
   opacity: 1;
 }
 
+.crown{
+  position: absolute !important;
+  top: 3px !important;
+  left: 29px !important;
+  color: #e6b742 !important;
+}
 @media (max-width:450px) {
-
+  
+  .crown{
+    position: absolute !important;
+    top: 5px !important; 
+    left: 27px !important;
+    color: #e6b742 !important;
+  }
     .background-image{
             width: 100%;
             margin-left: 23px !important;

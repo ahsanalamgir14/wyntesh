@@ -55,11 +55,11 @@ class PayoutsController extends Controller
     
         if(!$search){
 
-            $results = WallOfWyntash::orderBy('id',$sort)->where('total_amount','>=',10000)->paginate($limit);
-            
+            $results = WallOfWyntash::orderBy('id',$sort)->with('user')->where('total_amount','>=',10000)->paginate($limit);
+           
         }else{
 
-            $results=WallOfWyntash::select()->where('total_amount','>=',10000);
+            $results=WallOfWyntash::select()->with('user')->where('total_amount','>=',10000);
              if($search){
                 $results->where('username',$search);
             }
