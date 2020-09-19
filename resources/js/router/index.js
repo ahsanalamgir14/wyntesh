@@ -806,20 +806,20 @@ export const asyncRoutes = [
 
   //User Routes
   
-  // {
-  //   path: '/member',
-  //   component: Layout,
-  //   redirect: '/wall-of-wyntash',
-  //   hidden: true,
-  //   children: [
-  //     {
-  //       path: 'wall-of-wyntash',
-  //       component: () => import('@/views/user/reports/wall-of-wyntash'),
-  //       name: 'Wall Of Wyntash',
-  //       meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true }
-  //     }
-  //   ]
-  // },
+  {
+    path: '/member',
+    component: Layout,
+    redirect: '/wall-of-wyntash',
+    hidden: false,
+    children: [
+      {
+        path: 'wall-of-wyntash',
+        component: () => import('@/views/user/reports/wall-of-wyntash'),
+        name: 'Wall Of Wyntash',
+        meta: { title: 'Wall Of Wyntash', icon: 'fas fa-hand-holding-usd', color:'color:#39A8FA', affix: true }
+      }
+    ]
+  },
 
   {
     path: '/my',
