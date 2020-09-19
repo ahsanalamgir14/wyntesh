@@ -577,14 +577,10 @@ export default {
           "Product Code",
           "Product Name",
           "Quantity",
-          "Product Price",
           "Order Amount",
-          "GST",
-          "Shipping Fee",
-          "Admin Charge",
-          "Discount",
-          "Final Amount",
-          "Address",
+          "GST %",
+          "GST Value",
+          "Total Value",
           "Created At",
         ];
         const filterVal = [
@@ -595,13 +591,9 @@ export default {
           "product_name",
           "product_quantity",
           "product_price",
-          "amount",
+          "gst_rate",
           "gst",
-          "shipping_fee",
-          "admin_fee",
-          "discount",
           "final_amount",
-          "address",
           "created_at",
         ];
         const data = this.formatJson(filterVal, this.list);
@@ -625,20 +617,31 @@ export default {
             product_number:p.product.product_number,
             product_name:p.product.name,
             product_quantity:p.qty,
-            product_price:p.final_amount,
-            amount:v.amount,
-            gst:v.gst,
-            shipping_fee:v.shipping_fee,
-            admin_fee:v.admin_fee,
-            discount:v.discount,
-            final_amount:v.final_amount,
-            address:ad?ad.full_name+', '+ad.address+', '+ad.landmark+', '+ad.city+', '+ad.state+', '+ad.pincode+', '+ad.mobile_number:'',
+            product_price:p.amount,
+            gst_rate:p.gst_rate,
+            gst:p.gst,
+            final_amount:p.final_amount,
             created_at:v.created_at,
           };
+
+          
+
           orders.push(order);
-        });
-        
+        });        
+        let shipping_data={
+          id:v.id,
+          order_no:v.order_no,
+          product_name:'Shipping Charges',
+          product_price:v.shipping_fee,
+          gst_rate:'5',
+          gst:(v.shipping_fee*5)/100,
+          final_amount:parseFloat((v.shipping_fee*5)/100)+parseFloat(v.shipping_fee),
+          created_at:v.created_at,
+        };
+        orders.push(shipping_data);
+        orders.push({});
       });
+
       
       return orders.map(v =>
         filterVal.map(j => {
