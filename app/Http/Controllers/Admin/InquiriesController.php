@@ -100,7 +100,7 @@ class InquiriesController extends Controller
         $Inquiry->save();
 
 
-        $response = array('status' => true,'message'=>'Inquiry created successfully.');    
+        $response = array('status' => true,'message'=>'Inquiry created successfully.','data'=>$Inquiry);
         return response()->json($response, 200);  
     }
 
