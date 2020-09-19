@@ -47,11 +47,13 @@
                         </div>
                     </div>
                     <div class="floating-icon">
-                      <div v-if="is_mobile">
-                        <i class="fas fa-crown crown" v-if="data.id==1"  ></i>
-                      </div>
-                      <div v-else>
-                        <i class="fas fa-crown fa-2x crown" v-if="data.id==1"  ></i>
+                      <div v-if="data.id==1" >
+                        <div v-if="is_mobile">
+                          <img :src="crown" class="crown"/>
+                        </div>
+                        <div v-else>
+                          <img :src="crown" class="crown"/>
+                        </div>
                       </div>
                       <span>{{data.id}}</span>
                     </div>
@@ -81,6 +83,7 @@
 import { fetchAllEliteMember, } from "@/api/user/payouts";
 import avatar from '@/assets/images/avatar.png'
 import bgImage from '@/assets/images/wall-of-wyntash.jpeg'
+import crown from '@/assets/images/crown.png'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
 // import Pagination from "@/components/Pagination"; 
@@ -106,6 +109,7 @@ export default {
       tableKey: 0,
       avatar: avatar,
       bgImage: bgImage,
+      crown: crown,
       hidden: false,
       pageSize: 10,
       layout: 'total, sizes, prev,next, jumper',
@@ -171,7 +175,6 @@ export default {
     getList() {
       this.listLoading = true;
       fetchAllEliteMember(this.listQuery).then(response => {
-        console.log(response.data.data);
         this.list = response.data.data;
         this.total_data = response.data.total;
         setTimeout(() => {
@@ -428,17 +431,19 @@ export default {
 }
 
 .crown{
+    width: 50px;
   position: absolute !important;
   top: 3px !important;
-  left: 29px !important;
+  left: 25px !important;
   color: #e6b742 !important;
 }
 @media (max-width:450px) {
   
   .crown{
+    width: 50px;
     position: absolute !important;
-    top: 5px !important; 
-    left: 27px !important;
+    top: -5px !important; 
+    left: 16px !important;
     color: #e6b742 !important;
   }
     .background-image{
