@@ -440,10 +440,10 @@ export default {
 @media (max-width:450px) {
   
   .crown{
-    width: 50px;
+    width: 35px;
     position: absolute !important;
-    top: -5px !important; 
-    left: 16px !important;
+    top: 2px !important; 
+    left: 20px !important;
     color: #e6b742 !important;
   }
     .background-image{
