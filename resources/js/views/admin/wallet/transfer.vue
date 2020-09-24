@@ -135,7 +135,7 @@
       <el-form ref="formBalanceTransfer" :rules="rules" :model="temp">
         <el-row :gutter="20">
             <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-              <el-form-item label="Transfer from (Memmber ID)" label-width="120" prop="transfer_from">
+              <el-form-item label="Transfer from (Member ID)" label-width="120" prop="transfer_from">
                 <el-input  v-on:blur="handleFromCheckMemberId()" v-model="temp.transfer_from" ></el-input>
               </el-form-item>
               <el-form-item label="From Member Name" label-width="120" prop="transfer_from_name">
@@ -146,7 +146,7 @@
               </el-form-item>              
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-              <el-form-item label="Transfer to (Memmber ID)" label-width="120" prop="transfer_to">
+              <el-form-item label="Transfer to (Member ID)" label-width="120" prop="transfer_to">
                 <el-input  v-on:blur="handleToCheckMemberId()" v-model="temp.transfer_to" ></el-input>
               </el-form-item>
               <el-form-item label="Member Name" label-width="120" prop="transfer_to_name">
@@ -176,7 +176,7 @@
       <el-form ref="formAddBalance" :rules="rulesAddBalance" :model="tempAddBalance">
         <el-row :gutter="20">
           <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-            <el-form-item label="Memmber ID" label-width="120" prop="member_id">
+            <el-form-item label="Member ID" label-width="120" prop="member_id">
               <el-input  v-on:blur="handleAddMemberGetBalance()" v-model="tempAddBalance.member_id" ></el-input>
             </el-form-item>
             <el-form-item label="Member Name" label-width="120" prop="member_name">

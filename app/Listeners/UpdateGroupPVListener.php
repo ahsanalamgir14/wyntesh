@@ -72,13 +72,22 @@ class UpdateGroupPVListener implements ShouldQueue
                 
                 $MembersLegPv->save();
             }else{
-                // Log::info('PV - '.$order->pv);
-                $MembersLegPv=new MembersLegPv;
-                $MembersLegPv->member_id=$upline;
-                $MembersLegPv->position=$position;
-                $MembersLegPv->pv=$order->pv;
-                $MembersLegPv->created_at=$order->created_at;
-                $MembersLegPv->save();
+
+                if($type=='add'){
+                    $MembersLegPv=new MembersLegPv;
+                    $MembersLegPv->member_id=$upline;
+                    $MembersLegPv->position=$position;
+                    $MembersLegPv->pv=$order->pv;
+                    $MembersLegPv->created_at=$order->created_at;
+                    $MembersLegPv->save();
+                }elseif($type=='subtract'){
+                    $MembersLegPv=new MembersLegPv;
+                    $MembersLegPv->member_id=$upline;
+                    $MembersLegPv->position=$position;
+                    $MembersLegPv->pv=-$order->pv;
+                    $MembersLegPv->created_at=$order->created_at;
+                    $MembersLegPv->save();
+                }
             }
             
             $position=$Members->position;

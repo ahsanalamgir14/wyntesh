@@ -377,7 +377,7 @@ class ShoppingController extends Controller
                 $Incomes->income_parameters[0]->value_1 = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
 
                 $incmParam = isset($Incomes->income_parameters[0]->value_1)?$Incomes->income_parameters[0]->value_1:0;
-                if($Order->user->member->sponsor){
+                if($Order->user->member->sponsor && $Order->user->member->sponsor->user->is_active){
 
                     $tds_percentage = CompanySetting::getValue('tds_percentage');
                     $amount = ($Order->pv*$incmParam)/100; 
@@ -411,8 +411,6 @@ class ShoppingController extends Controller
                     $AffiliateBonus->save();
                 }
 
-                
-                $IncomeWalletTransactions->transfered_from         = $Order->user->member->sponsor->user->id;
                 event(new UpdateGroupPVEvent($Order,$Order->user,'add'));
             }
 
