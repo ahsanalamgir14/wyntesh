@@ -33,18 +33,14 @@ class CronsController extends Controller
 
     public function WallOfWyntashReport(){
 
-        $last = new Carbon('last day of last month');
-        $last = $last->startOfMonth()->format('Y-m-d'); 
-
         $start = new Carbon('first day of last month');
-        $start = $start->endOfMonth()->format('Y-m-d H:i:s'); 
+        $start = $start->startOfMonth()->format('Y-m-d'); 
 
-        // $start = '2020-07-14';
-        // $last = '2020-08-31';
-
+        $last = new Carbon('last day of last month');
+        $last = $last->endOfMonth()->format('Y-m-d'); 
 
         $results = DB::select(DB::raw("SELECT *,sum(amt) total_amt from (SELECT  ab.created_at ,u.profile_picture, u.name , u.username, u.dob , k.city , ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id right join `users` as u on u.id = m.user_id  right join kyc as k on k.member_id = m.id where date(ab.created_at) >= '$start' and  date(ab.created_at) <= '$last' group by ab.member_id UNION SELECT tp.created_at ,u.profile_picture, u.name ,u.username,u.dob ,k.city,tp.member_id,sum(total_payout+tds) as amt FROM `member_payouts` as tp left join `members` as m on m.id = tp.member_id left join `users` as u on u.id = m.user_id left join kyc as k on k.member_id = m.id where date(tp.created_at) >= '$start' and  date(tp.created_at) <= '$last' group by member_id UNION SELECT r.created_at,u.profile_picture, u.name, u.username, u.dob, k.city, r.member_id, SUM(amount) AS amt FROM `rewards` AS r LEFT JOIN `members` AS m ON m.id = r.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN kyc AS k ON k.member_id = m.id where date(r.created_at) >= '$start' and  date(r.created_at) <= '$last' GROUP BY member_id) tmp group by tmp.member_id order by total_amt desc ") );
-        // dd($results);
+        
         WallOfWyntash::truncate();
         
         foreach($results as $data){           
