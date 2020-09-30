@@ -810,7 +810,7 @@ export const asyncRoutes = [
     path: '/member',
     component: Layout,
     redirect: '/wall-of-wyntash',
-    hidden: false,
+    hidden: true,
     children: [
       {
         path: 'wall-of-wyntash',
@@ -844,6 +844,7 @@ export const asyncRoutes = [
         path: 'welcome-letter',
         component: () => import('@/views/user/account/welcome-letter'),
         name: 'Welcome Letter',
+        hidden: true,
         meta: { title: 'Welcome Letter', icon: 'fas fa-handshake', color:'color:#854CE2', affix: true, roles: ['user'] }
       },
       {
