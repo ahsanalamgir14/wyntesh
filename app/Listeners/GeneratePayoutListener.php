@@ -216,13 +216,35 @@ class GeneratePayoutListener
 
         // Get Income Ids of Payout 
         $Incomes=Income::whereIn('id',$income_ids)->get();
+        
         foreach ($Incomes as $income) {
             // Get Payout income from payout id
             $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
             if($income->code=='SQUAD'){
                 $this->PayoutSquadIncomeFactor($income,$PayoutIncome,$payout);
             }
+        }
 
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+        })->orderBy('level','desc')->get();
+
+        foreach ($Members as $Member) {
+            $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
+            $Incomes = Income::whereIn('id',$income_ids)->get();
+            foreach($Incomes as $income){
+                if($income->code=='SQUAD'){
+                    $this->PayoutSquadIncome($income,$payout,$memberPayout,$Member);
+                }
+
+            }            
+        }
+
+        $Incomes=Income::whereIn('id',$income_ids)->get();
+        foreach ($Incomes as $income) {
+            // Get Payout income from payout id
+            $PayoutIncome=PayoutIncome::where('payout_id',$payout->id)->where('income_id',$income->id)->first();
+            
             if($income->code=='ELEVATION'){
                 $this->PayoutElevationIncomeFactor($income,$PayoutIncome,$payout);
             }
@@ -244,10 +266,7 @@ class GeneratePayoutListener
             $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$payout->id)->first();
             $Incomes = Income::whereIn('id',$income_ids)->get();
             foreach($Incomes as $income){
-                if($income->code=='SQUAD'){
-                    $this->PayoutSquadIncome($income,$payout,$memberPayout,$Member);
-                }
-                
+               
                 if($income->code=='ELEVATION'){
                     $this->PayoutElevationIncome($income,$payout,$memberPayout,$Member);
                 }
@@ -573,6 +592,44 @@ class GeneratePayoutListener
                                                 $q->where('is_active',1);
                                             })->get()->pluck('id')->toArray();
 
+        $PremiumEls=array_merge($eligible_4,$eligible_5,$eligible_6,$eligible_7);
+
+        $totalPP=0;
+
+
+        foreach ($PremiumEls as $key=>$pmid) {
+            $PMem=Member::find($pmid);
+            $spaf=$this->calulatePremiumPoints($PMem,$start,$end);
+            if($PMem->rank_id==4){
+                $point=0;
+                $point=intdiv($spaf,$rank_4_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_4, $pmid);
+                }
+            }
+            if($PMem->rank_id==5){
+                $point=0;
+                $point=intdiv($spaf,$rank_5_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_5, $pmid);
+                }
+            }
+            if($PMem->rank_id==6){
+                $point=0;
+                $point=intdiv($spaf,$rank_6_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_6, $pmid);
+                }
+            }
+            if($PMem->rank_id==7){
+                $point=0;
+                $point=intdiv($spaf,$rank_7_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_7, $pmid);
+                }
+            }
+        }
+
         $all_eligibles=array_merge($eligible_4,$eligible_5,$eligible_6,$eligible_7,$eligible_8,$eligible_8,$eligible_8);
 
         $all_eligible_and_points=array_count_values($all_eligibles);
@@ -722,6 +779,16 @@ class GeneratePayoutListener
 
         $eligibles=array_column($results,'member_id');
         return $eligibles;
+    }
+
+    public function calulatePremiumPoints($Member,$from,$to){
+        $results=DB::select(DB::raw("SELECT sum(amt) total_amt from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id where date(`ab`.`created_at`) >= '".$from."' and date(`ab`.`created_at`) <= '".$to."' group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 and date(`tp`.`created_at`) >= '".$from."' and date(`tp`.`created_at`) <= '".$to."' group by member_id) tmp where tmp.member_id=".$Member->id." group by tmp.member_id ") );
+
+        if($results){            
+            return floatval($results[0]->total_amt);
+        }else{
+            return 0;
+        }
     }
 
     public function updateRank($payout){
