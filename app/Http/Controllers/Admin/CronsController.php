@@ -33,10 +33,10 @@ class CronsController extends Controller
 
     public function WallOfWyntashReport(){
 
-        $last = new Carbon();
+        $last = new Carbon('last day of last month');
         $last = $last->startOfMonth()->format('Y-m-d'); 
 
-        $start = new Carbon();
+        $start = new Carbon('first day of last month');
         $start = $start->endOfMonth()->format('Y-m-d H:i:s'); 
 
         // $start = '2020-07-14';
@@ -107,7 +107,7 @@ class CronsController extends Controller
     public function generateMonthlyPayout()
     {
         $dt = Carbon::now();
-        //$dt->modify('-1 months');
+        $dt->modify('-1 months');
         $from= $dt->firstOfMonth()->toDateString('Y-m-d');
         $to= $dt->endOfMonth()->toDateString('Y-m-d');
 
