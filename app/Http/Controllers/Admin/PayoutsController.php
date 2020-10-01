@@ -190,7 +190,8 @@ class PayoutsController extends Controller
         $MemberPayoutIncome=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->with('income')->get();
         $user_details=array('name' => $MemberPayout->member->user->name,'username'=>$MemberPayout->member->user->username,'profile_picture'=>$MemberPayout->member->user->profile_picture,'rank'=>$MemberPayout->member->rank->name );
 
-        $affiliter = AffiliateBonus::addSelect([\DB::raw('sum(final_amount) as final_amount')])
+        // dd($MemberPayout->payout);
+        $affiliter = AffiliateBonus::addSelect([\DB::raw('sum(amount) as final_amount')])
                         ->where("member_id",$MemberPayout->member->id)
                         ->whereDate('created_at','>=', $MemberPayout->payout->sales_start_date)
                         ->whereDate('created_at','<=', $MemberPayout->payout->sales_end_date)
