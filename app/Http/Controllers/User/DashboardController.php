@@ -251,23 +251,33 @@ class DashboardController extends Controller
 
     public function payoutStats(){
         $User=JWTAuth::user();
-        $dt = Carbon::now()->modify('-7 months');        
-        $from= $dt->firstOfMonth()->toDateString('Y-m-d');        
-        $to=Carbon::now()->modify('-1 months')->endOfMonth()->toDateString('Y-m-d');
-        $payouts=MemberPayout::whereBetween('created_at', [$from,$to])
-                    ->where('member_id',$User->member->id)
-                    ->orderBy('date', 'ASC')
-                    ->get(array(
-                        DB::raw('Date(created_at) as date'),
-                        DB::raw('sum(total_payout) as income')
-                    ));
+        $from   = Carbon::now()->modify('-7 months')->firstOfMonth()->toDateString('Y-m-d');        
+        $to     = Carbon::now()->modify('-1 months')->endOfMonth()->toDateString('Y-m-d');
+
         $od=[];
 
+        $reward = Reward::whereBetween('created_at', [$from,$to])->where('member_id',$User->member->id)
+        ->select(DB::raw('sum(amount) as income'),DB::raw("DATE_FORMAT(created_at, '%m-%Y') new_date"),  DB::raw('YEAR(created_at) year, MONTH(created_at) month'),DB::raw('Date(created_at) as date'))
+        ->groupBy('year','month')
+        ->orderBy('created_at','ASC')
+        ->get();
+
+
+        $affiliateIncomeWithTDS = AffiliateBonus::whereBetween('created_at', [$from,$to])->where('member_id',$User->member->id)
+        ->select(DB::raw('sum(amount) as income'),DB::raw("DATE_FORMAT(created_at, '%m-%Y') new_date"),  DB::raw('YEAR(created_at) year, MONTH(created_at) month'),DB::raw('Date(created_at) as date'))
+        ->groupBy('year','month')
+        ->orderBy('created_at','ASC')
+        ->get();
+
+        $payouts = MemberPayout::whereBetween('created_at', [$from,$to])->where('member_id',$User->member->id)
+        ->select(DB::raw('sum(total_payout+tds) as income'),DB::raw("DATE_FORMAT(created_at, '%m-%Y') new_date"),  DB::raw('YEAR(created_at) year, MONTH(created_at) month'),DB::raw('Date(created_at) as date'))
+        ->groupBy('year','month')
+        ->orderBy('created_at','ASC')
+        ->get();
 
         for ($i=7; $i >= 1 ; $i--) {
-            
             if(count($payouts)){
-                foreach ($payouts as $payout) {
+                foreach ($payouts as $key=>$payout) {
                     $date_to_compare=Carbon::parse($payout->date)->format('Y-m');
 
                     if($date_to_compare == Carbon::now()->modify('-'.$i.' months')->format('Y-m') ){
@@ -278,14 +288,52 @@ class DashboardController extends Controller
                             $od[$i]['date']=Carbon::now()->modify('-'.$i.' months')->format('Y-m');
                             $od[$i]['income']=0;
                         }
-                        
                     }
                 }   
             }else{
                 $od[$i]['date']=Carbon::now()->modify('-'.$i.' months')->format('Y-m') ;
                 $od[$i]['income']=0;
             }
-     
+        }
+
+        for ($k=7; $k >= 1 ; $k--) {
+            if(count($affiliateIncomeWithTDS)){
+                foreach ($affiliateIncomeWithTDS as $key=>$payout) {
+                    $date_to_compare=Carbon::parse($payout->date)->format('Y-m');
+
+                    if($date_to_compare == Carbon::now()->modify('-'.$k.' months')->format('Y-m') ){
+                        // $od[$k]['date']=$date_to_compare;
+                        $od[$k]['income']+=floor($payout->income);
+                    }else{
+                        if(!isset($od[$k])){
+                            // $od[$k]['date']=Carbon::now()->modify('-'.$k.' months')->format('Y-m');
+                            $od[$k]['income']+=0;
+                        }
+                    }
+                }   
+            }else{
+                // $od[$k]['date']=Carbon::now()->modify('-'.$k.' months')->format('Y-m') ;
+                $od[$k]['income']+=0;
+            }
+        }
+        for ($s=7; $s >= 1 ; $s--) {
+            if(count($reward)) {
+                foreach ($reward as $sey=>$payout) {
+                    $date_to_compare=Carbon::parse($payout->date)->format('Y-m');
+                    if($date_to_compare == Carbon::now()->modify('-'.$s.' months')->format('Y-m') ){
+                        // $od[$s]['date']=$date_to_compare;
+                        $od[$s]['income']+=floor($payout->income);
+                    }else{
+                        if(!isset($od[$s])){
+                            // $od[$s]['date']=Carbon::now()->modify('-'.$s.' months')->format('Y-m');
+                            $od[$s]['income']+=0;
+                        }
+                    }
+                }   
+            }else{
+                // $od[$s]['date'] = Carbon::now()->modify('-'.$s.' months')->format('Y-m') ;
+                $od[$s]['income']+=0;
+            }
         }
         $payout_list=[];
         foreach ($od as $o) {
