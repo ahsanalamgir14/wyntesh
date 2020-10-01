@@ -509,6 +509,53 @@ class PayoutsController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getMemberTopWallet(Request $request)
+    {   
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+
+        if(!$search){
+            $memberWallet=Member::select()->with('user')->where('wallet_balance','>',0)->orderBy('wallet_balance',$sort)->paginate($limit);
+        }else{
+            $memberWallet=Member::select();
+            if($search){
+
+                // $memberWallet=$memberWallet->where('id',$search);
+                $memberWallet=$memberWallet->where(function ($query)use($search) {              
+                    $query=$query->WhereHas('user',function($q)use($search){
+                        $q->where('username','like','%'.$search.'%');
+                    });
+                });
+
+
+            }
+
+
+            $memberWallet=$memberWallet->with('user')->where('wallet_balance','>',0)->orderBy('wallet_balance',$sort)->paginate($limit);
+        }
+
+
+   
+        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$memberWallet);
+        return response()->json($response, 200);
+    }
     public function getMemberTDS(Request $request)
     {
         $page=$request->page;

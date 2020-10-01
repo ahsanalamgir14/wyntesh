@@ -142,7 +142,7 @@
 
     <el-dialog title="Transfer Balance" width="40%"  top="30px" :visible.sync="dialogTransferVisible">
       <el-form ref="formBalanceTransfer" :rules="rules" :model="temp">
-        <el-form-item label="Transfer to (Memmber ID)" label-width="120" prop="transfer_to">
+        <el-form-item label="Transfer to (Member ID)" label-width="120" prop="transfer_to">
           <el-input  v-on:blur="handleCheckMemberId()" v-model="temp.transfer_to" ></el-input>
         </el-form-item>
         <el-form-item label="Member Name" label-width="120" prop="transfer_to_name">

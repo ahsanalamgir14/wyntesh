@@ -70,6 +70,13 @@ export function getMemberTDS(query) {
     params: query
   })
 }
+export function getMemberTopWallet(query) {
+  return request({
+    url: '/admin/top-wallet',
+    method: 'get',
+    params: query
+  })
+}
 
 export function getMemberPayoutIncomes(query) {
   return request({

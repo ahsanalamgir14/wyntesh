@@ -28,6 +28,12 @@ export function getMemberBalance(code) {
     method: 'get'
   })
 }
+export function getMemberIncomeBalance(code) {
+  return request({
+    url: '/admin/member/income-balance/'+code,
+    method: 'get'
+  })
+}
 
 export function getAdminGeneology() {
   return request({

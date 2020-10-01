@@ -303,6 +303,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('transfer-requests/approve', 'WalletController@approveTransfer');
 
     Route::get('member/balance/{code}', '\App\Http\Controllers\User\MembersController@checkMemberBalance');
+    Route::get('member/income-balance/{code}', '\App\Http\Controllers\User\MembersController@checkMemberIncomeBalance');
 
     Route::get('withdrawals', 'WalletController@getWithdrawals');
     Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
@@ -311,8 +312,10 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
     Route::post('wallet/balance/add', 'WalletController@addBalance');
     
+    Route::get('wallet/income-debits', 'WalletController@getIncomeWalletDebitTransactions');
     Route::get('wallet/debits', 'WalletController@getDebitTransactions');
     Route::post('wallet/balance/debit', 'WalletController@debitBalance');
+    Route::post('wallet/income-balance/debit', 'WalletController@debitIncomeBalance');
 
     Route::get('wallet/credit-requests', 'WalletController@creditRequests');
     Route::post('wallet/approve-credit-requests', 'WalletController@approveCreditRequest');
@@ -372,6 +375,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('group-and-matching-pvs', 'PayoutsController@getGroupAndMatchingPvs');
 
     Route::get('tds/member', 'PayoutsController@getMemberTDS');
+    Route::get('top-wallet', 'PayoutsController@getMemberTopWallet');
 });
 
 Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' => 'admin','namespace'=>'Admin'], function($router)

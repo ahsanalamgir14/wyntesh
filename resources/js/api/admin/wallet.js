@@ -112,9 +112,25 @@ export function getDebitTransactions(query) {
   })
 }
 
+export function getIncomeWalletDebitTransactions(query) {
+  return request({
+    url: '/admin/wallet/income-debits',
+    method: 'get',
+    params: query
+  })
+}
+
 export function debitBalance(data) {
   return request({
     url: '/admin/wallet/balance/debit',
+    method: 'post',
+    data
+  })
+}
+
+export function debitIncomeBalance(data) {
+  return request({
+    url: '/admin/wallet/income-balance/debit',
     method: 'post',
     data
   })

@@ -197,14 +197,12 @@ methods: {
      },
     getPayout(id){
       getMemberPayout(id).then(response => {
-        console.log(response);
-        // this.temp.affiliter           = response.affiliter;
+
         this.temp.contact_no           = response.payout.member.user.contact;
         this.temp.email           = response.payout.member.user.email;
         this.temp.id           = response.user.username;
         this.temp.pic           = response.payout.member.user.profile_picture;
         this.temp.address           = response.payout.member.kyc.address;
-        // this.temp.pic           = response.payout.member.user.profile_picture;
         this.temp.name          = response.payout.member.user.name;
         this.temp.rank          = response.payout.rank.name;
         this.temp.userid        = response.payout.member.user.username;

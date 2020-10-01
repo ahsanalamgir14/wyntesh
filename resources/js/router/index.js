@@ -488,6 +488,13 @@ export const asyncRoutes = [
         meta: { title: 'Debit Balance', icon: 'fas fa-upload', color:'color:#e2eb34', affix: true, roles: ['admin'] }
       },
       {
+        path: 'debit-income-balance',
+        component: () => import('@/views/admin/wallet/debit-income-balance'),
+        name: 'Debit Income Balance',
+        hidden:true,
+        meta: { title: 'Debit Income Balance', icon: 'fas fa-upload', color:'color:#e01b34', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'wallet-transactions',
         component: () => import('@/views/admin/wallet/transactions'),
         name: 'Wallet Transactions',
@@ -579,6 +586,13 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/reports/tds-report'),
         name: 'TDS',
         meta: { title: 'TDS', icon: 'fas fa-hand-holding-usd', color:'color:#62a832', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'wallet-balance',
+        component: () => import('@/views/admin/reports/top-wallet'),
+        name: 'Wallet Balance',
+        hidden: true,
+        meta: { title: 'Wallet Balance', icon: 'fas fa-wallet', color:'color:#49ff00', affix: true, roles: ['admin'] }
       },
       {
         path: 'wallet-transactions',
