@@ -54,21 +54,21 @@ class DashboardController extends Controller
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
         $tds=MemberPayout::where('member_id',$User->member->id)->sum('tds');
         $reward=Reward::where('member_id',$User->member->id)->sum('amount');
-        $total_income=Member::where('id',$User->member->id)->sum('income_wallet_balance');
         $total_payout = $total_payout+$tds+$reward;
         $total_payout+=$affiliateIncomeWithTDS;
+        $total_income=Member::where('id',$User->member->id)->sum('income_wallet_balance');
         
         $squad_bonus_income=Income::where('code','SQUAD')->first();
-        $squad_bonus = MemberPayoutIncome::where('income_id',$squad_bonus_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+        $squad_bonus = MemberPayoutIncome::where('income_id',$squad_bonus_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
 
         $elevation_income=Income::where('code','ELEVATION')->first();
-        $elevation = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+        $elevation = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
 
         $luxury_income=Income::where('code','LUXURY')->first();
-        $luxury = MemberPayoutIncome::where('income_id',$luxury_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+        $luxury = MemberPayoutIncome::where('income_id',$luxury_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
 
         $premium_income=Income::where('code','PREMIUM')->first();
-        $premium = MemberPayoutIncome::where('income_id',$premium_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+        $premium = MemberPayoutIncome::where('income_id',$premium_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
 
 
         $self_pv=Member::where('id',$User->member->id)->sum('total_personal_pv');
