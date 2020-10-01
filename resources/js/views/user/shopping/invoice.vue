@@ -54,7 +54,7 @@
                     <br>
                     <span style="font-size: 15px;">Member Id : {{order.shipping_address?order.shipping_address.user.username:''}}</span>
                     <br>
-                    <span style="font-size: 15px;">{{order.shipping_address?order.shipping_address.address:''}}, {{order.shipping_address?order.shipping_address.landmark:''}}, {{order.shipping_address?order.shipping_address.city:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.mobile_number:''}}</span>
+                    <span style="font-size: 15px;">{{order.shipping_address?order.shipping_address.address:''}}, {{order.shipping_address?order.shipping_address.landmark:''}}, {{order.shipping_address?order.shipping_address.city:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.pincode:''}},{{order.shipping_address?order.shipping_address.mobile_number:''}}</span>
                   </td>
                   <td class="item-name">
                     
