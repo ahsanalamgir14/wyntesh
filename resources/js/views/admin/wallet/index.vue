@@ -580,7 +580,7 @@ export default {
     },
     handleApprove(row){
       let temp = Object.assign({}, row);
-      let tds=(temp.amount*this.temp.tds_percentage)/100;
+      let tds=(temp.amount*0)/100;
       this.temp.id=temp.id;
       this.temp.tds_amount=parseFloat(tds);
       this.temp.amount=parseFloat(temp.amount);
@@ -650,7 +650,7 @@ export default {
         payment_status:'Paid',
         note:undefined,
       };
-      this.temp.tds_percentage=this.settings.tds_percentage;
+      this.temp.tds_percentage=0;
     },
     clean(obj) {
       for (var propName in obj) { 

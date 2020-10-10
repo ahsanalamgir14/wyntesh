@@ -369,6 +369,9 @@ class ShoppingController extends Controller
             $Order->delivery_status='Order Created';
             $Order->save();
 
+            $Order->order_no=$Order->id;
+            $Order->save();
+            
             foreach ($Cart as $item) {
                 $OrderProduct=new OrderProduct;
                 $OrderProduct->order_id=$Order->id;

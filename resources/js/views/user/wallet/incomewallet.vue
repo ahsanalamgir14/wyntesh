@@ -618,7 +618,7 @@ export default {
         final_debit:0,
         note:undefined,
       };
-      this.temp.tds_percent=this.settings.tds_percentage;
+      this.temp.tds_percent=0;
     },
     resetETemp() {
       this.transfer_temp = {

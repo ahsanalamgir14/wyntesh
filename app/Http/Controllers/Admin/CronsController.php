@@ -26,6 +26,7 @@ use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\Payout;
 use App\Events\GeneratePayoutEvent;
 use App\Models\Admin\MemberIncomeHolding;
+use App\Models\Admin\IncomeWalletTransactions;
 use Illuminate\Support\Facades\Storage;
 
 class CronsController extends Controller
@@ -98,6 +99,36 @@ class CronsController extends Controller
         $backup->size = Storage::size($allFiles[0]);
         $backup->save();
         Storage::delete(Storage::files($folder));
+    }
+
+    public function releaseHoldPayout(){
+        
+        $TransactionType=TransactionType::where('name','Credit')->first();
+
+        $squad_members=Member::where('rank_id',8)->get();
+
+        foreach ($squad_members as $member) {
+            $MemberIncomeHolding=MemberIncomeHolding::selectRaw('*, sum(amount) as withhold_amount')
+           ->where('member_id',$member->id)->where('is_paid',0)->first();
+
+            if($MemberIncomeHolding->withhold_amount && $TransactionType){
+                $IncomeWalletTransactions=new IncomeWalletTransactions;
+                $IncomeWalletTransactions->member_id=$member->id;
+                $IncomeWalletTransactions->amount=$MemberIncomeHolding->withhold_amount;
+                $IncomeWalletTransactions->balance=$MemberIncomeHolding->withhold_amount+$member->wallet_balance;
+                $IncomeWalletTransactions->transaction_type_id=$TransactionType->id;
+                $IncomeWalletTransactions->transfered_to=$member->user->id;
+                $IncomeWalletTransactions->note='Withhold Payout';
+                $IncomeWalletTransactions->save(); 
+
+                $member->income_wallet_balance+=$MemberIncomeHolding->withhold_amount;
+                $member->save();
+
+                MemberIncomeHolding::where('member_id',$member->id)->where('is_paid',0)->update(['is_paid'=>1,'paid_at'=>Carbon::now()]);
+            }
+        }
+
+        
     }
 
     public function generateMonthlyPayout()
