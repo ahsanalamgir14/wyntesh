@@ -52,39 +52,39 @@
       </el-table-column>      
       <el-table-column label="Month" width="200px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}') }}</span>
+          <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Member" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.member.user.username }}</span>
+          <span >{{ row.username }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Name" width="250px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.member.user.name }}</span>
+          <span >{{ row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Pan" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.member.kyc?row.member.kyc.pan:'' }}</span>
+          <span >{{ row.pan }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="Duration Start" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout.sales_start_date }}</span>
+          <span >{{ row.created_at }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Duration End" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout.sales_end_date }}</span>
+          <span >{{ row.created_at }}</span>
         </template>
       </el-table-column>
       
       <el-table-column label="TDS" width="200px" align="right">
         <template slot-scope="{row}">
-          <span >{{ parseFloat(row.tds)+parseFloat(row.affiliate_tds) }}</span>
+          <span >{{ parseFloat(row.tds)}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -130,7 +130,7 @@ export default {
       sum:0,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 10,
         search: undefined,
         sort: "-id"
       },
@@ -237,8 +237,11 @@ export default {
     getList() {
       this.listLoading = true;
       getMemberTDS(this.listQuery).then(response => {
-        this.list = response.data.data;
-        this.total = response.data.total;
+        console.log(response);
+        this.list = response.data;
+        // this.total = response.data.total;
+        this.total = 100;
+
         this.sums=response.sum;
         setTimeout(() => {
           this.listLoading = false;

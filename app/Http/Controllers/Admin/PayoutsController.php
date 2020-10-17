@@ -579,46 +579,49 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
+
         if(!$search && !$month){
-            $MemberPayout=MemberPayout::select();
-            //$MemberPayout=$MemberPayout->where('total_payout','!=',0);
-            
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name','member.kyc')->orderBy('id',$sort)->paginate($limit);
+
+                
+            $ofset = $page*$limit;
+            $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id  GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY tmp.created_at HAVING tds > 0 LIMIT  $limit OFFSET $ofset ") );
+
             $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')])->first();
+
         }else{
-            $MemberPayout=MemberPayout::select();
+
+            $ofset = $page*$limit;
+            $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id  GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY tmp.created_at HAVING tds > 0 LIMIT $limit OFFSET $page ") );
+
+
+
             $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')]);
 
             if($search){
-                $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
-                    $query=$query->orWhereHas('member.user',function($q)use($search){
-                        $q->where('username','like','%'.$search.'%');
-                    });
-                });
-                $total=$total->where(function ($query)use($search) {              
-                    $query=$query->orWhereHas('member.user',function($q)use($search){
-                        $q->where('username','like','%'.$search.'%');
-                    });
-                });
+                 $users = User::where('username',$search)->with('member')->first();
+                 $member_id= $users->member->id;
+                
+                 $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id   WHERE ab.member_id = $member_id GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id   WHERE tp.member_id = $member_id  GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY  tmp.member_id,YEAR(tmp.created_at), MONTH(tmp.created_at) HAVING tds > 0 ") );
+
             }
         
-            if($month){
-                $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
-                    $month=$month.'-01';
-                    $date=Carbon::parse($month);
-                    $q->whereMonth('sales_start_date',$date->month);
-                    $q->whereYear('sales_start_date',$date->year);
-                });
-                $total=$total->whereHas('payout',function($q)use($month){
-                    $date=Carbon::parse($month);
-                    $q->whereMonth('sales_start_date',$date->month);
-                    $q->whereYear('sales_start_date',$date->year);
-                });
-            }
+            // if($month){
+            //     $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
+            //         $month=$month.'-01';
+            //         $date=Carbon::parse($month);
+            //         $q->whereMonth('sales_start_date',$date->month);
+            //         $q->whereYear('sales_start_date',$date->year);
+            //     });
+            //     $total=$total->whereHas('payout',function($q)use($month){
+            //         $date=Carbon::parse($month);
+            //         $q->whereMonth('sales_start_date',$date->month);
+            //         $q->whereYear('sales_start_date',$date->year);
+            //     });
+            // }
 
             $total=$total->first();
             //$MemberPayout=$MemberPayout->where('total_payout','!=',0);
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+            // $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout,'sum'=>$total);
