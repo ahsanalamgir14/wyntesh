@@ -563,7 +563,7 @@ class PayoutsController extends Controller
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
-        $month=$request->month;
+        $month=$request->month?$request->month:date('Y-m-d');
 
         if(!$page){
             $page=1;

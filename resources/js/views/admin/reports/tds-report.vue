@@ -184,23 +184,17 @@ export default {
       this.downloadLoading = true;
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
-          "ID",
           "Month",
           "Member",
           "Name",
           "Pan",
-          "Duration Start",
-          "Duration End",
           "TDS",
         ];
         const filterVal = [
-          "id",
           "month",
           "member",
           "name",
           "pan",
-          "duration_start",
-          "duration_end",
           "tds",
         ];
         const data = this.formatJson(filterVal, this.list);
@@ -215,19 +209,15 @@ export default {
       return jsonData.map(v =>
         filterVal.map(j => {
           if (j === "month") {
-            return v.payout.sales_start_date;
+            return parseTime(v.created_at,'{m}-{y}');
           }else if (j === "member") {
-            return v.member.user.username;
+            return v.username;
           }else if (j === "name") {
-            return v.member.user.name;
+            return v.name;
           }else if (j === "pan") {
-            return v.member.kyc?v.member.kyc.pan:'';
-          }else if (j === "duration_start") {
-            return v.payout.sales_start_date;
-          }else if (j === "duration_end") {
-            return v.payout.sales_end_date;
+            return v.pan
           }else if (j === "tds") {
-            return parseFloat(v.tds)+parseFloat(v.affiliate_tds);
+            return v.tds;
           }else{
             return v[j];
           }
