@@ -71,7 +71,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Duration Start" width="200px" align="right">
+      <!-- <el-table-column label="Duration Start" width="200px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.created_at }}</span>
         </template>
@@ -80,7 +80,7 @@
         <template slot-scope="{row}">
           <span >{{ row.created_at }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       
       <el-table-column label="TDS" width="200px" align="right">
         <template slot-scope="{row}">
@@ -240,7 +240,7 @@ export default {
         console.log(response);
         this.list = response.data;
         // this.total = response.data.total;
-        this.total = 100;
+        this.total = response.total;
 
         this.sums=response.sum;
         setTimeout(() => {
@@ -256,8 +256,8 @@ export default {
           sums[index] = 'Final Total (All)';
           return;
         }
-        if(index===7){
-          sums[index] = this.sums?this.sums.tds_amount:0;
+        if(index===5){
+          sums[index] = this.sums?this.sums:0;
           return; 
         }
       });

@@ -579,52 +579,46 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-
-        if(!$search && !$month){
-
-                
-            $ofset = $page*$limit;
-            $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id  GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY tmp.created_at HAVING tds > 0 LIMIT  $limit OFFSET $ofset ") );
-
-            $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')])->first();
-
-        }else{
-
-            $ofset = $page*$limit;
-            $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id  GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY tmp.created_at HAVING tds > 0 LIMIT $limit OFFSET $page ") );
-
-
-
-            $total=MemberPayout::select([DB::raw('sum(tds) as tds_amount')]);
-
-            if($search){
-                 $users = User::where('username',$search)->with('member')->first();
-                 $member_id= $users->member->id;
-                
-                 $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id   WHERE ab.member_id = $member_id GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id   WHERE tp.member_id = $member_id  GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY  tmp.member_id,YEAR(tmp.created_at), MONTH(tmp.created_at) HAVING tds > 0 ") );
-
-            }
-        
-            // if($month){
-            //     $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
-            //         $month=$month.'-01';
-            //         $date=Carbon::parse($month);
-            //         $q->whereMonth('sales_start_date',$date->month);
-            //         $q->whereYear('sales_start_date',$date->year);
-            //     });
-            //     $total=$total->whereHas('payout',function($q)use($month){
-            //         $date=Carbon::parse($month);
-            //         $q->whereMonth('sales_start_date',$date->month);
-            //         $q->whereYear('sales_start_date',$date->year);
-            //     });
-            // }
-
-            $total=$total->first();
-            //$MemberPayout=$MemberPayout->where('total_payout','!=',0);
-            // $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
-        }
    
-        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout,'sum'=>$total);
+        $ofset = $page*$limit;
+        $affiliate = "";
+        $memberPayout  =""; 
+        if($search && $month){
+            $users      = User::where('username',$search)->with('member')->first();
+            $member_id  = $users->member->id;
+            $month      = $request->month;
+            $year       = date('Y',strtotime($month));
+            $months     = date('m',strtotime($month));
+            $ofset = 0;
+            $affiliate      = "WHERE ab.member_id = $member_id and YEAR(ab.created_at) = $year AND MONTH(ab.created_at) = $months";
+            $memberPayout   = "WHERE tp.member_id = $member_id and YEAR(tp.created_at) = $year AND MONTH(tp.created_at) = $months";
+        }
+        else if($search){
+            $ofset = 0;
+            $users = User::where('username',$search)->with('member')->first();
+            $member_id= $users->member->id;
+            $affiliate      = "WHERE ab.member_id = $member_id ";
+            $memberPayout   = "WHERE tp.member_id = $member_id ";
+        }
+        else if($month){
+            $ofset = 0;
+            $year = date('Y',strtotime($month));
+            $months = date('m',strtotime($month));
+            $affiliate      = "WHERE YEAR(ab.created_at) = $year AND MONTH(ab.created_at) = $months";
+            $memberPayout   = "WHERE YEAR(tp.created_at) = $year AND MONTH(tp.created_at) = $months";
+        }
+
+
+        $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id  $affiliate GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  $memberPayout GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY tmp.member_id,YEAR(tmp.created_at), MONTH(tmp.created_at) HAVING tds > 0 LIMIT  $limit OFFSET $ofset ") );
+        
+        $sum=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id    RIGHT JOIN kyc AS k ON k.member_id = m.id $affiliate UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id $memberPayout ) tmp") );
+        $sum = $sum[0]->tds;
+
+        $totalCount=   DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id  RIGHT JOIN kyc AS k ON k.member_id = m.id  $affiliate GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  $memberPayout GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY  tmp.member_id,YEAR(tmp.created_at), MONTH(tmp.created_at) HAVING tds > 0  ") );
+
+        $totalCount = count($totalCount);
+
+        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout,'sum'=>$sum,'total'=>$totalCount);
         return response()->json($response, 200);
     }
 
