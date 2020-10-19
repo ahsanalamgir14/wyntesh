@@ -433,7 +433,7 @@ class ShoppingController extends Controller
                     $Sale->final_amount_company=0;
                     $Sale->save();
 
-                    if($Order->user->member->sponsor){
+                    if($Order->user->member->sponsor && $Order->user->member->sponsor->user->is_active){
 
                         $tds_percentage = CompanySetting::getValue('tds_percentage');
                         $amount = ($Order->pv*$incmParam)/100; 
