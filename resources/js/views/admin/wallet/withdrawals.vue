@@ -67,6 +67,11 @@
           <span>{{ row.member?row.member.user.username:'' }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Member Name" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.member?row.member.user.name:'' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Payment made at" width="140px" align="center">
         <template slot-scope="{row}">
           <span v-if="row.payment_made_at">{{ row.payment_made_at | parseTime('{y}-{m}-{d}') }}</span>
@@ -238,6 +243,7 @@ export default {
         const tHeader = [
           "ID",
           "Member ID",
+          "Member Name",
           "Payment made at",
           "Amount",
           "Status",          
@@ -250,6 +256,7 @@ export default {
         const filterVal = [
           "id",
           "member_id",
+          "member_name",
           "payment_made_at",
           "amount",
           "payment_status",
@@ -275,6 +282,8 @@ export default {
             return parseTime(v[j]);
           } else if(j=="member_id"){
             return v.member.user.username
+          } else if(j=="member_name"){
+            return v.member.user.name
           }else if(j=="transaction_by"){
             return v.transaction_by.username
           }else {
