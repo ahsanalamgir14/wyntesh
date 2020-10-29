@@ -713,7 +713,11 @@ class MembersController extends Controller
         if($user){
             $this->generateMemberID();
         }else{
-            return $member_id;
+            if(!$member_id){
+                $this->generateMemberID();
+            }else{
+                return $member_id;
+            }
         }
     }  
 
