@@ -188,14 +188,18 @@ export default {
           "Member",
           "Name",
           "Pan",
+          "Payout Amount",
           "TDS",
+          "Final Amount",
         ];
         const filterVal = [
           "month",
           "member",
           "name",
           "pan",
+          "payout_amount",
           "tds",
+          "final_amount",
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
@@ -216,8 +220,12 @@ export default {
             return v.name;
           }else if (j === "pan") {
             return v.pan
+          }else if (j === "payout_amount") {
+            return v.payout_amount;
           }else if (j === "tds") {
             return v.tds;
+          }else if (j === "final_amount") {
+            return v.payout_amount-v.tds;
           }else{
             return v[j];
           }
