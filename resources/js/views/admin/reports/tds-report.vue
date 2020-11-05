@@ -50,22 +50,22 @@
         type="index"
         width="50">
       </el-table-column>      
-      <el-table-column label="Month" width="200px" align="center">
+      <el-table-column label="Month" width="100px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Member" width="200px" align="right">
+      <el-table-column label="Member" width="100px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Name" width="250px" align="right">
+      <el-table-column label="Name" width="200px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Pan" width="200px" align="right">
+      <el-table-column label="Pan" width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.pan }}</span>
         </template>
@@ -81,10 +81,19 @@
           <span >{{ row.created_at }}</span>
         </template>
       </el-table-column> -->
-      
-      <el-table-column label="TDS" width="200px" align="right">
+      <el-table-column label="Payout Amount" width="150px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ parseFloat(row.payout_amount)}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="TDS" width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ parseFloat(row.tds)}}</span>
+        </template>
+      </el-table-column>
+       <el-table-column label="Net Payable" width="150px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ parseFloat(row.payout_amount) - parseFloat(row.tds)}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -225,7 +234,7 @@ export default {
           }else if (j === "tds") {
             return v.tds;
           }else if (j === "final_amount") {
-            return v.payout_amount-v.tds;
+            return (v.payout_amount)-(v.tds);
           }else{
             return v[j];
           }
