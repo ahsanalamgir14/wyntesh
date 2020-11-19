@@ -491,7 +491,7 @@ export const asyncRoutes = [
         path: 'debit-income-balance',
         component: () => import('@/views/admin/wallet/debit-income-balance'),
         name: 'Debit Income Balance',
-        hidden:true,
+        hidden:false,
         meta: { title: 'Debit Income Balance', icon: 'fas fa-upload', color:'color:#e01b34', affix: true, roles: ['admin'] }
       },
       {
@@ -1157,6 +1157,12 @@ export const asyncRoutes = [
         component: () => import('@/views/user/reports/group-business'),
         name: 'Current Business',
         meta: { title: 'Current Business', icon: 'fas fa-percent', color: 'color:#fcba03', affix: true, roles: ['user'] },
+      },
+      {
+        path: 'daily-bv',
+        component: () => import('@/views/user/reports/daily-bv'),
+        name: 'BV History',
+        meta: { title: 'BV History', icon: 'fas fa-percent', color: 'color:#68eda6', affix: true, roles: ['user'] },
       },
       {
         path: 'group-and-matching',

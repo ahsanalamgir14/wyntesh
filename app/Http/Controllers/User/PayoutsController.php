@@ -321,6 +321,43 @@ class PayoutsController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getDailyBVReport(Request $request)
+    {   
+        $user=JWTAuth::user();
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $MembersLegPv=MembersLegPv::select();
+        $MembersLegPv=$MembersLegPv->where('member_id',$user->member->id);
+        $MembersLegPv=$MembersLegPv->addSelect(DB::raw('DATE(created_at) as date'),DB::raw('sum(pv) as total_pv'));
+        
+        if($date_range){
+            $MembersLegPv=$MembersLegPv->whereDate('created_at','>=',$date_range[0])->whereDate('created_at','<=',$date_range[1]);
+        }
+
+        $MembersLegPv=$MembersLegPv->groupBy('date')->groupBy('position')->orderBy('id',$sort)->paginate($limit);
+   
+        $response = array('status' => true,'message'=>"Daily BV retrieved.",'data'=>$MembersLegPv);
+        return response()->json($response, 200);
+    }
+
 
 
 }

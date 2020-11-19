@@ -3,12 +3,13 @@
 namespace App\Models\Admin;
 
 use App\Models\User\User;
+use App\Http\Controllers\User\MembersController;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 class Member extends Model
 {
     public $timestamps = true;
-    protected $appends = ['group_pv'];
+    protected $appends = ['group_pv','team_size'];
     public function user()
     {
         return $this->belongsTo('App\Models\User\User');
@@ -38,6 +39,17 @@ class Member extends Model
             $group_pv+=$leg->pv;
         }
         return $group_pv;
+    }
+
+    public function getTeamSizeAttribute()
+    {
+        $MembersController=new MembersController;
+        $childs=$MembersController->getChildsOfParent($this->id);
+        if($childs){
+            return count($childs);
+        }else{
+            return 0;
+        }
     }
 
     public function parent()

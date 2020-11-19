@@ -59,22 +59,8 @@
       </el-col>
       <el-col :xs="24" :sm="24" :md="18" :lg="18" >
         <el-row :gutter="10" class="panel-group">
-         <!--  <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-            <router-link to="/network/downlines">
-              <div class="card-panel gr14" >
-                <div class="card-panel-icon-wrapper " >
-                  <i class="fas fa-users card-panel-icon"  ></i>
-                </div>
-                <div class="card-panel-description">
-                    <count-to :start-val="0" :end-val="dashboardStats.downlines" :duration="2600" class="card-panel-num" />
-                  <div class="card-panel-text">
-                    Downlines
-                  </div>
-                </div>
-              </div>
-            </router-link>
-          </el-col>
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+          
+          <!-- <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/network/referrals">
               <div class="card-panel gr7" >
                 <div class="card-panel-icon-wrapper icon-money">
@@ -123,7 +109,21 @@
                   </div>
                 </router-link>
             </el-col> -->
-
+            <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+            <router-link to="/network/downlines">
+              <div class="card-panel gr2" >
+                <div class="card-panel-icon-wrapper " >
+                  <i class="fas fa-users card-panel-icon"  ></i>
+                </div>
+                <div class="card-panel-description">
+                    <count-to :start-val="0" :end-val="dashboardStats.downlines" :duration="2600" class="card-panel-num" />
+                  <div class="card-panel-text">
+                    Downlines
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </el-col>
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/income-wallet">
               <div class="card-panel gr2" >

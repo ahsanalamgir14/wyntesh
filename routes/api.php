@@ -146,7 +146,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('orders', 'ShoppingController@getMyOrders');
     Route::get('affiliate-bonus', 'PayoutsController@myAffiliateBonus');
     
-
+    Route::get('daily/bv', 'PayoutsController@getDailyBVReport');
     Route::get('rewards', 'PayoutsController@rewards');
     Route::get('payouts', 'PayoutsController@getPayouts');
     Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
@@ -356,7 +356,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('check-member/{code}', 'PayoutsController@memberCheck');
     
     Route::post('reward-add', 'PayoutsController@AddReward');
-
+        
     Route::get('payouts', 'PayoutsController@getPayouts');
     Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
     Route::get('payouts/member', 'PayoutsController@getMemberPayouts');

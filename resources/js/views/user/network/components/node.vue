@@ -19,6 +19,7 @@
                     <p><b>ID</b> : {{node.user.username}}</p>
                     <p><b>Wallet Balance</b> : {{node.wallet_balance}}</p>
                     <p><b>Rank</b> : {{node.rank.name}}</p>
+                    <p><b>Team</b> : {{node.team_size}}</p>
                     <p><b>Total Group PV</b> : {{node.group_pv?node.group_pv:0}}</p>
                     <p><b>KYC Status</b> : {{node.kyc.verification_status}}</p>
                   </div>

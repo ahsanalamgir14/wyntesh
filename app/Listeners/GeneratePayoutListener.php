@@ -178,6 +178,10 @@ class GeneratePayoutListener
                 $index++;
             }
 
+            if($matched_bv<=0){
+                $matched_bv=0;
+            }
+
             // dd($carry_forward);
             if(count($legs)!== 0){
                 $MemberCarryForwardPv=new MemberCarryForwardPv;
