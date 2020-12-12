@@ -42,6 +42,7 @@ class MembersController extends Controller
             return 0;
         }
     }
+
     public function updateRank(){
         $Members=Member::orderBy('level','desc')->get();
         $Ranks=Rank::all();
@@ -340,21 +341,21 @@ class MembersController extends Controller
 
             $kyc=json_decode($request->kyc,true);
 
-            $User->kyc->address=$kyc['address'];
-            $User->kyc->adhar=$kyc['adhar'];
-            $User->kyc->pincode=$kyc['pincode'];
-            $User->kyc->pan=$kyc['pan'];
-            $User->kyc->city=$kyc['city'];
-            $User->kyc->state=$kyc['state'];
-            $User->kyc->bank_ac_name=$kyc['bank_ac_name'];
-            $User->kyc->bank_name=$kyc['bank_name'];
-            $User->kyc->bank_ac_no=$kyc['bank_ac_no'];
-            $User->kyc->nominee_name=$kyc['nominee_name'];
-            $User->kyc->nominee_relation=$kyc['nominee_relation'];
-            $User->kyc->nominee_dob=$kyc['nominee_dob'];
-            $User->kyc->nominee_contact=$kyc['nominee_contact'];
-            $User->kyc->ifsc=$kyc['ifsc'];
-            $User->kyc->verification_status=$kyc['verification_status'];
+            $User->kyc->address=$kyc['address']??'';
+            $User->kyc->adhar=$kyc['adhar']??'';
+            $User->kyc->pincode=$kyc['pincode']??'';
+            $User->kyc->pan=$kyc['pan']??'';
+            $User->kyc->city=$kyc['city']??'';
+            $User->kyc->state=$kyc['state']??'';
+            $User->kyc->bank_ac_name=$kyc['bank_ac_name']??'';
+            $User->kyc->bank_name=$kyc['bank_name']??'';
+            $User->kyc->bank_ac_no=$kyc['bank_ac_no']??'';
+            $User->kyc->nominee_name=$kyc['nominee_name']??'';
+            $User->kyc->nominee_relation=$kyc['nominee_relation']??'';
+            $User->kyc->nominee_dob=$kyc['nominee_dob']??'';
+            $User->kyc->nominee_contact=$kyc['nominee_contact']??'';
+            $User->kyc->ifsc=$kyc['ifsc']??'';
+            $User->kyc->verification_status=$kyc['verification_status']??'';
             $User->kyc->save();
 
             if($request->hasFile('adhar_image')){
@@ -502,6 +503,11 @@ class MembersController extends Controller
 
         $username=$this->generateMemberID();
 
+        if(!$username){
+            $response = array('status' => false,'message'=>'User Id not generated, try registering again.');
+            return response()->json($response, 400);
+        }
+
         $User= User::create([
             'name' => $request->name,
             'username' => $username,
@@ -571,6 +577,11 @@ class MembersController extends Controller
 
         $username=$this->generateMemberID();
 
+        if(!$username){
+            $response = array('status' => false,'message'=>'User Id not generated, try registering again.');
+            return response()->json($response, 400);
+        }
+
         $User= User::create([
             'name' => $request->name,
             'username' => $username,
@@ -631,6 +642,7 @@ class MembersController extends Controller
         $search=$request->search;
         $is_active=$request->is_active;
         $date_range=$request->date_range;
+        $position=$request->position;
         
         if(!$page){
             $page=1;
@@ -647,26 +659,27 @@ class MembersController extends Controller
         }
 
         $memberIds=$this->getChildsOfParent($User->member->id);
-
-        if(!$search && !$date_range){
-            $Members=Member::select();
+        
+        $Members=Member::select();
+        
+        if(!$position){
             $Members=$Members->whereIn('id',$memberIds);
+        }
 
-            if($is_active!='all'){
-                $Members=$Members->whereHas('user', function($q)use($is_active){
-                    $q->where('is_active', $is_active);
-                });
+        if($position){
+            $leftMember=Member::where('parent_id',$User->member->id)->where('position',$position)->first();
+            if($leftMember){
+                $leftChildIds=$this->getChildsOfParent($leftMember->id);
+                $memberIds=array_merge($leftChildIds,[$leftMember->id]);
+                if($memberIds){
+                    $Memberbers=$Members->whereIn('id',$memberIds);
+                }
+            }else{                
+                    $Memberbers=$Members->whereIn('id',[]);
             }
+        }
 
-            $Members=$Members->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(pv)'));
-            }]);
-
-            $Members=$Members->with('parent:id,user_id','sponsor:id,user_id','user:id,username,name,is_active,is_blocked','rank')->orderBy('id',$sort)->paginate($limit);    
-        }else{
-            $Members=Member::select();
-            $Members=$Members->whereIn('id',$memberIds);
-
+        if($search){
             $Members=$Members->where(function ($query)use($search) {
                 $query->orWhereHas('user', function($q)use($search){
                      $q->where('name','like','%'.$search.'%');
@@ -680,31 +693,28 @@ class MembersController extends Controller
                 $query->orWhereHas('user', function($q)use($search){
                      $q->where('username','like','%'.$search.'%');
                 });
-            });
-
-            $Members=$Members->withCount(['leg as group_pv' => function($query){
-               $query->select(DB::raw('sum(pv)'));
-            }]);
-
-            if($date_range){
-                $Members=$Members->whereDate('created_at','>=', $date_range[0]);
-                $Members=$Members->whereDate('created_at','<=', $date_range[1]);
-            }
-
-            if($is_active!='all'){
-                $Members=$Members->whereHas('user', function($q)use($is_active){
-                    $q->where('is_active', $is_active);
-                });
-            }
-       
-            $Members=$Members->with('parent','sponsor','user','rank')->orderBy('id',$sort)->paginate($limit);
-            
+            });   
+        }
+        
+        if($date_range){
+            $Members=$Members->whereDate('created_at','>=', $date_range[0]);
+            $Members=$Members->whereDate('created_at','<=', $date_range[1]);
         }
 
-        
-       
-       $response = array('status' => true,'message'=>"Members retrieved.",'data'=>$Members);
-            return response()->json($response, 200);
+        $Members=$Members->withCount(['leg as group_pv' => function($query){
+           $query->select(DB::raw('sum(pv)'));
+        }]);
+
+        if($is_active!='all'){
+            $Members=$Members->whereHas('user', function($q)use($is_active){
+                $q->where('is_active', $is_active);
+            });
+        }
+   
+        $Members=$Members->with('parent','sponsor','user','rank')->orderBy('id',$sort)->paginate($limit);
+               
+        $response = array('status' => true,'message'=>"Members retrieved.",'data'=>$Members);
+        return response()->json($response, 200);
     } 
 
     public function generateMemberID(){

@@ -31,7 +31,8 @@
                 <br>
                 <div style="margin-top: 10px;"><span >{{ temp.username }}</span></div>
                 <div style="margin-top: 10px;">
-                  <el-tag style="font-size: 16px;" type="primary">{{ temp.member.rank.name }}</el-tag>
+                  <el-tag style="font-size: 16px;" type="primary" >{{ temp.member.rank.name }}</el-tag>
+                  <!-- <el-tag style="font-size: 16px;" type="primary" >Customer</el-tag> -->
                 </div>
                 <div class="avatar-wrapper">
                     <img :src="temp.profile_picture?temp.profile_picture:'/images/avatar.png'" class="user-avatar">

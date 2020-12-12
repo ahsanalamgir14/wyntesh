@@ -591,7 +591,7 @@ export const asyncRoutes = [
         path: 'wallet-balance',
         component: () => import('@/views/admin/reports/top-wallet'),
         name: 'Wallet Balance',
-        hidden: true,
+        hidden: false,
         meta: { title: 'Wallet Balance', icon: 'fas fa-wallet', color:'color:#49ff00', affix: true, roles: ['admin'] }
       },
       {

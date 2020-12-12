@@ -15,6 +15,13 @@
         <el-option  key="1202" label="Inactive" value="0" />
       </el-select>
 
+      <el-select v-model="listQuery.position" clearable style="width: 140px" placeholder="Leg" class="filter-item" @change="handleFilter">
+        <el-option  key="1202" label="Leg A" value="1" />
+        <el-option  key="1203" label="Leg B" value="2" />
+        <el-option  key="1204" label="Leg C" value="3" />
+        <el-option  key="1205" label="Leg D" value="4" />
+      </el-select>
+
       <el-date-picker
         v-model="listQuery.date_range"
         class="filter-item"

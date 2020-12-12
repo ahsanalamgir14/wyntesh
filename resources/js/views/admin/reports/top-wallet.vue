@@ -41,21 +41,27 @@
         width="50" label="#">
       </el-table-column>      
 
-      <el-table-column label="Member Id" width="400px" align="center">
+      <el-table-column label="Member Id" min-width="200px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.user.username }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Member Name" width="400px" align="center">
+      <el-table-column label="Member Name" min-width="200px" align="center">
         <template slot-scope="{row}">
           <span >{{ row.user.name }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Wallet Balance" prop="id" sortable="custom" width="400px" align="center" :class-name="getSortClass('id')">
+      <el-table-column label="Wallet Balance" prop="id" sortable="custom" min-width="200px" align="center" :class-name="getSortClass('id')">
         <template slot-scope="{row}">
           <span >{{ row.wallet_balance }}</span>
+        </template>
+      </el-table-column>
+
+       <el-table-column label="Income Wallet Balance" min-width="200px" align="center" >
+        <template slot-scope="{row}">
+          <span >{{ row.income_wallet_balance }}</span>
         </template>
       </el-table-column>
      

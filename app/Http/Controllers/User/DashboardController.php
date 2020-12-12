@@ -70,10 +70,8 @@ class DashboardController extends Controller
         $premium_income=Income::where('code','PREMIUM')->first();
         $premium = MemberPayoutIncome::where('income_id',$premium_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
 
-
         $self_pv=Member::where('id',$User->member->id)->sum('total_personal_pv');
         $current_personal_pv=Member::where('id',$User->member->id)->sum('current_personal_pv');
-
 
         $response = array(
             'status' => true,
