@@ -2,17 +2,16 @@
   <div class="app-container">
     <div class="filter-container">        
       <el-date-picker
-        v-model="listQuery.date_range"
+        v-model="listQuery.bv_date"
         class="filter-item"
-        type="daterange"
+        type="date"
         align="right"
         unlink-panels
         @change="handleFilter"
         format="dd-MM-yyyy"
         value-format="yyyy-MM-dd"
         range-separator="|"
-        start-placeholder="Start date"
-        end-placeholder="End date">
+        placeholder="Date">
       </el-date-picker>
     </div>
 
@@ -27,47 +26,36 @@
       @sort-change="sortChange"
       >
 
-      <el-table-column
-        label="ID"
-        prop="id"
-        sortable="custom"
-        align="center"
-        width="80"
-        :class-name="getSortClass('id')"
-      >
+      <el-table-column label="Leg A" max-width="160px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+          <span > {{row.A}}</span>
         </template>
       </el-table-column>
-
-      <el-table-column label="Date" width="110px" align="right">
+      <el-table-column label="Leg B" max-width="160px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{d}-{m}-{y}') }}</span>
+          <span > {{row.B}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Leg" max-width="160px" align="right">
+      <el-table-column label="Leg C" max-width="160px" align="right">
         <template slot-scope="{row}">
-          <span v-if="row.position==1"> A</span>
-          <span v-if="row.position==2"> B</span>
-          <span v-if="row.position==3"> C</span>
-          <span v-if="row.position==4"> D</span>
+          <span > {{row.C}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="BV" max-width="160px" align="right">
+      <el-table-column label="Leg D" max-width="160px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.total_pv }}</span>
+          <span > {{row.D}}</span>
         </template>
       </el-table-column>
       
     </el-table>
 
-    <pagination
+    <!-- <pagination
       v-show="total>0"
       :total="total"
       :page.sync="listQuery.page"
       :limit.sync="listQuery.limit"
       @pagination="getList"
-    />
+    /> -->
 
 
   </div>
@@ -140,8 +128,7 @@ export default {
       this.listLoading = true;
      
       getDailyBVReport(this.listQuery).then(response => {
-        this.list = response.data.data;
-        this.total = response.data.total;
+        this.list = response.data;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);

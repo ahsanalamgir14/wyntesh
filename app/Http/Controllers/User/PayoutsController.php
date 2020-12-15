@@ -306,15 +306,13 @@ class PayoutsController extends Controller
                         ->orderBy('totalPv','desc')
                         ->groupBy('position')
                         ->get();
+
             $legsArray[]=$legs;
             $monthly_pvs['dates']       = date('Y-m-d',strtotime($lastPayout->sales_start_date)).'  |  '.date('Y-m-d',strtotime($lastPayout->sales_end_date));
             $monthly_pvs['position']    = $carryForwordPv?$carryForwordPv->position:"";
             $monthly_pvs['pv']          = $carryForwordPv?$carryForwordPv->pv:"";
             $monthly_pvs['legs']        = $legsArray;
         }
-
-        
-      
 
       
         $response = array('status' => true,'message'=>"Member Leg Pvs retrieved.",'data'=>$monthly_pvs,'total'=>1);
@@ -328,7 +326,7 @@ class PayoutsController extends Controller
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
-        $date_range=$request->date_range;
+        $bv_date=$request->bv_date;
 
         if(!$page){
             $page=1;
@@ -348,13 +346,24 @@ class PayoutsController extends Controller
         $MembersLegPv=$MembersLegPv->where('member_id',$user->member->id);
         $MembersLegPv=$MembersLegPv->addSelect(DB::raw('DATE(created_at) as date'),DB::raw('sum(pv) as total_pv'));
         
-        if($date_range){
-            $MembersLegPv=$MembersLegPv->whereDate('created_at','>=',$date_range[0])->whereDate('created_at','<=',$date_range[1]);
+        if($bv_date){
+            $MembersLegPv=$MembersLegPv->whereDate('created_at',$bv_date);
+        }else{            
+            $MembersLegPv=$MembersLegPv->whereDate('created_at',Carbon::now());
         }
 
-        $MembersLegPv=$MembersLegPv->groupBy('date')->groupBy('position')->orderBy('id',$sort)->paginate($limit);
+        $MembersLegPv=$MembersLegPv->groupBy('position')->get();
+
+        
+        $legPositions=array('A'=>0,'B'=>0,'C'=>0,'D'=>0);
+        $legArray=array(1=>'A',2=>'B',3=>'C',4=>'D');
+
+
+        foreach ($MembersLegPv as $legPv) {
+            $legPositions[$legArray[$legPv->position]]=$legPv->total_pv;
+        }
    
-        $response = array('status' => true,'message'=>"Daily BV retrieved.",'data'=>$MembersLegPv);
+        $response = array('status' => true,'message'=>"Daily BV retrieved.",'data'=>array($legPositions));
         return response()->json($response, 200);
     }
 
