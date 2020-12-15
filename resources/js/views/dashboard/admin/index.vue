@@ -58,7 +58,7 @@
             </div>
             <div class="card-panel-description">
               
-              <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_affilite)" :duration="3200" class="card-panel-num" />
+              <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_income_wallet_balance)" :duration="3200" class="card-panel-num" />
               <div class="card-panel-text">
                Total income wallet
               </div>
@@ -112,6 +112,22 @@
               <count-to :start-val="0" :end-val="dashboardStats.total_business_volume" :duration="3000" class="card-panel-num" />
               <div class="card-panel-text">
                 Total BV
+              </div>
+            </div>
+          </div>
+        </router-link>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <router-link to="#">
+          <div class="card-panel gr8" >
+            <div class="card-panel-icon-wrapper icon-money">
+              <i class="fas fa-rupee-sign card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.total_affilite_bonus" :duration="3600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Affiliate Bonus
               </div>
             </div>
           </div>
@@ -181,22 +197,7 @@
           </div>
         </router-link>
       </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-        <router-link to="/support/inquiries">
-          <div class="card-panel gr8" >
-            <div class="card-panel-icon-wrapper icon-shopping">
-              <i class="fas fa-phone-square-alt card-panel-icon"  ></i>
-            </div>
-            <div class="card-panel-description">
-              
-              <count-to :start-val="0" :end-val="dashboardStats.inquiries" :duration="3600" class="card-panel-num" />
-              <div class="card-panel-text">
-                Inquiries
-              </div>
-            </div>
-          </div>
-        </router-link>
-      </el-col>
+      
 
   
 

@@ -45,7 +45,7 @@ class DashboardController extends Controller
 
 
         $affiliateIncomeWithTDS=AffiliateBonus::sum('amount');
-        $total_affilite=Member::sum('income_wallet_balance');
+        $total_income_wallet_balance=Member::sum('income_wallet_balance');
         // dd($total_affilite);
 
 
@@ -72,7 +72,8 @@ class DashboardController extends Controller
                 'total_payout'=>$total_payout,
                 'pending_withdrawals'=>$pending_withdrawals,
                 'pending_orders'=>$pending_orders,
-                'total_affilite'=>$total_affilite,
+                'total_income_wallet_balance'=>$total_income_wallet_balance,
+                'total_affilite_bonus'=>$affiliateIncomeWithTDS,
                 'total_business_volume'=>$total_business_volume
             )
         );
