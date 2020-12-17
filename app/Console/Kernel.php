@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\CronsController;
 use App\Http\Controllers\User\PayoutsController;
 use App\Http\Controllers\User\MembersController;
 
+use App\Http\Controllers\Admin\MigrationController;
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -50,6 +52,11 @@ class Kernel extends ConsoleKernel
             $CronsController=new CronsController;
             $CronsController->releaseHoldPayout();
         })->monthlyOn(1, '00:22');
+
+        $schedule->call(function () {
+            $MigrationController=new MigrationController;
+            $MigrationController->doMigration();
+        });
     }
 
     /**

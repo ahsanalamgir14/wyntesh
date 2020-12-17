@@ -59,7 +59,7 @@ class ShoppingController extends Controller
 
         if(!$search && !$date_range ){           
             $Orders=Order::select();
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
+            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->where('delivery_status','Order Created');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }else{
@@ -79,7 +79,7 @@ class ShoppingController extends Controller
 
             $Orders=$Orders->where('delivery_status','Order Created');
 
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
+            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
@@ -119,8 +119,10 @@ class ShoppingController extends Controller
 
             $order_count=$Orders->count();
             $order_total_pv=$Orders->sum('pv');
-            $order_total_amount=$Orders->sum('final_amount');
-            $order_total_gst=$Orders->sum('gst');
+            $order_total_amount=$Orders->sum('net_amount');
+            $order_total_gst=$Orders->sum('gst_amount');
+            $order_total_cgst=$Orders->sum('cgst_amount');
+            $order_total_sgst=$Orders->sum('sgst_amount');
             $total_tds=0;
             $total_admin_fee=0;
             $Payout=Payout::whereYear('sales_start_date', '=', $year)
@@ -131,7 +133,7 @@ class ShoppingController extends Controller
                 $total_admin_fee=$Payout->admin_fee;
             }
 
-            $monthly_business=[['order_count'=>$order_count,'order_total_pv'=>$order_total_pv,'order_total_amount'=>$order_total_amount,'order_total_gst'=>$order_total_gst,'total_tds'=>$total_tds,'total_admin_fee'=>$total_admin_fee]];
+            $monthly_business=[['order_count'=>$order_count,'order_total_pv'=>$order_total_pv,'order_total_amount'=>$order_total_amount,'order_total_gst'=>$order_total_gst+$order_total_cgst+$order_total_sgst,'total_tds'=>$total_tds,'total_admin_fee'=>$total_admin_fee]];
         }else{
 
             $month=$month.'-01';
@@ -145,8 +147,10 @@ class ShoppingController extends Controller
 
             $order_count=$Orders->count();
             $order_total_pv=$Orders->sum('pv');
-            $order_total_amount=$Orders->sum('final_amount');
-            $order_total_gst=$Orders->sum('gst');
+            $order_total_amount=$Orders->sum('net_amount');
+            $order_total_gst=$Orders->sum('gst_amount');
+            $order_total_cgst=$Orders->sum('cgst_amount');
+            $order_total_sgst=$Orders->sum('sgst_amount');
             $total_tds=0;
             $total_admin_fee=0;
             $Payout=Payout::whereYear('sales_start_date', '=', $year)
@@ -157,7 +161,7 @@ class ShoppingController extends Controller
                 $total_admin_fee=$Payout->admin_fee;
             }
 
-            $monthly_business=[['order_count'=>$order_count,'order_total_pv'=>$order_total_pv,'order_total_amount'=>$order_total_amount,'order_total_gst'=>$order_total_gst,'total_tds'=>$total_tds,'total_admin_fee'=>$total_admin_fee]];
+            $monthly_business=[['order_count'=>$order_count,'order_total_pv'=>$order_total_pv,'order_total_amount'=>$order_total_amount,'order_total_gst'=>$order_total_gst+$order_total_cgst+$order_total_sgst,'total_tds'=>$total_tds,'total_admin_fee'=>$total_admin_fee]];
         }
         
         $response = array('status' => true,'message'=>"Monthly Business summury retrieved.",'data'=>$monthly_business);
@@ -193,11 +197,11 @@ class ShoppingController extends Controller
 
         if(!$search && !$date_range && !$delivery_status){           
             $Orders=Order::select();
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
+            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-            $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')])->first();
+            $order_total=Order::select([\DB::raw('sum(net_amount) as final_total'),\DB::raw('sum(pv) as pv')])->first();
         }else{
-            $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')]);
+            $order_total=Order::select([\DB::raw('sum(net_amount) as final_total'),\DB::raw('sum(pv) as pv')]);
 
             $Orders=Order::select();
             $Orders=$Orders->where(function ($query)use($search) {
@@ -219,7 +223,7 @@ class ShoppingController extends Controller
                 $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
             }
             $order_total= $order_total->first();
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
+            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
@@ -252,47 +256,33 @@ class ShoppingController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$date_range && !$delivery_status){           
-            $Orders=Order::select();
-            $Orders=$Orders->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-            $order_total=Order::select([DB::raw('sum(amount) as base_total'),DB::raw('sum(amount+gst) as final_total'),DB::raw('sum(gst) as gst')])->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->first();
-        }else{
-            $Orders=Order::select();
-            $Orders=$Orders->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);            
-            $order_total=Order::select([DB::raw('sum(amount) as base_total'),DB::raw('sum(amount+gst) as final_total'),DB::raw('sum(gst) as gst')]);
-            
+        $orders=Order::select();
+        $orders=$orders->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);            
+        $orderTotal=Order::select([DB::raw('sum(net_amount) as total_net_amount'),DB::raw('sum(gst_amount) as total_gst_amount'),DB::raw('sum(sgst_amount) as total_sgst_amount'),DB::raw('sum(cgst_amount) as total_cgst_amount'),DB::raw('sum(shipping_fee) as total_shipping_fee'),DB::raw('sum(base_amount) as total_base_amount')]);
+        $orderTotal=$orderTotal->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);            
+        
+        if($search){
+            $orders=$orders->where(function ($query)use($search) {
+                $query->orWhere('order_no','like','%'.$search.'%');  
+                $query=$query->orWhereHas('user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });            
+            });
+        }
 
-            if($search){
-                $Orders=$Orders->where(function ($query)use($search) {
-                    $query->orWhere('order_no','like','%'.$search.'%');  
-                    $query=$query->orWhereHas('user',function($q)use($search){
-                        $q->where('username','like','%'.$search.'%');
-                    });            
-
-                });
-                $order_total=$order_total->where(function ($query)use($search) {
-                    $query->orWhere('order_no','like','%'.$search.'%');  
-                    $query=$query->orWhereHas('user',function($q)use($search){
-                        $q->where('username','like','%'.$search.'%');
-                    });            
-
-                });;
-            }
-
-            if($date_range){
-                $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
-                $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
-                $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
-                $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
-            }
-            $order_total=$order_total->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->first();
-            $Orders=$Orders->with('products','shipping_address','logs','user:id,username,name','payment_mode','packages');
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+        if($date_range){
+            $orders=$orders->whereDate('created_at','>=', $date_range[0]);
+            $orders=$orders->whereDate('created_at','<=', $date_range[1]);
+            $orderTotal=$orderTotal->whereDate('created_at','>=', $date_range[0]);
+            $orderTotal=$orderTotal->whereDate('created_at','<=', $date_range[1]);
         }
         
-        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders,'sum'=>$order_total);
+        $orderTotal=$orderTotal->first();
+        $orders=$orders->with('products','logs','user:id,username,name','payment_mode','packages');
+        $orders=$orders->orderBy('id',$sort)->paginate($limit);
+
+        
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$orders,'sum'=>$orderTotal);
         return response()->json($response, 200);
     }
 
@@ -336,13 +326,12 @@ class ShoppingController extends Controller
             // dd($request->delivery_status);
             if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){
 
-                $final_amount_company=($Order->final_amount)-($Order->gst)-($Order->shipping_fee)-($Order->admin_fee);
+                $final_amount_company=($Order->net_amount)-($Order->gst)-($Order->shipping_fee);
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
                 $Sale->pv=$Order->pv;
-                $Sale->amount=$Order->final_amount;
-                $Sale->shipping_fee=$Order->shipping_fee;
-                $Sale->admin_fee=$Order->admin_fee;
+                $Sale->amount=$Order->net_amount;
+                $Sale->shipping_fee=$Order->shipping_fee;                
                 $Sale->gst=$Order->gst;
                 $Sale->order_id=$Order->id;
                 $Sale->final_amount_company=$final_amount_company;
@@ -502,15 +491,15 @@ class ShoppingController extends Controller
 
                 $WalletTransaction=new WalletTransaction;
                 $WalletTransaction->member_id=$Order->user->member->id;
-                $WalletTransaction->balance=$balance+$Order->final_amount;
-                $WalletTransaction->amount=$Order->final_amount;
+                $WalletTransaction->balance=$balance+$Order->net_amount;
+                $WalletTransaction->amount=$Order->net_amount;
                 $WalletTransaction->transaction_type_id=$TransactionType->id;
                 $WalletTransaction->transfered_to=$Order->user->id;
                 $WalletTransaction->transaction_by=$User->id;
                 $WalletTransaction->note='Product Return';
                 $WalletTransaction->save();
 
-                $final_balance=$balance+$Order->final_amount;
+                $final_balance=$balance+$Order->net_amount;
                 $Order->User->member->wallet_balance=$final_balance;
                 $Order->User->member->save();
                 
@@ -582,7 +571,7 @@ class ShoppingController extends Controller
             $Order->gst=$total_gst;
             $Order->shipping_fee=$shipping;
             $Order->admin_fee=$admin;
-            $Order->final_amount=$grand_total;
+            $Order->net_amount=$grand_total;
             $Order->pv=$pv;
             $Order->payment_status='Success';            
             $Order->payment_mode=$PaymentMode->id;

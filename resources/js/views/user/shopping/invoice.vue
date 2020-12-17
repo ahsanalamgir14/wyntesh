@@ -50,18 +50,18 @@
                   <td class="item-name">
                     
                    <span style="font-size: 15px;font-weight: bold;">Shipping to</span><br><br>
-                    <span style="font-size: 15px;font-weight: bold;">{{order.shipping_address?order.shipping_address.full_name:''}}</span>
+                    <span style="font-size: 15px;font-weight: bold;">{{order.user.name}}</span>
                     <br>
-                    <span style="font-size: 15px;">Member Id : {{order.shipping_address?order.shipping_address.user.username:''}}</span>
+                    <span style="font-size: 15px;">Member Id : {{order.user.username}}</span>
                     <br>
-                    <span style="font-size: 15px;">{{order.shipping_address?order.shipping_address.address:''}}, {{order.shipping_address?order.shipping_address.landmark:''}}, {{order.shipping_address?order.shipping_address.city:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.state:''}}, {{order.shipping_address?order.shipping_address.pincode:''}},{{order.shipping_address?order.shipping_address.mobile_number:''}}</span>
+                    <span style="font-size: 15px;">{{order.shipping_address}}</span>
                   </td>
                   <td class="item-name">
                     
                     <span style="font-size: 15px;font-weight: bold;">Billing to</span><br><br>
-                    <span style="font-size: 15px;font-weight: bold;">{{order.billing_address?order.billing_address.full_name:''}}</span><br><span style="font-size: 15px;">Member Id : {{order.shipping_address?order.shipping_address.user.username:''}}</span>
+                    <span style="font-size: 15px;font-weight: bold;">{{order.user.name}}</span>
                     <br>
-                    <span style="font-size: 15px;">{{order.billing_address?order.billing_address.address:''}}, {{order.billing_address?order.billing_address.landmark:''}}, {{order.billing_address?order.billing_address.city:''}}, {{order.billing_address?order.billing_address.state:''}}, {{order.billing_address?order.billing_address.pincode:''}}, {{order.billing_address?order.billing_address.mobile_number:''}}</span>
+                    <span style="font-size: 15px;">{{order.billing_address}}</span>
                   </td>
                   
               </tr>
@@ -91,16 +91,16 @@
                 <td class="cost"><div >{{product.product.dp_base}}</div></td>
                 <!-- <td class="cost"><div >{{product.product.retail_amount}}</div></td> -->
                 <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
-                <td class="qty"><div >{{product.qty}}</div></td>
+                <td class="qty"><div >{{product.quantity}}</div></td>
                 <td class="description"><div>{{product.pv}}</div></td>
-                <td class="description"><div>{{product.gst_rate/2}}</div></td>
-                <td class="description"><div>{{product.gst/2}}</div></td>
-                <td class="description"><div>{{product.gst_rate/2}}</div></td>
-                <td class="description"><div>{{product.gst/2}}</div></td>
-                <td class="description"><div>0.00</div></td>
-                <td class="description"><div>0.00</div></td>
+                <td class="description"><div>{{product.cgst_rate}}</div></td>
+                <td class="description"><div>{{product.cgst_amount}}</div></td>
+                <td class="description"><div>{{product.sgst_rate}}</div></td>
+                <td class="description"><div>{{product.sgst_amount}}</div></td>
+                <td class="description"><div>{{product.gst_rate}}</div></td>
+                <td class="description"><div>{{product.gst_amount}}</div></td>
 
-                <td class="total"><div >{{product.final_amount}}</div></td>
+                <td class="total"><div >{{product.gst_amount}}</div></td>
             </tr>
 
             <tr class="item-row">
@@ -126,39 +126,32 @@
             <tr>
                 <td colspan="7" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
                 <td colspan="3" class="total-line">Base Price Total</td>
-                <td class="total-value"><div id="subtotal">{{order.amount}}</div></td>
+                <td class="total-value"><div id="subtotal">{{order.base_amount}}</div></td>
             </tr>
             <tr>
 
                 <td colspan="3" class="total-line">CGST</td>
-                <td class="total-value"><div id="total">{{order.gst/2}}</div></td>
+                <td class="total-value"><div id="total">{{order.cgst_amount}}</div></td>
             </tr>
             <tr>
                 <td colspan="7" class="blank"> </td>
                 <td colspan="3" class="total-line">SGST</td>
-                <td class="total-value"><div id="total">{{order.gst/2}}</div></td>
+                <td class="total-value"><div id="total">{{order.sgst_amount}}</div></td>
             </tr>
             <tr>
               <td colspan="7" class="blank"> </td>
                 <td colspan="3" class="total-line">IGST</td>
-                <td class="total-value"><div id="total">0.00</div></td>
+                <td class="total-value"><div id="total">{{order.gst_amount}}</div></td>
             </tr>
             <tr>
-                <td colspan="7" class="blank"> </td>
+                <td colspan="7" class="blank" rowspan="2"> </td>
                 <td colspan="3" class="total-line">Shipping</td>
 
                 <td class="total-value"><div id="paid">{{(parseInt(order.shipping_fee)*5/100)+parseInt(order.shipping_fee)}}</div></td>
             </tr>
             <tr>
-                <td colspan="7" class="blank" rowspan="2"> 
-                </td>
-                <td colspan="3" class="total-line">Admin Charge</td>
-
-                <td class="total-value"><div id="paid">{{order.admin_fee}}</div></td>
-            </tr>
-            <tr>
                 <td colspan="3" class="total-line balance">Final Amount</td>
-                <td class="total-value balance"><div class="due">{{parseInt(order.final_amount)+parseInt(order.shipping_fee)*5/100}}</div></td>
+                <td class="total-value balance"><div class="due">{{parseInt(order.net_amount)+parseInt(order.shipping_fee)*5/100}}</div></td>
             </tr>
           
           </table>

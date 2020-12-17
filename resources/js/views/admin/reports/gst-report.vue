@@ -103,19 +103,31 @@
       
       <el-table-column label="Base Amount" min-width="110px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.amount }}</span>
+          <span>{{ row.base_amount }}</span>
         </template>
       </el-table-column>
       
-      <el-table-column label="GST" min-width="130px" align="right">
+      <el-table-column label="IGST" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.gst }}</span>
+          <span>{{ row.gst_amount }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="CGST" min-width="130px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.cgst_amount }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="SGST" min-width="130px" align="right">
+        <template slot-scope="{row}">
+          <span>{{ row.sgst_amount }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="Final Amount" min-width="110px" align="right">
         <template slot-scope="{row}">
-          <span>{{ parseFloat(row.final_amount)-parseFloat(row.shipping_fee) }}</span>
+          <span>{{ parseFloat(row.net_amount)-parseFloat(row.shipping_fee) }}</span>
         </template>
       </el-table-column>
       
@@ -244,17 +256,29 @@ export default {
           sums[index] = 'Final Total (All)';
           return;
         }
-        if(index===3){
-          sums[index] = this.sums.base_total;
-          return; 
+        if (index === 3) {
+          sums[index] = this.sums.total_base_amount;
+          return;
         }
-        if(index===4){
-          sums[index] = this.sums.gst;
-          return; 
+        if (index === 4) {
+          sums[index] = this.sums.total_gst_amount;
+          return;
         }
-        if(index===5){
-          sums[index] = this.sums.final_total;
-          return; 
+        if (index === 5) {
+          sums[index] = this.sums.total_sgst_amount;
+          return;
+        }
+        if (index === 6) {
+          sums[index] = this.sums.total_cgst_amount;
+          return;
+        }
+        if (index === 7) {
+          sums[index] = this.sums.total_shipping_fee;
+          return;
+        }
+        if (index === 8) {
+          sums[index] = this.sums.total_net_amount;
+          return;
         }
       });
 
@@ -265,7 +289,6 @@ export default {
      
       getGSTReport(this.listQuery).then(response => {
         this.list = response.data.data;
-        console.log(response.data.data);
         this.total = response.data.total;
         this.sums=response.sum;
         setTimeout(() => {
@@ -311,7 +334,9 @@ export default {
           "Package",
           "Payment Mode",
           "Amount",
-          "GST",
+          "IGST",
+          "CGST",
+          "SGST",
           "Created At",
         ];
         const filterVal = [
@@ -320,8 +345,10 @@ export default {
           "member_id",
           "package",
           "payment_mode",
-          "final_amount",
-          "gst",
+          "net_amount",
+          "gst_amount",
+          "cgst_amount",
+          "sgst_amount",
           "created_at",
         ];
         const data = this.formatJson(filterVal, this.list);

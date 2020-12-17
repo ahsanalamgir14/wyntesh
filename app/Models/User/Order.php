@@ -33,20 +33,20 @@ class Order extends Model {
         return $this->hasMany('App\Models\User\DeliveryLog');
     }
 
-    public function billing_address()
-    {
-        return $this->belongsTo('App\Models\User\Address','billing_address_id');
-    }
+    // public function billing_address()
+    // {
+    //     return $this->belongsTo('App\Models\User\Address','billing_address_id');
+    // }
 
     public function payment_mode()
     {
         return $this->belongsTo('App\Models\Superadmin\PaymentMode','payment_mode');
     }
 
-    public function shipping_address()
-    {
-        return $this->belongsTo('App\Models\User\Address','shipping_address_id');
-    }
+    // public function shipping_address()
+    // {
+    //     return $this->belongsTo('App\Models\User\Address','shipping_address_id');
+    // }
 
 
 }

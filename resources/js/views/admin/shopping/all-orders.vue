@@ -14,10 +14,9 @@
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border show-summary :summary-method="getSummaries" fit highlight-current-row style="width: 100%;" @sort-change="sortChange">
       <el-table-column label="Expand" width="80" type="expand">
         <template slot-scope="{row}">
-          <p><b>Amount</b>: {{ row.amount }}</p>
-          <p><b>GST</b>: {{ row.gst }}</p>
+          <p><b>Amount</b>: {{ row.base_amount }}</p>
+          <p><b>GST</b>: {{ row.gst_amount }}</p>
           <p><b>Shipping Fee</b>: {{ row.shipping_fee }}</p>
-          <p><b>Admin Fee</b>: {{ row.admin_fee }}</p>
           <p><b>Remark</b>: {{ row.remarks }}</p>
           <p><b>Created at</b>: {{ row.created_at | parseTime('{y}-{m}-{d}') }}</p>
         </template>
@@ -46,7 +45,7 @@
       </el-table-column>
       <el-table-column label="Order Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.final_amount }}</span>
+          <span>{{ row.net_amount }}</span>
         </template>
       </el-table-column>
       <el-table-column label="PV" max-width="160px" align="right">
@@ -84,9 +83,9 @@
                       <span>{{product.product.name}}</span>
                     </div>
                     <div class="quantity">
-                      <el-input style="width: 80px;" disabled v-model="product.qty" />
+                      <el-input style="width: 80px;" disabled v-model="product.quantity" />
                     </div>
-                    <div class="total-price">₹ {{product.final_amount}}</div>
+                    <div class="total-price">₹ {{product.net_amount}}</div>
                   </div>
                   <div class="item" v-for="pack in temp.packages" :key="pack.id">
                     <div class="image" v-lazy-container="{ selector: 'img' }">
@@ -96,9 +95,9 @@
                       <span>{{pack.package.name}}</span>
                     </div>
                     <div class="quantity">
-                      <el-input style="width: 80px;" disabled v-model="pack.qty" />
+                      <el-input style="width: 80px;" disabled v-model="pack.quantity" />
                     </div>
-                    <div class="total-price">₹ {{pack.final_amount}}</div>
+                    <div class="total-price">₹ {{pack.net_amount}}</div>
                   </div>
                 </div>
               </el-col>
@@ -111,25 +110,31 @@
                     <div class="cal-title">
                       <span>Subtotal</span>
                     </div>
-                    <div class="cal-amount"><span>₹ {{temp.amount}}</span></div>
+                    <div class="cal-amount"><span>₹ {{temp.base_amount}}</span></div>
                   </div>
                   <div class="calculations">
                     <div class="cal-title">
                       <span>GST</span>
                     </div>
-                    <div class="cal-amount"><span>₹ {{temp.gst}}</span></div>
+                    <div class="cal-amount"><span>₹ {{temp.gst_amount}}</span></div>
+                  </div>
+                  <div class="calculations">
+                    <div class="cal-title">
+                      <span>SGST</span>
+                    </div>
+                    <div class="cal-amount"><span>₹ {{temp.sgst_amount}}</span></div>
+                  </div>
+                  <div class="calculations">
+                    <div class="cal-title">
+                      <span>CCGST</span>
+                    </div>
+                    <div class="cal-amount"><span>₹ {{temp.cgst_amount}}</span></div>
                   </div>
                   <div class="calculations">
                     <div class="cal-title">
                       <span>Shipping</span>
                     </div>
                     <div class="cal-amount"><span>₹ {{temp.shipping_fee}}</span></div>
-                  </div>
-                  <div class="calculations">
-                    <div class="cal-title">
-                      <span>Admin Charge</span>
-                    </div>
-                    <div class="cal-amount"><span>₹ {{temp.admin_fee}}</span></div>
                   </div>
                   <div class="calculations">
                     <div class="cal-title">
@@ -141,7 +146,7 @@
                     <div class="cal-grand">
                       <span>Grand Total</span>
                     </div>
-                    <div class="cal-amount"><span>₹ {{temp.final_amount}}</span></div>
+                    <div class="cal-amount"><span>₹ {{temp.net_amount}}</span></div>
                   </div>
                   <div class="calculations">
                   </div>
@@ -154,42 +159,10 @@
           <el-form>
             <el-row :gutter="20">
               <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-                <el-form-item label="Full Name" prop="full_name">
-                  <el-input disabled v-model="temp.shipping_address.full_name" />
-                </el-form-item>
                 <el-form-item label="Address" prop="address">
-                  <el-input type="textarea" disabled :rows="2" placeholder="Address" v-model="temp.shipping_address.address">
+                  <el-input type="textarea" disabled :rows="5" placeholder="Address" v-model="temp.shipping_address">
                   </el-input>
                 </el-form-item>
-              </el-col>
-              <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-                <el-form-item label="Lanmark" prop="landmark">
-                  <el-input disabled v-model="temp.shipping_address.landmark" />
-                </el-form-item>
-                <el-row :gutter="5">
-                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-                    <el-form-item label="City" prop="city">
-                      <el-input disabled v-model="temp.shipping_address.city" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-                    <el-form-item label="State" prop="state">
-                      <el-input disabled v-model="temp.shipping_address.state" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="5">
-                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-                    <el-form-item label="Pincode" prop="pincode">
-                      <el-input disabled v-model="temp.shipping_address.pincode" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-                    <el-form-item label="Mobile Number" prop="mobile_number">
-                      <el-input disabled v-model="temp.shipping_address.mobile_number" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
               </el-col>
             </el-row>
           </el-form>
@@ -292,7 +265,7 @@ export default {
         remarks: undefined,
       },
       sums: {
-        final_total: 0,
+        net_total: 0,
         pv: 0
       },
       deleveryStatuses: [],
@@ -351,7 +324,7 @@ export default {
           return;
         }
         if (index === 5) {
-          sums[index] = this.sums.final_total;
+          sums[index] = this.sums.net_total;
           return;
         }
         if (index === 6) {
@@ -464,8 +437,12 @@ export default {
           "Product Name",
           "Quantity",
           "Order Amount",
-          "GST %",
-          "GST Value",
+          "IGST %",
+          "IGST Value",
+          "CGST %",
+          "CGST Value",
+          "SGST %",
+          "SGST Value",
           "Total Value",
           "Order Status",
           "Order Updated at",
@@ -482,8 +459,12 @@ export default {
           "product_quantity",
           "product_price",
           "gst_rate",
-          "gst",
-          "final_amount",
+          "gst_amount",
+          "cgst_rate",
+          "cgst_amount",
+          "sgst_rate",
+          "sgst_amount",
+          "net_amount",
           "delivery_status",
           "updated_at",
           "created_at",
@@ -506,22 +487,23 @@ export default {
             id: v.id,
             order_no: v.order_no,
             member_id: v.user.username,
-            address: v.shipping_address?v.shipping_address.address:'',
-            state: v.shipping_address?v.shipping_address.state:'',
+            address: v.shipping_address,
+            state: v.state,
             product_number: p.product.product_number,
             product_name: p.product.name,
-            product_quantity: p.qty,
-            product_price: p.amount,
+            product_quantity: p.quantity,
+            product_price: p.net_amount,
             gst_rate: p.gst_rate,
-            gst: p.gst,
-            final_amount: p.final_amount,
+            gst_amount: p.gst_amount,
+            cgst_rate: p.cgst_rate,
+            cgst_amount: p.cgst_amount,
+            sgst_rate: p.sgst_rate,
+            sgst_amount: p.sgst_amount,
+            net_amount: p.net_amount,
             delivery_status: v.delivery_status,
             updated_at: v.updated_at,
             created_at: v.created_at,
           };
-
-
-
           orders.push(order);
         });
         let shipping_data = {
@@ -530,8 +512,8 @@ export default {
           product_name: 'Shipping Charges',
           product_price: v.shipping_fee,
           gst_rate: '5',
-          gst: (v.shipping_fee * 5) / 100,
-          final_amount: parseFloat((v.shipping_fee * 5) / 100) + parseFloat(v.shipping_fee),
+          gst_amount: (v.shipping_fee * 5) / 100,
+          net_amount: parseFloat((v.shipping_fee * 5) / 100) + parseFloat(v.shipping_fee),
         };
         orders.push(shipping_data);
         orders.push({});
@@ -541,15 +523,15 @@ export default {
       return orders.map(v =>
         filterVal.map(j => {
           if (j === "created_at") {
-            if(v[j]){
+            if (v[j]) {
               return parseTime(v[j]);
-            }else{
+            } else {
               return '';
             }
-          }else if (j === "updated_at") {
-            if(v[j]){
+          } else if (j === "updated_at") {
+            if (v[j]) {
               return parseTime(v[j]);
-            }else{
+            } else {
               return '';
             }
           } else {

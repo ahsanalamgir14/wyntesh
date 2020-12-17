@@ -11,6 +11,7 @@ class Address extends Model {
 
 	protected $table = 'addresses';
 	public $timestamps = true;
+	use SoftDeletes;
 
   
     public function user()

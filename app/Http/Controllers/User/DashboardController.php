@@ -41,7 +41,7 @@ class DashboardController extends Controller
         $total_matched=$User->member->total_matched_bv;
     	$downlines=count($MembersController->getChildsOfParent($User->member->id));
         $referrals=$User->member->sponsored->count();
-    	$total_purchase= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('final_amount'));
+    	$total_purchase= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('net_amount'));
         $distributor_discount= floor(Order::where('user_id',$User->id)->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('distributor_discount'));
     	$withdrawals=floor(Withdrawal::where('member_id',$User->member->id)->sum('amount'));
         $pins_available=Pin::where('used_at',null)->where('owned_by',$User->member->id)->count();

@@ -29,11 +29,12 @@ class DashboardController extends Controller
 {
     
     public function stats(){
+        
         $users=User::role('user')->count();
         $inactive_users=User::role('user')->where('is_active',0)->count();
         $wallet_balance=Member::sum('wallet_balance');
         $total_payout=Payout::sum('total_payout');
-        $total_orders=floor(Order::whereNotIn('delivery_status',["Order Returned","Order Cancelled"])->sum('final_amount'));
+        $total_orders=floor(Order::whereNotIn('delivery_status',["Order Returned","Order Cancelled"])->sum('net_amount'));
         $total_business_volume=floor(Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('pv'));
         $pending_withdrawals=WithdrawalRequest::where('request_status','Pending')->count();
         $pending_orders=Order::where('delivery_status','Order Created')->count();
@@ -90,7 +91,7 @@ class DashboardController extends Controller
                     ->orderBy('date', 'ASC')
                     ->get(array(
                         DB::raw('Date(created_at) as date'),
-                        DB::raw('sum(final_amount) as sum')
+                        DB::raw('sum(net_amount) as sum')
                     ));
         $od=[];
 

@@ -243,6 +243,8 @@ export default {
       updateCartQty(tempData).then((response) => {
         this.buttonLoading=false;
         this.getMyCart();
+      }).catch((err)=>{
+        this.getMyCart();
       });      
     },
     removeFromCart(id){      

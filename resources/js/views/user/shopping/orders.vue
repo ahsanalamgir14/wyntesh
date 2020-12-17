@@ -56,10 +56,9 @@
       >
       <el-table-column label="Expand" width="80" type="expand">
         <template slot-scope="{row}">
-          <p><b>Amount</b>: {{ row.amount }}</p>
-          <p><b>GST</b>: {{ row.gst }}</p>
+          <p><b>Amount</b>: {{ row.base_amount }}</p>
+          <p><b>GST</b>: {{ row.gst_amount }}</p>
           <p><b>Shipping Fee</b>: {{ row.shipping_fee }}</p>
-          <p><b>Admin Fee</b>: {{ row.admin_fee }}</p>
           <br>
           <p><b>Delivery Agent</b>: {{ row.delivery_by }}</p>
           <p><b>Remark</b>: {{ row.remarks }}</p>
@@ -104,7 +103,7 @@
       </el-table-column>
       <el-table-column label="Order Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.final_amount }}</span>
+          <span>{{ row.net_amount }}</span>
         </template>
       </el-table-column>
       <el-table-column label="PV" max-width="160px" align="right">
@@ -171,10 +170,10 @@
                    
                       <div class="quantity">
                        
-                        <el-input style="width: 80px;" disabled v-model="product.qty"  />
+                        <el-input style="width: 80px;" disabled v-model="product.quantity"  />
                       </div>
                    
-                      <div class="total-price">₹ {{product.final_amount}}</div>
+                      <div class="total-price">₹ {{product.net_amount}}</div>
                     </div>
 
                     <div class="item"  v-for="pack in temp.packages" :key="pack.id">
@@ -192,7 +191,7 @@
                         <el-input style="width: 80px;" disabled v-model="pack.qty"  />
                       </div>
                    
-                      <div class="total-price">₹ {{pack.final_amount}}</div>
+                      <div class="total-price">₹ {{pack.net_amount}}</div>
                     </div>
 
                     
@@ -207,25 +206,31 @@
                       <div class="cal-title">
                         <span>Subtotal</span>
                       </div>         
-                      <div class="cal-amount"><span>₹ {{temp.amount}}</span></div>
+                      <div class="cal-amount"><span>₹ {{temp.base_amount}}</span></div>
                     </div>
                     <div class="calculations">
                       <div class="cal-title">
                         <span>GST</span>
                       </div>         
-                      <div class="cal-amount"><span>₹ {{temp.gst}}</span></div>
+                      <div class="cal-amount"><span>₹ {{temp.gst_amount}}</span></div>
+                    </div>
+                    <div class="calculations">
+                      <div class="cal-title">
+                        <span>SGST</span>
+                      </div>         
+                      <div class="cal-amount"><span>₹ {{temp.sgst_amount}}</span></div>
+                    </div>
+                    <div class="calculations">
+                      <div class="cal-title">
+                        <span>CCGST</span>
+                      </div>         
+                      <div class="cal-amount"><span>₹ {{temp.cgst_amount}}</span></div>
                     </div>
                     <div class="calculations">
                       <div class="cal-title">
                         <span>Shipping</span>
                       </div>         
                       <div class="cal-amount"><span>₹ {{temp.shipping_fee}}</span></div>
-                    </div>
-                    <div class="calculations">
-                      <div class="cal-title">
-                        <span>Admin Charge</span>
-                      </div>         
-                      <div class="cal-amount"><span>₹ {{temp.admin_fee}}</span></div>
                     </div>
                     <div class="calculations">
                       <div class="cal-title">
@@ -237,7 +242,7 @@
                       <div class="cal-grand">
                         <span>Grand Total</span>
                       </div>         
-                      <div class="cal-amount"><span>₹ {{temp.final_amount}}</span></div>
+                      <div class="cal-amount"><span>₹ {{temp.net_amount}}</span></div>
                     </div>
                     <div class="calculations">
                       
@@ -251,47 +256,16 @@
           <el-form>
             <el-row :gutter="20">
               <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                          
-                <el-form-item label="Full Name"  prop="full_name">
-                  <el-input disabled v-model="temp.shipping_address.full_name" />
-                </el-form-item>
+              
                 <el-form-item label="Address" prop="address">
                   <el-input
                     type="textarea"
                     disabled
-                    :rows="2"
+                    :rows="5"
                     placeholder="Address"
-                    v-model="temp.shipping_address.address">
+                    v-model="temp.shipping_address">
                   </el-input>
                 </el-form-item>
-              </el-col>
-              <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                
-                <el-form-item label="Lanmark"  prop="landmark">
-                  <el-input disabled v-model="temp.shipping_address.landmark" />
-                </el-form-item>
-                <el-row :gutter="5">
-                  <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-                    <el-form-item label="City"  prop="city">
-                      <el-input disabled v-model="temp.shipping_address.city" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-                    <el-form-item label="State"  prop="state">
-                      <el-input disabled v-model="temp.shipping_address.state" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="5">
-                  <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-                    <el-form-item label="Pincode"  prop="pincode">
-                      <el-input disabled v-model="temp.shipping_address.pincode" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-                    <el-form-item label="Mobile Number"  prop="mobile_number">
-                      <el-input disabled v-model="temp.shipping_address.mobile_number" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>                
               </el-col>
             </el-row>
           </el-form>
@@ -369,7 +343,7 @@ export default {
         { label: "ID Descending", key: "-id" }
       ],
       sums:{
-        final_total:0,
+        net_amount:0,
         pv:0
       },
       temp:{
@@ -429,7 +403,7 @@ export default {
         }
         console.log(index)
         if(index===4){
-          sums[index] = this.sums.final_total;
+          sums[index] = this.sums.net_amount;
           return; 
         }
         if(index===5){

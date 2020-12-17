@@ -85,12 +85,12 @@ class ShoppingController extends Controller
 
         if(!$search && !$date_range && !$delivery_status){           
             $Orders=Order::select();
-            $Orders=$Orders->with('products','shipping_address','logs','payment_mode','packages');
+            $Orders=$Orders->with('products','logs','payment_mode','packages');
             $Orders=$Orders->where('user_id',$user->id);
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-            $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id)->first();
+            $order_total=Order::select([\DB::raw('sum(net_amount) as net_amount'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id)->first();
         }else{
-            $order_total=Order::select([\DB::raw('sum(final_amount) as final_total'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id);
+            $order_total=Order::select([\DB::raw('sum(net_amount) as net_amount'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id);
             $Orders=Order::select();
             
             $Orders=$Orders->where(function ($query)use($search) {
@@ -113,7 +113,7 @@ class ShoppingController extends Controller
             $order_total= $order_total->first();
             $Orders=$Orders->where('user_id',$user->id);
 
-            $Orders=$Orders->with('products','shipping_address','logs','payment_mode','packages');
+            $Orders=$Orders->with('products','logs','payment_mode','packages');
             $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
         }
         
@@ -189,7 +189,7 @@ class ShoppingController extends Controller
         ->get()->pluck('value', 'key')->toArray();
 
         $Orders = Order::select();
-        $Orders = $Orders->with('products','shipping_address','shipping_address.user','billing_address','packages');
+        $Orders = $Orders->with('products','packages','user');
         $Orders = $Orders->where('id',$id);
         if(!in_array("admin",$rolesArray)){
             $Orders = $Orders->where('user_id',$user->id);
@@ -258,6 +258,11 @@ class ShoppingController extends Controller
             return response()->json($response, 400);
         }
 
+        if($request->qty <= 0){
+            $response = array('status' => false,'message'=>'Enter valid quantity.');
+            return response()->json($response, 400);
+        }
+
         $Cart=Cart::where('product_id',$request->product_id)->where('user_id',$User->id)->first();
         $Cart->qty=$request->qty;
         $Cart->save();
@@ -280,6 +285,8 @@ class ShoppingController extends Controller
             'shipping_address_id' => 'required|integer'
         ]);
 
+        $home_state=CompanySetting::getValue('home_state')?CompanySetting::getValue('home_state'):1;
+
         if($validate->fails()){
             $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
             return response()->json($response, 400);
@@ -295,33 +302,53 @@ class ShoppingController extends Controller
             return response()->json($response, 400);
         }
 
+        $shipping_address = Address::where("id",$request->shipping_address_id)->first();
+
+        if(!$shipping_address){
+            $response = array('status' => false,'message'=>'Shipping address not found');
+            return response()->json($response, 404);
+        }
+
+        if(!$shipping_address){
+            $billing_address=$shipping_address;
+        }else{
+            $billing_address= Address::where("id",$request->billing_address_id)->first();            
+        }
+
+        if(!$billing_address){
+            $response = array('status' => false,'message'=>'Billing address not found');
+            return response()->json($response, 404);
+        }
+
         $Cart=Cart::where('user_id',$User->id)->get();
 
         $subtotal=0;
-        $total_gst=0;
+        $gst_amount=0;
+        $sgst_amount=0;
+        $cgst_amount=0;
+        $utgst_amount=0;
         $shipping=0;
-        $admin=0;
-        $discount=0;
+        $discount_amount=0;
         $grand_total=0;
         $pv=0;
         $distributor_discount=0;
 
-        foreach ($Cart as $item) {
-            $subtotal+=floatval($item->products->retail_base)*intval($item->qty);
-            $total_gst+=floatval($item->products->retail_gst)*intval($item->qty);
-            //$shipping+=floatval($item->products->shipping_fee)*intval($item->qty);
-            $admin+=floatval($item->products->admin_fee)*intval($item->qty);
-            $discount+=floatval($item->products->discount_amount)*intval($item->qty);
-            $pv+=floatval($item->products->pv?:0)*intval($item->qty);
-            $grand_total=$subtotal+$total_gst+$shipping+$admin-$discount;
-            $distributor_discount=0;
-            // $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->retail_amount)*intval($item->qty));
-        }
-
-
-        $grand_total+=$shipping_charge;  
         $shipping=$shipping_charge;
 
+        foreach ($Cart as $item) {
+            $subtotal+=floatval($item->products->dp_base)*intval($item->qty);
+            //if($request->state==$home_state){
+                $sgst_amount+=(floatval($item->products->dp_gst)*intval($item->qty))/2;
+                $cgst_amount+=(floatval($item->products->dp_gst)*intval($item->qty))/2;
+            //}else{
+                //$gst_amount+=floatval($item->products->dp_gst_amount)*intval($item->qty);
+            //}
+
+            $discount_amount+=floatval($item->products->discount_amount)*intval($item->qty);
+            $pv+=floatval($item->products->pv?:0)*intval($item->qty);
+            $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount+$shipping-$discount_amount);
+            $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->dp_amount)*intval($item->qty));
+        }
 
         if($grand_total != $request->grand_total){
             $response = array('status' => false,'message'=>'Order data mismatch. try again');
@@ -351,21 +378,24 @@ class ShoppingController extends Controller
             $Order=new Order;
             $Order->order_no=$order_no;
             $Order->user_id=$User->id;
-            $Order->amount=$subtotal;
-            $Order->discount=$discount;
-            $Order->gst=$total_gst;
+            $Order->base_amount=$subtotal;
+            $Order->discount_amount=$discount_amount;
+            $Order->cgst_amount=$cgst_amount;
+            $Order->sgst_amount=$sgst_amount;
+            $Order->utgst_amount=$utgst_amount;
+            $Order->gst_amount=$gst_amount;
             $Order->shipping_fee=$shipping;
-            $Order->payout_id=$request->payout_id?1:0;
-            $Order->is_withhold_purchase=$request->payout_id?1:0;
-            $Order->admin_fee=$admin;
-            $Order->final_amount=$grand_total;
+            $Order->net_amount=$grand_total;
             $Order->distributor_discount=$distributor_discount;
             $Order->pv=$pv;
             $Order->payment_status='Success';
             $Order->wallet_transaction_id=$WalletTransaction->id;            
             $Order->payment_mode=$PaymentMode->id;
-            $Order->shipping_address_id=$request->shipping_address_id;
-            $Order->billing_address_id=$request->billing_address_id;
+            $Order->state=$request->state;
+            $Order->gstin=$request->gstin;
+
+            $Order->shipping_address=$shipping_address->full_name.', '.$shipping_address->address.', '.$shipping_address->landmark.', '.$shipping_address->state.', '.$shipping_address->city.', '.$shipping_address->pincode.', '.$shipping_address->mobile_number;
+            $Order->billing_address=$billing_address->full_name.', '.$billing_address->address.', '.$billing_address->landmark.', '.$billing_address->state.', '.$billing_address->city.', '.$billing_address->pincode.', '.$billing_address->mobile_number;
             $Order->delivery_status='Order Created';
             $Order->save();
 
@@ -373,18 +403,27 @@ class ShoppingController extends Controller
             $Order->save();
             
             foreach ($Cart as $item) {
+
                 $OrderProduct=new OrderProduct;
                 $OrderProduct->order_id=$Order->id;
                 $OrderProduct->product_id=$item->products->id;
-                $OrderProduct->amount=floatval($item->products->retail_base)*intval($item->qty);
-                $OrderProduct->gst=floatval($item->products->retail_gst)*intval($item->qty);
-                $OrderProduct->gst_rate=$item->products->retail_gst_rate;
-                $OrderProduct->shipping_fee=floatval($item->products->shipping_fee)*intval($item->qty);
-                $OrderProduct->admin_fee=floatval($item->products->admin_fee)*intval($item->qty);
+                $OrderProduct->base_amount=floatval($item->products->dp_base)*intval($item->qty);
+
+                //if($request->state==$home_state){
+                    $OrderProduct->sgst_amount=floatval($item->products->dp_gst/2)*intval($item->qty);
+                    $OrderProduct->sgst_rate=$item->products->gst_rate/2;
+                    $OrderProduct->cgst_amount=floatval($item->products->dp_gst/2)*intval($item->qty);
+                    $OrderProduct->cgst_rate=$item->products->gst_rate/2;
+                // }else{
+                //     $OrderProduct->gst_amount=floatval($item->products->dp_gst_amount)*intval($item->qty);
+                //     $OrderProduct->gst_rate=$item->products->dp_gst_rate;                    
+                // }
+                
                 $OrderProduct->discount=floatval($item->products->discount_amount)*intval($item->qty);
-                $OrderProduct->final_amount=$OrderProduct->amount+$OrderProduct->gst+$OrderProduct->shipping_fee+$OrderProduct->admin_fee+$OrderProduct->discount;
+                $OrderProduct->net_amount=$OrderProduct->base_amount+$OrderProduct->gst_amount+$OrderProduct->sgst_amount+$OrderProduct->cgst_amount+$OrderProduct->shipping_fee-$OrderProduct->discount;
                 $OrderProduct->pv=floatval($item->products->pv?:0)*intval($item->qty);
-                $OrderProduct->qty=$item->qty;
+                $OrderProduct->quantity=$item->qty;
+                $OrderProduct->variant_id=1;
                 $OrderProduct->save();
 
                 $OrderProduct->product->stock-=$item->qty;
@@ -482,7 +521,7 @@ class ShoppingController extends Controller
             $Order->gst=$total_gst;
             $Order->shipping_fee=$shipping;
             $Order->admin_fee=$admin;
-            $Order->final_amount=$grand_total;
+            $Order->net_amount=$grand_total;
             $Order->pv=$pv;
             $Order->payment_status='Success';            
             $Order->payment_mode=$PaymentMode->id;
@@ -500,7 +539,7 @@ class ShoppingController extends Controller
             $OrderPackage->shipping_fee=0;
             $OrderPackage->admin_fee=0;
             $OrderPackage->discount=0;
-            $OrderPackage->final_amount=$Pin->package->net_amount;
+            $OrderPackage->net_amount=$Pin->package->net_amount;
             $OrderPackage->pv=$Pin->package->pv;
             $OrderPackage->qty=1;
             $OrderPackage->save();
