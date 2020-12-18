@@ -609,6 +609,7 @@ export const asyncRoutes = [
       {
         path: 'member-business',
         component: () => import('@/views/admin/reports/member-business'),
+        hidden:true,
         name: 'Member Business',
         meta: { title: 'Member Business', icon: 'fas fa-users', color:'color:#5742f5', affix: true, roles: ['admin'] }
       },

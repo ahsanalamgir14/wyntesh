@@ -134,7 +134,7 @@ class CronsController extends Controller
     public function generateMonthlyPayout()
     {
         $dt = Carbon::now();
-        $dt->modify('-1 months');
+        //$dt->modify('-1 months');
         $from= $dt->firstOfMonth()->toDateString('Y-m-d');
         $to= $dt->endOfMonth()->toDateString('Y-m-d');
 
@@ -150,7 +150,7 @@ class CronsController extends Controller
         $Payout->sales_bv=0;
         $Payout->tds=0;
         $Payout->sales_amount=0;
-        $Payout->total_payout=0;
+        $Payout->payout_amount=0;
         $Payout->started_at=Carbon::now();
         $Payout->save();
 

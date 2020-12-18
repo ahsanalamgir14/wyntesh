@@ -67,39 +67,19 @@
           <span >{{ row.rank?row.rank.name:'' }}</span>
         </template>
       </el-table-column>
-      <!-- <el-table-column label="Sales Start Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Sales End Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column> -->
-      <!-- <el-table-column label="Sales BV" width="130px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.sales_pv }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Sales Amount" width="130px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.sales_amount }}</span>
-        </template>
-      </el-table-column> -->
       <el-table-column label="Amount" width="120px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(parseFloat(row.total_payout)+parseFloat(row.tds)+parseFloat(row.admin_fee)) }}</span>
+          <span >{{ (parseFloat(row.payout_amount)) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="TDS" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(row.tds) }}</span>
+          <span >{{ (row.tds) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Total Payable" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(row.total_payout) }}</span>
+          <span >{{ (row.net_payable_amount) }}</span>
         </template>
       </el-table-column>
 

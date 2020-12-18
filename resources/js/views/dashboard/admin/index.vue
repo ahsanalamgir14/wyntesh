@@ -268,7 +268,7 @@
             </el-table-column>
             <el-table-column label="Total Payout" width="130px" align="right">
               <template slot-scope="{row}">
-                <span >{{ row.total_payout }}</span>
+                <span >{{ row.payout_amount }}</span>
               </template>
             </el-table-column>
           </el-table>

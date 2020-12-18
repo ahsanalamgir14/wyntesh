@@ -133,7 +133,7 @@
                 </div>
                 <div class="card-panel-description">
                   
-                  <count-to :start-val="0" :end-val="parseFloat(dashboardStats.total_income)" :duration="3000" class="card-panel-num" />
+                  <count-to :start-val="0" :end-val="parseFloat(dashboardStats.income_wallet_balance)" :duration="3000" class="card-panel-num" />
                   <div class="card-panel-text">
                     Income wallet
                   </div>

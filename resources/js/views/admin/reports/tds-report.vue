@@ -1,255 +1,122 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input
-          v-model="listQuery.search"
-          placeholder="Search Records"
-          style="width: 200px;"
-          class="filter-item"
-          @keyup.enter.native="handleFilter"
-        />
-      <el-date-picker
-        v-model="listQuery.month"
-        type="month"
-        @change="handleFilter"
-        format="yyyy-MM"
-        value-format="yyyy-MM"
-         class="filter-item"
-        placeholder="Pick a month">
+      <el-date-picker v-model="listQuery.month" type="month" @change="handleFilter" format="yyyy-MM" size="mini" value-format="yyyy-MM" class="filter-item mobile_class" placeholder="Pick a month">
       </el-date-picker>
-      <el-button
-        v-waves
-        class="filter-item"
-        type="primary"
-        icon="el-icon-search"
-        @click="handleFilter"
-      >Search</el-button>
-       <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >Export</el-button>
     </div>
-
-    <el-table
-      :key="tableKey"
-      v-loading="listLoading"
-      :data="list"
-      border
-       show-summary
-      :summary-method="getSummaries"
-      fit
-      highlight-current-row
-      style="width: 100%;"
-      @sort-change="sortChange"
-    >
-      <el-table-column
-        type="index"
-        width="50">
-      </el-table-column>      
-      <el-table-column label="Month" width="100px" align="center">
+    <div class="filter-container">
+      <el-input size="mini" v-model="listQuery.search" placeholder="Search Records" style="width: 200px;" class="filter-item mobile_class" @keyup.enter.native="handleFilter" />
+      <el-button size="mini" v-waves class="filter-item " type="primary" icon="el-icon-search" @click="handleFilter">Search</el-button>
+      <el-button size="mini" v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">Export</el-button>
+    </div>
+    <el-table :key="tableKey" v-loading="listLoading" :data="list" border show-summary :summary-method="getSummaries" fit highlight-current-row style="width: 100%;" >
+      <el-table-column label="Sr#" prop="id" align="center" type="index" :index="indexMethod" width="70">
+      </el-table-column>
+      <el-table-column label="Date" width="200px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}') }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{d}-{m}-{y}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Member" width="100px" align="right">
+      <el-table-column label="Member" width="200px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.username }}</span>
+          <span>{{ row.member.user.username }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Name" width="200px" align="right">
+      <el-table-column label="Name" width="250px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.name }}</span>
+          <span>{{ row.member.user.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Pan" width="150px" align="right">
+      <el-table-column label="Pan" width="200px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.pan }}</span>
+          <span>{{ row.member.kyc?row.member.kyc.pan:'' }}</span>
         </template>
       </el-table-column>
-
-      <!-- <el-table-column label="Duration Start" width="200px" align="right">
+      <el-table-column label="Duration Start" width="200px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.created_at }}</span>
+          <span>{{ row.payout.sales_start_date }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Duration End" width="200px" align="right">
+      <el-table-column label="Duration End" width="200px" align="center">
         <template slot-scope="{row}">
-          <span >{{ row.created_at }}</span>
-        </template>
-      </el-table-column> -->
-      <el-table-column label="Payout Amount" width="150px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ parseFloat(row.payout_amount)}}</span>
+          <span>{{ row.payout.sales_end_date }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS" width="150px" align="right">
+      <el-table-column label="Payout Amount" width="150px" align="center">
         <template slot-scope="{row}">
-          <span >{{ parseFloat(row.tds)}}</span>
+          <span>{{ row.payout_amount }}</span>
         </template>
       </el-table-column>
-       <el-table-column label="Net Payable" width="150px" align="right">
+      <el-table-column label="TDS" width="130px" align="center">
         <template slot-scope="{row}">
-          <span >{{ parseFloat(row.payout_amount) - parseFloat(row.tds)}}</span>
+          <span>{{ row.tds }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Admin Fee" width="130px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.admin_fee }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Net Payable" width="130px" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.net_payable_amount }}</span>
         </template>
       </el-table-column>
     </el-table>
-
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="listQuery.page"
-      :limit.sync="listQuery.limit"
-      @pagination="getList"
-    />
-
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
   </div>
 </template>
-
 <script>
 import { getMemberTDS, } from "@/api/admin/payouts";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
-import Pagination from "@/components/Pagination"; 
+import Pagination from "@/components/Pagination";
 
 export default {
   name: "Payouts",
   components: { Pagination },
   directives: { waves },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        1: "success",
-        draft: "info",
-        0: "danger"
-      };
-
-      return statusMap[status];
-    }
-  },
   data() {
     return {
       tableKey: 0,
       list: null,
       total: 0,
       listLoading: true,
-      sum:0,
+      sums: {
+        tds_amount: 0
+      },
       listQuery: {
         page: 1,
-        limit: 10,
+        limit: 20,
         search: undefined,
         sort: "-id"
       },
-      sortOptions: [
-        { label: "ID Ascending", key: "+id" },
-        { label: "ID Descending", key: "-id" }
-      ],
-      pickerOptions: {
-        shortcuts: [{
-          text: 'Last week',
-          onClick(picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: 'Last month',
-          onClick(picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-            picker.$emit('pick', [start, end]);
-          }
-        }, {
-          text: 'Last 3 months',
-          onClick(picker) {
-            const end = new Date();
-            const start = new Date();
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-            picker.$emit('pick', [start, end]);
-          }
-        }]
-      },
-      dialogPayoutGenerateVisible:false,
-      dialogStatus: "",
-      dialogTitle:"",
-      textMap: {
-        update: "Edit",
-        create: "Create"
-      },
       downloadLoading: false,
-      buttonLoading: false
     };
   },
   created() {
     this.getList();
   },
   methods: {
-    handleDownload() {
-      this.downloadLoading = true;
-      import("@/vendor/Export2Excel").then(excel => {
-        const tHeader = [
-          "Month",
-          "Member",
-          "Name",
-          "Pan",
-          "Payout Amount",
-          "TDS",
-          "Final Amount",
-        ];
-        const filterVal = [
-          "month",
-          "member",
-          "name",
-          "pan",
-          "payout_amount",
-          "tds",
-          "final_amount",
-        ];
-        const data = this.formatJson(filterVal, this.list);
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: "tds"
-        });
-        this.downloadLoading = false;
-      });
-    },formatJson(filterVal, jsonData) {
-      return jsonData.map(v =>
-        filterVal.map(j => {
-          if (j === "month") {
-            return parseTime(v.created_at,'{m}-{y}');
-          }else if (j === "member") {
-            return v.username;
-          }else if (j === "name") {
-            return v.name;
-          }else if (j === "pan") {
-            return v.pan
-          }else if (j === "payout_amount") {
-            return v.payout_amount;
-          }else if (j === "tds") {
-            return v.tds;
-          }else if (j === "final_amount") {
-            return (v.payout_amount)-(v.tds);
-          }else{
-            return v[j];
-          }
-        })
-      );
+    indexMethod(index) {
+      let page = this.listQuery.page;
+      if (this.listQuery.page == 1) {
+        let tempIndex = index * 1;
+        let total = this.total + 1;
+        return total - (tempIndex + 1);
+      } else {
+
+        let tempIndex = this.listQuery.limit * (page - 1) + index;;
+        let total = this.total + 1;
+        return total - (tempIndex + 1);
+      }
     },
     getList() {
       this.listLoading = true;
       getMemberTDS(this.listQuery).then(response => {
-        console.log(response);
-        this.list = response.data;
-        // this.total = response.data.total;
-        this.total = response.total;
-
-        this.sums=response.sum;
+        this.list = response.data.data;
+        this.total = response.data.total;
+        this.sums = response.sum;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
@@ -263,9 +130,21 @@ export default {
           sums[index] = 'Final Total (All)';
           return;
         }
-        if(index===5){
-          sums[index] = this.sums?this.sums:0;
-          return; 
+        if (index === 7) {
+          sums[index] = this.sums.total_payout_amount;
+          return;
+        }
+        if (index === 8) {
+          sums[index] = this.sums.total_tds;
+          return;
+        }
+        if (index === 9) {
+          sums[index] = this.sums.total_admin_fee;
+          return;
+        }
+        if (index === 10) {
+          sums[index] = this.sums.total_net_payable_amount;
+          return;
         }
       });
 
@@ -275,42 +154,75 @@ export default {
       this.listQuery.page = 1;
       this.getList();
     },
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
+    handleDownload() {
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "ID",
+          "Month",
+          "Member",
+          "Name",
+          "Pan",
+          "Duration Start",
+          "Duration End",
+          "Payout Amount",
+          "TDS",
+          "Admin Fee",
+          "Net Payable",
+        ];
+        const filterVal = [
+          "id",
+          "month",
+          "member",
+          "name",
+          "pan",
+          "duration_start",
+          "duration_end",
+          "payout_amount",
+          "tds",
+          "admin_fee",
+          "net_payable_amount",
+        ];
+        const data = this.formatJson(filterVal, this.list);
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: "TDS"
+        });
+        this.downloadLoading = false;
+      });
     },
-    sortByID(order) {
-      if (order === "ascending") {
-        this.listQuery.sort = "+id";
-      } else {
-        this.listQuery.sort = "-id";
-      }
-      this.handleFilter();
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "month") {
+            return v.payout.sales_start_date;
+          } else if (j === "member") {
+            return v.member.user.username;
+          } else if (j === "name") {
+            return v.member.user.name;
+          } else if (j === "pan") {
+            return v.member.kyc.pan;
+          } else if (j === "duration_start") {
+            return v.payout.sales_start_date;
+          } else if (j === "duration_end") {
+            return v.payout.sales_end_date;
+          } else if (j === "tds") {
+            return v.tds;
+          } else {
+            return v[j];
+          }
+        })
+      );
     },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort;
-      return sort === `+${key}`
-        ? "ascending"
-        : sort === `-${key}`
-        ? "descending"
-        : "";
-    }
   }
 };
-</script>
 
+</script>
 <style scoped>
-.el-drawer__body {
-  padding: 20px;
-}
 .pagination-container {
   margin-top: 5px;
-}
-.pagination-container {
   background: #fff;
   padding: 15px 16px;
 }
-
 </style>

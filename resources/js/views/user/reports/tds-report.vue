@@ -45,27 +45,22 @@
 
       <el-table-column label="Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.floor(parseFloat(row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds)+parseFloat(row.affiliate_income) ) }}</span>
+          <span >{{parseFloat(row.payout_amount) }}</span>
         </template>
       </el-table-column>
-      <!-- <el-table-column label="Admin Fee" width="130px" align="right">
+      <el-table-column label="TDS%" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(row.admin_fee) }}</span>
+          <span >{{ parseFloat(row.tds_percent) }}</span>
         </template>
-      </el-table-column> -->
-      <!-- <el-table-column label="TDS%" width="130px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ Math.round((parseFloat(row.tds)*100)/parseFloat(parseFloat(row.total_payout==0.00?1:row.total_payout)+parseFloat(row.admin_fee)+parseFloat(row.tds))) }}</span>
-        </template>
-      </el-table-column> -->
+      </el-table-column>
       <el-table-column label="TDS" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.floor(parseFloat(row.tds)+parseFloat(row.affiliate_tds)) }}</span>
+          <span >{{ parseFloat(row.tds) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Payable" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.ceil(parseFloat(row.total_payout)+(parseFloat(row.affiliate_income)-parseFloat(row.affiliate_tds))) }}</span>
+          <span >{{ parseFloat(row.net_payable_amount) }}</span>
         </template>
       </el-table-column>
     </el-table>

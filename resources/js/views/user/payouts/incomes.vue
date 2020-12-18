@@ -54,13 +54,12 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      
-       <el-table-column label="Date" width="150px" align="center">
+        
+        <el-table-column label="Duration" width="190px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ row.payout.sales_start_date | parseTime('{d}-{m}-{y}') }} - {{ row.payout.sales_end_date | parseTime('{d}-{m}-{y}') }}</span>
         </template>
       </el-table-column>
-
 
       <el-table-column label="Income type" min-width="150px">
         <template slot-scope="{row}">
@@ -68,49 +67,23 @@
         </template>
       </el-table-column>
 
-     <!--  <el-table-column label="Sales Start Date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column> -->
-
       <el-table-column label="Amount" width="120px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(parseFloat(row.payout_amount)+parseFloat(row.tds)+parseFloat(row.admin_fee)) }}</span>
+          <span >{{ (parseFloat(row.payout_amount)) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="TDS" width="100px" align="right">
+      <el-table-column label="TDS" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(row.tds) }}</span>
+          <span >{{ (row.tds) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Total Payable" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ (row.net_payable_amount) }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Payble Amount" width="130px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ Math.round(row.payout_amount) }}</span>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column label="Admin Fee" width="130px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.admin_fee }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Income Parameter 1" width="200px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.income_payout_parameter_1_name }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Income Parameter 1 Value" width="200px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ row.income_payout_parameter_1_value }}</span>
-        </template>
-      </el-table-column> -->
-
-       <el-table-column label="Period date" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.payout.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ row.payout.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+       
     </el-table>
 
     <pagination
@@ -220,7 +193,6 @@ export default {
     getList() {
       this.listLoading = true;
       getPayoutIncomes(this.listQuery).then(response => {
-        console.log(response.data.data);
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {

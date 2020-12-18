@@ -90,17 +90,17 @@
       </el-table-column>
       <el-table-column label="Amount" width="120px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(parseFloat(row.total_payout)+parseFloat(row.tds)+parseFloat(row.admin_fee)) }}</span>
+          <span >{{ row.payout_amount }}</span>
         </template>
       </el-table-column>
       <el-table-column label="TDS" width="120px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(parseFloat(row.tds)) }}</span>
+          <span >{{ row.tds }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Net Payable" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(row.total_payout) }}</span>
+          <span >{{ row.net_payable_amount }}</span>
         </template>
       </el-table-column>
        

@@ -13,7 +13,7 @@
         </div>
         <div class="bullshit__info">
           Copyright by
-          <a class="link-type" href="https://mlmworld.in" target="_blank">MLM World</a>
+          <a class="link-type" href="https://mlmworld.in" target="_blank">Wyntash</a>
         </div>
         <div class="bullshit__headline">
           {{ message }}

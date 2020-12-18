@@ -178,7 +178,6 @@ class PayoutsController extends Controller
 
     public function getMemberPayout($id)
     {
-        //$user=JWTAuth::user();
         $settings= Setting::orWhere('is_public',1)
         ->get()->pluck('value', 'key')->toArray();
 
@@ -186,20 +185,11 @@ class PayoutsController extends Controller
         $MemberPayout=$MemberPayout->where('id',$id);
         $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.kyc')->first();
 
-        // dd($MemberPayout->payout_id);
         $MemberPayoutIncome=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->with('income')->get();
+        
         $user_details=array('name' => $MemberPayout->member->user->name,'username'=>$MemberPayout->member->user->username,'profile_picture'=>$MemberPayout->member->user->profile_picture,'rank'=>$MemberPayout->member->rank->name );
 
-        // dd($MemberPayout->payout);
-        $affiliter = AffiliateBonus::addSelect([\DB::raw('sum(amount) as final_amount')])
-                        ->where("member_id",$MemberPayout->member->id)
-                        ->whereDate('created_at','>=', $MemberPayout->payout->sales_start_date)
-                        ->whereDate('created_at','<=', $MemberPayout->payout->sales_end_date)
-                        ->groupBy('member_id')
-                        ->first();
-// dd($affiliter);
-        $affiliter = $affiliter?$affiliter->final_amount:"0";
-        $response = array('status' => true,'message'=>"Member Payout retrieved.",'payout'=>$MemberPayout,'incomes'=>$MemberPayoutIncome,'company_details'=>$settings,'user'=>$user_details,'affiliter'=>$affiliter);
+        $response = array('status' => true,'message'=>"Member Payout retrieved.",'payout'=>$MemberPayout,'incomes'=>$MemberPayoutIncome,'company_details'=>$settings,'user'=>$user_details);
         return response()->json($response, 200);
     }
 
@@ -287,7 +277,7 @@ class PayoutsController extends Controller
         $Payout->sales_end_date=$request->date_range[1];
         $Payout->sales_bv=0;
         $Payout->sales_amount=0;
-        $Payout->total_payout=0;
+        $Payout->payout_amount=0;
         $Payout->save();
 
         foreach ($request->incomes as $income_id) {
@@ -485,7 +475,7 @@ class PayoutsController extends Controller
         if(!$search && !$month){
             $MemberPayout=MemberPayout::select();
             
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->where('total_payout','>',0)->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->where('payout_amount','>',0)->orderBy('id',$sort)->paginate($limit);
         }else{
             $MemberPayout=MemberPayout::select();
             $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
@@ -503,7 +493,7 @@ class PayoutsController extends Controller
                 });
             }
 
-            $MemberPayout=$MemberPayout->where('total_payout','>',0)->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayout=$MemberPayout->where('payout_amount','>',0)->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
         }
    
         $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout);
@@ -570,7 +560,7 @@ class PayoutsController extends Controller
         }
 
         if(!$limit){
-            $limit=1;
+            $limit=1000;
         }
 
         if ($sort=='+id'){
@@ -579,46 +569,41 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-   
-        $ofset = $page*$limit;
-        $affiliate = "";
-        $memberPayout  =""; 
-        if($search && $month){
-            $users      = User::where('username',$search)->with('member')->first();
-            $member_id  = $users->member->id;
-            $month      = $request->month;
-            $year       = date('Y',strtotime($month));
-            $months     = date('m',strtotime($month));
-            $ofset = 0;
-            $affiliate      = "WHERE ab.member_id = $member_id and YEAR(ab.created_at) = $year AND MONTH(ab.created_at) = $months";
-            $memberPayout   = "WHERE tp.member_id = $member_id and YEAR(tp.created_at) = $year AND MONTH(tp.created_at) = $months";
-        }
-        else if($search){
-            $ofset = 0;
-            $users = User::where('username',$search)->with('member')->first();
-            $member_id= $users->member->id;
-            $affiliate      = "WHERE ab.member_id = $member_id ";
-            $memberPayout   = "WHERE tp.member_id = $member_id ";
-        }
-        else if($month){
-            $ofset = 0;
-            $year = date('Y',strtotime($month));
-            $months = date('m',strtotime($month));
-            $affiliate      = "WHERE YEAR(ab.created_at) = $year AND MONTH(ab.created_at) = $months";
-            $memberPayout   = "WHERE YEAR(tp.created_at) = $year AND MONTH(tp.created_at) = $months";
-        }
+        $MemberPayout=MemberPayout::select();
+        $MemberPayout=$MemberPayout->where('tds','!=',0);
+        $total=MemberPayout::select([DB::raw('sum(tds) as total_tds'),DB::raw('sum(payout_amount) as total_payout_amount'),DB::raw('sum(admin_fee) as total_admin_fee'),DB::raw('sum(net_payable_amount) as total_net_payable_amount')]);
 
-
-        $MemberPayout=  DB::select(DB::raw(" SELECT *, SUM(amt) tds, sum(payout_amount) as payout_amount FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt, SUM(amount) AS payout_amount  FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id RIGHT JOIN kyc AS k ON k.member_id = m.id  $affiliate GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt, (SUM(total_payout)+SUM(tds)) AS payout_amount FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  $memberPayout GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY tmp.member_id,YEAR(tmp.created_at), MONTH(tmp.created_at) HAVING tds > 0 LIMIT  $limit OFFSET $ofset ") );
+        if($search){
+            $MemberPayout=$MemberPayout->where(function ($query)use($search) {
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+            $total=$total->where(function ($query)use($search) {              
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
+        }
+                
+        if($month){
+            $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
+                $month=$month.'-01';
+                $date=Carbon::parse($month);
+                $q->whereMonth('sales_start_date',$date->month);
+                $q->whereYear('sales_start_date',$date->year);
+            });
+            $total=$total->whereHas('payout',function($q)use($month){
+                $date=Carbon::parse($month);
+                $q->whereMonth('sales_start_date',$date->month);
+                $q->whereYear('sales_start_date',$date->year);
+            });
+        }
         
-        $sum=  DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt, SUM(amount) AS payout_amount FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id    RIGHT JOIN kyc AS k ON k.member_id = m.id $affiliate UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt,SUM(total_payout+tds) AS payout_amount FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id $memberPayout ) tmp") );
-        $sum = $sum[0]->tds;
+        $total=$total->first();
+        $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name','member.kyc')->orderBy('id',$sort)->paginate($limit);
 
-        $totalCount=   DB::select(DB::raw(" SELECT *, SUM(amt) tds FROM ( SELECT ab.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, ab.member_id, SUM(tds_amount) AS amt FROM `affiliate_bonus` AS ab RIGHT JOIN `members` AS m ON m.id = ab.member_id RIGHT JOIN `users` AS u ON u.id = m.user_id RIGHT JOIN `kyc` AS kyc ON kyc.member_id = m.id  RIGHT JOIN kyc AS k ON k.member_id = m.id  $affiliate GROUP BY member_id, YEAR(ab.created_at), MONTH(ab.created_at) UNION SELECT tp.created_at, u.name, u.username, u.dob, kyc.pan, kyc.city, tp.member_id, SUM(tds) AS amt FROM `member_payouts` AS tp LEFT JOIN `members` AS m ON m.id = tp.member_id LEFT JOIN `users` AS u ON u.id = m.user_id LEFT JOIN `kyc` AS kyc ON kyc.member_id = m.id  $memberPayout GROUP BY tp.member_id, YEAR(tp.created_at), MONTH(tp.created_at) ) tmp GROUP BY  tmp.member_id,YEAR(tmp.created_at), MONTH(tmp.created_at) HAVING tds > 0  ") );
-
-        $totalCount = count($totalCount);
-
-        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout,'sum'=>$sum,'total'=>$totalCount);
+        $response = array('status' => true,'message'=>"Member TDS retrieved.",'data'=>$MemberPayout,'sum'=>$total);
         return response()->json($response, 200);
     }
 

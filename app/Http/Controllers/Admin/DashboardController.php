@@ -33,7 +33,6 @@ class DashboardController extends Controller
         $users=User::role('user')->count();
         $inactive_users=User::role('user')->where('is_active',0)->count();
         $wallet_balance=Member::sum('wallet_balance');
-        $total_payout=Payout::sum('total_payout');
         $total_orders=floor(Order::whereNotIn('delivery_status',["Order Returned","Order Cancelled"])->sum('net_amount'));
         $total_business_volume=floor(Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('pv'));
         $pending_withdrawals=WithdrawalRequest::where('request_status','Pending')->count();
@@ -43,18 +42,15 @@ class DashboardController extends Controller
         $unused_pin=Pin::where('used_at',null)->count();
         $pending_kyc=Kyc::where('verification_status','pending')->count();
         $inquiries=Inquiry::count();
-
+        $total_income_wallet_balance=Member::sum('income_wallet_balance');
 
         $affiliateIncomeWithTDS=AffiliateBonus::sum('amount');
-        $total_income_wallet_balance=Member::sum('income_wallet_balance');
-        // dd($total_affilite);
-
-
-        $total_payout=MemberPayout::sum('total_payout');
-        $tds=MemberPayout::sum('tds');
         $reward=Reward::sum('amount');
-        $total_payout = $total_payout+$tds+$reward;
-        $total_payout+=$affiliateIncomeWithTDS;
+
+        $total_payout=MemberPayout::sum('payout_amount');
+        $cur_affiliate_bonus=AffiliateBonus::whereMonth('created_at',date('m'))->sum('amount');        
+        $cur_reward=Reward::whereMonth('created_at',date('m'))->sum('amount');
+        $total_payout+=$cur_affiliate_bonus+$cur_reward;
 
 
         $response = array(

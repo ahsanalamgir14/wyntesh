@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->generateMonthlyPayout();
-        })->monthlyOn(1, '00:01');
+        });
 
         $schedule->call(function () {
             $CronsController=new CronsController;
@@ -53,10 +53,10 @@ class Kernel extends ConsoleKernel
             $CronsController->releaseHoldPayout();
         })->monthlyOn(1, '00:22');
 
-        $schedule->call(function () {
-            $MigrationController=new MigrationController;
-            $MigrationController->doMigration();
-        });
+        // $schedule->call(function () {
+        //     $MigrationController=new MigrationController;
+        //     $MigrationController->doMigration();
+        // });
     }
 
     /**

@@ -13,6 +13,8 @@ use App\Models\Admin\Income;
 use App\Models\Admin\Payout;
 use App\Models\Admin\PayoutIncome;
 use App\Models\Admin\MemberPayout;
+use App\Models\Admin\AffiliateBonus;
+use App\Models\Admin\Reward;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\IncomeParameter;
 use App\Models\Admin\Sale;
@@ -34,6 +36,10 @@ class MigrationController extends Controller
         $this->memberPayoutsMigration();
         $this->memberPayoutIncomeMigration();
         $this->payoutIncomeMigration();
+        $this->affiliateIncomeMigration();
+        
+
+
         $this->verify();
 
     }
@@ -140,6 +146,9 @@ class MigrationController extends Controller
 
     public function payoutMigration(){
 
+        $column_length_increase="ALTER TABLE `payouts` CHANGE `sales_bv` `sales_bv` DECIMAL(14,2) NOT NULL DEFAULT '0.00', CHANGE `sales_amount` `sales_amount` DECIMAL(14,2) NOT NULL DEFAULT '0.00', CHANGE `total_matched_bv` `total_matched_bv` DECIMAL(14,2) NOT NULL DEFAULT '0.00', CHANGE `total_carry_forward_bv` `total_carry_forward_bv` DECIMAL(14,2) NOT NULL DEFAULT '0.00';";
+        DB::statement( $column_length_increase );
+
         $payout_amount="ALTER TABLE `payouts` CHANGE `total_payout` `payout_amount` DECIMAL(12,2) NOT NULL DEFAULT '0.00';";
         DB::statement( $payout_amount );
 
@@ -156,8 +165,9 @@ class MigrationController extends Controller
 
         foreach ($payouts as $payout) {
             $payout->tds_percent=5;
+            $payout->net_payable_amount=$payout->payout_amount;
+            $payout->payout_amount=$payout->tds+$payout->payout_amount;
             $payout->admin_fee_percent=0;
-            $payout->net_payable_amount=$payout->tds+$payout->payout_amount;
             $payout->save();
         }
     }
@@ -180,8 +190,9 @@ class MigrationController extends Controller
 
         foreach ($memberPayouts as $payout) {
             $payout->tds_percent=5;
+            $payout->net_payable_amount=$payout->payout_amount;
+            $payout->payout_amount=$payout->tds+$payout->payout_amount;
             $payout->admin_fee_percent=0;
-            $payout->net_payable_amount=$payout->tds+$payout->payout_amount;
             $payout->save();
         }
     }
@@ -190,6 +201,9 @@ class MigrationController extends Controller
 
         $tds_fields="ALTER TABLE `member_payout_incomes` CHANGE `tds` `tds` DECIMAL(12,2) NOT NULL DEFAULT '0.000000', CHANGE `admin_fee` `admin_fee` DECIMAL(12,2) NOT NULL DEFAULT '0.000000';";
         DB::statement( $tds_fields );
+
+        $payout_amount_field="ALTER TABLE `member_payout_incomes` CHANGE `payout_amount` `payout_amount` DECIMAL(12,2) NULL DEFAULT '0.000000';";
+        DB::statement( $payout_amount_field );
 
 
         $member_payout_id="ALTER TABLE `member_payout_incomes` ADD `member_payout_id` BIGINT(20) NOT NULL DEFAULT '0' AFTER `member_id`;";
@@ -211,8 +225,9 @@ class MigrationController extends Controller
 
             $payout->member_payout_id=$memberPayout->id;
             $payout->tds_percent=5;
+            $payout->net_payable_amount=$payout->payout_amount;
+            $payout->payout_amount=$payout->tds+$payout->payout_amount;
             $payout->admin_fee_percent=0;
-            $payout->net_payable_amount=$payout->tds+$payout->payout_amount;
             $payout->save();
         }
     }
@@ -244,11 +259,102 @@ class MigrationController extends Controller
 
 
             $payout->tds=$PayoutSum->total_tds;
-            $payout->net_payable_amount=$PayoutSum->total_net_payable_amount;
+            $payout->payout_amount=$PayoutSum->total_payout_amount;
             $payout->tds_percent=5;
             $payout->admin_fee_percent=0;
             $payout->net_payable_amount=$payout->tds+$payout->payout_amount;
             $payout->save();
+        }
+    }
+
+    public function affiliateIncomeMigration(){
+
+        $rewardIncomeAdd="INSERT INTO `incomes` (`id`, `name`, `description`, `code`, `is_active`, `capping`, `created_at`, `updated_at`) VALUES (NULL, 'Rewards', 'Rewards', 'REWARD', '1', '0.00', NULL, NULL);";
+        DB::statement( $rewardIncomeAdd );
+
+        $payouts=Payout::all();
+
+        foreach ($payouts as $payout) {
+            $memberPayouts=MemberPayout::where('payout_id',$payout->id)->get();
+            foreach ($memberPayouts as $memberPayout) {
+
+                // Affiliate Income
+
+                $affiliateSum=AffiliateBonus::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount')])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$payout->sales_start_date)->where('created_at','<=',$payout->sales_end_date)->first();
+               
+                if($affiliateSum->total_payout_amount){
+                    $memberPayoutIncome=new MemberPayoutIncome;
+                    $memberPayoutIncome->member_id=$memberPayout->member_id;
+                    $memberPayoutIncome->member_payout_id=$memberPayout->id;
+                    $memberPayoutIncome->payout_id=$memberPayout->payout_id;
+                    $memberPayoutIncome->tds=$affiliateSum->total_tds;
+                    $memberPayoutIncome->income_id=2;
+                    $memberPayoutIncome->tds_percent=5;
+                    $memberPayoutIncome->payout_amount=$affiliateSum->total_payout_amount;
+                    $memberPayoutIncome->net_payable_amount=$affiliateSum->total_net_payable_amount;
+                    $memberPayoutIncome->save();
+                }
+
+                // Reward Income
+
+                $rewardSum=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount')])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$payout->sales_start_date)->where('created_at','<=',$payout->sales_end_date)->first();
+               
+                if($rewardSum->total_payout_amount){
+                    $memberPayoutIncome=new MemberPayoutIncome;
+                    $memberPayoutIncome->member_id=$memberPayout->member_id;
+                    $memberPayoutIncome->member_payout_id=$memberPayout->id;
+                    $memberPayoutIncome->payout_id=$memberPayout->payout_id;
+                    $memberPayoutIncome->tds=$rewardSum->total_tds;
+                    $memberPayoutIncome->income_id=7;
+                    $memberPayoutIncome->tds_percent=5;
+                    $memberPayoutIncome->payout_amount=$rewardSum->total_payout_amount;
+                    $memberPayoutIncome->net_payable_amount=$rewardSum->total_net_payable_amount;
+                    $memberPayoutIncome->save();
+                }
+
+                $PayoutSum=MemberPayoutIncome::select([DB::raw('sum(payout_amount) as total_payout_amount'),DB::raw('sum(tds) as total_tds'),DB::raw('sum(net_payable_amount) as total_net_payable_amount')])->where('payout_id',$payout->id)->where('member_id',$memberPayout->member_id)->first();
+
+                $memberPayout->payout_amount=$PayoutSum->total_payout_amount;
+                $memberPayout->tds=$PayoutSum->total_tds;
+                $memberPayout->net_payable_amount=$PayoutSum->total_net_payable_amount;
+                $memberPayout->save();
+
+            }
+
+            $payoutIncome=new PayoutIncome;
+            $payoutIncome->payout_id=$payout->id;
+            $payoutIncome->income_id=2;
+            $payoutIncome->tds_percent=5;
+            $payoutIncome->save();
+
+            $payoutIncome=new PayoutIncome;
+            $payoutIncome->payout_id=$payout->id;
+            $payoutIncome->income_id=7;
+            $payoutIncome->tds_percent=5;
+            $payoutIncome->save();
+
+
+            $PayoutIncomes=PayoutIncome::all();
+
+            foreach ($PayoutIncomes as $payoutIncome) {
+                $MemberPayoutIncomeSum=MemberPayoutIncome::select([DB::raw('sum(payout_amount) as total_payout_amount'),DB::raw('sum(tds) as total_tds'),DB::raw('sum(net_payable_amount) as total_net_payable_amount')])->where('payout_id',$payoutIncome->payout_id)->where('income_id',$payoutIncome->income_id)->first();
+
+
+                $payoutIncome->tds=$MemberPayoutIncomeSum->total_tds;
+                $payoutIncome->payout_amount=$MemberPayoutIncomeSum->total_payout_amount;
+                $payoutIncome->tds_percent=5;
+                $payoutIncome->admin_fee_percent=0;
+                $payoutIncome->net_payable_amount=$MemberPayoutIncomeSum->total_net_payable_amount;
+                $payoutIncome->save();
+            }
+
+            $payoutIn=PayoutIncome::select([DB::raw('sum(payout_amount) as total_payout_amount'),DB::raw('sum(tds) as total_tds'),DB::raw('sum(net_payable_amount) as total_net_payable_amount')])->where('payout_id',$payoutIncome->payout_id)->first();
+
+            $payout->tds=$payoutIn->total_tds;
+            $payout->payout_amount=$payoutIn->total_payout_amount;
+            $payout->net_payable_amount=$payoutIn->total_net_payable_amount;
+            $payout->save();
+
         }
     }
 

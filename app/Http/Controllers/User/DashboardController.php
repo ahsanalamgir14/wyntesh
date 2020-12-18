@@ -49,26 +49,27 @@ class DashboardController extends Controller
         $total_personal_pv=$User->member->total_personal_pv;
         $balance=floatval($User->member->wallet_balance);
       
-        $affiliateIncomeWithTDS=AffiliateBonus::where('member_id',$User->member->id)->sum('amount');
-                
-        $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('total_payout');
-        $tds=MemberPayout::where('member_id',$User->member->id)->sum('tds');
+        $affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->sum('amount');        
         $reward=Reward::where('member_id',$User->member->id)->sum('amount');
-        $total_payout = $total_payout+$tds+$reward;
-        $total_payout+=$affiliateIncomeWithTDS;
-        $total_income=Member::where('id',$User->member->id)->sum('income_wallet_balance');
+
+        $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('payout_amount');
+        $cur_affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');        
+        $cur_reward=Reward::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');
+        $total_payout+=$cur_reward+$cur_affiliate_bonus;
+
+        $income_wallet_balance=Member::where('id',$User->member->id)->sum('income_wallet_balance');
         
         $squad_bonus_income=Income::where('code','SQUAD')->first();
-        $squad_bonus = MemberPayoutIncome::where('income_id',$squad_bonus_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
+        $squad_bonus = MemberPayoutIncome::where('income_id',$squad_bonus_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount'));
 
         $elevation_income=Income::where('code','ELEVATION')->first();
-        $elevation = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
+        $elevation = MemberPayoutIncome::where('income_id',$elevation_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount'));
 
         $luxury_income=Income::where('code','LUXURY')->first();
-        $luxury = MemberPayoutIncome::where('income_id',$luxury_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
+        $luxury = MemberPayoutIncome::where('income_id',$luxury_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount'));
 
         $premium_income=Income::where('code','PREMIUM')->first();
-        $premium = MemberPayoutIncome::where('income_id',$premium_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount + tds'));
+        $premium = MemberPayoutIncome::where('income_id',$premium_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount'));
 
         $self_pv=Member::where('id',$User->member->id)->sum('total_personal_pv');
         $current_personal_pv=Member::where('id',$User->member->id)->sum('current_personal_pv');
@@ -90,7 +91,7 @@ class DashboardController extends Controller
                 'pins_available'=>$pins_available,
                 'balance'=>$balance,
                 'total_payout'=>$total_payout,
-                'total_income'=>$total_income,
+                'income_wallet_balance'=>$income_wallet_balance,
                 'total_reward'=>$reward,
                 'current_personal_pv'=>$current_personal_pv,
                 'total_personal_pv'=>$total_personal_pv,
@@ -98,7 +99,7 @@ class DashboardController extends Controller
                 'total_group_bv'=>$total_group_bv,
                 'total_matched'=>$total_matched,
                 'distributor_discount'=>$distributor_discount,
-                'affiliateIncome'=>$affiliateIncomeWithTDS,
+                'affiliateIncome'=>$affiliate_bonus,
                 // 'cashback_income'=>$cashback_income,
             )
         );             
@@ -261,14 +262,14 @@ class DashboardController extends Controller
         ->get();
 
 
-        $affiliateIncomeWithTDS = AffiliateBonus::whereBetween('created_at', [$from,$to])->where('member_id',$User->member->id)
+        $affiliate_bonus = AffiliateBonus::whereBetween('created_at', [$from,$to])->where('member_id',$User->member->id)
         ->select(DB::raw('sum(amount) as income'),DB::raw("DATE_FORMAT(created_at, '%m-%Y') new_date"),  DB::raw('YEAR(created_at) year, MONTH(created_at) month'),DB::raw('Date(created_at) as date'))
         ->groupBy('year','month')
         ->orderBy('created_at','ASC')
         ->get();
 
         $payouts = MemberPayout::whereBetween('created_at', [$from,$to])->where('member_id',$User->member->id)
-        ->select(DB::raw('sum(total_payout+tds) as income'),DB::raw("DATE_FORMAT(created_at, '%m-%Y') new_date"),  DB::raw('YEAR(created_at) year, MONTH(created_at) month'),DB::raw('Date(created_at) as date'))
+        ->select(DB::raw('sum(payout_amount) as income'),DB::raw("DATE_FORMAT(created_at, '%m-%Y') new_date"),  DB::raw('YEAR(created_at) year, MONTH(created_at) month'),DB::raw('Date(created_at) as date'))
         ->groupBy('year','month')
         ->orderBy('created_at','ASC')
         ->get();
@@ -294,45 +295,7 @@ class DashboardController extends Controller
             }
         }
 
-        for ($k=7; $k >= 1 ; $k--) {
-            if(count($affiliateIncomeWithTDS)){
-                foreach ($affiliateIncomeWithTDS as $key=>$payout) {
-                    $date_to_compare=Carbon::parse($payout->date)->format('Y-m');
-
-                    if($date_to_compare == Carbon::now()->modify('-'.$k.' months')->format('Y-m') ){
-                        // $od[$k]['date']=$date_to_compare;
-                        $od[$k]['income']+=floor($payout->income);
-                    }else{
-                        if(!isset($od[$k])){
-                            // $od[$k]['date']=Carbon::now()->modify('-'.$k.' months')->format('Y-m');
-                            $od[$k]['income']+=0;
-                        }
-                    }
-                }   
-            }else{
-                // $od[$k]['date']=Carbon::now()->modify('-'.$k.' months')->format('Y-m') ;
-                $od[$k]['income']+=0;
-            }
-        }
-        for ($s=7; $s >= 1 ; $s--) {
-            if(count($reward)) {
-                foreach ($reward as $sey=>$payout) {
-                    $date_to_compare=Carbon::parse($payout->date)->format('Y-m');
-                    if($date_to_compare == Carbon::now()->modify('-'.$s.' months')->format('Y-m') ){
-                        // $od[$s]['date']=$date_to_compare;
-                        $od[$s]['income']+=floor($payout->income);
-                    }else{
-                        if(!isset($od[$s])){
-                            // $od[$s]['date']=Carbon::now()->modify('-'.$s.' months')->format('Y-m');
-                            $od[$s]['income']+=0;
-                        }
-                    }
-                }   
-            }else{
-                // $od[$s]['date'] = Carbon::now()->modify('-'.$s.' months')->format('Y-m') ;
-                $od[$s]['income']+=0;
-            }
-        }
+       
         $payout_list=[];
         foreach ($od as $o) {
             $payout_list[]=$o;

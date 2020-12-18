@@ -36,27 +36,27 @@
           <span>{{ row.order_count }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Order Amount" width="200px" align="right">
+      <el-table-column label="Order Amount" min-width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.order_total_amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="BV" width="200px" align="right">
+      <el-table-column label="BV" width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.order_total_pv }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="GST" width="170px" align="right">
+      <el-table-column label="GST" width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.order_total_gst }}</span>
         </template>
       </el-table-column>
-       <el-table-column label="TDS" width="200px" align="right">
+       <el-table-column label="TDS" width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.total_tds }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Admin Fee" width="200px" align="right">
+      <el-table-column label="Admin Fee" width="150px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.total_admin_fee }}</span>
         </template>

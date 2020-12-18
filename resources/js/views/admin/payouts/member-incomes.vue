@@ -96,7 +96,7 @@
       </el-table-column> 
       <el-table-column label="Total Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ Math.round(row.payout_amount) }}</span>
+          <span >{{ row.payout_amount }}</span>
         </template>
       </el-table-column>
     </el-table>
