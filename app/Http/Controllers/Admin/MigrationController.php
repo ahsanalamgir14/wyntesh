@@ -269,7 +269,7 @@ class MigrationController extends Controller
 
     public function affiliateIncomeMigration(){
 
-        $rewardIncomeAdd="INSERT INTO `incomes` (`id`, `name`, `description`, `code`, `is_active`, `capping`, `created_at`, `updated_at`) VALUES (NULL, 'Rewards', 'Rewards', 'REWARD', '1', '0.00', NULL, NULL);";
+        $rewardIncomeAdd="INSERT INTO `incomes` (`id`, `name`, `description`, `code`, `is_active`, `capping`, `created_at`, `updated_at`) VALUES (NULL, 'Rewards', 'Rewards', 'REWARD', '1', '0.00', '2020-12-18 19:12:45', NULL);";
         DB::statement( $rewardIncomeAdd );
 
         $payouts=Payout::all();
