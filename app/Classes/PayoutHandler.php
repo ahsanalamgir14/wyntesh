@@ -51,7 +51,7 @@ class PayoutHandler
         $this->distributeSquadIncome();
         $this->updatePayoutSum();
         //$this->calculateIncomeParameters();        
-        //$this->calculateIncomes();        
+        //$this->payIncomes();        
         //$this->updateRank($this->payout);
 
     }
@@ -239,8 +239,7 @@ class PayoutHandler
 
         foreach ($Members as $Member) {
             $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
-            $this->paySquadIncome($memberPayout,$payoutIncome);
-            $this->updateMemberPayoutSum($memberPayout);                
+            $this->paySquadIncome($memberPayout,$payoutIncome);        
         }
     }
 
@@ -281,69 +280,318 @@ class PayoutHandler
     }
 
     public function calculateIncomeParameters(){
+        $PayoutIncomes=PayoutIncome::where('payout_id',$this->payout->id)->get();
+        foreach ($PayoutIncomes as $PayoutIncome) {
+                        
+            if($PayoutIncome->income->code=='ELEVATION'){
+                $this->calculateElevationIncomeFactor($PayoutIncome->income,$PayoutIncome);
+            }
+
+            if($PayoutIncome->income->code=='LUXURY'){
+                $this->calculateLuxuryIncomeFactor($PayoutIncome->income,$PayoutIncome);
+            }
+
+            if($PayoutIncome->income->code=='PREMIUM'){
+                $this->calculatePremiumIncomeFactor($PayoutIncome->income,$PayoutIncome);
+            }
+        }
+    }
+
+    public function payIncomes(){
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
-            $q->where('is_blocked',0);
         })->orderBy('level','desc')->get();
 
         foreach ($Members as $Member) {
             
-            $total_payout=0;
             $PayoutIncomes=PayoutIncome::where('payout_id',$this->payout->id)->get();
-            $MemberPayout= MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
-            
-            foreach ($PayoutIncomes as $PayoutIncome) {
-                if($PayoutIncome->income->code=='BINARY'){
-                    $this->payBinaryIncome($PayoutIncome,$Member,$MemberPayout);            
+            $memberPayout= MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
+
+            foreach($PayoutIncomes as $PayoutIncome){
+               
+                if($income->code=='ELEVATION'){
+                    $this->payElevationIncome($PayoutIncome,$memberPayout);
                 }
-            }
 
-            $this->updateMemberPayoutSum($MemberPayout);
+                if($income->code=='LUXURY'){
+                    $this->payLuxuryIncome($PayoutIncome,$memberPayout);
+                }
+
+                if($income->code=='PREMIUM'){
+                    $this->payPremiumIncome($PayoutIncome,$memberPayout);
+                }
+            }            
         }
-
-        $this->updatePayoutSum();
     }
 
-    public function calculateIncomes(){
-        $Members=Member::whereHas('user',function($q){
-            $q->where('is_active',1);
-            $q->where('is_blocked',0);
-        })->orderBy('level','desc')->get();
-
-        foreach ($Members as $Member) {
-            
-            $total_payout=0;
-            $PayoutIncomes=PayoutIncome::where('payout_id',$this->payout->id)->get();
-            $MemberPayout= MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
-            
-            foreach ($PayoutIncomes as $PayoutIncome) {
-             
-                if($PayoutIncome->income->code=='BINARY'){
-                    $this->payBinaryIncome($PayoutIncome,$Member,$MemberPayout);            
-                }
+    public function calculateElevationIncomeFactor($income,$PayoutIncome) {
+        $monthly_company_turnover_percent=0;
+        
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='monthly_company_turnover_percent'){
+                $monthly_company_turnover_percent=$parameter->value_1;
             }
-            $this->updateMemberPayoutSum($MemberPayout);
         }
 
-        $this->updatePayoutSum();
+        // Counting matching point value based on parameters and plan criteria
+        $PayoutIncome->income_payout_parameter_1_name='ebp';
+        
+        $eb_eligibles=$this->getElevationEligibles($income,$this->payout);
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
+        $ebp=MemberPayout::whereIn('member_id',$eb_eligibles)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
+
+        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->sum('pv');
+
+        if($ebp==0){
+            $income_factor=0;
+        }else{            
+            $income_factor=(($current_month_bv*$monthly_company_turnover_percent)/100)/$ebp;
+        }
+
+        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
+        $PayoutIncome->save();
+    }
+    
+    public function getElevationEligibles($income,$payout){
+
+        $rank_4_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',4)->first();
+        $rank_5_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',5)->first();
+        $rank_6_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',6)->first();
+        $rank_7_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',7)->first();
+        $rank_8_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',8)->first();
+        
+        $date = Carbon::createFromFormat('Y-m-d', $payout->sales_start_date);
+        $start=$date->startOfMonth()->format('Y-m-d');
+        $end=$date->endOfMonth()->format('Y-m-d');
+
+        $eligible_4=$this->getSquadAffiliateEligible($start,$end,$rank_4_criteria->value_2,$rank_4_criteria->value_1);
+        $eligible_5=$this->getSquadAffiliateEligible($start,$end,$rank_5_criteria->value_2,$rank_5_criteria->value_1);
+        $eligible_6=$this->getSquadAffiliateEligible($start,$end,$rank_6_criteria->value_2,$rank_6_criteria->value_1);
+        $eligible_7=$this->getSquadAffiliateEligible($start,$end,$rank_7_criteria->value_2,$rank_7_criteria->value_1);
+
+        $eligible_8=Member::where('rank_id',8)->whereHas('user',function($q){
+                                                $q->where('is_active',1);
+                                            })->get()->pluck('id')->toArray();
+
+        $all_eligibles=array_merge($eligible_4,$eligible_5,$eligible_6,$eligible_7,$eligible_8);
+
+        return $all_eligibles;
     }
 
-    public function payBinaryIncome($PayoutIncome,$Member,$MemberPayout){
+    public function payElevationIncome($payoutIncome,$memberPayout) {
 
-        $member_total_matched_bv=$MemberPayout->total_matched_bv;
-        $payout_amount=($member_total_matched_bv*$this->bv_value)/100;
+        $totalIncomeValue = 0;
+        
+        $factor = $payoutIncome->income_payout_parameter_1_value;
+        
+        $eb_eligibles=$this->getElevationEligibles($payoutIncome->income,$this->payout);
 
-        if($payout_amount==0){
+        if(!in_array($memberPayout->member->id, $eb_eligibles)){
+            return 0;
+        }
+
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
+        $member_matched=MemberPayout::where('member_id',$memberPayout->member->id)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
+
+        $payout_amount = $member_matched*$factor;
+
+        if(!$payout_amount)
             return;
+
+        $this->addWalletTransaction($memberPayout,$payoutIncome,$memberPayout->member,$payout_amount);
+    }
+
+    public function calculateLuxuryIncomeFactor($income,$PayoutIncome) {
+        $monthly_company_turnover_percent=0;
+        $accumulating_rank=2;
+
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='monthly_company_turnover_percent'){
+                $monthly_company_turnover_percent=$parameter->value_1;
+            }
+            if($parameter->name=='accumulating_rank'){
+                $accumulating_rank=$parameter->value_1;
+            }
         }
 
-        $capping=$Member->package->capping_amount;
+        // Counting matching point value based on parameters and plan criteria
+        $PayoutIncome->income_payout_parameter_1_name='lbp';
+        $lbp_eligibles=Member::where('rank_id','>=',$accumulating_rank)->whereHas('user',function($q){
+                                                $q->where('is_active',1);
+                                            })->get()->pluck('id')->toArray();
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
 
-        if($payout_amount > $capping){
-            $payout_amount=$capping;
+        $lbp=MemberPayout::whereIn('member_id',$lbp_eligibles)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
+        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->sum('pv');
+
+        if($lbp==0){
+            $income_factor=0;
+        }else{            
+            $income_factor=(($current_month_bv*$monthly_company_turnover_percent)/100)/$lbp;
         }
 
-        $this->addWalletTransaction($MemberPayout,$PayoutIncome,$Member,$payout_amount);
+        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
+        $PayoutIncome->save();
+    }
+
+    public function payLuxuryIncome($payoutIncome,$memberPayout) {
+
+        $totalIncomeValue = 0;
+        $factor = $payoutIncome->income_payout_parameter_1_value;
+
+        $accumulating_rank=2;
+        $disbursal_rank=8;
+
+        foreach ($payoutIncome->income->income_parameters as $parameter) {            
+            if($parameter->name=='accumulating_rank'){
+                $accumulating_rank=$parameter->value_1;
+            }
+            if($parameter->name=='disbursal_rank'){
+                $disbursal_rank=$parameter->value_1;
+            }
+        }
+
+        $lbp_eligibles=Member::where('rank_id','>=',$accumulating_rank)
+                                ->whereHas('user',function($q){
+                                    $q->where('is_active',1);
+                                })
+                                ->get()
+                                ->pluck('id')
+                                ->toArray();
+
+        
+        if(!in_array($Member->id, $lbp_eligibles)){
+            return 0;
+        }
+
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
+        $member_matched=MemberPayout::where('member_id',$memberPayout->member->id)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
+
+        $payout_amount = $member_matched*$factor;
+
+        if(!$payout_amount)
+            return;
+
+        $this->addWalletTransaction($memberPayout,$payoutIncome,$memberPayout->member,$payout_amount);
+
+    }
+
+    public function calculatePremiumIncomeFactor($income,$PayoutIncome) {
+        $monthly_company_turnover_percent=0;
+        
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='monthly_company_turnover_percent'){
+                $monthly_company_turnover_percent=$parameter->value_1;
+            }
+        }
+
+        // Counting matching point value based on parameters and plan criteria
+        $PayoutIncome->income_payout_parameter_1_name='pbp';
+        $pb_eligibles_and_points=$this->getPremiumEligibles($income,$this->payout);
+        $total_points_collected=array_sum(array_values($pb_eligibles_and_points));
+        $pb_eligibles=array_keys($pb_eligibles_and_points);   
+
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');      
+        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->sum('pv');     
+
+        if($total_points_collected==0){
+            $income_factor=0;
+        }else{            
+            $income_factor=(($current_month_bv*$monthly_company_turnover_percent)/100)/$total_points_collected;    
+        }
+        
+        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
+        $PayoutIncome->save();
+    }
+
+    public function getPremiumEligibles($income,$payout){
+
+        $rank_4_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',4)->first();
+        $rank_5_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',5)->first();
+        $rank_6_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',6)->first();
+        $rank_7_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',7)->first();
+        $rank_8_criteria=IncomeParameter::where('income_id',$income->id)->where('name','rank')->where('value_1',8)->first();
+
+        $date = Carbon::createFromFormat('Y-m-d', $payout->sales_start_date);
+        $start=$date->startOfMonth()->format('Y-m-d');
+        $end=$date->endOfMonth()->format('Y-m-d');
+
+        $eligible_4=$this->getSquadAffiliateEligible($start,$end,$rank_4_criteria->value_2,$rank_4_criteria->value_1);
+        $eligible_5=$this->getSquadAffiliateEligible($start,$end,$rank_5_criteria->value_2,$rank_5_criteria->value_1);
+        $eligible_6=$this->getSquadAffiliateEligible($start,$end,$rank_6_criteria->value_2,$rank_6_criteria->value_1);
+        $eligible_7=$this->getSquadAffiliateEligible($start,$end,$rank_7_criteria->value_2,$rank_7_criteria->value_1);
+       
+        $eligible_8=Member::where('rank_id',8)->whereHas('user',function($q){
+                                                $q->where('is_active',1);
+                                            })->get()->pluck('id')->toArray();
+
+        $PremiumEls=array_merge($eligible_4,$eligible_5,$eligible_6,$eligible_7);
+
+        $totalPP=0;
+
+
+        foreach ($PremiumEls as $key=>$pmid) {
+            $PMem=Member::find($pmid);
+            $spaf=$this->calulatePremiumPoints($PMem,$start,$end);
+            if($PMem->rank_id==4){
+                $point=0;
+                $point=intdiv($spaf,$rank_4_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_4, $pmid);
+                }
+            }
+            if($PMem->rank_id==5){
+                $point=0;
+                $point=intdiv($spaf,$rank_5_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_5, $pmid);
+                }
+            }
+            if($PMem->rank_id==6){
+                $point=0;
+                $point=intdiv($spaf,$rank_6_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_6, $pmid);
+                }
+            }
+            if($PMem->rank_id==7){
+                $point=0;
+                $point=intdiv($spaf,$rank_7_criteria->value_2);
+                for ($i=0; $i <$point-1 ; $i++) { 
+                    array_push($eligible_7, $pmid);
+                }
+            }
+        }
+
+        $all_eligibles=array_merge($eligible_4,$eligible_5,$eligible_6,$eligible_7,$eligible_8,$eligible_8,$eligible_8);
+
+        $all_eligible_and_points=array_count_values($all_eligibles);
+
+        return $all_eligible_and_points;
+    }
+
+    public function payPremiumIncome($payoutIncome,$memberPayout) {
+
+        $totalIncomeValue = 0;
+        $factor = $payoutIncome->income_payout_parameter_1_value;
+
+        $pb_eligibles_and_points=$this->getPremiumEligibles($payoutIncome->income,$this->payout);
+
+        $pb_eligibles=array_keys($pb_eligibles_and_points);
+
+        if(!in_array($memberPayout->member->id, $pb_eligibles)){
+            return 0;
+        }
+
+        $payout_amount = $pb_eligibles_and_points[$memberPayout->member->id]*$factor;
+        if(!$payout_amount)
+            return;
+
+        $this->addWalletTransaction($memberPayout,$payoutIncome,$memberPayout->member,$payout_amount);
     }
 
     public function updateMemberPayoutSum($MemberPayout){        
@@ -412,6 +660,40 @@ class PayoutHandler
 
         $this->payout->ended_at=Carbon::now();
         $this->payout->save();
+    }
+
+    public function getSquadPlusAffiliate($Member){
+        $income=MemberPayoutIncome::whereIn('income_id',[2,3,8])->where('member_id',$Member->id)->sum('payout_amount');
+        return $income;
+    }
+
+    public function getSquadPlusAffiliatePinnacle($Member){
+        $income=MemberPayoutIncome::where('member_id',$Member->id)->sum('payout_amount');
+        return $income;
+    }
+
+    public function getSquadAffiliateEligible($from,$to,$criteria,$rank){
+        
+        $eligible_rank_members=Member::where('rank_id',$rank)->get()->pluck('id')->toArray();
+
+        $eligibles=MemberPayoutIncome::select([ DB::raw("SUM(payout_amount) as total_payout_amount"),DB::raw("member_id")])
+                ->havingRaw('total_payout_amount >= ?',[$criteria])
+                ->whereDate('created_at','>=', $from)
+                ->whereDate('created_at','<=', $to)
+                ->whereIn('member_id',$eligible_rank_members)
+                ->groupBy('member_id')
+                ->get()->pluck('member_id');
+
+        return $eligibles;
+    }
+
+    public function calulatePremiumPoints($Member,$from,$to){
+        $income=MemberPayoutIncome::whereIn('income_id',[2,3,8])
+            ->whereDate('created_at','>=', $from)
+            ->whereDate('created_at','<=', $to)
+            ->where('member_id',$Member->id)
+            ->sum('payout_amount');
+        return $income;
     }
 
     public function addWalletTransaction($MemberPayout,$PayoutIncome,$Member,$payout_amount){
