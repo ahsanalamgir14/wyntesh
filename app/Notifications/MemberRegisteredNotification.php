@@ -66,7 +66,7 @@ class MemberRegisteredNotification extends Notification
             $email_content=$Email->description;
             $email_content=str_replace("{name}",$notifiable->name,$email_content);
             $email_content=str_replace("{username}",$notifiable->username,$email_content);            
-            return (new CustomHtmlMail($email_content))->subject('Registration Successful')->to($notifiable->email);
+            return (new CustomHtmlMail($email_content,'Registration Successful'))->subject('Registration Successful')->to($notifiable->email);
         }
     }
 

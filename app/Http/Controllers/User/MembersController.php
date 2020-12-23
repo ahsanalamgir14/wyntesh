@@ -19,99 +19,19 @@ use DB;
 use Storage;
 use App\Events\MemberRegisteredEvent;
 
+use App\Models\Admin\MemberPayout;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\PayoutNotification;
 class MembersController extends Controller
 {    
-    public function getSquadPlusAffiliate($Member){
-        
-         $results = DB::select(DB::raw("SELECT sum(amt) total_amt from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id where income_id=3 group by member_id) tmp where tmp.member_id=".$Member->id." group by tmp.member_id ") );
-
-        if($results){            
-            return floatval($results[0]->total_amt);
-        }else{
-            return 0;
-        }
-    }
-
-    public function getSquadPlusAffiliatePinnacle($Member){
-        
-         $results = DB::select(DB::raw("SELECT sum(amt) total_amt from (SELECT ab.member_id,sum(amount) as amt FROM `affiliate_bonus` as ab right join `members` as m on m.id = ab.member_id  group by ab.member_id UNION SELECT tp.member_id,sum(payout_amount+tds) as amt FROM `member_payout_incomes` as tp left join `members` as m on m.id = tp.member_id  group by member_id) tmp where tmp.member_id=".$Member->id." group by tmp.member_id ") );
-
-        if($results){
-            return floatval($results[0]->total_amt);
-        }else{
-            return 0;
-        }
-    }
-
-    public function updateRank(){
-        $Members=Member::orderBy('level','desc')->get();
-        $Ranks=Rank::all();
-        $MembersController=new MembersController;
-        foreach ($Members as $Member) {
-            $total_inr_turn_over=MembersLegPv::where('member_id',$Member->id)->sum('pv');
-            $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
-            $personal_pv=$Member->total_personal_pv;
-
-            $squad_plus_affiliate=$this->getSquadPlusAffiliate($Member);
-            $squad_plus_affiliate_pinnacle=$this->getSquadPlusAffiliatePinnacle($Member);
-            $all_childs=[];
-            $counts=array();
-            foreach ($children as $child) {
-                $child_ids=$this->getChildsOfParent($child);
-                $child_ids[]=$child;
-                $all_childs=array_merge($all_childs,$child_ids);
-                $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
-                $check_rank=array_unique($check_rank);
-                foreach ($check_rank as $check) {
-                    $counts[]=$check;
-                }                           
-            }
-
-            $total_inr_turn_over=Order::whereHas('user.member',function($q)use($all_childs){
-                $q->whereIn('id',$all_childs);
-            })->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('final_amount');
-
-            $counts=array_count_values($counts);
-            foreach ($Ranks as $Rank) {
-                if($Rank->leg_rank){
-                
-                          
-                    foreach ($counts as $key => $value) {   
-                        if($Rank->name =='5% Club'){
-                            if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
-                                if($squad_plus_affiliate_pinnacle >= $Rank->bv_to){
-                                    $Member->rank_id=$Rank->id;
-                                    $Member->save(); 
-                                }                           
-                                  
-                            }
-                        }else{     
-
-                            if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
-                                if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
-                                    $Member->rank_id=$Rank->id;
-                                    $Member->save(); 
-                                }                           
-                                  
-                            }
-                        }
-                    }
-
-                }else{
-
-                    if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
-                        $Member->rank_id=$Rank->id;
-                        $Member->save(); 
-                    }   
-                }
-            }
-
-            $RankLog=new RankLog;
-            $RankLog->payout_id=6;
-            $RankLog->member_id=$Member->id;
-            $RankLog->rank_id=$Member->rank_id;
-            $RankLog->save();
-        }
+    
+    public function sendSMS(){
+        $Member=User::where('contact',8000501652)->first();
+        //$Member->notify(new MemberRegisteredNotification());
+            $MemberPayout=MemberPayout::find(9351);
+        //$Order=Order::find(36);
+        return Notification::send($Member, new PayoutNotification($MemberPayout));
+        //return Notification::send($Member, new OrderPlaced($Order));
     }
 
     public function getProfile()

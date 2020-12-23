@@ -69,6 +69,9 @@ class MigrationController extends Controller
     }
 
     public function orderProductssMigration(){
+        $add_site_name="INSERT INTO `settings` (`id`, `key`, `value`, `is_public`, `created_at`, `updated_at`) VALUES (NULL, 'site_name', 'Wyntash', '1', '2020-12-23 12:27:48', NULL);";
+        DB::statement( $add_site_name );
+        
         $home_state="INSERT INTO `company_settings` (`id`, `key`, `value`, `created_at`, `updated_at`) VALUES (NULL, 'home_state', 'Tamil Nadu', '2020-12-17 16:48:06', NULL);";
         DB::statement( $home_state );
 
@@ -269,7 +272,7 @@ class MigrationController extends Controller
 
     public function affiliateIncomeMigration(){
 
-        $rewardIncomeAdd="INSERT INTO `incomes` (`id`, `name`, `description`, `code`, `is_active`, `capping`, `created_at`, `updated_at`) VALUES (NULL, 'Rewards', 'Rewards', 'REWARD', '1', '0.00', '2020-12-18 19:12:45', NULL);";
+        $rewardIncomeAdd="INSERT INTO `incomes` (`id`, `name`, `description`, `code`, `is_active`, `capping`, `created_at`, `updated_at`) VALUES (1, 'Rewards', 'Rewards', 'REWARD', '1', '0.00', '2020-12-18 19:12:45', NULL);";
         DB::statement( $rewardIncomeAdd );
 
         $payouts=Payout::all();

@@ -17,9 +17,11 @@ class CustomHtmlMail extends Mailable
      * @return void
      */
     public $html;
-    public function __construct($html)
+    public $subject;
+    public function __construct($html,$subject='New Email')
     {
         $this->html=$html;
+        $this->subject=$subject;
     }
 
     /**
@@ -29,6 +31,6 @@ class CustomHtmlMail extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.general');
+        return $this->view('emails.general')->subject($this->subject);    
     }
 }

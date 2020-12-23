@@ -18,6 +18,7 @@ Route::get('/', function (Request $request) {
 });
 
 Route::get('edu', 'Auth\AuthController@edu');
+Route::get('sms', '\App\Http\Controllers\User\MembersController@sendSMS');
 
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');

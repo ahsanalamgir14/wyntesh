@@ -14,6 +14,7 @@ use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\AffiliateBonus;
+use App\Models\Admin\Reward;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\IncomeWalletTransactions;
 use App\Models\Admin\MemberCarryForwardPv;
@@ -25,6 +26,7 @@ use App\Models\Admin\Sale;
 
 use App\Http\Controllers\User\MembersController;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\PayoutNotification;
 
 use Carbon\Carbon;
 use Log;
@@ -49,10 +51,14 @@ class PayoutHandler
         $this->calculatePayoutSales();
         $this->calculateMatchedBV();
         $this->distributeSquadIncome();
+        $this->calculateIncomeParameters();        
+        $this->payIncomes();
+        $this->updateMemberPayoutSum();        
         $this->updatePayoutSum();
-        //$this->calculateIncomeParameters();        
-        //$this->payIncomes();        
-        //$this->updateRank($this->payout);
+
+        if($this->payout->payout_type->name=='Monthly'){
+            $this->updateRank($this->payout);
+        }
 
     }
 
@@ -309,18 +315,70 @@ class PayoutHandler
 
             foreach($PayoutIncomes as $PayoutIncome){
                
-                if($income->code=='ELEVATION'){
+                if($PayoutIncome->income->code=='REWARD'){
+                    $this->addRewardIncome($PayoutIncome,$memberPayout);
+                }
+
+                if($PayoutIncome->income->code=='AFFILIATE'){
+                    $this->addAffiliateIncome($PayoutIncome,$memberPayout);
+                }
+
+                if($PayoutIncome->income->code=='ELEVATION'){
                     $this->payElevationIncome($PayoutIncome,$memberPayout);
                 }
 
-                if($income->code=='LUXURY'){
+                if($PayoutIncome->income->code=='LUXURY'){
                     $this->payLuxuryIncome($PayoutIncome,$memberPayout);
                 }
 
-                if($income->code=='PREMIUM'){
+                if($PayoutIncome->income->code=='PREMIUM'){
                     $this->payPremiumIncome($PayoutIncome,$memberPayout);
                 }
             }            
+        }
+    }
+
+    public function addRewardIncome($PayoutIncome,$memberPayout){
+        $Rewards=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount'),DB::raw("tds_percent")])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$this->payout->sales_start_date)->where('created_at','<=',$this->payout->sales_end_date)->first();
+
+        if($Rewards->total_payout_amount > 0){
+            $MemberPayoutIncome=new MemberPayoutIncome;
+            $MemberPayoutIncome->member_payout_id                = $memberPayout->id;
+            $MemberPayoutIncome->payout_id                       = $this->payout->id;
+            $MemberPayoutIncome->income_id                       = $PayoutIncome->income_id;
+            $MemberPayoutIncome->member_id                       = $memberPayout->member_id;
+            $MemberPayoutIncome->payout_amount                   = $Rewards->total_payout_amount;
+            $MemberPayoutIncome->tds                             = $Rewards->total_tds;        
+            $MemberPayoutIncome->tds_percent                     = $Rewards->tds_percent;
+            $MemberPayoutIncome->net_payable_amount              = $Rewards->total_net_payable_amount;
+            $MemberPayoutIncome->save();
+        }
+    }
+
+    public function addAffiliateIncome($PayoutIncome,$memberPayout){
+
+        $AffiliateBonus= AffiliateBonus::select([                
+                DB::raw("SUM(amount) as total_payout_amount"),
+                DB::raw("SUM(tds_amount) as total_tds"),
+                DB::raw("SUM(final_amount) as total_net_payable_amount"),
+                DB::raw("tds_percent"),
+            ])
+            ->whereDate('created_at','<=',$this->payout->sales_end_date)
+            ->whereDate('created_at','>=',$this->payout->sales_start_date)
+            ->where('member_id',$memberPayout->member_id)
+            ->first();
+
+        if($AffiliateBonus->total_payout_amount > 0){
+            $MemberPayoutIncome=new MemberPayoutIncome;
+            $MemberPayoutIncome->member_payout_id                = $memberPayout->id;
+            $MemberPayoutIncome->payout_id                       = $this->payout->id;
+            $MemberPayoutIncome->income_id                       = $PayoutIncome->income_id;
+            $MemberPayoutIncome->member_id                       = $memberPayout->member_id;
+            $MemberPayoutIncome->payout_amount                   = $AffiliateBonus->total_payout_amount;
+            $MemberPayoutIncome->tds                             = $AffiliateBonus->total_tds;        
+            $MemberPayoutIncome->tds_percent                     = $AffiliateBonus->tds_percent;
+            $MemberPayoutIncome->net_payable_amount              = $AffiliateBonus->total_net_payable_amount;
+            $MemberPayoutIncome->save();
         }
     }
 
@@ -463,7 +521,7 @@ class PayoutHandler
                                 ->toArray();
 
         
-        if(!in_array($Member->id, $lbp_eligibles)){
+        if(!in_array($memberPayout->member->id, $lbp_eligibles)){
             return 0;
         }
 
@@ -594,31 +652,46 @@ class PayoutHandler
         $this->addWalletTransaction($memberPayout,$payoutIncome,$memberPayout->member,$payout_amount);
     }
 
-    public function updateMemberPayoutSum($MemberPayout){        
-        $total_member_tds=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('tds');
+    public function updateMemberPayoutSum(){
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+        })->orderBy('level','desc')->get();
 
-        $total_member_admin_fee=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('admin_fee');
+        foreach ($Members as $Member) {
+            $MemberPayout=MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
 
-        $total_member_payout_amount=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('payout_amount');
+            if($MemberPayout){
+                $total_member_tds=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('tds');
 
-        $total_net_payable_amount=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('net_payable_amount');
+                $total_member_admin_fee=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('admin_fee');
 
-        $MemberPayout->payout_amount=$total_member_payout_amount;
-        $MemberPayout->tds=$total_member_tds;
-        $MemberPayout->admin_fee=$total_member_admin_fee;
-        $MemberPayout->net_payable_amount=$total_net_payable_amount;
-        $MemberPayout->save();
-        $MemberPayout->member->current_personal_pv=0;
-        $MemberPayout->member->save();
+                $total_member_payout_amount=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('payout_amount');
 
-        if($MemberPayout->net_payable_amount != 0){
-            try{
-               // Log::info($MemberPayout->net_payable_amount);
-                //Notification::send($MemberPayout->member->user, new PayoutNotification($MemberPayout));
-            }catch(\Exception $e)
-            {
+                $total_net_payable_amount=MemberPayoutIncome::where('payout_id',$MemberPayout->payout_id)->where('member_id',$MemberPayout->member_id)->sum('net_payable_amount');
+
+                $MemberPayout->payout_amount=$total_member_payout_amount;
+                $MemberPayout->tds=$total_member_tds;
+                $MemberPayout->admin_fee=$total_member_admin_fee;
+                $MemberPayout->net_payable_amount=$total_net_payable_amount;
+                $MemberPayout->save();
+                $MemberPayout->member->current_personal_pv=0;
+                $MemberPayout->member->save();
+
+                $total_income=MemberPayoutIncome::whereNotIn('income_id',[1,2])->where('member_id',$MemberPayout->member_id)->where('payout_id',$this->payout->id)->sum('net_payable_amount');
+
+                if($total_income != 0){
+                    try{
+                        if($MemberPayout->member->user->username=='142040'){
+                            Notification::send($MemberPayout->member->user, new PayoutNotification($MemberPayout));
+                        }
+                    }catch(\Exception $e)
+                    {
+                    }
+                }    
             }
-        }
+            
+        }        
+        
     }
 
     public function updatePayoutSum(){        
@@ -663,7 +736,7 @@ class PayoutHandler
     }
 
     public function getSquadPlusAffiliate($Member){
-        $income=MemberPayoutIncome::whereIn('income_id',[2,3,8])->where('member_id',$Member->id)->sum('payout_amount');
+        $income=MemberPayoutIncome::whereIn('income_id',[1,2,3])->where('member_id',$Member->id)->sum('payout_amount');
         return $income;
     }
 
@@ -682,13 +755,12 @@ class PayoutHandler
                 ->whereDate('created_at','<=', $to)
                 ->whereIn('member_id',$eligible_rank_members)
                 ->groupBy('member_id')
-                ->get()->pluck('member_id');
-
+                ->get()->pluck('member_id')->toArray();
         return $eligibles;
     }
 
     public function calulatePremiumPoints($Member,$from,$to){
-        $income=MemberPayoutIncome::whereIn('income_id',[2,3,8])
+        $income=MemberPayoutIncome::whereIn('income_id',[1,2,3])
             ->whereDate('created_at','>=', $from)
             ->whereDate('created_at','<=', $to)
             ->where('member_id',$Member->id)
@@ -735,6 +807,76 @@ class PayoutHandler
         $Member->income_wallet_balance+=$net_payable_amount;
         $Member->save(); 
 
+    }
+
+    public function updateRank($payout){
+        $Members=Member::orderBy('level','desc')->get();
+        $Ranks=Rank::all();
+        $MembersController=new MembersController;
+        foreach ($Members as $Member) {
+            $children=Member::where('parent_id',$Member->id)->get()->pluck('id')->toArray();
+            $personal_pv=$Member->total_personal_pv;
+
+            $squad_plus_affiliate=$this->getSquadPlusAffiliate($Member);
+            $squad_plus_affiliate_pinnacle=$this->getSquadPlusAffiliatePinnacle($Member);
+            $all_childs=[];
+            $counts=array();
+            foreach ($children as $child) {
+                $child_ids=$MembersController->getChildsOfParent($child);
+                $child_ids[]=$child;
+                $all_childs=array_merge($all_childs,$child_ids);
+                $check_rank=Member::whereIn('id',$child_ids)->get()->pluck('rank_id')->toArray();
+                $check_rank=array_unique($check_rank);
+                foreach ($check_rank as $check) {
+                    $counts[]=$check;
+                }                           
+            }
+
+            $total_inr_turn_over=Order::whereHas('user.member',function($q)use($all_childs){
+                $q->whereIn('id',$all_childs);
+            })->whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->sum('net_amount');
+
+            $counts=array_count_values($counts);
+            foreach ($Ranks as $Rank) {
+                if($Rank->leg_rank){
+                
+                          
+                    foreach ($counts as $key => $value) {   
+                        if($Rank->name =='5% Club'){
+                            if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
+                                if($squad_plus_affiliate_pinnacle >= $Rank->bv_to){
+                                    $Member->rank_id=$Rank->id;
+                                    $Member->save(); 
+                                }                           
+                                  
+                            }
+                        }else{     
+
+                            if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
+                                if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
+                                    $Member->rank_id=$Rank->id;
+                                    $Member->save(); 
+                                }                           
+                                  
+                            }
+                        }
+                    }
+
+                }else{
+
+                    if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
+                        $Member->rank_id=$Rank->id;
+                        $Member->save(); 
+                    }   
+                }
+            }
+
+            $RankLog=new RankLog;
+            $RankLog->payout_id=$payout->id;
+            $RankLog->member_id=$Member->id;
+            $RankLog->rank_id=$Member->rank_id;
+            $RankLog->save();
+        }
     }
 
 }
