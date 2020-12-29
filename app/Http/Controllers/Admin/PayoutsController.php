@@ -539,7 +539,7 @@ class PayoutsController extends Controller
             }
 
 
-            $memberWallet=$memberWallet->with('user')->where('wallet_balance','>',0)->orderBy('wallet_balance',$sort)->paginate($limit);
+            $memberWallet=$memberWallet->with('user')->orderBy('wallet_balance',$sort)->paginate($limit);
         }
 
 

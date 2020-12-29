@@ -326,13 +326,13 @@ class ShoppingController extends Controller
             // dd($request->delivery_status);
             if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){
 
-                $final_amount_company=($Order->net_amount)-($Order->gst)-($Order->shipping_fee);
+                $final_amount_company=($Order->net_amount)-($Order->gst_amount)-($Order->shipping_fee);
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
                 $Sale->pv=$Order->pv;
                 $Sale->amount=$Order->net_amount;
                 $Sale->shipping_fee=$Order->shipping_fee;                
-                $Sale->gst=$Order->gst;
+                $Sale->gst=$Order->gst_amount;
                 $Sale->order_id=$Order->id;
                 $Sale->final_amount_company=$final_amount_company;
 
@@ -422,47 +422,23 @@ class ShoppingController extends Controller
                     $Sale->final_amount_company=0;
                     $Sale->save();
 
-                    if($Order->user->member->sponsor && $Order->user->member->sponsor->user->is_active){
+                    $AffiliateBonus=AffiliateBonus::where('order_id',$Order->id)->first();
+                    if($AffiliateBonus){
+                        $AffiliateBonus->member->income_wallet_balance-=$AffiliateBonus->final_amount;
+                        $AffiliateBonus->member->save();
 
-                        $tds_percentage = CompanySetting::getValue('tds_percentage');
-                        $amount = ($Order->pv*$incmParam)/100; 
-                        $deducted_tds_amount = $amount-($amount*$tds_percentage)/100;
-
-                        $Order->user->member->sponsor->income_wallet_balance -= $deducted_tds_amount;
-                        $Order->user->member->sponsor->save();
-                        
-                        $Order->user->member->current_personal_pv-=$Order->pv;
-                        $Order->user->member->total_personal_pv-=$Order->pv;
-                        $Order->user->member->save();
-                   
                         $TransactionType=TransactionType::where('name','Affiliate Bonus Debit')->first();
-
-                        // $WalletTransaction=new WalletTransaction;
-                        // $WalletTransaction->member_id            = $Order->user->member->sponsor_id;
-                        // $WalletTransaction->balance              = $Order->user->member->sponsor->income_wallet_balance;
-                        // $WalletTransaction->amount               = $deducted_tds_amount;
-                        // $WalletTransaction->transaction_type_id  = $TransactionType->id;
-                        // $WalletTransaction->transfered_from      = $Order->user->member->sponsor->user->id;
-                        // $WalletTransaction->note                 = 'Affiliate Bonus Debit';
-                        // $WalletTransaction->save();
-
 
                         $IncomeWalletTransactions  = new IncomeWalletTransactions;
                         $IncomeWalletTransactions->member_id            = $Order->user->member->sponsor_id;
                         $IncomeWalletTransactions->balance              = $Order->user->member->sponsor->income_wallet_balance;
-                        $IncomeWalletTransactions->amount               = $deducted_tds_amount;
+                        $IncomeWalletTransactions->amount               = $AffiliateBonus->final_amount;
                         $IncomeWalletTransactions->transaction_type_id  = $TransactionType->id;
                         $IncomeWalletTransactions->transfered_from      = $Order->user->member->sponsor->user->id;
                         $IncomeWalletTransactions->note                 = 'Affiliate Bonus Debit';
                         $IncomeWalletTransactions->save(); 
 
-
-
-                        $AffiliateBonus=AffiliateBonus::where('order_id',$Order->id)->first();
-                        if($AffiliateBonus){
-                            $AffiliateBonus->delete();
-                        }
-                        
+                        $AffiliateBonus->delete();
                     }
 
                     event(new UpdateGroupPVEvent($Order,$Order->user,'subtract'));
