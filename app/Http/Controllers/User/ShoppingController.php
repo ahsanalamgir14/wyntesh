@@ -296,6 +296,7 @@ class ShoppingController extends Controller
 
         $balance=$User->member->wallet_balance;
         $shipping_charge=CompanySetting::getValue('shipping_charge');
+        $shipping_charge_2=CompanySetting::getValue('shipping_charge_2');
 
         if($balance < $request->grand_total){
             $response = array('status' => false,'message'=>'You do not have enough balance place order');
@@ -346,10 +347,18 @@ class ShoppingController extends Controller
 
             $discount_amount+=floatval($item->products->discount_amount)*intval($item->qty);
             $pv+=floatval($item->products->pv?:0)*intval($item->qty);
-            $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount+$shipping-$discount_amount);
+            $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount-$discount_amount);
             $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->dp_amount)*intval($item->qty));
         }
 
+        if($grand_total < 500){
+            $shipping=$shipping_charge;
+        }else{
+            $shipping=$shipping_charge_2;
+        }
+
+        $grand_total+=$shipping;
+        
         if($grand_total != $request->grand_total){
             $response = array('status' => false,'message'=>'Order data mismatch. try again');
             return response()->json($response, 400);

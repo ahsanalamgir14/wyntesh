@@ -148,9 +148,9 @@ class AuthController extends Controller
             $userinfo['email']          = $user->email;  
             if($user->member->total_personal_pv ==500 ){
                 $userinfo['package']  = "Advanced Courses 1";  
-            }else if($user->member->total_personal_pv >=501 && $user->member->total_personal_pv <= 2999){
+            }else if($user->member->total_personal_pv >=501 && $user->member->total_personal_pv <= 3999){
                 $userinfo['package']  = "Advanced Courses 2";  
-            }else if($user->member->total_personal_pv >=3000 ){
+            }else if($user->member->total_personal_pv >=4000 ){
                 $userinfo['package']  = "Advanced Courses 3";  
             }
             $response = array('status' => true,'message'=>"Education info.",'data'=>$userinfo);

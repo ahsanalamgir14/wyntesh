@@ -170,7 +170,10 @@ export default {
       },
       categories:[],
       cartProducts:[],
-      settings:{shipping_charge:0},
+      settings:{
+        shipping_charge:0,
+        shipping_charge_2:0,        
+      },
       temp: {
         subtotal:0,
         total_gst: 0,
@@ -197,7 +200,11 @@ export default {
       getMyCart().then(response => {
         this.cartProducts = response.data;   
         this.calculateFinal();
-        this.temp.shipping=parseFloat(this.settings.shipping_charge);
+        if(this.temp.grand_total < 500){
+          this.temp.shipping=parseFloat(this.settings.shipping_charge);
+        }else{
+          this.temp.shipping=parseFloat(this.settings.shipping_charge_2);
+        }
         this.temp.grand_total+=this.temp.shipping;
       });
     },

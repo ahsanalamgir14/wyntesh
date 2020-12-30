@@ -32,6 +32,7 @@ class MigrationController extends Controller
         $this->orderAddressUpdate();
         $this->updateGST();
 
+        $this->incomeParameterMigration();
         $this->payoutMigration();
         $this->memberPayoutsMigration();
         $this->memberPayoutIncomeMigration();
@@ -145,6 +146,26 @@ class MigrationController extends Controller
                 $product->save();
             }
         }
+    }
+
+    public function incomeParameterMigration(){
+        $direct_referral_pv_percent="UPDATE `income_parameters` SET `value_1` = '10' WHERE `income_parameters`.`id` = 3;";
+        DB::statement( $direct_referral_pv_percent );
+        $squad_percent="UPDATE `income_parameters` SET `value_1` = '60' WHERE `income_parameters`.`id` = 4;";
+        DB::statement( $squad_percent );
+        $elevation_percent="UPDATE `income_parameters` SET `value_1` = '10' WHERE `income_parameters`.`id` = 5;";
+        DB::statement( $elevation_percent );
+        $pro_bonus="UPDATE `income_parameters` SET `value_1` = '8' WHERE `income_parameters`.`id` = 12;";
+        DB::statement( $pro_bonus );
+
+        $team_affiliate="UPDATE `ranks` SET `personal_bv_condition` = '3000' WHERE `ranks`.`id` = 2;";
+        DB::statement( $team_affiliate );
+        $bda="UPDATE `ranks` SET `bv_from` = '350000.00', `personal_bv_condition` = '4000' WHERE `ranks`.`id` = 4;";
+        DB::statement( $bda );
+        $shipping_charge="INSERT INTO `company_settings` (`id`, `key`, `value`, `created_at`, `updated_at`) VALUES (NULL, 'shipping_charge_2', '50', '2020-12-30 13:18:44', NULL);";
+        DB::statement( $shipping_charge );
+
+
     }
 
     public function payoutMigration(){
