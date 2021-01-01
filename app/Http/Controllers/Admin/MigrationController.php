@@ -329,7 +329,7 @@ class MigrationController extends Controller
                     $memberPayoutIncome->member_payout_id=$memberPayout->id;
                     $memberPayoutIncome->payout_id=$memberPayout->payout_id;
                     $memberPayoutIncome->tds=$rewardSum->total_tds;
-                    $memberPayoutIncome->income_id=7;
+                    $memberPayoutIncome->income_id=1;
                     $memberPayoutIncome->tds_percent=5;
                     $memberPayoutIncome->payout_amount=$rewardSum->total_payout_amount;
                     $memberPayoutIncome->net_payable_amount=$rewardSum->total_net_payable_amount;
@@ -345,15 +345,19 @@ class MigrationController extends Controller
 
             }
 
-            $payoutIncome=new PayoutIncome;
+            $payoutIncome= PayoutIncome::where('income_id',2)->where('payout_id',$payout->id)->first();
+            if(!$payoutIncome){
+                $payoutIncome= new PayoutIncome;
+            }
+
             $payoutIncome->payout_id=$payout->id;
-            $payoutIncome->income_id=2;
-            $payoutIncome->tds_percent=5;
-            $payoutIncome->save();
+                $payoutIncome->income_id=2;
+                $payoutIncome->tds_percent=5;
+                $payoutIncome->save();
 
             $payoutIncome=new PayoutIncome;
             $payoutIncome->payout_id=$payout->id;
-            $payoutIncome->income_id=7;
+            $payoutIncome->income_id=1;
             $payoutIncome->tds_percent=5;
             $payoutIncome->save();
 

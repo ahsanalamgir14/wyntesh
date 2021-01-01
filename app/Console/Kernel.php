@@ -33,10 +33,10 @@ class Kernel extends ConsoleKernel
     {   
         //$schedule->command('telescope:prune')->daily();
         
-        // $schedule->call(function () {
-        //     $CronsController=new CronsController;
-        //     $CronsController->backupDatabase();
-        // })->dailyAt('23:59');
+        $schedule->call(function () {
+            $CronsController=new CronsController;
+            $CronsController->backupDatabase();
+        })->dailyAt('23:59');
 
         $schedule->call(function () {
             $CronsController=new CronsController;
