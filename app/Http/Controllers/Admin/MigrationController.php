@@ -304,7 +304,7 @@ class MigrationController extends Controller
 
                 // Affiliate Income
 
-                $affiliateSum=AffiliateBonus::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount')])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$payout->sales_start_date)->where('created_at','<=',$payout->sales_end_date)->first();
+                $affiliateSum=AffiliateBonus::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount')])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$payout->sales_start_date)->whereDate('created_at','<=',$payout->sales_end_date)->first();
                
                 if($affiliateSum->total_payout_amount){
                     $memberPayoutIncome=new MemberPayoutIncome;
@@ -321,7 +321,7 @@ class MigrationController extends Controller
 
                 // Reward Income
 
-                $rewardSum=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount')])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$payout->sales_start_date)->where('created_at','<=',$payout->sales_end_date)->first();
+                $rewardSum=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount')])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$payout->sales_start_date)->whereDate('created_at','<=',$payout->sales_end_date)->first();
                
                 if($rewardSum->total_payout_amount){
                     $memberPayoutIncome=new MemberPayoutIncome;
