@@ -257,9 +257,17 @@ class ShoppingController extends Controller
             $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
             return response()->json($response, 400);
         }
+        
 
         if($request->qty <= 0){
             $response = array('status' => false,'message'=>'Enter valid quantity.');
+            return response()->json($response, 400);
+        }
+
+        $product=Product::where('id',$request->product_id)->first();
+
+        if($product->stock < $request->qty){
+            $response = array('status' => false,'message'=>'Not enough stock');
             return response()->json($response, 400);
         }
 

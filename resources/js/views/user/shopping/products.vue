@@ -17,7 +17,7 @@
         @click="handleFilter"
       >Search</el-button>
 
-      <el-select v-model="listQuery.category_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;float: right;" filterable placeholder="Select Category">
+      <el-select v-model="listQuery.category_id" @change="handleFilter"  clearable class="filter-item" style="width:200px;" filterable placeholder="Select Category">
         <el-option
           v-for="item in categories"
           :key="item.name"
