@@ -196,31 +196,28 @@ public function getProducts(Request $request)
         $sort = 'desc';
     }
 
-    if(!$search && !$category_id){
-        $Products=Product::with('categories');
-        if(!in_array("admin",$rolesArray)){
-             $Products= $Products->where('is_active',1);
-        }
-        $Products=$Products->orderBy('id',$sort);
-        $Products=$Products->paginate($limit);    
-    }else{
-        $Products=Product::select();
+    $Products=Product::select();
+
+    if($search){
         $Products=$Products->where(function ($query)use($search) {
             $query->orWhere('name','like','%'.$search.'%');             
         });
-        if($category_id){
-            $Products=$Products->whereHas('categories', function($q)use($category_id){
-                $q->where('categories.id',$category_id);
-            });    
-        }
-
-        $Products = $Products->with('categories');
-        if(!in_array("admin",$rolesArray)) {
-            $Products = $Products->where('is_active',1);
-        }
-        $Products = $Products->orderBy('id',$sort);
-        $Products = $Products->paginate($limit);
     }
+
+    if($category_id){
+        $Products=$Products->whereHas('categories', function($q)use($category_id){
+            $q->where('categories.id',$category_id);
+        });    
+    }
+
+    $Products = $Products->with('categories');
+
+    if(!in_array("admin",$rolesArray)) {
+        $Products = $Products->where('is_active',1);
+    }
+
+    $Products = $Products->orderBy('id',$sort);
+    $Products = $Products->paginate($limit);
 
     $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
     return response()->json($response, 200);
