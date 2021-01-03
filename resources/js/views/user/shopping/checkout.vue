@@ -351,6 +351,7 @@ export default {
         city: undefined,
         state: undefined,
       },
+      is_shipping_waiver: true,
       payment_modes: [{
           id: 1,
           name: 'Wallet'
@@ -391,11 +392,12 @@ export default {
       getMyCart().then(response => {
         this.cartProducts = response.data;
         this.calculateFinal();
-        this.calculateFinal();
-        if (this.temp.grand_total < 500) {
-          this.temp.shipping = parseFloat(this.settings.shipping_charge_2);
-        } else {
-          this.temp.shipping = parseFloat(this.settings.shipping_charge);
+        if (!this.is_shipping_waiver) {
+          if (this.temp.grand_total < 500) {
+            this.temp.shipping = parseFloat(this.settings.shipping_charge_2);
+          } else {
+            this.temp.shipping = parseFloat(this.settings.shipping_charge);
+          }
         }
         this.temp.grand_total += this.temp.shipping;
 
@@ -492,6 +494,11 @@ export default {
         this.temp.discount += parseFloat(cart.products.discount_amount) * parseInt(cart.qty);
         this.temp.pv += parseFloat(cart.products.pv) * parseInt(cart.qty);
         this.temp.grand_total = this.temp.subtotal + this.temp.total_gst + this.temp.shipping + this.temp.admin - this.temp.discount;
+
+        if (!cart.products.is_shipping_waiver) {
+          this.is_shipping_waiver = false;
+          console.log(this.is_shipping_waiver);
+        }
       });
     },
     resetPayout() {

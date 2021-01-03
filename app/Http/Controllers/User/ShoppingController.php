@@ -342,7 +342,9 @@ class ShoppingController extends Controller
         $pv=0;
         $distributor_discount=0;
 
-        $shipping=$shipping_charge;
+        $shipping=0;
+
+        $is_shipping_waiver=1;
 
         foreach ($Cart as $item) {
             $subtotal+=floatval($item->products->dp_base)*intval($item->qty);
@@ -357,12 +359,18 @@ class ShoppingController extends Controller
             $pv+=floatval($item->products->pv?:0)*intval($item->qty);
             $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount-$discount_amount);
             $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->dp_amount)*intval($item->qty));
+
+            if(!$item->products->is_shipping_waiver){
+                $is_shipping_waiver=0;
+            }
         }
 
-        if($grand_total < 500){
-            $shipping=$shipping_charge_2;
-        }else{
-            $shipping=$shipping_charge;
+        if(!$is_shipping_waiver){
+            if($grand_total < 500){
+                $shipping=$shipping_charge_2;
+            }else{
+                $shipping=$shipping_charge;
+            }
         }
 
         $grand_total+=$shipping;

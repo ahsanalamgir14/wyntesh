@@ -243,6 +243,11 @@ public function createProduct(Request $request){
         $isActive = 0;
     }
 
+    $isShippingWaiver = 1;
+    if($request->is_shipping_waiver == "false"){
+        $isShippingWaiver = 0;
+    }
+
     $Product=new Product;
     $Product->product_number=$request->product_number;
     $Product->name=$request->name;
@@ -269,6 +274,7 @@ public function createProduct(Request $request){
     $Product->shipping_fee=$request->shipping_fee;
     $Product->pv=$request->pv;
     $Product->is_active=$isActive;
+    $Product->is_shipping_waiver=$isShippingWaiver;
     $Product->stock=$request->stock;
     $Product->save();
 
@@ -338,6 +344,11 @@ public function updateProduct(Request $request){
         $isActive = 0;
     }
 
+    $isShippingWaiver = 1;
+    if($request->is_shipping_waiver == "false"){
+        $isShippingWaiver = 0;
+    }
+
     $Product->product_number=$request->product_number;
     $Product->name=$request->name;
     $Product->brand_name=$request->brand_name;
@@ -361,6 +372,7 @@ public function updateProduct(Request $request){
     $Product->discount_amount=$request->discount_amount?:0;
     $Product->admin_fee=$request->admin_fee;
     $Product->shipping_fee=$request->shipping_fee;
+    $Product->is_shipping_waiver=$isShippingWaiver;
     $Product->pv=$request->pv;
     $Product->is_active=$isActive;
     $Product->stock=$request->stock;

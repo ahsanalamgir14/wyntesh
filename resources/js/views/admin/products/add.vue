@@ -54,6 +54,9 @@
               <el-form-item label="Total Distributor Price" prop="dp_amount">
                 <el-input type="number" min="1" v-model="temp.dp_amount" />
               </el-form-item>
+              <el-form-item label="Waive Shipping ?" prop="is_shipping_waiver">
+                <el-checkbox v-model="temp.is_shipping_waiver" border>Waive Shipping ?</el-checkbox>
+              </el-form-item>
               
             </el-col>
             <el-col  :xs="24" :sm="24" :md="12" :lg="5" :xl="5" >
@@ -273,6 +276,7 @@
         dialogAddImageVisible:false,
         temp: {
           is_active:false,
+          is_shipping_waiver:false,
           product_number:undefined,
           name:undefined,
           brand_name:undefined,
@@ -375,6 +379,13 @@
           }else{
             this.temp.is_active = false;
           }
+
+          if(response.data.is_shipping_waiver === 1){
+            this.temp.is_shipping_waiver = true;
+          }else{
+            this.temp.is_shipping_waiver = false;
+          }
+
           var keys = [];
           response.data.categories.map(cat => {
             keys.push(cat.id);
@@ -512,6 +523,12 @@
             this.temp.is_active = true;
           }else{
             this.temp.is_active = false;
+          }
+
+          if(response.data.is_shipping_waiver === 1){
+            this.temp.is_shipping_waiver = true;
+          }else{
+            this.temp.is_shipping_waiver = false;
           }
           
           this.fileList=[];
