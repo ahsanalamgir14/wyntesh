@@ -201,9 +201,9 @@ export default {
         this.cartProducts = response.data;   
         this.calculateFinal();
         if(this.temp.grand_total < 500){
-          this.temp.shipping=parseFloat(this.settings.shipping_charge);
-        }else{
           this.temp.shipping=parseFloat(this.settings.shipping_charge_2);
+        }else{
+          this.temp.shipping=parseFloat(this.settings.shipping_charge);
         }
         this.temp.grand_total+=this.temp.shipping;
       });

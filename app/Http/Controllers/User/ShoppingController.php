@@ -360,9 +360,9 @@ class ShoppingController extends Controller
         }
 
         if($grand_total < 500){
-            $shipping=$shipping_charge;
-        }else{
             $shipping=$shipping_charge_2;
+        }else{
+            $shipping=$shipping_charge;
         }
 
         $grand_total+=$shipping;
