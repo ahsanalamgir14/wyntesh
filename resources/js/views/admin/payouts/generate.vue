@@ -130,6 +130,11 @@
           <span >{{ row.tds }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Admin Fee" width="120px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.admin_fee }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Payable" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.net_payable_amount }}</span>

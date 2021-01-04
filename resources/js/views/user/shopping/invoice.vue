@@ -100,7 +100,7 @@
                 <td class="description"><div>{{product.gst_rate}}</div></td>
                 <td class="description"><div>{{product.gst_amount}}</div></td>
 
-                <td class="total"><div >{{product.gst_amount}}</div></td>
+                <td class="total"><div >{{product.net_amount}}</div></td>
             </tr>
 
             <tr class="item-row">
