@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
      
-      <el-select v-model="listQuery.income_id" @change="handleFilter" multiple  clearable class="filter-item" style="width:500px;" filterable placeholder="Select Income">
+      <el-select v-model="listQuery.income_id" @change="handleFilter" multiple  clearable class="filter-item" style="width:150px;" filterable placeholder="Select Income">
         <el-option
           v-for="item in income_list"
           :key="item.name"
@@ -54,24 +54,32 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
+
+      <el-table-column type="expand">
+        <template slot-scope="{row}">
+          <p>Income type: <b>{{row.income?row.income.name:''}}</b></p>
+          <p>Amount: <b>{{parseFloat(row.payout_amount)}}</b></p>
+          <p>Duration: <b>{{ row.payout.sales_start_date | parseTime('{d}-{m}-{y}') }} - {{ row.payout.sales_end_date | parseTime('{d}-{m}-{y}') }}</b></p>
+        </template>
+      </el-table-column>
         
         <el-table-column label="Duration" width="190px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.payout.sales_start_date | parseTime('{d}-{m}-{y}') }} - {{ row.payout.sales_end_date | parseTime('{d}-{m}-{y}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Amount" width="140px" align="right">
+        <template slot-scope="{row}">
+          <span ><b>{{ (parseFloat(row.payout_amount)) }}</b></span>
+        </template>
+      </el-table-column>
 
-      <el-table-column label="Income type" min-width="150px">
+      <el-table-column label="Income type" width="200px">
         <template slot-scope="{row}">
           <span >{{ row.income?row.income.name:'' }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="Amount" width="120px" align="right">
-        <template slot-scope="{row}">
-          <span >{{ (parseFloat(row.payout_amount)) }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="TDS" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ (row.tds) }}</span>
@@ -82,9 +90,9 @@
           <span >{{ row.admin_fee }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Total Payable" width="130px" align="right">
+      <el-table-column label="Total Payable" min-width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ (row.net_payable_amount) }}</span>
+          <span ><b>{{ (row.net_payable_amount) }}</b></span>
         </template>
       </el-table-column>
 
