@@ -141,6 +141,11 @@ class AuthController extends Controller
         if ($token = JWTAuth::attempt($credentials))
         {
             $user=JWTAuth::user();
+
+            if($user->roles[0]->name != 'user'){
+                return response()->json(['status'=>false,'message' => 'Only Member login allowed'], 401);
+            }
+
             $userinfo['name']           = $user->name;
             $userinfo['joining_date']   = date('d-m-Y h:i:s',strtotime($user->created_at)); ;
             $userinfo['dob']            = date('d-m-Y',strtotime($user->dob));

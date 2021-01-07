@@ -246,7 +246,7 @@
       <el-col :xs="24" :sm="24" :md="12" :lg="12">        
         <el-card shadow="never">
           <div slot="header" class="clearfix">
-            <span>Monthwise Business</span>            
+            <span>Payout & Business</span>            
           </div>
           <el-table
             :data="monthlyBusiness"

@@ -101,6 +101,7 @@ class PayoutHandler
         
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
+            $q->where('is_blocked',0);
         })->get();
         // dd($Members);
         $total_mached_bv=0;
@@ -241,6 +242,7 @@ class PayoutHandler
         
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
+            $q->where('is_blocked',0);
         })->orderBy('level','desc')->get();
 
         foreach ($Members as $Member) {
@@ -306,6 +308,7 @@ class PayoutHandler
     public function payIncomes(){
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
+            $q->where('is_blocked',0);
         })->orderBy('level','desc')->get();
 
         foreach ($Members as $Member) {
@@ -430,6 +433,7 @@ class PayoutHandler
 
         $eligible_8=Member::where('rank_id',8)->whereHas('user',function($q){
                                                 $q->where('is_active',1);
+                                                $q->where('is_blocked',0);
                                             })->get()->pluck('id')->toArray();
 
         $all_eligibles=array_merge($eligible_4,$eligible_5,$eligible_6,$eligible_7,$eligible_8);
@@ -478,6 +482,7 @@ class PayoutHandler
         $PayoutIncome->income_payout_parameter_1_name='lbp';
         $lbp_eligibles=Member::where('rank_id','>=',$accumulating_rank)->whereHas('user',function($q){
                                                 $q->where('is_active',1);
+                                                $q->where('is_blocked',0);
                                             })->get()->pluck('id')->toArray();
         $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
         $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
@@ -515,6 +520,7 @@ class PayoutHandler
         $lbp_eligibles=Member::where('rank_id','>=',$accumulating_rank)
                                 ->whereHas('user',function($q){
                                     $q->where('is_active',1);
+                                    $q->where('is_blocked',0);
                                 })
                                 ->get()
                                 ->pluck('id')
@@ -585,6 +591,7 @@ class PayoutHandler
        
         $eligible_8=Member::where('rank_id',8)->whereHas('user',function($q){
                                                 $q->where('is_active',1);
+                                                $q->where('is_blocked',0);
                                             })->get()->pluck('id')->toArray();
 
         $PremiumEls=array_merge($eligible_4,$eligible_5,$eligible_6,$eligible_7);
@@ -655,6 +662,7 @@ class PayoutHandler
     public function updateMemberPayoutSum(){
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
+            $q->where('is_blocked',0);
         })->orderBy('level','desc')->get();
 
         foreach ($Members as $Member) {
@@ -681,9 +689,7 @@ class PayoutHandler
 
                 if($total_income != 0){
                     try{
-                        if($MemberPayout->member->user->username=='142040'){
                             Notification::send($MemberPayout->member->user, new PayoutNotification($MemberPayout));
-                        }
                     }catch(\Exception $e)
                     {
                     }

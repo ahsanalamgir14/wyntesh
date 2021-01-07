@@ -332,7 +332,7 @@ class ShoppingController extends Controller
                 $Sale->pv=$Order->pv;
                 $Sale->amount=$Order->net_amount;
                 $Sale->shipping_fee=$Order->shipping_fee;                
-                $Sale->gst=$Order->gst_amount;
+                $Sale->gst=$Order->gst_amount+$Order->cgst_amount+$Order->sgst_amount;
                 $Sale->order_id=$Order->id;
                 $Sale->final_amount_company=$final_amount_company;
 
