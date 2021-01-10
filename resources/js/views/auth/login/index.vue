@@ -3,7 +3,7 @@
     <el-col :xs="24" :sm="24" :md="10" :lg="10" :xl="10">
       <div class="welcome-container">
         <div class="logo-text">
-          <img v-if="logo" :src="logo" class="sidebar-logo">
+          <img v-if="logo" :src="logo" class="sidebar-logo" style="margin:0 auto;">
           <h2>Welcome to {{ settings.company_name }}</h2>
         </div>
         <!-- <div class="footer">

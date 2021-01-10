@@ -1,17 +1,24 @@
 <template>
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
-      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 v-else class="sidebar-title">{{ settings.company_name }} </h1>
+      <router-link v-if="collapse" key="collapse" class="p-3 sidebar-logo-link" to="/">
+        <img  v-if="logo" :src="logo" class="sidebar-logo">
+        <h1 v-else class="sidebar-title">{{settings.company_name}} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 class="sidebar-title">{{ settings.company_name }} </h1>
+        <div class="flex items-start">
+          <div class=" p-2 w-1/8" v-if="logo">
+            <img :src="logo" class="sidebar-logo ">
+          </div>
+          <div class=" w-7/8 align-top" >
+            <h1  class="sidebar-title align-top">{{settings.company_name}} </h1>
+          </div>
+        </div>
       </router-link>
     </transition>
   </div>
 </template>
+
 
 <script>
 import logo from '@/assets/images/hader_logo.png';

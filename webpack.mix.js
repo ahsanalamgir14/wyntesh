@@ -1,6 +1,7 @@
 const config = require('./webpack.config');
 const mix = require('laravel-mix');
 require('laravel-mix-eslint');
+const tailwindcss = require('tailwindcss')
 
 function resolve(dir) {
   return path.join(
@@ -52,6 +53,7 @@ mix
   ])
   .options({
     processCssUrls: false,
+    postCss: [ tailwindcss('tailwind.config.js') ],
   })
   .sass('resources/js/styles/index.scss', 'public/css/app.css', {
     implementation: require('node-sass'),

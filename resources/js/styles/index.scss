@@ -10,7 +10,9 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300,400,500);
 
 
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .el-breadcrumb__inner a, .el-breadcrumb__inner.is-link {
     font-weight: 700;
