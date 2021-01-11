@@ -22,5 +22,10 @@ class Cart extends Model {
         return $this->belongsTo('App\Models\User\User');
     }
 
+    public function variant()
+    {
+        return $this->belongsTo('App\Models\Admin\ProductVariant');
+    }
+
 
 }

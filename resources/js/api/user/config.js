@@ -9,6 +9,13 @@ export function getPackages() {
   })
 }
 
+export function getCurrencies() {
+  return request({
+    url: '/user/currencies/all',
+    method: 'get'
+  })
+}
+
 export function getPaymentModes() {
   return request({
     url: '/user/payment-modes/all',
@@ -42,4 +49,31 @@ export function getStatuesAll(type) {
       method: 'get'
     })
   }  
+}
+
+export function getAllStates() {
+  return request({
+    url: '/states',
+    method: 'get'
+  })
+}
+export function getStateCities(state) {
+  return request({
+    url: '/cities/'+state,
+    method: 'get'
+  })
+}
+
+export function getAllCountry() {
+  return request({
+    url: '/country',
+    method: 'get'
+  })
+}
+
+export function getCountryStates(country) {
+  return request({
+    url: '/states/'+country,
+    method: 'get'
+  })
 }

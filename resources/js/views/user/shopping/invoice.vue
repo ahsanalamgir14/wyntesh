@@ -10,7 +10,7 @@
               <tr class="item-row" >
                   <td class="item-name" style="border: none;">
                      <img id="image" src="images/dark_logo.png" height="150px"   alt="logo" style="width: 50% !important;height: 50% !important;" /><br>
-                    <span style="font-size: 18px;font-weight: bold;">{{company_details.company_name}}</span><br><br>
+                    <span style="font-size: 18px;font-weight: bold;">WYNTASH Ecom Pvt Ltd</span><br><br>
                     CIN - U74999TZ2020PTC033882<br>
                     {{company_details.address}}<br>
                     {{company_details.city}}<br>
@@ -72,7 +72,8 @@
           
             <tr>
                 <th>Product</th>                
-                <th>MRP</th>
+                <th>HSN</th>
+                <th>Base Price</th>
                 <!-- <th>retail</th> -->
                 <!-- <th>Discount</th> -->
                 <th>Quantity</th>
@@ -87,7 +88,8 @@
             </tr>
             
             <tr class="item-row"  v-for="product in order.products" :key="product.id">
-                <td class="item-name"><div>{{product.product.name}}</div></td>
+                <td class="item-name"><div>{{product.product.name}}</h3>{{ (product.variant.color?product.variant.color.name:' ') +' '+ (product.variant.size?'('+product.variant.size.brand_size+')':'') }}</div></td>
+                <td class="qty"><div >{{product.product.hsn}}</div></td>
                 <td class="cost"><div >{{product.product.dp_base}}</div></td>
                 <!-- <td class="cost"><div >{{product.product.retail_amount}}</div></td> -->
                 <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
@@ -105,6 +107,7 @@
 
             <tr class="item-row">
                 <td class="item-name"><div>Shipping</div></td>
+                <td class="qty"><div ></div></td>
                 <td class="cost"><div >{{order.shipping_fee}}</div></td>
                 <!-- <td class="cost"><div >{{product.product.retail_amount}}</div></td> -->
                 <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
@@ -121,10 +124,10 @@
             </tr>
 
             <tr>
-              <td colspan="11"  style="padding-top:40px;border-top: none"></td>
+              <td colspan="12"  style="padding-top:40px;border-top: none"></td>
             </tr>
             <tr>
-                <td colspan="7" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
+                <td colspan="8" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
                 <td colspan="3" class="total-line">Base Price Total</td>
                 <td class="total-value"><div id="subtotal">{{order.base_amount}}</div></td>
             </tr>
@@ -134,17 +137,17 @@
                 <td class="total-value"><div id="total">{{order.cgst_amount}}</div></td>
             </tr>
             <tr>
-                <td colspan="7" class="blank"> </td>
+                <td colspan="8" class="blank"> </td>
                 <td colspan="3" class="total-line">SGST</td>
                 <td class="total-value"><div id="total">{{order.sgst_amount}}</div></td>
             </tr>
             <tr>
-              <td colspan="7" class="blank"> </td>
+              <td colspan="8" class="blank"> </td>
                 <td colspan="3" class="total-line">IGST</td>
                 <td class="total-value"><div id="total">{{order.gst_amount}}</div></td>
             </tr>
             <tr>
-                <td colspan="7" class="blank" rowspan="2"> </td>
+                <td colspan="8" class="blank" rowspan="2"> </td>
                 <td colspan="3" class="total-line">Shipping</td>
 
                 <td class="total-value"><div id="paid">{{(parseInt(order.shipping_fee)*5/100)+parseInt(order.shipping_fee)}}</div></td>

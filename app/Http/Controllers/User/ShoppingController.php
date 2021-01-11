@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Product;
+use App\Models\Admin\ProductVariant;
+use App\Models\Admin\ProductImage;
+use App\Models\Admin\StockLogs;
 use App\Models\User\Cart;
 use App\Models\User\Order;
 use App\Models\User\OrderProduct;
@@ -24,6 +27,147 @@ use App\Events\OrderPlacedEvent;
 
 class ShoppingController extends Controller
 {
+
+    public function getSingleProduct($id)
+    {
+        $Product=Product::with('categories','images.variant.color','images.variant.size','variants.color','variants.size')->find($id);
+        
+        $productColorVariant = ProductVariant::where('product_id', $Product->id)->with('size','color')->groupBy('color_id')->get();
+
+         if($Product){
+            $response = array('status' => true,'message'=>'Product retrieved.','data'=>$Product,'productColorVariant'=>$productColorVariant);             
+            return response()->json($response, 200);
+        }else{
+            $response = array('status' => false,'message'=>'Product not found');
+            return response()->json($response, 404);
+        }
+    }
+
+    public function getSizebyColor(Request $request){
+
+        $productVariants = ProductVariant::where('color_id',$request->color_id)->where('product_id',$request->product_id)->groupBy('color_id')->get()->pluck('id')->toArray();
+        $productImages=ProductImage::whereIn('variant_id',$productVariants)->get();
+
+        $productVariant = ProductVariant::where('color_id',$request->color_id)->where('product_id',$request->product_id)->with('size')->get();
+
+        $response = array('status' => true,'message'=>"Size and color retrieved.",'data'=>$productVariant,'images'=>$productImages);
+        return response()->json($response, 200);
+    }
+
+    public function getColorBySize($id){
+        $productVariant = ProductVariant::where('size_id',$id)->with('size','color')->get();
+        $response = array('status' => true,'message'=>"Size and color retrieved.",'data'=>$productVariant);
+        return response()->json($response, 200);
+    }
+
+    public function getStock(Request $request){
+        $productaStock = ProductVariant::where('product_id',$request->product_id)->where('color_id',$request->color_id)->where('size_id',$request->size_id)->first();
+        $response = array('status' => true,'message'=>"Stock retrieved.",'data'=>$productaStock);
+        return response()->json($response, 200);
+    }
+
+    public function myCartProducts(){
+        $user=JWTAuth::user();
+        $cart=Cart::where('user_id',$user->id)->pluck('variant_id')->toArray();
+        $response = array('status' => true,'message'=>'Cart product received','data'=>$cart);
+        return response()->json($response, 200);
+    }
+
+    public function myCart(){
+        $user=JWTAuth::user();
+        $cart=Cart::where('user_id',$user->id)->pluck('product_id')->toArray();
+        $cartVariants=Cart::where('user_id',$user->id)->get();
+
+        foreach ($cartVariants as $variant) {
+            $isLowStock=ProductVariant::where('id',$variant->variant_id)->where('stock','<',$variant->qty)->first();
+
+            if($isLowStock){
+                Cart::where('user_id',$user->id)->where('variant_id',$variant->variant_id)->delete();
+            }
+
+        }
+        
+        $product=Product::whereIn('id',$cart)->pluck('id')->toArray();
+        $cart=Cart::where('user_id',$user->id)->whereIn('product_id',$product)->with('variant.size','variant.color','products')->get();
+        $response = array('status' => true,'message'=>'Cart product received','data'=>$cart);
+        return response()->json($response, 200);
+    }
+
+    public function myCartCount(){
+        $user=JWTAuth::user();
+        $cart=Cart::where('user_id',$user->id)->get();
+        $response = array('status' => true,'message'=>'Cart count received','data'=>$cart->count());
+        return response()->json($response, 200);
+    }    
+
+    public function addToCart(Request $request){
+        $user=JWTAuth::user();
+        $validate = Validator::make($request->all(), [           
+            'product_id' => "required",
+            'variant_id' => "required"
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $productStock = ProductVariant::where('id', $request->variant_id)->pluck('stock')->first();
+        if(1 > $productStock){
+            $response = array('status' => false,'message'=>'Enough stock is not available','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $cart=new Cart;
+        $cart->product_id=$request->product_id;
+        $cart->variant_id=$request->variant_id;
+        $cart->user_id=$user->id;
+        $cart->qty=1;
+        $cart->save();
+
+        $response = array('status' => true,'message'=>'Item added to cart.');
+        return response()->json($response, 200);
+    }
+
+    public function updateCartQty(Request $request){ 
+   
+        $user=JWTAuth::user();
+        $validate = Validator::make($request->all(), [           
+            'variant_id' => "required|integer",
+            'qty' => "required|integer",
+        ]);
+
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        if($request->qty <= 0){
+            $response = array('status' => false,'message'=>'Enter valid quantity.');
+            return response()->json($response, 400);
+        }
+
+        $productStock = ProductVariant::where('id', $request->variant_id)->pluck('stock')->first();
+        if((int)$request->qty > $productStock){
+            $response = array('status' => false,'message'=>'Enough stock is not available','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $cart=Cart::where('variant_id',$request->variant_id)->where('user_id',$user->id)->first();
+        $cart->qty=$request->qty;
+        $cart->save();
+
+        $response = array('status' => true,'message'=>'Cart updated.');
+        return response()->json($response, 200);
+    }
+    
+    public function removeFromCart($id)
+    {
+        $user=JWTAuth::user();
+        $cart= Cart::where('variant_id',$id)->where('user_id',$user->id)->delete();
+        $response = array('status' => true,'message'=>'Product removed from cart.');             
+        return response()->json($response, 200);
+    }
 
     public function getCategories(Request $request)
     {
@@ -60,7 +204,6 @@ class ShoppingController extends Controller
 
     public function getMyOrders(Request $request)
     {
-
         $user=JWTAuth::user();
         $page=$request->page;
         $limit=$request->limit;
@@ -68,6 +211,7 @@ class ShoppingController extends Controller
         $search=$request->search;
         $date_range=$request->date_range;
         $delivery_status=$request->delivery_status;
+
 
         if(!$page){
             $page=1;
@@ -83,41 +227,29 @@ class ShoppingController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$date_range && !$delivery_status){           
-            $Orders=Order::select();
-            $Orders=$Orders->with('products','logs','payment_mode','packages');
-            $Orders=$Orders->where('user_id',$user->id);
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-            $order_total=Order::select([\DB::raw('sum(net_amount) as net_amount'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id)->first();
-        }else{
-            $order_total=Order::select([\DB::raw('sum(net_amount) as net_amount'),\DB::raw('sum(pv) as pv')])->where('user_id',$user->id);
-            $Orders=Order::select();
-            
-            $Orders=$Orders->where(function ($query)use($search) {
-                $query->orWhere('order_no','like','%'.$search.'%');               
-
-            });
-
-            if($delivery_status){
-                $Orders=$Orders->where('delivery_status',$delivery_status);
-            }
-
-            if($date_range){
-                $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
-                $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
-
-                $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
-                $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
-
-            }
-            $order_total= $order_total->first();
-            $Orders=$Orders->where('user_id',$user->id);
-
-            $Orders=$Orders->with('products','logs','payment_mode','packages');
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-        }
+        $orders=Order::select();
         
-        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders,'sum'=>$order_total);
+        if($search){
+            $orders=$orders->where(function ($query)use($search) {
+                $query->orWhere('order_no','like','%'.$search.'%');
+            });
+        }  
+
+        if($delivery_status){
+            $orders=$orders->where('delivery_status',$delivery_status);
+        }
+
+        if($date_range){
+            $orders=$orders->whereDate('created_at','>=', $date_range[0]);
+            $orders=$orders->whereDate('created_at','<=', $date_range[1]);
+        }
+
+        $orders=$orders->where('user_id',$user->id);
+
+        $orders=$orders->with('products.variant.color','products.variant.size','logs','payment_mode');
+        $orders=$orders->orderBy('id',$sort)->paginate($limit);
+        
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$orders);
         return response()->json($response, 200);
     }
 
@@ -176,115 +308,34 @@ class ShoppingController extends Controller
 
     public function getOrder($id)
     {
-        // dd($id);
         $user=JWTAuth::user();
         $rolesArray = array();
         foreach (JWTAuth::user()->roles as $key => $value) {
             array_push($rolesArray,$value->name);
         }
-        // dd($rolesArray);
-        $user_details=array('name' => $user->name,'username'=>$user->username );
+
+        $user_details=array('name' => $user->name,'username'=>$user->username,'contact'=>$user->contact,'email'=>$user->email );
 
         $settings= Setting::orWhere('is_public',1)
         ->get()->pluck('value', 'key')->toArray();
 
-        $Orders = Order::select();
-        $Orders = $Orders->with('products','packages','user');
-        $Orders = $Orders->where('id',$id);
+        $orders = Order::select();
+        $orders = $orders->with('products.variant.color','products.variant.size','packages.variant.color','packages.variant.size','packages.product','user');
+        $orders = $orders->where('id',$id);
         if(!in_array("admin",$rolesArray)){
-            $Orders = $Orders->where('user_id',$user->id);
+            $orders = $orders->where('user_id',$user->id);
         }
-        $Orders=$Orders->first();
+        $orders=$orders->first();
 
-        if($Orders){
-            $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders, 'user'=>$user_details,'company_details'=>$settings);
+        if($orders){
+            $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$orders, 'user'=>$user_details,'company_details'=>$settings);
         }else{
             $response = array('status' => false,'message'=>"Orders retrieved.",'data'=>[], 'user'=>[],'company_details'=>[]);
         }     
+
         return response()->json($response, 200);
     }
 
-    public function myCartProducts(){
-        $User=JWTAuth::user();
-        $Cart=Cart::where('user_id',$User->id)->pluck('product_id')->toArray();
-        $response = array('status' => true,'message'=>'Cart product received','data'=>$Cart);
-        return response()->json($response, 200);
-    }
-
-    public function myCart(){
-        $User=JWTAuth::user();
-        $Cart=Cart::where('user_id',$User->id)->with('products')->get();
-        $response = array('status' => true,'message'=>'Cart product received','data'=>$Cart);
-        return response()->json($response, 200);
-    }
-    
-    public function myCartCount(){
-        $User=JWTAuth::user();
-        $Cart=Cart::where('user_id',$User->id)->get();
-        $response = array('status' => true,'message'=>'Cart count received','data'=>$Cart->count());
-        return response()->json($response, 200);
-    }    
-
-    public function addToCart(Request $request){
-        $User=JWTAuth::user();
-        $validate = Validator::make($request->all(), [           
-            'product_id' => "required"
-        ]);
-
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
-            return response()->json($response, 400);
-        }
-
-        $Cart=new Cart;
-        $Cart->product_id=$request->product_id;
-        $Cart->user_id=$User->id;
-        $Cart->qty=1;
-        $Cart->save();
-
-        $response = array('status' => true,'message'=>'Item added to cart.');
-        return response()->json($response, 200);
-    }
-
-    public function updateCartQty(Request $request){
-        $User=JWTAuth::user();
-        $validate = Validator::make($request->all(), [           
-            'product_id' => "required|integer",
-            'qty' => "required|integer",
-        ]);
-
-        if($validate->fails()){
-            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
-            return response()->json($response, 400);
-        }
-        
-
-        if($request->qty <= 0){
-            $response = array('status' => false,'message'=>'Enter valid quantity.');
-            return response()->json($response, 400);
-        }
-
-        $product=Product::where('id',$request->product_id)->first();
-
-        if($product->stock < $request->qty){
-            $response = array('status' => false,'message'=>'Not enough stock');
-            return response()->json($response, 400);
-        }
-
-        $Cart=Cart::where('product_id',$request->product_id)->where('user_id',$User->id)->first();
-        $Cart->qty=$request->qty;
-        $Cart->save();
-
-        $response = array('status' => true,'message'=>'Cart updated.');
-        return response()->json($response, 200);
-    }
-    public function removeFromCart($id)
-    {
-        $User=JWTAuth::user();
-        $Cart= Cart::where('product_id',$id)->where('user_id',$User->id)->delete();                          
-        $response = array('status' => true,'message'=>'Product removed from cart.');             
-        return response()->json($response, 200);
-    }
 
     public function placeOrder(Request $request){
         $validate = Validator::make($request->all(), [           
@@ -305,6 +356,8 @@ class ShoppingController extends Controller
         $balance=$User->member->wallet_balance;
         $shipping_charge=CompanySetting::getValue('shipping_charge');
         $shipping_charge_2=CompanySetting::getValue('shipping_charge_2');
+        $shipping_criteria=CompanySetting::getValue('shipping_criteria');
+        $home_state=CompanySetting::getValue('home_state');
 
         if($balance < $request->grand_total){
             $response = array('status' => false,'message'=>'You do not have enough balance place order');
@@ -348,16 +401,16 @@ class ShoppingController extends Controller
 
         foreach ($Cart as $item) {
             $subtotal+=floatval($item->products->dp_base)*intval($item->qty);
-            //if($request->state==$home_state){
-                $sgst_amount+=(floatval($item->products->dp_gst)*intval($item->qty))/2;
-                $cgst_amount+=(floatval($item->products->dp_gst)*intval($item->qty))/2;
-            //}else{
-                //$gst_amount+=floatval($item->products->dp_gst_amount)*intval($item->qty);
-            //}
+            if($shipping_address->state==$home_state){
+                $sgst_amount+=floatval($item->products->dp_sgst_amount)*intval($item->qty);
+                $cgst_amount+=floatval($item->products->dp_cgst_amount)*intval($item->qty);
+            }else{
+                $gst_amount+=floatval($item->products->dp_gst_amount)*intval($item->qty);
+            }
 
             $discount_amount+=floatval($item->products->discount_amount)*intval($item->qty);
             $pv+=floatval($item->products->pv?:0)*intval($item->qty);
-            $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount-$discount_amount);
+            $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount+$shipping-$discount_amount);
             $distributor_discount+=(($item->products->retail_amount)*intval($item->qty))-(($item->products->dp_amount)*intval($item->qty));
 
             if(!$item->products->is_shipping_waiver){
@@ -366,7 +419,7 @@ class ShoppingController extends Controller
         }
 
         if(!$is_shipping_waiver){
-            if($grand_total < 500){
+            if($grand_total < $shipping_criteria){
                 $shipping=$shipping_charge_2;
             }else{
                 $shipping=$shipping_charge;
@@ -416,7 +469,8 @@ class ShoppingController extends Controller
             $Order->payment_status='Success';
             $Order->wallet_transaction_id=$WalletTransaction->id;            
             $Order->payment_mode=$PaymentMode->id;
-            $Order->state=$request->state;
+            $Order->state=$shipping_address->state;
+            $Order->city=$shipping_address->city;
             $Order->gstin=$request->gstin;
 
             $Order->shipping_address=$shipping_address->full_name.', '.$shipping_address->address.', '.$shipping_address->landmark.', '.$shipping_address->state.', '.$shipping_address->city.', '.$shipping_address->pincode.', '.$shipping_address->mobile_number;
@@ -429,30 +483,40 @@ class ShoppingController extends Controller
             
             foreach ($Cart as $item) {
 
-                $OrderProduct=new OrderProduct;
-                $OrderProduct->order_id=$Order->id;
-                $OrderProduct->product_id=$item->products->id;
-                $OrderProduct->base_amount=floatval($item->products->dp_base)*intval($item->qty);
+                $orderProduct=new OrderProduct;
+                $orderProduct->order_id=$Order->id;
+                $orderProduct->product_id=$item->products->id;
+                $orderProduct->base_amount=floatval($item->products->dp_base)*intval($item->qty);
 
-                //if($request->state==$home_state){
-                    $OrderProduct->sgst_amount=floatval($item->products->dp_gst/2)*intval($item->qty);
-                    $OrderProduct->sgst_rate=$item->products->gst_rate/2;
-                    $OrderProduct->cgst_amount=floatval($item->products->dp_gst/2)*intval($item->qty);
-                    $OrderProduct->cgst_rate=$item->products->gst_rate/2;
-                // }else{
-                //     $OrderProduct->gst_amount=floatval($item->products->dp_gst_amount)*intval($item->qty);
-                //     $OrderProduct->gst_rate=$item->products->dp_gst_rate;                    
-                // }
+                if($shipping_address->state==$home_state){
+                    $orderProduct->sgst_amount=floatval($item->products->dp_sgst_amount)*intval($item->qty);
+                    $orderProduct->sgst_rate=$item->products->dp_sgst_rate;
+                    $orderProduct->cgst_amount=floatval($item->products->dp_cgst_amount)*intval($item->qty);
+                    $orderProduct->cgst_rate=$item->products->dp_cgst_rate;
+                }else{
+                    $orderProduct->gst_amount=floatval($item->products->dp_gst_amount)*intval($item->qty);
+                    $orderProduct->gst_rate=$item->products->dp_gst_rate;                    
+                }
                 
-                $OrderProduct->discount=floatval($item->products->discount_amount)*intval($item->qty);
-                $OrderProduct->net_amount=$OrderProduct->base_amount+$OrderProduct->gst_amount+$OrderProduct->sgst_amount+$OrderProduct->cgst_amount+$OrderProduct->shipping_fee-$OrderProduct->discount;
-                $OrderProduct->pv=floatval($item->products->pv?:0)*intval($item->qty);
-                $OrderProduct->quantity=$item->qty;
-                $OrderProduct->variant_id=1;
-                $OrderProduct->save();
+                $orderProduct->discount=floatval($item->products->discount_amount)*intval($item->qty);
+                $orderProduct->net_amount=$orderProduct->base_amount+$orderProduct->gst_amount+$orderProduct->sgst_amount+$orderProduct->cgst_amount-$orderProduct->discount;
+                $orderProduct->pv=floatval($item->products->pv?:0)*intval($item->qty);
+                $orderProduct->quantity=$item->qty;
+                $orderProduct->variant_id=$item->variant->id;
+                $orderProduct->save();
 
-                $OrderProduct->product->stock-=$item->qty;
-                $OrderProduct->product->save();
+                $item->variant->stock-=$item->qty;
+                $item->variant->save();
+
+                $StockLogs = new StockLogs;
+                $StockLogs->product_id      = $item->variant->product_id;
+                $StockLogs->variant_id      = $item->variant->id;
+                $StockLogs->sku             = $item->variant->sku_code;
+                $StockLogs->units_outward   = $item->qty;
+                $StockLogs->order_id   = $Order->id;
+                $StockLogs->is_order_placed   = 1;
+                $StockLogs->note            = "Product purchase";
+                $StockLogs->save();
             }
 
             $DeliveryLog=new DeliveryLog;
@@ -545,7 +609,6 @@ class ShoppingController extends Controller
             $Order->discount=$discount;
             $Order->gst=$total_gst;
             $Order->shipping_fee=$shipping;
-            $Order->admin_fee=$admin;
             $Order->net_amount=$grand_total;
             $Order->pv=$pv;
             $Order->payment_status='Success';            
@@ -561,8 +624,6 @@ class ShoppingController extends Controller
             $OrderPackage->amount=$Pin->package->base_amount;
             $OrderPackage->gst=$Pin->package->gst_amount;
             $OrderPackage->gst_rate=$Pin->package->gst_rate;
-            $OrderPackage->shipping_fee=0;
-            $OrderPackage->admin_fee=0;
             $OrderPackage->discount=0;
             $OrderPackage->net_amount=$Pin->package->net_amount;
             $OrderPackage->pv=$Pin->package->pv;

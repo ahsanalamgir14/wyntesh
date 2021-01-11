@@ -40,4 +40,13 @@ class CompanySettingsController extends Controller
         return response()->json($response, 200);
 
     }
+
+    public function getAdminSettings()
+    {
+        $settings= CompanySetting::
+                    pluck('value', 'key')
+                    ->toArray();
+        $response = array('status' => true,'message'=>'Settings retrived.','data'=>$settings);             
+        return response()->json($response, 200);
+    }
 }

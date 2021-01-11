@@ -24,4 +24,9 @@ class OrderProduct extends Model
     {
         return $this->belongsTo('App\Models\Admin\Product');
     }
+
+    public function variant()
+    {
+        return $this->belongsTo('App\Models\Admin\ProductVariant');
+    }
 }

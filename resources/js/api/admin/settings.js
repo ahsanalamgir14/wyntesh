@@ -15,3 +15,10 @@ export function saveCompanySettings(data) {
     data
   })
 }
+
+export function companyAdminSettings() {
+  return request({
+    url: '/admin/company-admin-settings',
+    method: 'get'
+  })
+}

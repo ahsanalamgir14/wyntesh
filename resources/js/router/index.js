@@ -357,7 +357,31 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/products/categories'),
         name: 'Categories',
         meta: { title: 'Categories', icon: 'fas fa-list', color:'color:#35BED1', affix: true, roles: ['admin'] }
-      }
+      },
+      {
+        path: 'size-variants',
+        component: () => import('@/views/admin/product-configurations/size-variants'),
+        name: 'Size Variant',
+        meta: { title: 'Size Variant', icon: 'fas fa-tshirt', color: 'color:#03fc45', affix: true, roles: ['admin'] },
+      },
+      {
+        path: 'color-variants',
+        component: () => import('@/views/admin/product-configurations/color-variants'),
+        name: 'Color Variant',
+        meta: { title: 'Color Variant', icon: 'fas fa-palette', color: 'color:#7703fc', affix: true, roles: ['admin'] },
+      },
+      {
+        path: 'stock',
+        component: () => import('@/views/admin/product-configurations/product-stocks'),
+        name: 'Stock',
+        meta: { title: 'Stock', icon: 'fas fa-cubes', color: 'color:#EF6535', affix: true, roles: ['admin'] },
+      },
+      {
+        path: 'inward-outward',
+        component: () => import('@/views/admin/product-configurations/inward-outward'),
+        name: 'Inward/Outward',
+        meta: { title: 'Inward/Outward', icon: 'fas fa-exchange-alt', color: 'color:#45ffcc', affix: true, roles: ['admin'] },
+      },
     ]
   },
   {

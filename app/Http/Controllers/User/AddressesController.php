@@ -5,8 +5,8 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
-use App\Models\User\Address;
 use JWTAuth;
+use App\Models\User\Address;
 
 class AddressesController extends Controller
 {    
@@ -33,24 +33,23 @@ class AddressesController extends Controller
         }else{
             $sort = 'desc';
         }
+        
+        $address=Address::select();
 
-        if(!$search){
-            $Addresss = Address::where('user_id',$User->id)->orderBy('id',$sort)->paginate($limit);    
-        }else{
-            $Addresss=Address::select();
-
-            $Addresss=$Addresss->orWhere('full_name','like','%'.$search.'%');
-            $Addresss=$Addresss->where('user_id',$User->id)->orderBy('id',$sort)->paginate($limit);
+        if($search){
+            $address=$address->orWhere('full_name','like','%'.$search.'%');
         }
+        
+        $address=$address->where('user_id',$User->id)->where('is_active',1)->orderBy('id',$sort)->paginate($limit);
    
-       $response = array('status' => true,'message'=>"Addresss retrieved.",'data'=>$Addresss);
-            return response()->json($response, 200);
+        $response = array('status' => true,'message'=>"Addresss retrieved.",'data'=>$address);
+        return response()->json($response, 200);
     }
     
     public function getAllAddresses(){
         $User=JWTAuth::user();
-        $Address= Address::where('user_id',$User->id)->get();  
-        $response = array('status' => true,'message'=>"Addresses retrieved.",'data'=>$Address);
+        $address= Address::where('user_id',$User->id)->where('is_active',1)->get();  
+        $response = array('status' => true,'message'=>"Addresses retrieved.",'data'=>$address);
         return response()->json($response, 200);
     }
 
@@ -60,10 +59,10 @@ class AddressesController extends Controller
         $validate = Validator::make($request->all(), [           
             'full_name' => "required",
             'mobile_number' => "required",
-            'pincode' => "required",
             'address' => "required",
-            'landmark' => "required",
             'city' => "required",
+            'country' => "required",
+            'country_code' => "required",
             'state' => "required",
         ]);
 
@@ -72,23 +71,26 @@ class AddressesController extends Controller
             return response()->json($response, 400);
         }
 
-        $Address=new Address;
-        $Address->full_name=$request->full_name;
-        $Address->mobile_number=$request->mobile_number;
-        $Address->pincode=$request->pincode;
-        $Address->address=$request->address;
-        $Address->landmark=$request->landmark;
-        $Address->city=$request->city;
-        $Address->state=$request->state;
-        $Address->user_id=$User->id;
-        $Address->is_default=$request->is_default?1:0;
-        $Address->save();
+        $address=new Address;
+        $address->full_name=$request->full_name;
+        $address->mobile_number=$request->mobile_number;
+        $address->pincode=$request->pincode;
+        $address->address=$request->address;
+        $address->landmark=$request->landmark;
+        $address->city=$request->city;
+        $address->state=$request->state;
+        $address->country=$request->country;
+        $address->country_code=$request->country_code;
+        $address->user_id=$User->id;
+        $address->is_default=$request->is_default?1:0;
+        $address->is_active=1;
+        $address->save();
 
         if($request->is_default){
-            Address::where('id','!=',$Address->id)->where('user_id',$User->id)->update(array('is_default' => 0));
+            Address::where('id','!=',$address->id)->where('user_id',$User->id)->update(array('is_default' => 0));
         }
 
-        $response = array('status' => true,'message'=>'Address created successfully.','data'=>$Address);
+        $response = array('status' => true,'message'=>'Address created successfully.','data'=>$address);
         return response()->json($response, 200);
     }
 
@@ -100,8 +102,8 @@ class AddressesController extends Controller
             'mobile_number' => "required",
             'pincode' => "required",
             'address' => "required",
-            'landmark' => "required",
             'city' => "required",
+            'country_code' => "required",
             'state' => "required",
         ]);
 
@@ -110,24 +112,25 @@ class AddressesController extends Controller
             return response()->json($response, 400);
         }
 
-        $Address=Address::find($request->id);
-        if($Address){
-            $Address->full_name=$request->full_name;
-            $Address->mobile_number=$request->mobile_number;
-            $Address->pincode=$request->pincode;
-            $Address->address=$request->address;
-            $Address->landmark=$request->landmark;
-            $Address->city=$request->city;
-            $Address->state=$request->state;
-            $Address->user_id=$User->id;
-            $Address->is_default=$request->is_default?1:0;
-            $Address->save();
+        $address=Address::find($request->id);
+        if($address){
+            $address->full_name=$request->full_name;
+            $address->mobile_number=$request->mobile_number;
+            $address->pincode=$request->pincode;
+            $address->address=$request->address;
+            $address->landmark=$request->landmark;
+            $address->city=$request->city;
+            $address->state=$request->state;
+            $address->country_code=$request->country_code;
+            $address->user_id=$User->id;
+            $address->is_default=$request->is_default?1:0;
+            $address->save();
 
             if($request->is_default){
-                Address::where('id','!=',$Address->id)->where('user_id',$User->id)->update(array('is_default' => 0));
+                Address::where('id','!=',$address->id)->where('user_id',$User->id)->update(array('is_default' => 0));
             }
             
-            $response = array('status' => true,'message'=>'Address updated successfully.','data'=>$Address);
+            $response = array('status' => true,'message'=>'Address updated successfully.','data'=>$address);
             return response()->json($response, 200);
         }else{
             $response = array('status' => false,'message'=>'Address not found');
@@ -140,9 +143,9 @@ class AddressesController extends Controller
 
     public function getAddress($id){
         $User=JWTAuth::user();
-        $Address= Address::where('user_id',$User->id)->find($id);  
-        if($Address){
-            $response = array('status' => true,'message'=>"Address retrieved.",'data'=>$Address);
+        $address= Address::where('user_id',$User->id)->find($id);  
+        if($address){
+            $response = array('status' => true,'message'=>"Address retrieved.",'data'=>$address);
             return response()->json($response, 200);
         }else{
             $response = array('status' => false,'message'=>'Address not found');
@@ -152,10 +155,11 @@ class AddressesController extends Controller
 
     public function deleteAddress($id){
         $User=JWTAuth::user();
-        $Address= Address::where('user_id',$User->id)->find($id);         
+        $address= Address::where('user_id',$User->id)->find($id);         
         
-         if($Address){
-            $Address->delete(); 
+         if($address){
+            $address->is_active=0;
+            $address->save();
             $response = array('status' => true,'message'=>'Address successfully deleted.');             
             return response()->json($response, 200);
         }else{

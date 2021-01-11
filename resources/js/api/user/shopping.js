@@ -7,6 +7,21 @@ export function getAllCategories() {
   })
 }
 
+export function getSizeByColor(query) {
+  return request({
+    url: '/user/getsizebycolor/',
+    method: 'get',
+    params: query
+  })
+}
+
+export function getColorBySize(id) {
+  return request({
+    url: '/user/getcolorbysize/'+id,
+    method: 'get'
+  })
+}
+
 export function fetchProducts(query) {
   return request({
     url: '/user/products',
@@ -15,9 +30,17 @@ export function fetchProducts(query) {
   })
 }
 
+export function getStock(query) {
+  return request({
+    url: '/user/getstock',
+    method: 'get',
+    params: query
+  })
+}
+
 export function getProduct(id) {
   return request({
-    url: '/user/products/'+id,
+    url: '/user/product/'+id,
     method: 'get'
   })
 }
@@ -74,7 +97,6 @@ export function placeOrder(data) {
   })
 }
 
-
 export function myOrders(query) {
   return request({
     url: '/user/orders',
@@ -87,6 +109,14 @@ export function getOrder(id) {
   return request({
     url: '/user/order/'+id,
     method: 'get'
+  })
+}
+
+export function getGSTReport(query) {
+  return request({
+    url: '/user/gst-report',
+    method: 'get',
+    params: query
   })
 }
 

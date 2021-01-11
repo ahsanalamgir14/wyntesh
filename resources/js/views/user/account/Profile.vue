@@ -1,21 +1,21 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <el-col :span="24">
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
         <el-alert
           v-if="temp.kyc.remarks && temp.kyc.verification_status=='rejected'"
           style="margin-bottom: 10px;"
           title="KYC Rejection"
           type="error"
           :description="temp.kyc.remarks"
-          show-icon>
-        </el-alert>
+          show-icon
+        />
       </el-col>
     </el-row>
-    <el-form  :model="temp">
+    <el-form ref="profileForm"  :model="temp" :rules="profileRules">
       <el-row :gutter="20">
-        <el-col  :xs="24" :sm="24" :md="12" :lg="6" :xl="6" >
-          <el-card >
+        <el-col :xs="24" :sm="24" :md="12" :lg="6" :xl="6">
+          <el-card>
             <div class="user-profile">
               <div class="user-avatar box-center">
                 <pan-thumb :image="temp.profile_picture?temp.profile_picture:'/images/avatar.png'" :height="'100px'" :width="'100px'" :hoverable="false" />
@@ -32,41 +32,66 @@
                 </div>
                 <div class="user-role text-center text-muted">
                   <h4 style="margin-bottom:7px ">Joined on</h4>
-                  {{ temp.created_at | parseTime('{y}-{m}-{d}') }}
+                  {{ temp.created_at | parseTime('{d}-{m}-{y}') }}
                 </div>
                 <div style="margin-top:10px;">
                   <el-button type="warning" round v-clipboard:copy="referral_link" v-clipboard:success="onCopy" >Copy referral link</el-button>
-                </div>                
+                </div>
               </div>
             </div>
           </el-card>
         </el-col>
-        <el-col  :xs="24" :sm="24" :md="12" :lg="18" :xl="18" >
-          <el-tabs v-model="activeActivity" type="border-card" >
+        <el-col :xs="24" :sm="24" :md="12" :lg="18" :xl="18">
+          <el-tabs v-model="activeTab" type="border-card">
             <el-tab-pane v-loading="updating" label="Basic Details" name="details">
               <el-row :gutter="20">
-                <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+                <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
                   <el-form-item label="Name">
-                    <el-input disabled v-model="temp.name"  />
+                    <el-input v-model="temp.name" disabled/>
                   </el-form-item>
                   <el-form-item label="Email">
-                    <el-input  v-model="temp.email"  />
+                    <el-input v-model="temp.email" disabled />
                   </el-form-item>
                   <el-form-item label="Username" prop="username">
-                    <el-input disabled v-model="temp.username" />
+                    <el-input v-model="temp.username" disabled />
                   </el-form-item>
                 </el-col>
-                <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
-                  
-                  <el-form-item label="Contact" prop="contact">
-                    <el-input v-model="temp.contact" />
+                <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                   <el-form-item label="Currency" prop="currency">
+                    <br>
+                    <el-select  v-model="temp.currency_code"  filterable placeholder="Select Currency">
+                      <el-option
+                        v-for="item in currencyList"
+                        :key="item.code"
+                        :label="item.name"
+                        :value="item.code">
+                      </el-option>
+                    </el-select>
                   </el-form-item>
+                    <el-form-item prop="contact" label="Mobile No">
+                
+                    <el-input v-model="temp.contact" type="text" auto-complete="on" placeholder="Enter valid Mobile No." >
+                            <el-select v-model="temp.country_code" class="countryFlag" slot="prepend" placeholder="Country" filterable  prop="country_code" style="    width: 110px !important;">
+                                    <el-option
+                                      v-for="item in Country"
+                                      :key="item.city_country"
+                                      :label="item.phonecode+'  '+item.country_img"
+                                      :value="item.phonecode" >
+                                      <span style="float: left">{{ item.phonecode }}</span>
+                                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.country_img }}</span>
+                                    </el-option>
+                            </el-select>
+                    </el-input>
+                  </el-form-item>
+
+
 
                   <el-form-item label="Gender" prop="gender">
                     </br>
-                    <el-radio-group v-model="temp.gender">
+                    <el-radio-group v-model="temp.gender" size="mini">
                       <el-radio label="m" border>Male</el-radio>
                       <el-radio label="f" border> Female</el-radio>
+                      <el-radio label="o" border>Transgender</el-radio>
                     </el-radio-group>
                   </el-form-item>
 
@@ -75,121 +100,231 @@
                     <el-date-picker
                       v-model="temp.dob"
                       type="date"
-                      format="yyyy-MM-dd"
+                      format="dd-MM-yyyy"
                       value-format="yyyy-MM-dd"
-                      placeholder="Date of birth">
-                    </el-date-picker>
+                      placeholder="Date of birth"
+                    />
                   </el-form-item>
-                             
+                  <el-form-item label="GSTIN" prop="gstin">
+                    <el-input v-model="temp.gstin" />
+                  </el-form-item>                 
+
                 </el-col>
               </el-row>
+
+
+
               <el-form-item>
-                <el-button type="primary"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                <el-button type="primary" size="mini" icon="el-icon-finished" :loading="buttonLoading"  @click="onSubmit">
                   Update
                 </el-button>
+              <el-button type="primary"  size="mini" :loading="buttonLoading"  @click="goToNextPage" style="float: right;">
+                  Next
+                </el-button>
+               <!--  <el-button type="primary"  :loading="buttonLoading"  @click="goToBackPage" style="float: right;">
+                  Back
+                </el-button> -->
+
               </el-form-item>
             </el-tab-pane>
             <el-tab-pane v-loading="updating" label="Kyc and Bank" name="kyc">
               <el-row :gutter="20">
-                <el-col :span="12">            
+                <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+
+                  <el-form-item prop="adhar">
+                    <label class="label">Aadhaar </label>
+                    <el-input v-model="temp.kyc.adhar" max="12" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                  </el-form-item>
                   
-                  <el-form-item label="Adhar" prop="adhar">
-                    <el-input max="16" v-model="temp.kyc.adhar" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                <!--   <el-form-item prop="state">
+                    <label class="label"> State </label>
+                    <el-select v-model="temp.kyc.state" style="width: 100%" filterable @change="handleStateChange" placeholder="Select State">
+                      <el-option
+                        v-for="item in states"
+                        :key="item"
+                        :label="item"
+                        :value="item">
+                      </el-option>
+                    </el-select>
                   </el-form-item>
-                 
+
                   <el-form-item label="City" prop="city">
-                    <el-input  v-model="temp.kyc.city" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                      <br>
+                    <el-select v-model="temp.kyc.city"  style="width: 100%" filterable placeholder="Select City">
+                      <el-option
+                        v-for="item in cities"
+                        :key="item"
+                        :label="item"
+                        :value="item">
+                      </el-option>
+                    </el-select>
+                  </el-form-item> -->
+
+                    <el-form-item prop="country">
+                        <label class="label"> Country </label>
+                        <el-select v-model="temp.kyc.country" style="width: 100%" filterable @change="handleCountryChange" placeholder="Select Country">
+                            <el-option
+                              v-for="item in Country"
+                              :key="item.country_img"
+                              :label="item.city_country"
+                              :value="item.city_country">
+                              <span style="float: left">{{ item.city_country }}</span>
+                              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.country_img }}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                  <el-form-item prop="state">
+                    <label class="label"> State </label>
+                    <el-select v-model="temp.kyc.state" style="width: 100%" filterable @change="handleStateChange" placeholder="Select Province/State">
+                      <el-option
+                        v-for="item in states"
+                        :key="item"
+                        :label="item"
+                        :value="item">
+                      </el-option>
+                    </el-select>
                   </el-form-item>
-                  <el-form-item label="State" prop="state">
-                    <el-input v-model="temp.kyc.state" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
-                  </el-form-item>
-                  <el-form-item label="Address" prop="address">
-                    <el-input type="textarea"
+                    <el-form-item label="City" prop="city">
+                        <br>
+                        <el-select v-model="temp.kyc.city"  style="width: 100%" filterable placeholder="Select City">
+                            <el-option
+                                v-for="item in cities"
+                                :key="item"
+                                :label="item"
+                                :value="item">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+               
+
+                  
+                  <el-form-item prop="address">
+                    <label class="label"> Address </label><br>
+                    <el-input
+                      v-model="temp.kyc.address"
+                      type="textarea"
                       :rows="2"
-                      placeholder="Address" v-model="temp.kyc.address" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                      placeholder="Address" 
+                    />
                   </el-form-item>
-                  <el-form-item label="Pincode" prop="pincode">
-                    <el-input v-model="temp.kyc.pincode" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                  <el-form-item label="" prop="pincode">
+                    <label class="label"> Pincode </label>
+                    <el-input v-model="temp.kyc.pincode"  />
                   </el-form-item>
 
                 </el-col>
-                <el-col :span="12">
-                   <el-form-item label="Pan" prop="pan">
-                    <el-input max="10" v-model="temp.kyc.pan" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                  <el-form-item  prop="pan">
+                    <label class="label"> Pancard </label>
+                    <el-input v-model="temp.kyc.pan" max="10" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified'" />
                   </el-form-item>
-                  <el-form-item label="Bank A/C Name" prop="bank_ac_name">
-                    <el-input v-model="temp.kyc.bank_ac_name"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                  <el-form-item  prop="bank_ac_name">
+                    <label class="label"> Bank A/C Name </label>
+                    <el-input v-model="temp.kyc.bank_ac_name" />
                   </el-form-item>
-                  <el-form-item label="Bank Name" prop="bank_name">
-                    <el-input v-model="temp.kyc.bank_name"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                  <el-form-item  prop="bank_name">
+                    <label class="label"> Bank Name </label>
+                    <el-input v-model="temp.kyc.bank_name" />
                   </el-form-item>
-                  <el-form-item label="A/C No" prop="bank_ac_no">
-                    <el-input v-model="temp.kyc.bank_ac_no"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                  <el-form-item  prop="bank_ac_no">
+                    <label class="label"> Bank A/C No </label>
+                    <el-input v-model="temp.kyc.bank_ac_no"  />
                   </el-form-item>
-                  <el-form-item label="IFSC Code" prop="ifsc">
-                    <el-input v-model="temp.kyc.ifsc"  :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "/>
+                  <el-form-item  prop="ifsc">
+                    <label class="label"> IFSC Code </label>
+                    <el-input v-model="temp.kyc.ifsc"  />
                   </el-form-item>
                 </el-col>
               </el-row>
+
+
               <el-form-item>
-                <el-button type="primary"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                <el-button type="primary" size="mini" icon="el-icon-finished" :loading="buttonLoading"  @click="onSubmit">
                   Update
+                </el-button>
+                    <el-button type="primary" size="mini" :loading="buttonLoading"  @click="goToNextPage" style="float: right;">
+                  Next
+                </el-button>
+
+                <el-button type="primary" size="mini" :loading="buttonLoading"  @click="goToBackPage" style="float: right;">
+                  Back
                 </el-button>
               </el-form-item>
             </el-tab-pane>
             <el-tab-pane v-loading="updating" label="Nominee Details" name="nominee">
               <el-row :gutter="20">
-                <el-col :span="12">            
-                  
+                <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+
                   <el-form-item label="Nominee Name" prop="nominee_name">
-                    <el-input max="64" v-model="temp.kyc.nominee_name" />
+                    <el-input v-model="temp.kyc.nominee_name" max="64" />
                   </el-form-item>
-                  <el-form-item label="Nominee Relation" prop="nominee_relation" >
+                  <el-form-item label="Nominee Relation" prop="nominee_relation">
                     <br>
-                    <el-select v-model="temp.kyc.nominee_relation" clearable placeholder="Select" style="width: 100%">
-                      <el-option label="Father" value="Father"></el-option>
-                      <el-option label="Mother" value="Mother"></el-option>
-                      <el-option label="Brother" value="Brother"></el-option>
-                      <el-option label="Sister" value="Sister"></el-option>
-                      <el-option label="Wife" value="Wife"></el-option>
-                      <el-option label="Son" value="Son"></el-option>
-                      <el-option label="Daughter" value="Daughter"></el-option>
+                    <el-select v-model="temp.kyc.nominee_relation" style="width: 100%" clearable placeholder="Select Nominee">
+                      <el-option label="Father" value="Father" />
+                      <el-option label="Mother" value="Mother" />
+                      <el-option label="Brother" value="Brother" />
+                      <el-option label="Sister" value="Sister" />
+                      <el-option label="Wife" value="Wife" />
+                      <el-option label="Son" value="Son" />
+                      <el-option label="Daughter" value="Daughter" />
                     </el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="12">                   
-                  <el-form-item label="Nominee DOB" prop="nominee_dob">
+                <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                  <el-form-item label="Nominee DOB" prop="nominee_dob" style="width:72%">
                     <br>
                     <el-date-picker
                       v-model="temp.kyc.nominee_dob"
                       type="date"
-                      format="yyyy-MM-dd"
+                      format="dd-MM-yyyy"
                       value-format="yyyy-MM-dd"
-                      placeholder="Date of birth">
-                    </el-date-picker>
-                  </el-form-item>                    
+                      placeholder="Date of birth"
+                    />
                   </el-form-item>
-                  <el-form-item label="Nominee Contact" prop="nominee_contact">
-                    <el-input v-model="temp.kyc.nominee_contact" />
+                  <el-form-item label="Nominee Mobile">
+                   <el-input v-model="temp.kyc.nominee_contact" type="text" auto-complete="on" placeholder="Enter valid Mobile No." >
+                            <el-select v-model="temp.kyc.country_code" class="countryFlag" slot="prepend" placeholder="Country" filterable  prop="nominee_country_code" style="width: 110px !important;">
+                                    <el-option
+                                      v-for="item in Country"
+                                      :key="item.city_country"
+                                      :label="item.phonecode+'  '+item.country_img"
+                                      :value="item.phonecode" > 
+                                      <span style="float: left">{{ item.phonecode }}</span>
+                                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.country_img }}</span>
+                                    </el-option>
+                            </el-select>
+                    </el-input>
                   </el-form-item>
+
+
                 </el-col>
               </el-row>
+
+
               <el-form-item>
-                <el-button type="primary"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted'" @click="onSubmit">
+                <el-button type="primary" size="mini" icon="el-icon-finished" :loading="buttonLoading"  @click="onSubmit">
                   Update
+                </el-button>
+                 <el-button type="primary" size="mini" :loading="buttonLoading"  @click="goToNextPage" style="float: right;">
+                  Next
+                </el-button>
+                <el-button type="primary"  size="mini" :loading="buttonLoading"  @click="goToBackPage" style="float: right;">
+                  Back
                 </el-button>
               </el-form-item>
             </el-tab-pane>
             <el-tab-pane v-loading="updating" label="Profile Image and KYC Images" name="kyc-images">
-              <el-row :gutter="20">                
-                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                                
+              <el-row :gutter="20">
+                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <div class="img-upload">
-                    <el-form-item  prop="profile_picture">
+                    <el-form-item prop="profile_picture">
                       <label for="Profile Picture">Profile Picture</label>
                       <el-upload
+                        ref="upload"
                         class="avatar-uploader"
                         action="#"
-                         ref="upload"
                         :show-file-list="true"
                         :auto-upload="false"
                         :on-change="handleProfileChange"
@@ -197,24 +332,26 @@
                         :limit="1"
                         :file-list="profilefileList"
                         :on-exceed="handleExceed"
-                        accept="image/png, image/jpeg">
                         
+                        accept="image/png, image/jpeg"
+                      >
+
                         <img v-if="temp.profile_picture" :src="temp.profile_picture?temp.profile_picture:''" class="avatar">
-                        <i v-if="temp.profile_picture"  slot="default" class="el-icon-plus"></i>
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        <i v-if="temp.profile_picture" slot="default" class="el-icon-plus" />
+                        <i v-else class="el-icon-plus avatar-uploader-icon" />
                       </el-upload>
-                      <a  v-if="temp.profile_picture" :href="temp.profile_picture?temp.profile_picture:''" target="_blank">View full image.</a>                      
+                      <a v-if="temp.profile_picture" :href="temp.profile_picture?temp.profile_picture:''" target="_blank">View full image.</a>
                     </el-form-item>
                   </div>
                 </el-col>
-                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                                
+                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <div class="img-upload">
-                    <el-form-item  prop="adhar_image">
-                      <label for="Adhar Front Image">Adhar Front Image</label>
+                    <el-form-item prop="adhar_image">
+                      <label for="Adhar Front Image"> Aadhaar Front Image</label>
                       <el-upload
+                        ref="upload"
                         class="avatar-uploader"
                         action="#"
-                         ref="upload"
                         :show-file-list="true"
                         :auto-upload="false"
                         :on-change="handleAdharChange"
@@ -223,103 +360,107 @@
                         :file-list="adharfileList"
                         :on-exceed="handleExceed"
                         :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
-                        accept="image/png, image/jpeg">
-                        
+                        accept="image/png, image/jpeg"
+                      >
+
                         <img v-if="temp.kyc.adhar_image" :src="temp.kyc?temp.kyc.adhar_image:''" class="avatar">
-                        <i v-if="temp.kyc.adhar_image"  slot="default" class="el-icon-plus"></i>
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        <i v-if="temp.kyc.adhar_image" slot="default" class="el-icon-plus" />
+                        <i v-else class="el-icon-plus avatar-uploader-icon" />
                       </el-upload>
-                      <a  v-if="temp.kyc.adhar_image" :href="temp.kyc?temp.kyc.adhar_image:''" target="_blank">View full image.</a>                      
+                      <a v-if="temp.kyc.adhar_image" :href="temp.kyc?temp.kyc.adhar_image:''" target="_blank">View full image.</a>
                     </el-form-item>
-                  </div>                 
+                  </div>
                 </el-col>
-                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >                                   
+                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <div class="img-upload">
-                    <el-form-item  prop="adhar_image_back">
-                      <label for="Adhar Back Image">Adhar Back Image</label>
+                    <el-form-item prop="adhar_image_back">
+                      <label for="Adhar Back Image"> Aadhaar Back Image</label>
                       <el-upload
+                        ref="upload"
                         class="avatar-uploader"
                         action="#"
-                         ref="upload"
                         :show-file-list="true"
                         :auto-upload="false"
                         :on-change="handleAdharBackChange"
                         :on-remove="handleAdharBackRemove"
                         :limit="1"
-                        :file-list="adharBackfileList"
                         :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
+                        :file-list="adharBackfileList"
                         :on-exceed="handleExceed"
-                        accept="image/png, image/jpeg">
-                        
+                        accept="image/png, image/jpeg"
+                      >
+
                         <img v-if="temp.kyc.adhar_image_back" :src="temp.kyc?temp.kyc.adhar_image_back:''" class="avatar">
-                        <i v-if="temp.kyc.adhar_image_back"  slot="default" class="el-icon-plus"></i>
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        <i v-if="temp.kyc.adhar_image_back" slot="default" class="el-icon-plus" />
+                        <i v-else class="el-icon-plus avatar-uploader-icon" />
                       </el-upload>
-                      <a  v-if="temp.kyc.adhar_image_back" :href="temp.kyc?temp.kyc.adhar_image_back:''" target="_blank">View full image.</a>                      
+                      <a v-if="temp.kyc.adhar_image_back" :href="temp.kyc?temp.kyc.adhar_image_back:''" target="_blank">View full image.</a>
                     </el-form-item>
-                  </div>                 
+                  </div>
                 </el-col>
               </el-row>
               <el-row :gutter="20">
 
-                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
+                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <div class="img-upload">
-                    <el-form-item  prop="pan_image">
-                      <label for="Pan Image">Pan Image</label>
+                    <el-form-item prop="pan_image">
+                      <label for="Pan Image"> Pancard Image</label>
                       <el-upload
+                        ref="upload"
                         class="avatar-uploader"
                         action="#"
-                         ref="upload"
                         :show-file-list="true"
                         :auto-upload="false"
                         :on-change="handlePanChange"
                         :on-remove="handlePanRemove"
                         :limit="1"
                         :file-list="panfileList"
-                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
                         :on-exceed="handleExceed"
-                        accept="image/png, image/jpeg">
-                        
+                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
+                        accept="image/png, image/jpeg"
+                      >
+
                         <img v-if="temp.kyc.pan_image" :src="temp.kyc?temp.kyc.pan_image:''" class="avatar">
-                        <i v-if="temp.kyc.pan_image"  slot="default" class="el-icon-plus"></i>
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                      </el-upload> 
-                      <a  v-if="temp.kyc.pan_image" :href="temp.kyc?temp.kyc.pan_image:''" target="_blank">View full image.</a>                       
+                        <i v-if="temp.kyc.pan_image" slot="default" class="el-icon-plus" />
+                        <i v-else class="el-icon-plus avatar-uploader-icon" />
+                      </el-upload>
+                      <a v-if="temp.kyc.pan_image" :href="temp.kyc?temp.kyc.pan_image:''" target="_blank">View full image.</a>
                     </el-form-item>
                   </div>
                 </el-col>
 
-                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
+                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <div class="img-upload">
-                    <el-form-item  prop="pan_image">
-                      <label for="Bank/Cheque Image Image">Bank Details</label>
+                    <el-form-item prop="cheque_image">
+                      <label for="Bank/Cheque Image Image">Bank/Cheque Image</label>
                       <el-upload
+                        ref="upload"
                         class="avatar-uploader"
                         action="#"
-                         ref="upload"
                         :show-file-list="true"
                         :auto-upload="false"
                         :on-change="handleChequeChange"
                         :on-remove="handleChequeRemove"
                         :limit="1"
                         :file-list="chequefileList"
-                        :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' "
-                        :on-exceed="handleExceed"
-                        accept="image/png, image/jpeg">
                         
+                        :on-exceed="handleExceed"
+                        accept="image/png, image/jpeg"
+                      >
+
                         <img v-if="temp.kyc.cheque_image" :src="temp.kyc?temp.kyc.cheque_image:''" class="avatar">
-                        <i v-if="temp.kyc.cheque_image"  slot="default" class="el-icon-plus"></i>
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                      </el-upload> 
-                      <a  v-if="temp.kyc.cheque_image" :href="temp.kyc?temp.kyc.cheque_image:''" target="_blank">View full image.</a>                     
+                        <i v-if="temp.kyc.cheque_image" slot="default" class="el-icon-plus" />
+                        <i v-else class="el-icon-plus avatar-uploader-icon" />
+                      </el-upload>
+                      <a v-if="temp.kyc.cheque_image" :href="temp.kyc?temp.kyc.cheque_image:''" target="_blank">View full image.</a>
                     </el-form-item>
                   </div>
                 </el-col>
 
-                <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
+                 <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
                   <div class="img-upload">
-                    <el-form-item  prop="pan_image">
-                      <label for="Distributor Contract">Distributor Contract</label>
+                    <el-form-item  prop="distributor_image">
+                      <label for="Distributor Contract"> Direct Seller Aggreement </label>
                       <el-upload
                         class="avatar-uploader"
                         action="#"
@@ -344,13 +485,19 @@
                 </el-col>
 
               </el-row>
+
               <el-form-item style="margin-top:20px;">
-                <el-button type="primary" icon="el-icon-finished" :loading="buttonLoading"  @click="onSubmit">
+                <el-button type="primary" size="mini" icon="el-icon-finished" :loading="buttonLoading"  @click="onSubmit">
                   Update
                 </el-button>
-                 <el-button type="success"  icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' " @click="submitVerification">
-                  {{temp.kyc.verification_status=='submitted'|| temp.kyc.verification_status=='verified'?temp.kyc.verification_status=='verified'?'Submit for verification':'Submitted for apporval': 'Submit for verification'}}
+                    <el-button type="primary" size="mini" :loading="buttonLoading"  @click="goToBackPage" style="float: right;">
+                  Back
                 </el-button>
+       
+                <el-button style="margin:0;" type="success" size="mini" icon="el-icon-finished" :loading="buttonLoading" :disabled="temp.kyc.verification_status=='submitted' || temp.kyc.verification_status=='verified' " @click="submitVerification">
+                  {{ temp.kyc.verification_status=='submitted' ?'Submitted for apporval': 'Submit for verification' }}
+                </el-button>
+
               </el-form-item>
             </el-tab-pane>
           </el-tabs>
@@ -361,172 +508,211 @@
 </template>
 
 <script>
-import { updateProfile,getProfile } from "@/api/user/members";
+import { updateProfile, getProfile } from '@/api/user/members';
+import { getCurrencies,getAllCountry,getCountryStates ,getStateCities, getPackages } from '@/api/user/config';
+
+
 import PanThumb from '@/components/PanThumb';
-import { parseTime } from "@/utils";
-import defaultSettings from '@/settings';
+import { parseTime } from '@/utils';
+import { getPublicSettings } from '@/api/user/settings';
 import documentimg from '@/assets/images/document.png'
+import defaultSettings from '@/settings';
 
 const { baseUrl } = defaultSettings;
-//const userResource = new Resource('users');
+
+
 export default {
   name: 'Profile',
   components: { PanThumb },
   data() {
-    return {
-      activeActivity: 'details',
-      updating: false,
-      documentimg: documentimg,
-      buttonLoading:false,
-      referral_link:'',
-      adharfileList:[],
-      adharfile:undefined,
-      adharBackfileList:[],
-      adharBackfile:undefined,
-      profilefileList:[],
-      profilefile:undefined,
-      panfileList:[],
-      panfile:undefined,
-      chequefileList:[],
-      distributerfileList:[],
-      chequefile:undefined,
-      distributerFile:undefined,
-      temp:{
-          id: undefined,
-          name: undefined,
-          username: undefined,
-          email: undefined,
-          password:undefined,
-          contact: undefined,
-          gender: "m",
-          kyc:{
-            address:undefined,
-            pincode:undefined,
-            adhar:undefined,
-            adhar_image:undefined,
-            pan:undefined,
-            pan_image:undefined,
-            pan_cheque:undefined,
-            city:undefined,
-            state:undefined,
-            bank_ac_name:undefined,
-            bank_name:undefined,
-            bank_ac_no:undefined,
-            ifsc:undefined,            
-            nominee_name:undefined,
-            nominee_relation:undefined,
-            nominee_dob:undefined,
-            nominee_contact:undefined,
-          },
-          profile_picture:undefined,
-          parent:undefined,
-          comission_from_self:0,
-          comission_from_child:0,
-          dob: undefined,
-          is_active: 0,
+    const validateContact = (rule, value, callback) => {
+      var pattern = /^[1-9][0-9]{6,11}$/;
+      if (!pattern.test(value)) {
+        callback(new Error('Enter valid mobile number. (min 7 digit, max 12 digit)'));
+      } else {
+        callback();
+      }
+    };
+
+    const validateNomineeContact  = (rule, value, callback) => {
+      value=this.temp.kyc.nominee_contact;
+      if(!value){
+        callback();
+      }
+
+      var pattern = /^[1-9][0-9]{6,11}$/;
+      if (!pattern.test(value)) {
+        callback(new Error('Enter valid mobile number. (min 7 digit, max 12 digit)'));
+      } else {
+        callback();
+      }
+    };
+    const validateAdhar  = (rule, value, callback) => {
+      value=this.temp.kyc.adhar;
+      
+      if(!value){
+        callback();
+      }
+
+      var pattern = /^[0-9]{12}$/;
+      if (!pattern.test(value)) {
+        callback(new Error('Enter 12 digit Adhar No.'));
+      } else {
+        callback();
+      }
+    };
+    const validateBirthdate  = (rule, value, callback) => {
+
+      value=this.temp.dob;
+      
+      if(!value){
+        callback();
+      }else{
+        var optimizedBirthday = value.replace(/-/g, "/");
+        //set date based on birthday at 01:00:00 hours GMT+0100 (CET)
+        var myBirthday = new Date(optimizedBirthday);
+        // set current day on 01:00:00 hours GMT+0100 (CET)
+        var currentDate = new Date().toJSON().slice(0,10)+' 01:00:00';
+        // calculate age comparing current date and borthday
+        var myAge = ~~((Date.now(currentDate) - myBirthday) / (31557600000));
+
+        if(myAge < 18) {
+          callback(new Error('You must be atleast 18 year old.'));
+        }else{
+          callback();
+        }
+      }
+    };
+    return {      
+      temp: {
+        id: undefined,
+        name: undefined,
+        username: undefined,
+        email: undefined,
+        password: undefined,
+        contact: undefined,
+        country_code: undefined,
+        currency_code:undefined,
+        gender: 'm',
+        kyc: {
+          address: undefined,
+          pincode: undefined,
+          adhar: undefined,
+          adhar_image: undefined,
+          pan: undefined,
+          pan_image: undefined,
+          pan_cheque: undefined,
+          city: undefined,
+          state: undefined,
+          country: undefined,
+          bank_ac_name: undefined,
+          bank_name: undefined,
+          bank_ac_no: undefined,
+          ifsc: undefined,
+          nominee_name: undefined,
+          nominee_relation: undefined,
+          nominee_dob: undefined,
+          nominee_contact: undefined,
+          country_code: undefined,
+        },
+        old_kyc_status:undefined,
+        profile_picture: undefined,
+        parent: undefined,
+        comission_from_self: 0,
+        comission_from_child: 0,
+        dob: undefined,
+        is_active: 0,
       },
+      profileRules: {
+        contact: [{ required: true, trigger: 'blur', validator: validateContact  }],
+        adhar: [{ required: true, trigger: 'blur', validator: validateAdhar  }],
+        nominee_contact: [{ required: false, trigger: 'blur', validator: validateNomineeContact  }],
+        dob: [{ required: false, trigger: 'blur', validator: validateBirthdate  }],
+      },
+      Country:[],
+      activeTab: 'details',
+      documentimg: documentimg,
+      updating: false,
+      buttonLoading: false,
+      referral_link: '',
+      adharfileList: [],
+      adharfile: undefined,
+      adharBackfileList: [],
+      adharBackfile: undefined,
+      profilefileList: [],
+      profilefile: undefined,
+      panfileList: [],
+      panfile: undefined,
+      chequefileList: [],
+      chequefile: undefined,
+      distributerfileList:[],
+      distributerFile:undefined,
+      currencyList:[],
+      states:[],
+      cities:[],
+      settings: { default_country_code: 0 },
     };
   },
   created() {
+    
     getProfile().then(response => {
-        this.temp = response.data;
-        if(!this.temp.kyc){
-          this.temp.kyc={
-            address:undefined,
-            pincode:undefined,
-            adhar:undefined,
-            pan:undefined,
-            city:undefined,
-            state:undefined,
-            bank_ac_name:undefined,
-            bank_name:undefined,
-            bank_ac_no:undefined,
-            ifsc:undefined,
-            nominee_name:undefined,
-            nominee_relation:undefined,
-            nominee_dob:undefined,
-            nominee_contact:undefined,
-          }
-        }
-        this.referral_link=baseUrl+'#/register?sponsor_code='+this.temp.username;
+      this.temp = response.data;
+      if (!this.temp.kyc){
+        this.temp.kyc = {
+          address: undefined,
+          pincode: undefined,
+          adhar: undefined,
+          pan: undefined,
+          city: undefined,
+          state: undefined,
+          country: undefined,
+          bank_ac_name: undefined,
+          bank_name: undefined,
+          bank_ac_no: undefined,
+          ifsc: undefined,
+          nominee_name: undefined,
+          nominee_relation: undefined,
+          nominee_dob: undefined,
+          nominee_contact: undefined,
+          country_code: undefined,
+        };
+      }
+      this.referral_link=baseUrl+'#/register?sponsor_code='+this.temp.username;
     });
+
+    getCurrencies().then(response => {
+      this.currencyList = response.data;
+    });
+
+
+    getAllCountry().then(response => {
+        this.Country = response.data;
+    });
+    this.getPublicSettings();
+
   },
   methods: {
-    
-    handleAdharChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.adharfile=f.raw      
+    getPublicSettings() {
+        getPublicSettings().then(response => {
+            this.settings = response.data;
+            this.temp.kyc.country_code  = response.data.default_country_code;
+            if(!this.temp.country_code){
+              this.temp.country_code      = response.data.default_country_code;
+            }
+        });
     },
-    handleAdharRemove(file, fileList) {
-       this.adharfile=undefined;
-       this.adharfileList=[];
+    handleStateChange(){
+        this.temp.kyc.city = undefined;
+        getStateCities(this.temp.kyc.state).then(response => {
+            this.cities = response.data;
+        });
     },
-    handleAdharBackChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.adharBackfile=f.raw      
-    },
-    handleAdharBackRemove(file, fileList) {
-       this.adharBackfile=undefined;
-       this.adharBackfileList=[];
-    },
-    handleProfileRemove(file, fileList) {
-       this.profilefile=undefined;
-       this.profilefileList=[];
-    },
-    handleProfileChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.profilefile=f.raw      
-    },    
-    handlePanChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.panfile=f.raw      
-    },
-    handlePanRemove(file, fileList) {
-       this.panfile=undefined;
-       this.panfileList=[];
-    },
-    handlePanChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.panfile=f.raw      
-    },
-     handleChequeChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.chequefile=f.raw      
-    },
-     handleDistributerChange(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.distributerFile=f.raw      
-    },
-     distributor_image(f, fl){     
-      if(fl.length > 1){
-        fl.shift()  
-      }      
-      this.distributerFile=f.raw      
-    },
-    handleChequeRemove(file, fileList) {
-       this.chequefile=undefined;
-       this.chequefileList=[];
-    },
-    handleDistributerRemove(file, fileList) {
-       this.distributerFile=undefined;
-       this.distributerfileList=[];
-    },
-    handleExceed(files, fileList) {
-      this.$message.warning(`You can not select more than one file, please remove first.`);
+    handleCountryChange(){
+        this.temp.kyc.city = undefined;
+        this.temp.kyc.state = undefined;
+        getCountryStates(this.temp.kyc.country).then(response => {
+            this.states = response.data;
+        });
     },
     onCopy(){
       this.$notify({
@@ -537,67 +723,188 @@ export default {
         })
  
     },
+    goToNextPage() {
+        if(this.activeTab == "details"){
+            this.activeTab = "kyc";
+        }else if(this.activeTab == "kyc"){
+            this.activeTab = "nominee";
+        }else if(this.activeTab == "nominee"){
+            this.activeTab = "kyc-images";
+        }
+    },
+    goToBackPage() {
+        // alert(this.activeTab);
+        if(this.activeTab == "nominee"){
+            this.activeTab = "kyc";
+        }
+        else if(this.activeTab == "kyc-images"){
+            this.activeTab = "nominee";
+        }
+        else if(this.activeTab == "kyc"){
+            this.activeTab = "details";
+        }
+    },
+    handleAdharChange(f, fl){
+      if (fl.length > 1){
+        fl.shift();
+      }
+      this.adharfile = f.raw;
+    },
+    // handleStateChange(){
+    //   getStateCities(this.temp.kyc.state).then(response => {
+    //     this.cities = response.data;
+    //   });
+    // },
+    handleAdharRemove(file, fileList) {
+      this.adharfile = undefined;
+      this.adharfileList = [];
+    },
+    handleAdharBackChange(f, fl){
+      if (fl.length > 1){
+        fl.shift();
+      }
+      this.adharBackfile = f.raw;
+    },
+    handleAdharBackRemove(file, fileList) {
+      this.adharBackfile = undefined;
+      this.adharBackfileList = [];
+    },
+    handleProfileRemove(file, fileList) {
+      this.profilefile = undefined;
+      this.profilefileList = [];
+    },
+    handleProfileChange(f, fl){
+      if (fl.length > 1){
+        fl.shift();
+      }
+      this.profilefile = f.raw;
+    },
+    handlePanChange(f, fl){
+      if (fl.length > 1){
+        fl.shift();
+      }
+      this.panfile = f.raw;
+    },
+    handlePanRemove(file, fileList) {
+      this.panfile = undefined;
+      this.panfileList = [];
+    },
+    handlePanChange(f, fl){
+      if (fl.length > 1){
+        fl.shift();
+      }
+      this.panfile = f.raw;
+    },
+    handleChequeChange(f, fl){
+      if (fl.length > 1){
+        fl.shift();
+      }
+      this.chequefile = f.raw;
+    },
+    handleDistributerChange(f, fl){     
+      if(fl.length > 1){
+        fl.shift()  
+      }      
+      this.distributerFile=f.raw      
+    },
+    handleChequeRemove(file, fileList) {
+      this.chequefile = undefined;
+      this.chequefileList = [];
+    },
+    handleDistributerRemove(file, fileList) {
+       this.distributerFile=undefined;
+       this.distributerfileList=[];
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(`You can not select more than one file, please remove first.`);
+    },
     submitVerification(){
-      this.temp.kyc.verification_status='submitted';
-      this.onSubmit();
+      let old_temp=Object.assign({}, this.temp); 
+      this.old_kyc_status=old_temp.kyc.verification_status;
+      this.$refs.profileForm.validate(valid => {
+        if (valid) {
+          this.temp.kyc.verification_status = 'submitted';
+          this.onSubmit();    
+        }
+      });
+      
+    },
+    clean(obj) {
+        for (var propName in obj) {
+            if (obj[propName] === null || obj[propName] === undefined) {
+                delete obj[propName];
+            }
+        }
     },
     onSubmit() {
-      this.updating = true;
-      this.buttonLoading=true;
 
-      var form = new FormData();
-      let form_data=this.temp;
+      this.$refs.profileForm.validate(valid => {
+        if (valid) {
+          this.updating = true;
+          this.buttonLoading = true;
 
-      for ( var key in form_data ) {
-        if(form_data[key] !== undefined && form_data[key] !== null){
-          if(key=='kyc'){
-            form.append(key, JSON.stringify(form_data[key]));  
-          }else{
-            form.append(key, form_data[key]);  
+          var form = new FormData();
+          this.clean(this.temp);
+          const form_data = this.temp;
+
+          for (var key in form_data) {
+            if (form_data[key] !== undefined && form_data[key] !== null){
+              if (key == 'kyc'){
+                form.append(key, JSON.stringify(form_data[key]));
+              } else {
+                form.append(key, form_data[key]);
+              }
+            }
           }
-          
+
+          form.append('adhar_image', this.adharfile);
+          form.append('adhar_image_back', this.adharBackfile);
+          form.append('profile_picture', this.profilefile);
+          form.append('pan_image', this.panfile);
+          form.append('cheque_image', this.chequefile);
+          form.append('distributor_image', this.distributerFile);
+
+          updateProfile(form).then((response) => {
+            this.updating = false;
+            this.buttonLoading = false;
+            this.temp = response.data;
+            this.$notify({
+              title: 'Success',
+              message: 'Profile updated Successfully',
+              type: 'success',
+              duration: 2000,
+            });
+            this.adharfile = undefined;
+            this.adharfileList = [];
+            this.adharBackfile = undefined;
+            this.adharBackfileList = [];
+            this.profilefile = undefined;
+            this.profilefileList = [];
+            this.panfile = undefined;
+            this.panfileList = [];
+            this.chequefile = undefined;
+            this.chequefileList = [];
+            this.distributerFile=undefined
+            this.distributerfileList=[];
+          }).catch((err) => {
+            this.updating = false;
+            this.buttonLoading = false;
+            this.temp.kyc.verification_status = this.old_kyc_status;
+          });
         }
-      }
-
-      form.append('adhar_image', this.adharfile);
-      form.append('adhar_image_back', this.adharBackfile);
-      form.append('profile_picture', this.profilefile);
-      form.append('pan_image', this.panfile);
-      form.append('cheque_image', this.chequefile);
-      form.append('distributor_image', this.distributerFile);
-
-      updateProfile(form).then((response) => {
-        this.updating = false;
-        this.buttonLoading=false;
-        this.temp=response.data;
-        this.$notify({
-          title: "Success",
-          message: "Profile updated Successfully",
-          type: "success",
-          duration: 2000
-        })
-        this.adharfile=undefined
-        this.adharfileList=[];
-        this.adharBackfile=undefined
-        this.adharBackfileList=[];
-        this.profilefile=undefined
-        this.profilefileList=[];
-        this.panfile=undefined
-        this.panfileList=[];
-        this.chequefile=undefined
-        this.distributerFile=undefined
-        this.chequefileList=[];
-        this.distributerfileList=[];
-      }).catch((err)=>{
-        this.updating = false;
-        this.buttonLoading=false;
       });
+
+      
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.el-radio.is-bordered + .el-radio.is-bordered {
+    margin-left: 2px !important;
+}
+
 .user-activity {
   .user-block {
     .username, .description {
@@ -646,11 +953,7 @@ export default {
       padding-left: 5px;
       font-size: 13px;
     }
-    .link-black {
-      &:hover, &:focus {
-        color: #999;
-      }
-    }
+    
   }
   .el-carousel__item h3 {
     color: #475669;
@@ -672,7 +975,7 @@ export default {
 @media (min-width:750px) {
   .img-upload{
     float: right;
-    margin-right:20px; 
+    margin-right:20px;
   }
 }
 
@@ -712,5 +1015,17 @@ export default {
   .user-follow {
     padding-top: 20px;
   }
+}
+
+label{
+  color:#606266;
+}
+
+label-mandatory{
+  color:red;
+}
+
+.el-radio{
+  margin-right: 0px;
 }
 </style>

@@ -9,7 +9,7 @@ use App\Models\Admin\Setting;
 use Validator;
 use JWTAuth;
 
-class SmssController extends Controller
+class SmsesController extends Controller
 {
    
     public function getSmses(Request $request)

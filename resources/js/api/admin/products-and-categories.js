@@ -15,21 +15,53 @@ export function getAllCategories() {
   })
 }
 
+export function getAllProductVariant() {
+  return request({
+    url: '/admin/product-variant/all',
+    method: 'get'
+  })
+}
+
+export function getAllProducts() {
+  return request({
+    url: '/admin/products/all',
+    method: 'get',
+  })
+}
+
+export function getAllProductVariantList(id) {
+  return request({
+    url: '/admin/product-variant/'+id,
+    method: 'get',
+  })
+}
+
+
+export function getAllColorVariant() {
+  return request({
+    url: '/admin/color-variant/all',
+    method: 'get'
+  })
+}
+export function getAllSizeVariant() {
+  return request({
+    url: '/admin/size-variant/all',
+    method: 'get'
+  })
+}
+
 export function deleteCategory(id) {
   return request({
     url: '/admin/categories/'+id+'/delete',
     method: 'delete'
   })
 }
-
-export function changeProductActivationStatus(data) {
+export function changeVariantStatus(id) {
   return request({
-    url: '/admin/categories/change-status/activation',
-    method: 'post',
-    data
+    url: '/admin/variant/'+id+'/change-status',
+    method: 'post'
   })
 }
-
 
 export function createCategory(data) {
   return request({
@@ -64,10 +96,10 @@ export function getProduct(id) {
   })
 }
 
-export function deleteProduct(id) {
+export function changeProductStatus(id) {
   return request({
-    url: '/admin/products/'+id+'/delete',
-    method: 'delete'
+    url: '/admin/products/'+id+'/change-status',    
+    method: 'post'
   })
 }
 
@@ -98,6 +130,14 @@ export function uploadProductImage(data) {
   })
 }
 
+export function addProductVariant(data) {
+  return request({
+    url: '/admin/product-variant/add',
+    method: 'post',
+    data
+  })
+}
+
 export function deleteProductImage(id) {
   return request({
     url: '/admin/products/image/'+id+'/delete',
@@ -105,3 +145,10 @@ export function deleteProductImage(id) {
   })
 }
 
+export function getProductStocks(query) {
+  return request({
+    url: '/admin/product/stocks',
+    method: 'get',
+    params: query
+  })
+}

@@ -21,4 +21,9 @@ class Product extends Model
         return $this->hasMany('App\Models\Admin\ProductImage');
     }
 
+    public function variants()
+    {
+        return $this->hasMany('App\Models\Admin\ProductVariant');
+    }
+
 }

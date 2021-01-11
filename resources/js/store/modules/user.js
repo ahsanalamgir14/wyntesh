@@ -14,6 +14,7 @@ const state = {
   roles: [],
   permissions: [],
   settings: [],
+  currency:{},
 };
 
 const mutations = {
@@ -41,6 +42,9 @@ const mutations = {
   SET_SETTINGS: (state, settings) => {
     state.settings = settings;
   },
+  SET_CURRENCY: (state, currency) => {
+    state.currency = currency;
+  },
 };
 
 const actions = {
@@ -53,6 +57,7 @@ const actions = {
           let role=response.user.roles;
             commit('SET_TOKEN', response.access_token);
             commit('SET_PERMISSIONS', response.user.permissions);
+            commit('SET_CURRENCY', response.user.currency);
             setToken(response.access_token);
             resolve();
         })
@@ -71,6 +76,7 @@ const actions = {
           let role=response.user.roles;
             commit('SET_TOKEN', response.access_token);
             commit('SET_PERMISSIONS', response.user.permissions);
+            commit('SET_CURRENCY', response.user.currency);
             setToken(response.access_token);
             resolve();
         })
@@ -92,7 +98,7 @@ const actions = {
             reject('Verification failed, please Login again.');
           }
 
-          const { roles, name, introduction, permissions, id, profile_picture } = data;
+          const { roles, name, introduction, permissions, id, profile_picture,currency } = data;
           // roles must be a non-empty array
           if (!roles || roles.length <= 0) {
             reject('getInfo: roles must be a non-null array!');
@@ -107,7 +113,8 @@ const actions = {
           }else{
             commit('SET_AVATAR', avatar);  
           }
-          
+
+          commit('SET_CURRENCY', currency);
           commit('SET_INTRODUCTION', introduction);
           commit('SET_ID', id);
           resolve(data);

@@ -275,7 +275,7 @@ class AuthController extends Controller
         $roles = $user->getRoleNames();
         $permissions = $user->getPermissionNames();
 
-        $user_data=array('id'=>$user->id,'name'=>$user->name,'email'=>$user->email,'contact'=>$user->contact,'roles'=>$roles,'permissions'=>$permissions,'profile_picture'=>$user->profile_picture);
+        $user_data=array('id'=>$user->id,'name'=>$user->name,'email'=>$user->email,'contact'=>$user->contact,'dob'=>$user->dob,'roles'=>$roles ,'currency'=>$user->currency,'permissions'=>$permissions);
         
         return response()->json($user_data);
     }
@@ -316,7 +316,7 @@ class AuthController extends Controller
         $roles = $user->getRoleNames();
         $permissions = $user->getPermissionNames();
        
-        $user_data=array('id'=>$user->id,'name'=>$user->name,'email'=>$user->email,'contact'=>$user->contact,'dob'=>$user->dob,'roles'=>$roles ,'permissions'=>$permissions);
+        $user_data=array('id'=>$user->id,'name'=>$user->name,'email'=>$user->email,'contact'=>$user->contact,'dob'=>$user->dob,'roles'=>$roles ,'currency'=>$user->currency,'permissions'=>$permissions);
 
         return response()->json([            
             'access_token' => $token,

@@ -16,4 +16,9 @@ class ProductImage extends Model {
         return $this->belongsToOne('App\Models\Admin\Product');
     }
 
+    public function variant()
+    {
+        return $this->belongsTo('App\Models\Admin\ProductVariant','variant_id','id');
+    }
+
 }

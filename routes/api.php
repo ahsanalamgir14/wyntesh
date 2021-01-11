@@ -23,6 +23,11 @@ Route::get('sms', '\App\Http\Controllers\User\MembersController@sendSMS');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
+
+Route::get('country', '\App\Http\Controllers\User\ConfigController@getCountry');
+Route::get('cities/{state}', '\App\Http\Controllers\User\ConfigController@getStateCities');
+Route::get('states/{country}', '\App\Http\Controllers\User\ConfigController@getCountryStates');
+
 // Authentication Routes
 Route::group(['prefix' => 'auth'], function ($router) {
     Route::post('login', 'Auth\AuthController@login');
@@ -58,6 +63,8 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('statuses/all', '\App\Http\Controllers\Superadmin\StatusesController@getAllStatuses');
     Route::get('notice', '\App\Http\Controllers\Admin\NoticesController@get');
     Route::get('welcome-letter', '\App\Http\Controllers\Admin\WelcomeLetterController@get');
+
+    Route::get('currencies/all', '\App\Http\Controllers\Admin\CurrenciesController@all');
 
     Route::get('stats', 'DashboardController@stats');
     Route::get('payout/stats', 'DashboardController@payoutStats');
@@ -132,9 +139,14 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('address/{id}', 'AddressesController@getAddress');
     Route::delete('address/{id}/delete', 'AddressesController@deleteAddress');
 
-    Route::get('categories/all', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getAllCategories');
-    Route::get('products', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getProducts');
-    Route::get('products/{id}', '\App\Http\Controllers\Admin\ProductsAndCategoryController@getProduct');
+    Route::get('categories/all', '\App\Http\Controllers\Admin\ProductConfigurationsController@getAllCategories');
+    Route::get('products', '\App\Http\Controllers\Admin\ProductsController@getUserProducts');
+    Route::get('products/{id}', '\App\Http\Controllers\Admin\ProductsController@getProduct');
+
+    Route::get('product/{id}', 'ShoppingController@getSingleProduct');
+    Route::get('getsizebycolor', 'ShoppingController@getSizebyColor');
+    Route::get('getcolorbysize/{id}', 'ShoppingController@getColorBySize');
+    Route::get('getstock', 'ShoppingController@getStock');
 
     Route::post('cart/add/product', 'ShoppingController@addToCart');
     Route::post('cart/update/qty', 'ShoppingController@updateCartQty');
@@ -190,6 +202,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('settings','SettingsController@getCopanyDetailsSettings');
     Route::get('company-settings','CompanySettingsController@get');
     Route::post('company-settings','CompanySettingsController@update');
+    Route::get('company-admin-settings', 'CompanySettingsController@getAdminSettings');
     Route::get('statuses/all', '\App\Http\Controllers\Superadmin\StatusesController@getAllStatuses');
 
     Route::post('notice','NoticesController@save');
@@ -314,20 +327,47 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('wallet/approve-credit-requests', 'WalletController@approveCreditRequest');
     Route::post('wallet/reject-credit-requests', 'WalletController@rejectCreditRequest');
 
-    Route::post('categories','ProductsAndCategoryController@createCategory');
-    Route::post('categories/update', 'ProductsAndCategoryController@updateCategory');
-    Route::get('categories', 'ProductsAndCategoryController@getCategories');
-    Route::get('categories/all', 'ProductsAndCategoryController@getAllCategories');
-    Route::delete('categories/{id}/delete', 'ProductsAndCategoryController@deleteCategory');
-    Route::post('categories/change-status/activation', 'ProductsAndCategoryController@changeProductActivationStatus');
+    Route::post('categories','ProductConfigurationsController@createCategory');
+    Route::post('categories/update', 'ProductConfigurationsController@updateCategory');
+    Route::get('categories', 'ProductConfigurationsController@getCategories');
+    Route::get('categories/all', 'ProductConfigurationsController@getAllCategories');
+    Route::delete('categories/{id}/delete', 'ProductConfigurationsController@deleteCategory');
 
-    Route::post('products','ProductsAndCategoryController@createProduct');
-    Route::post('products/update', 'ProductsAndCategoryController@updateProduct');
-    Route::get('products', 'ProductsAndCategoryController@getProducts');
-    Route::get('products/{id}', 'ProductsAndCategoryController@getProduct');
-    Route::delete('products/{id}/delete', 'ProductsAndCategoryController@deleteProduct');
-    Route::post('products/image/upload', 'ProductsAndCategoryController@uploadProductImage');
-    Route::delete('products/image/{id}/delete', 'ProductsAndCategoryController@deleteProductImage');
+    Route::post('variant/{id}/change-status', 'ProductsController@changeVariantStatus');
+    Route::get('product-variant/all', 'ProductsController@getAllProductVariant');
+    Route::get('products/all', 'ProductsController@getAllProducts');
+    Route::get('product-variant/{id}', 'ProductsController@getAllProductVariantList');
+    Route::get('color-variant/all', 'ProductConfigurationsController@getColorVariantAll');
+    Route::get('size-variant/all', 'ProductConfigurationsController@getSizeVariantAll');
+
+    Route::post('products','ProductsController@createProduct');
+    Route::post('products/update', 'ProductsController@updateProduct');
+    Route::get('products', 'ProductsController@getProducts');
+    Route::get('products/{id}', 'ProductsController@getProduct');
+    Route::post('products/{id}/change-status', 'ProductsController@changeProductStatus');
+    Route::post('products/image/upload', 'ProductsController@uploadProductImage');
+    Route::delete('products/image/{id}/delete', 'ProductsController@deleteProductImage');
+
+    Route::get('size-variants', 'ProductConfigurationsController@getSizeVariant');
+    Route::get('size-variants/all', 'ProductConfigurationsController@getSizeVariantAll');
+    Route::post('size-variants', 'ProductConfigurationsController@addSizeVariant');
+    Route::post('size-variant/{id}/update','ProductConfigurationsController@updateSizeVariant');
+    Route::post('size-variant/change-status', 'ProductConfigurationsController@changeSizeVariantStatus');
+    Route::delete('size-variant/{id}/delete', 'ProductConfigurationsController@deleteSizeVariant');
+
+    Route::get('color-variants', 'ProductConfigurationsController@getColorVariants');
+    Route::get('color-variants/all', 'ProductConfigurationsController@getColorVariantAll');
+    Route::post('color-variants', 'ProductConfigurationsController@addColorVariant');
+    Route::post('color-variant/{id}/update','ProductConfigurationsController@updateColorVariant');
+    Route::post('color-variant/change-status', 'ProductConfigurationsController@changeColorVariantStatus');
+    Route::delete('color-variant/{id}/delete', 'ProductConfigurationsController@deleteColorVariant');
+    Route::get('product-variants', 'ProductConfigurationsController@allProductVariants');
+
+    Route::post('product-variant/add', 'ProductsController@addProductVariant');
+
+    Route::get('product/stocks', 'ProductStockController@getProductStocks');
+    Route::post('stock/add', 'ProductStockController@addStock');
+    Route::get('stock-logs', 'ProductStockController@getStockLogs');
 
     Route::get('orders/new', 'ShoppingController@getNewOrders');
     Route::get('orders/all', 'ShoppingController@getAllOrders');

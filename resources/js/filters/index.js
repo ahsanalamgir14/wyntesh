@@ -1,5 +1,6 @@
 // set function parseTime,formatTime to filter
 export { parseTime, formatTime } from '@/utils';
+export { currency_convert, currency_symbol, convert, convert_with_symbol, reverse_currency_convert,parse_currency } from '@/utils/currencies';
 
 export function pluralize(time, label) {
   if (time === 1) {

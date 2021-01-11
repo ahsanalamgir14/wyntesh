@@ -35,7 +35,7 @@
                   <!-- <el-tag style="font-size: 16px;" type="primary" >Customer</el-tag> -->
                 </div>
                 <div class="avatar-wrapper">
-                    <img :src="temp.profile_picture?temp.profile_picture:'/images/avatar.png'" class="user-avatar">
+                    <img :src="temp.profile_picture?temp.profile_picture:'/images/avatar.png'" class="user-avatar" style="margin-left: 20px;">
                 </div>
 
 

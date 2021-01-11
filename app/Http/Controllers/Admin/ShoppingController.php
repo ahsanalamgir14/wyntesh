@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Product;
+use App\Models\Admin\StockLogs;
 use App\Models\User\Cart;
 use App\Models\User\Order;
 use App\Models\User\OrderProduct;
@@ -36,7 +37,7 @@ class ShoppingController extends Controller
 
     public function getNewOrders(Request $request)
     {
-
+       
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
@@ -56,34 +57,29 @@ class ShoppingController extends Controller
         }else{
             $sort = 'desc';
         }
+        
+        $orders=Order::select();
 
-        if(!$search && !$date_range ){           
-            $Orders=Order::select();
-            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
-            $Orders=$Orders->where('delivery_status','Order Created');
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-        }else{
-            $Orders=Order::select();
-            
-            $Orders=$Orders->where(function ($query)use($search) {
+        if($search){
+            $orders=$orders->where(function ($query)use($search) {
                 $query->orWhere('order_no','like','%'.$search.'%');               
                 $query=$query->orWhereHas('user',function($q)use($search){
                     $q->where('username','like','%'.$search.'%');
                 });
-            });
-
-            if($date_range){
-                $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
-                $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
-            }
-
-            $Orders=$Orders->where('delivery_status','Order Created');
-
-            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+            });  
         }
-        
-        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders);
+
+        if($date_range){
+            $orders=$orders->whereDate('created_at','>=', $date_range[0]);
+            $orders=$orders->whereDate('created_at','<=', $date_range[1]);
+        }
+
+        $orders=$orders->where('delivery_status','Order Created');
+
+        $orders=$orders->with('products.variant.color','products.variant.size','logs','user:id,username,name','payment_mode','packages.variant.color','packages.variant.size','packages.product');
+        $orders=$orders->orderBy('id',$sort)->paginate($limit);
+
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$orders);
         return response()->json($response, 200);
     }
 
@@ -171,15 +167,14 @@ class ShoppingController extends Controller
 
 
     public function getAllOrders(Request $request)
-    {
-
+    {       
         $page=$request->page;
         $limit=$request->limit;
         $sort=$request->sort;
         $search=$request->search;
         $date_range=$request->date_range;
         $delivery_status=$request->delivery_status;
-        $order_total='';
+        $orderTotal='';
 
         if(!$page){
             $page=1;
@@ -195,39 +190,43 @@ class ShoppingController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$date_range && !$delivery_status){           
-            $Orders=Order::select();
-            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
-            $order_total=Order::select([\DB::raw('sum(net_amount) as final_total'),\DB::raw('sum(pv) as pv')])->first();
-        }else{
-            $order_total=Order::select([\DB::raw('sum(net_amount) as final_total'),\DB::raw('sum(pv) as pv')]);
-
-            $Orders=Order::select();
-            $Orders=$Orders->where(function ($query)use($search) {
+        $orders=Order::select();           
+        $orderTotal=Order::select([DB::raw('sum(net_amount) as final_total'),DB::raw('sum(pv) as pv')]);
+        
+        if($search){
+            $orders=$orders->where(function ($query)use($search) {
                 $query->orWhere('order_no','like','%'.$search.'%');  
                 $query=$query->orWhereHas('user',function($q)use($search){
                     $q->where('username','like','%'.$search.'%');
                 });            
             });
 
-            if($delivery_status){
-                $Orders=$Orders->where('delivery_status',$delivery_status);
-                $order_total=$order_total->where('delivery_status',$delivery_status);
-            }
-
-            if($date_range){
-                $Orders=$Orders->whereDate('created_at','>=', $date_range[0]);
-                $Orders=$Orders->whereDate('created_at','<=', $date_range[1]);
-                $order_total=$order_total->whereDate('created_at','>=', $date_range[0]);
-                $order_total=$order_total->whereDate('created_at','<=', $date_range[1]);
-            }
-            $order_total= $order_total->first();
-            $Orders=$Orders->with('products','logs','user:id,username,name','payment_mode','packages');
-            $Orders=$Orders->orderBy('id',$sort)->paginate($limit);
+            $orderTotal=$orderTotal->where(function ($query)use($search) {
+                $query->orWhere('order_no','like','%'.$search.'%');  
+                $query=$query->orWhereHas('user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });            
+            });
         }
+
+        if($delivery_status){
+            $orders=$orders->where('delivery_status',$delivery_status);
+            $orderTotal=$orderTotal->where('delivery_status',$delivery_status);
+        }
+
+        if($date_range){
+            $orders=$orders->whereDate('created_at','>=', $date_range[0]);
+            $orders=$orders->whereDate('created_at','<=', $date_range[1]);
+            $orderTotal=$orderTotal->whereDate('created_at','>=', $date_range[0]);
+            $orderTotal=$orderTotal->whereDate('created_at','<=', $date_range[1]);
+        }
+
+        $orderTotal=$orderTotal->first();
         
-        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$Orders,'sum'=>$order_total);
+        $orders=$orders->with('products.variant.color','products.variant.size','logs','user:id,username,name','user.kyc','payment_mode','packages.variant.color','packages.variant.size','packages.product');
+        $orders=$orders->orderBy('id',$sort)->paginate($limit);  
+        
+        $response = array('status' => true,'message'=>"Orders retrieved.",'data'=>$orders,'sum'=>$orderTotal);
         return response()->json($response, 200);
     }
 
@@ -478,8 +477,22 @@ class ShoppingController extends Controller
                 $final_balance=$balance+$Order->net_amount;
                 $Order->User->member->wallet_balance=$final_balance;
                 $Order->User->member->save();
-                
-                
+
+                foreach ($Order->products as $item) {
+                    $item->variant->stock+=$item->quantity;
+                    $item->variant->save();
+
+                    $StockLogs = new StockLogs;
+                    $StockLogs->product_id      = $item->variant->product_id;
+                    $StockLogs->variant_id      = $item->variant->id;
+                    $StockLogs->sku             = $item->variant->sku_code;
+                    $StockLogs->units_inward   = $item->quantity;
+                    $StockLogs->order_id   = $Order->id;
+                    $StockLogs->is_order_placed   = 0;
+                    $StockLogs->is_order_returned   = 1;
+                    $StockLogs->note            = "Product Return/Cancelled";
+                    $StockLogs->save();
+                }
             }
 
             event(new OrderUpdateEvent($Order,$Order->user));
