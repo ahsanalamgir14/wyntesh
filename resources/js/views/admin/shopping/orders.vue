@@ -88,7 +88,7 @@
                       <img :data-src="product.product.cover_image_thumbnail" data-loading="images/fallback-product.png" alt="" style="max-height: 50px;max-width: 50px;" />
                     </div>
                    <div class="description">
-                      <div class="text-gray-700 font-bold text-sm mt-1 ">{{ product.product.name }}</div>
+                      <div class="text-gray-700 font-bold text-xs mt-1 ">{{ product.product.name }}</div>
                       <div class="text-gray-500 font-bold text-sm  ">{{product.product.qty}}  {{product.product.qty_unit}}, {{ (product.variant.color?product.variant.color.name:' ') +' '+ (product.variant.size?'('+product.variant.size.brand_size+')':'') }}</div>
                     </div>
                     <div class="quantity">

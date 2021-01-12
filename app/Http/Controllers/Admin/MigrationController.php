@@ -88,7 +88,7 @@ class MigrationController extends Controller
         $kyc_update="update kyc set country_code='91', country='India';";
         DB::statement( $kyc_update );
 
-        $truncat_cart="TRUNCATE cart;"
+        $truncat_cart="TRUNCATE cart;";
         DB::statement( $truncat_cart );
 
         
@@ -104,6 +104,36 @@ class MigrationController extends Controller
             $variant->stock=1;
             $variant->is_active=1;
             $variant->save();
+
+            $product->cost_cgst_rate=$product->cost_gst_rate/2;
+            $product->cost_sgst_rate=$product->cost_gst_rate/2;
+            $product->cost_utgst_rate=$product->cost_gst_rate/2;
+            $product->cost_cgst_amount=$product->cost_gst_amount/2;
+            $product->cost_sgst_amount=$product->cost_gst_amount/2;
+            $product->cost_utgst_amount=$product->cost_gst_amount/2;
+
+            $product->dp_cgst_rate=$product->dp_gst_rate/2;
+            $product->dp_sgst_rate=$product->dp_gst_rate/2;
+            $product->dp_utgst_rate=$product->dp_gst_rate/2;
+            $product->dp_cgst_amount=$product->dp_gst_amount/2;
+            $product->dp_sgst_amount=$product->dp_gst_amount/2;
+            $product->dp_utgst_amount=$product->dp_gst_amount/2;
+
+            $product->dp_cgst_rate=$product->dp_gst_rate/2;
+            $product->dp_sgst_rate=$product->dp_gst_rate/2;
+            $product->dp_utgst_rate=$product->dp_gst_rate/2;
+            $product->dp_cgst_amount=$product->dp_gst_amount/2;
+            $product->dp_sgst_amount=$product->dp_gst_amount/2;
+            $product->dp_utgst_amount=$product->dp_gst_amount/2;
+
+            $product->retail_cgst_rate=$product->retail_gst_rate/2;
+            $product->retail_sgst_rate=$product->retail_gst_rate/2;
+            $product->retail_utgst_rate=$product->retail_gst_rate/2;
+            $product->retail_cgst_amount=$product->retail_gst_amount/2;
+            $product->retail_sgst_amount=$product->retail_gst_amount/2;
+            $product->retail_utgst_amount=$product->retail_gst_amount/2;
+
+            $product->save();
         }
     }
 
