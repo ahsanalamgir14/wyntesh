@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" style="padding: 0">
     
     <el-row>
       <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
@@ -9,35 +9,41 @@
             
               <tr class="item-row" >
                   <td class="item-name" style="border: none;">
-                     <img id="image" src="images/dark_logo.png" height="150px"   alt="logo" style="width: 50% !important;height: 50% !important;" /><br>
-                    <span style="font-size: 18px;font-weight: bold;">WYNTASH Ecom Pvt Ltd</span><br><br>
-                    CIN - U74999TZ2020PTC033882<br>
-                    {{company_details.address}}<br>
-                    {{company_details.city}}<br>
-                    {{company_details.state}}, {{company_details.pincode}}<br>
-                    {{company_details.contact_phone}}<br>
-                    {{company_details.contact_email}}<br>
-                    GSTN - 33AACW6547R1ZM<br></td>
+                     <img id="image" src="images/dark_logo.png" height="150px"   alt="logo" style="width: 20% !important;height:20% !important;" /><br>
+                    <span style="font-size: 15px;font-weight: bold;">WYNTASH Ecom Pvt Ltd</span><p class="company-details">
+                    CIN - U74999TZ2020PTC033882</p>
+                    <p class="company-details">
+                    {{company_details.address}}</p>
+                    <p class="company-details">
+                    {{company_details.city}}</p>
+                    <p class="company-details">
+                    {{company_details.state}}, {{company_details.pincode}}</p>
+                    <p class="company-details">
+                    {{company_details.contact_phone}}</p>
+                    <p class="company-details">
+                    {{company_details.contact_email}}</p>
+                    <p class="company-details">
+                    GSTN - 33AACW6547R1ZM</p></td>
                   
                   <td class="cost" style ="vertical-align:bottom;border: none;"> 
                     <table id="meta" style="border: none;">
                       <tr>
-                          <td class="meta-head">TAX Invoice #</td>
-                          <td><div>{{order.order_no}}</div></td>
+                          <td class="meta-head"><p class="company-details">TAX Invoice #</p></td>
+                          <td><div><p class="company-details">{{order.order_no}}</p></div></td>
                       </tr>
                       <tr>
-                          <td class="meta-head">ORDER #</td>
-                          <td><div>{{order.order_no}}</div></td>
+                          <td class="meta-head"><p class="company-details">ORDER #</p></td>
+                          <td><div><p class="company-details">{{order.order_no}}</p></div></td>
                       </tr>
                       <tr>
 
-                          <td class="meta-head">TAX Invoice Date</td>
-                          <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
+                          <td class="meta-head"><p class="company-details">TAX Invoice Date</p></td>
+                          <td><div id="date"><p class="company-details">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</p></div></td>
                       </tr>
                        <tr>
  
-                          <td class="meta-head">Order Date</td>
-                          <td><div id="date">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</div></td>
+                          <td class="meta-head"><p class="company-details">Order Date</p></td>
+                          <td><div id="date"><p class="company-details">{{ order.created_at | parseTime('{d}-{m}-{y}') }}</p></div></td>
                       </tr>
 
                   </table></td>
@@ -49,19 +55,19 @@
               <tr class="item-row" >
                   <td class="item-name">
                     
-                   <span style="font-size: 15px;font-weight: bold;">Shipping to</span><br><br>
-                    <span style="font-size: 15px;font-weight: bold;">{{order.user.name}}</span>
-                    <br>
-                    <span style="font-size: 15px;">Member Id : {{order.user.username}}</span>
-                    <br>
-                    <span style="font-size: 15px;">{{order.shipping_address}}</span>
+                   <p style="font-size: 12px;font-weight: bold;">Shipping to</p><br>
+                    <p style="font-size: 12px;font-weight: bold;">{{order.user.name}}</p>
+                    
+                    <p style="font-size: 12px;">Member Id : {{order.user.username}}</p>
+                    
+                    <p style="font-size: 12px;">{{order.shipping_address}}</p>
                   </td>
                   <td class="item-name">
                     
-                    <span style="font-size: 15px;font-weight: bold;">Billing to</span><br><br>
-                    <span style="font-size: 15px;font-weight: bold;">{{order.user.name}}</span>
-                    <br>
-                    <span style="font-size: 15px;">{{order.billing_address}}</span>
+                    <p style="font-size: 12px;font-weight: bold;">Billing to</p><br>
+                    <p style="font-size: 12px;font-weight: bold;">{{order.user.name}}</p>
+                    <p style="font-size: 12px;">Member Id : {{order.user.username}}</p>
+                    <p style="font-size: 12px;">{{order.billing_address}}</p>
                   </td>
                   
               </tr>
@@ -124,7 +130,7 @@
             </tr>
 
             <tr>
-              <td colspan="12"  style="padding-top:40px;border-top: none"></td>
+              <td colspan="12"  style="padding-top:20px;border-top: none"></td>
             </tr>
             <tr>
                 <td colspan="8" class="blank" rowspan="2"> <b>Total PV in this order: {{order.pv}}</b></td>
@@ -153,8 +159,8 @@
                 <td class="total-value"><div id="paid">{{(parseInt(order.shipping_fee)*5/100)+parseInt(order.shipping_fee)}}</div></td>
             </tr>
             <tr>
-                <td colspan="3" class="total-line balance">Final Amount</td>
-                <td class="total-value balance"><div class="due">{{parseInt(order.net_amount)+parseInt(order.shipping_fee)*5/100}}</div></td>
+                <td colspan="3" class="total-line balance"><strong>Final Amount</strong></td>
+                <td class="total-value balance"><div class="due"><strong>{{parseInt(order.net_amount)+parseInt(order.shipping_fee)*5/100}}</strong></div></td>
             </tr>
           
           </table>
@@ -232,46 +238,50 @@ export default {
 
 <style scoped >
 body { font: 14px/1.4 Georgia, serif; }
-#page-wrap { width: 800px; margin: 0 auto; }
+#page-wrap { width: 1000px; margin: 0 auto; }
 
 table { border-collapse: collapse; }
-table td, table th { border: 1px solid black; padding: 5px; }
+table td, table th { border: 1px solid black; padding: 1px; font-size: 12px;}
 
-#header { height: 35px; width: 100%; margin: 20px 0; background: #222; text-align: center; color: white; font: bold 15px Helvetica, Sans-Serif; text-decoration: uppercase; letter-spacing: 20px; padding: 8px 0px; }
+#header { height: 35px; width: 100%; margin: 20px 0; background: #222; text-align: center; color: white; font: bold 15px Helvetica, Sans-Serif; text-decoration: uppercase; letter-spacing: 10px; padding: 8px 0px; }
 
 #address { margin-left: 20px;width: 100%; margin-bottom: 50px;  float: left; font: 14px Georgia, Serif;}
 #customer { overflow: hidden; }
 
 #logo {  float: left; position: relative;  border: 1px solid #fff;   width: 100%;}
 #logoctr { display: none; }
-#logohelp { text-align: left; display: none; font-style: italic; padding: 10px 5px;}
+#logohelp { text-align: left; display: none; font-style: italic; padding: 5px 5px;}
 #logohelp input { margin-bottom: 5px; }
 .edit #logohelp { display: block; }
 .edit #save-logo, .edit #cancel-logo { display: inline; }
 .edit #image, #save-logo, #cancel-logo, .edit #change-logo, .edit #delete-logo { display: none; }
-#customer-title { font-size: 20px; font-weight: bold; float: left; }
+#customer-title { font-size: 15px; font-weight: bold; float: left; }
 
 #meta { margin-top: 1px; width: 300px; float: right; }
 #meta td { text-align: right; border: none; }
 #meta td.meta-head { text-align: right; }
 
-#items { clear: both; width: 100%; margin: 30px 0 0 0; border: 1px solid black; }
+#items { clear: both; width: 100%; margin: 5px 0 0 0; border: 1px solid black; }
 #items th { background: #eee; }
 #items tr.item-row td { vertical-align: top; }
 #items td.description { width: 150px; text-align: right;}
-#items td.qty {text-align: right;}
+#items td.qty {text-align: right; width: 90px;}
 #items td.cost {text-align: right; width: 150px;}
-#items td.total {text-align: right; width: 200px;}
-#items td.item-name { width: 400px; }
+#items td.total {text-align: right; width: 100px;}
+#items td.item-name { width: 550px; }
 #items td.total-line { border-right: 0; text-align: right; }
-#items td.total-value { border-left: 0; padding: 10px; }
+#items td.total-value { border-left: 0; padding: 1px;padding-left: 10px; }
 #items td.balance { background: #eee; }
 #items td.blank {  }
 
 #terms { text-align: center; margin: 20px 0 0 0; }
-#terms h5 { text-transform: uppercase; font: 13px Helvetica, Sans-Serif; letter-spacing: 10px; border-bottom: 1px solid black; padding: 0 0 8px 0; margin: 0 0 8px 0; }
+#terms h5 { text-transform: uppercase; font: 13px Helvetica, Sans-Serif; letter-spacing: 5px; border-bottom: 1px solid black; padding: 0 0 8px 0; margin: 0 0 8px 0; }
 .grecaptcha-badge {
    display: none !important; 
+  }
+
+  .company-details{
+    font-size: 12px;
   }
 
 @media print {

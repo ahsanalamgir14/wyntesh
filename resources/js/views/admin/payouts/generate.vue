@@ -15,13 +15,13 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-      <el-button
+     <!--  <el-button
         class="filter-item"
         style="margin-left: 10px;"
         type="success"
         icon="el-icon-refresh-left"
         @click="handleCreate"
-      > Generate</el-button>
+      > Generate</el-button> -->
       <el-button
         v-waves
         :loading="downloadLoading"

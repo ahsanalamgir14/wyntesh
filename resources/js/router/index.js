@@ -553,6 +553,12 @@ export const asyncRoutes = [
         meta: { title: 'All Payouts', icon: 'far fa-check-circle', color:'color:#DCB527', affix: true, roles: ['admin'] }
       },
       {
+        path: 'generate-matching',
+        component: () => import('@/views/admin/payouts/matching-point'),
+        name: 'Generate Matching',
+        meta: { title: 'Generate Matching', icon: 'far fa-check-circle', color:'color:#62a832', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'incomes',
         component: () => import('@/views/admin/payouts/incomes'),
         name: 'Incomes',

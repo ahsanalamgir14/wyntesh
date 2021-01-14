@@ -1,13 +1,29 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+      <el-select size="mini" v-model="listQuery.category_id" @change="handleFilter" clearable class="filter-item " style="width:200px;" filterable placeholder="Select Category">
+        <el-option v-for="item in categories" :key="item.name" :label="item.name" :value="item.id">
+        </el-option>
+      </el-select>
       <el-input v-model="listQuery.search" placeholder="Search Records" style="width: 200px;" size="mini" class="filter-item mobile_class" @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" type="primary" size="mini" icon="el-icon-search" @click="handleFilter">Search</el-button>
       <el-button size="mini" class="filter-item" style="margin-left: 10px;" type="success" @click="handleCreate"><i class="fas fa-plus"></i> Add</el-button>
     </div>
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;" @sort-change="sortChange">
-      <el-table-column label="Sr#" :class-name="getSortClass('id')" prop="id" sortable="custom" align="center" type="index" :index="indexMethod" width="70">
+      
+      <el-table-column
+        label="Sr#"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="70"
+        :class-name="getSortClass('id')"
+      >
+        <template slot-scope="{row}">
+          <span>{{ row.id }}</span>
+        </template>
       </el-table-column>
+      
       <el-table-column label="Actions" align="center" width="170" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button circle type="primary" icon="el-icon-edit" @click="handleEdit(row)"></el-button>
@@ -60,6 +76,7 @@
 import {
   fetchProducts,
   changeProductStatus,
+  getAllCategories
 } from "@/api/admin/products-and-categories";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -84,6 +101,7 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
+      categories:[],
       listLoading: true,
       listQuery: {
         page: 1,
@@ -100,6 +118,9 @@ export default {
   },
   created() {
     this.getList();
+    getAllCategories().then(response => {
+      this.categories = response.data;
+    });
   },
   methods: {
     indexMethod(index) {

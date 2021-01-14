@@ -163,7 +163,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('rewards', 'PayoutsController@rewards');
     Route::get('payouts', 'PayoutsController@getPayouts');
     Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
-    Route::get('income-holdings', 'PayoutsController@getIncomeHoldings');
+    Route::get('income-holdings', 'PayoutsController@getIncomeHoldings');    
     Route::get('income-holding-payouts', 'PayoutsController@getIncomeHoldingPayouts');
     Route::get('group-and-matching-pvs', 'PayoutsController@getGroupAndMatchingPvs');
     Route::get('personal-pv-monthly', 'ShoppingController@getPersonalPVMonthly');
@@ -393,6 +393,8 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::post('payout/holding', 'PayoutsController@generateHolding');
     Route::post('payout/generate', 'PayoutsController@generateManualPayout');
+    Route::post('payout/generate-matching-points', 'PayoutsController@generateMatchingPoints');
+    Route::get('matching-points', 'PayoutsController@getMatchingPoints');
     Route::get('rewards', 'PayoutsController@rewards');
     Route::get('check-member/{code}', 'PayoutsController@memberCheck');
     

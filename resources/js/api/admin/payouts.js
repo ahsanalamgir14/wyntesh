@@ -118,3 +118,19 @@ export function getGroupAndMatchingPvs(query) {
     params: query
   })
 }
+
+export function getMatchingPoints(query) {
+  return request({
+    url: '/admin/matching-points',
+    method: 'get',
+    params: query
+  })
+}
+
+export function generateMatchingPoints(data) {
+  return request({
+    url: '/admin/payout/generate-matching-points',
+    method: 'post',
+    data
+  })
+}

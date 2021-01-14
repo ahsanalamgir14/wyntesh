@@ -15,6 +15,8 @@ use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MemberPayoutIncome;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\MemberMonthlyLegPv;
+use App\Models\Admin\MemberCarryForwardPv;
+use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\AffiliateBonus;
 use App\Models\Admin\Reward;
 use App\Models\Admin\Setting;
@@ -24,6 +26,7 @@ use App\Models\Admin\WallOfWyntash;
 use App\Models\User\Order;
 use App\Models\Superadmin\TransactionType;
 use App\Models\Admin\WalletTransaction;
+use App\Models\Admin\MatchingPoint;
 use App\Models\Admin\IncomeWalletTransactions;
 use Carbon\Carbon;
 use DB;
@@ -31,7 +34,152 @@ use DB;
 class PayoutsController extends Controller
 {    
 
+    public function generateMatchingPoints(Request $request){
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+            $q->where('is_blocked',0);
+        })->get();
+        $date_range=$request->date_range;
+
+        DB::statement('TRUNCATE matching_points');
+        $total_sales=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->whereDate('created_at','<=',$date_range[1])
+                        ->whereDate('created_at','>=',$date_range[0])
+                        ->sum('pv');
+
+        foreach ($Members as $Member) {
+            $this->calculateMemberMatchedBV($Member,$request,$total_sales);
+        }
+    }
+
+    public function calculateMemberMatchedBV($Member,$request,$total_sales){
+        
+        $matched_bv=0;
+        $carry_forward=0;
+        $carry_forward_position=0;
+        $leg_1_pv=0;
+        $leg_2_pv=0;
+        $date_range=$request->date_range;
+
+        //Counting Carry forward and Matched points of Member Legs.
+
+        //Getting Member Legs in decenting based on current PV
+        $legs=0;
+        $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
+                    ->whereDate('created_at','>=',$date_range[0])
+                    ->whereDate('created_at','<=',$date_range[1])
+                    ->where('member_id',$Member->id)
+                    ->orderBy('totalPv','desc')
+                    ->groupBy('position')
+                    ->get()->pluck('totalPv','position')->toArray();
+        
+        $MatchingPoint=new MatchingPoint;
+        $MatchingPoint->member_id=$Member->id;    
+        $MatchingPoint->total_sales=$total_sales;    
+            
+        $MatchingPoint->save();
+
+        $last_carry_forward=MemberCarryForwardPv::where('member_id',$Member->id)->orderBy('payout_id','desc')->first();
+
+        if($last_carry_forward){
+
+            $MatchingPoint->previous_carry_forward=$last_carry_forward->pv;
+            $MatchingPoint->previous_carry_forward_position=$last_carry_forward->position;
+            $MatchingPoint->save();
+
+            if(count($legs)){
+                $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
+                $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
+            }
+        }
+
+
+            if(isset($legs[1])){
+                $MatchingPoint->leg_1=$legs[1];
+            }
+
+            if(isset($legs[2])){
+                $MatchingPoint->leg_2=$legs[2];
+            }
+
+            if(isset($legs[3])){
+                $MatchingPoint->leg_3=$legs[3];
+            }
+
+            if(isset($legs[4])){
+                $MatchingPoint->leg_4=$legs[4];
+            }
+
+        arsort($legs);
+
+        $index = 0;
+        foreach ($legs as $position => $pv) {
+            if($index==0){
+                $leg_1_pv=$pv;
+                $carry_forward_position=$position;
+
+                // If only 1 leg then no matching bonus, carry forward all current pv
+                if(count($legs)==1){
+                    $carry_forward=$pv;                        
+                }
+                $index++;
+                continue;
+            }
+
+            if($index==1){
+                $leg_2_pv=$pv;
+                // Count carry forward
+                $carry_forward=$leg_1_pv-$leg_2_pv;
+            }
+                   
+            // Add current pv to matched_bv of all legs except strong one.
+            $matched_bv+=$pv;
+            $index++;
+        }
+
+        if($matched_bv<=0){
+            $matched_bv=0;
+        }
+
+        $MatchingPoint->matched=floatval($matched_bv/24);
+        $MatchingPoint->carry_forward=$carry_forward;
+        $MatchingPoint->carry_forward_position=$carry_forward_position;
+        $MatchingPoint->save();
+    }
+
+    public function getMatchingPoints(Request $request){
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
     
+        $matchingPoints=MatchingPoint::select();
+        
+        if($search){
+            $matchingPoints=$matchingPoints->whereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+            });
+        }
+
+        $matchingPoints=$matchingPoints->where('matched','>',0)->with('member.user')->orderBy('id',$sort)->paginate($limit);
+ 
+        $response = array('status' => true,'message'=>"Data retrieved.",'data'=>$matchingPoints);
+        return response()->json($response, 200);
+    }
+
     public function wallOfWyntash(Request $request)
     {
         $page=$request->page;

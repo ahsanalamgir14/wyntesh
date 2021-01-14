@@ -82,7 +82,7 @@
                     <el-input type="number" size="mini" min="1" v-model="temp.cost_base" />
                   </el-form-item>
                   <el-form-item label="Cost GST Rate" prop="cost_gst_rate">
-                    <el-input type="number" size="mini" min="1" v-model="temp.cost_gst_rate" />
+                    <el-input type="number" size="mini" min="1" v-model="temp.cost_gst_rate" @change="calculateFinalCostPrice" />
                   </el-form-item>
                   <el-form-item label="Cost GST Amount" prop="cost_gst_amount">
                     <el-input type="number" size="mini" min="1" v-model="temp.cost_gst_amount" />
@@ -120,7 +120,7 @@
                     <el-input type="number" size="mini" min="1" v-model="temp.dp_base" />
                   </el-form-item>
                   <el-form-item label="DP GST Rate" prop="dp_gst_rate">
-                    <el-input type="number" size="mini" min="1" v-model="temp.dp_gst_rate" />
+                    <el-input type="number" size="mini" min="1" v-model="temp.dp_gst_rate" @change="calculateFinalDPPrice"/>
                   </el-form-item>
                   <el-form-item label="DP GST Amount" prop="dp_gst_amount">
                     <el-input type="number" size="mini" min="1" v-model="temp.dp_gst_amount" />
@@ -158,7 +158,7 @@
                     <el-input type="number" size="mini" min="1" v-model="temp.retail_base" />
                   </el-form-item>
                   <el-form-item label="Retail GST Rate" prop="retail_gst_rate">
-                    <el-input type="number" size="mini" min="1" v-model="temp.retail_gst_rate" />
+                    <el-input type="number" size="mini" min="1" v-model="temp.retail_gst_rate" @change="calculateFinalRetailPrice"/>
                   </el-form-item>
                   <el-form-item label="Retail GST Amount" prop="retail_gst_amount">
                     <el-input type="number" size="mini" min="1" v-model="temp.retail_gst_amount" />
@@ -786,45 +786,71 @@ export default {
         sku: undefined,
       }
     },
-    calculateFinalCostPrice() {
-      if (this.temp.gst_rate != undefined && this.temp.gst_rate != null) {
-        if (this.temp.gst_rate == 0) {
-          this.temp.cost_amount = 0;
-          this.temp.cost_amount = this.temp.cost_base;
-        } else {
-          let gst = (this.temp.gst_rate * this.temp.cost_base) / 100;
-          gst = Math.floor(gst);
-          this.temp.cost_gst = gst;
-          this.temp.cost_amount = parseInt(this.temp.cost_base) + gst;
-        }
-      }
-    },
     calculateFinalDPPrice() {
       if (this.temp.dp_gst_rate != undefined && this.temp.dp_gst_rate != null) {
-        if (this.temp.dp_gst_rate == 0) {
+        if (this.temp.gst_rate == 0) {
           this.temp.dp_amount = 0;
+          this.temp.dp_cgst_rate = 0;
+          this.temp.dp_cgst_amount = 0;
+          this.temp.dp_sgst_rate = 0;
+          this.temp.dp_sgst_amount = 0;
           this.temp.dp_amount = this.temp.dp_base;
         } else {
           let gst = (this.temp.dp_gst_rate * this.temp.dp_base) / 100;
           gst = Math.floor(gst);
-          this.temp.dp_gst = gst;
+          this.temp.dp_gst_amount = gst;
+          this.temp.dp_cgst_rate = this.temp.dp_gst_rate/2;
+          this.temp.dp_cgst_amount = gst/2;
+          this.temp.dp_sgst_rate = this.temp.dp_gst_rate/2;
+          this.temp.dp_sgst_amount = gst/2;
           this.temp.dp_amount = parseInt(this.temp.dp_base) + gst;
         }
       }
     },
     calculateFinalRetailPrice() {
       if (this.temp.retail_gst_rate != undefined && this.temp.retail_gst_rate != null) {
-        if (this.temp.retail_gst_rate == 0) {
+        if (this.temp.gst_rate == 0) {
           this.temp.retail_amount = 0;
+          this.temp.retail_cgst_rate = 0;
+          this.temp.retail_cgst_amount = 0;
+          this.temp.retail_sgst_rate = 0;
+          this.temp.retail_sgst_amount = 0;
           this.temp.retail_amount = this.temp.retail_base;
         } else {
           let gst = (this.temp.retail_gst_rate * this.temp.retail_base) / 100;
           gst = Math.floor(gst);
-          this.temp.retail_gst = gst;
+          this.temp.retail_gst_amount = gst;
+          this.temp.retail_cgst_rate = this.temp.retail_gst_rate/2;
+          this.temp.retail_cgst_amount = gst/2;
+          this.temp.retail_sgst_rate = this.temp.retail_gst_rate/2;
+          this.temp.retail_sgst_amount = gst/2;
           this.temp.retail_amount = parseInt(this.temp.retail_base) + gst;
         }
       }
     },
+
+    calculateFinalCostPrice() {
+      if (this.temp.cost_gst_rate != undefined && this.temp.cost_gst_rate != null) {
+        if (this.temp.gst_rate == 0) {
+          this.temp.cost_amount = 0;
+          this.temp.cost_cgst_rate = 0;
+          this.temp.cost_cgst_amount = 0;
+          this.temp.cost_sgst_rate = 0;
+          this.temp.cost_sgst_amount = 0;
+          this.temp.cost_amount = this.temp.cost_base;
+        } else {
+          let gst = (this.temp.cost_gst_rate * this.temp.cost_base) / 100;
+          gst = Math.floor(gst);
+          this.temp.cost_gst_amount = gst;
+          this.temp.cost_cgst_rate = this.temp.cost_gst_rate/2;
+          this.temp.cost_cgst_amount = gst/2;
+          this.temp.cost_sgst_rate = this.temp.cost_gst_rate/2;
+          this.temp.cost_sgst_amount = gst/2;
+          this.temp.cost_amount = parseInt(this.temp.cost_base) + gst;
+        }
+      }
+    },
+    
     addProduct() {
       this.$refs["productForm"].validate(valid => {
         if (valid) {
