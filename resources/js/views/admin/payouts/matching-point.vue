@@ -41,6 +41,7 @@
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
+      show-summary :summary-method="getSummaries"
     >
     
       <el-table-column
@@ -98,11 +99,11 @@
           <span >{{ row.matched }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Total Sales" width="100px" align="center">
+      <!-- <el-table-column label="Total Sales" width="100px" align="center">
         <template slot-scope="{row}">
           <span >{{ row.total_sales }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <!-- <el-table-column label="Carry Forward" width="120px" align="center">
         <template slot-scope="{row}">
           <span >{{ row.carry_forward }}</span>
@@ -192,6 +193,10 @@ export default {
         search: undefined,
         sort: "-id"
       },
+      sums:{
+        total_matched:0,
+        total_bv:0,  
+      },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
@@ -256,10 +261,28 @@ export default {
       getMatchingPoints(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
+        this.sums = response.sum;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
       });
+    },
+    getSummaries(param) {
+      // alert(param)
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 1) {
+          sums[index] = 'Total Sales - '+this.sums.total_bv;
+          return;
+        }
+        if (index === 2) {
+          sums[index] = 'Total Matched - '+this.sums.total_matched;
+          return;
+        }
+      });
+
+      return sums;
     },
     handleFilter() {
       this.listQuery.page = 1;
