@@ -828,7 +828,6 @@ export default {
         }
       }
     },
-
     calculateFinalCostPrice() {
       if (this.temp.cost_gst_rate != undefined && this.temp.cost_gst_rate != null) {
         if (this.temp.gst_rate == 0) {

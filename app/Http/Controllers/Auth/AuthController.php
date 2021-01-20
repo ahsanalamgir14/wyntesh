@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\Mail\CustomHtmlMail;
 use App\Models\User\User;
 use App\Models\Admin\Setting;
+use App\Models\Admin\CompanySetting;
 
 use JWTAuth;
 use RobinCSamuel\LaravelMsg91\Facades\LaravelMsg91;
@@ -93,6 +94,7 @@ class AuthController extends Controller
     {
 
         $credentials = request(['username','email', 'password']);
+        $is_maintenance=CompanySetting::getValue('is_maintenance');
 
         $username=isset($request->username)?$request->username:'';
         $email=isset($request->email)?$request->email:'';
@@ -118,7 +120,12 @@ class AuthController extends Controller
 
             if($user->is_blocked==1){
                 return response()->json(['status'=>false,'message' => 'You are blocked, kindly contact admin.'], 401);   
-            } 
+            }
+                
+            if($user->roles[0]->name=='user' && $is_maintenance){
+                return response()->json(['status'=>false,'message' => 'Website maintenance going on.'], 401);
+            }
+
             return $this->respondWithToken($token);
         }else{
             return response()->json(['status'=>false,'message' => 'invalid_credentials'], 401);            

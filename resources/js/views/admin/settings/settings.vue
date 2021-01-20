@@ -18,6 +18,15 @@ t<template>
                 </el-select>
               </el-form-item>
             </el-col>
+            <el-col  :xs="24" :sm="24" :md="12" :lg="8" :xl="8" >
+                         
+              <el-form-item label="Maintenance ?" prop="is_maintenance">
+                <el-select v-model="temp.is_maintenance"  style="width:100%;" filterable placeholder="Is application in Maintenance ?">
+                    <el-option label="Yes" value="1"></el-option>
+                    <el-option label="No" value="0"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-row >
             <hr>
@@ -49,6 +58,7 @@ export default {
         tds_percentage:undefined,
         minimum_purchase:undefined,
         is_automatic_payout:"0",
+        is_maintenance:"0",
       },
       rules: {
         tds_percentage: [
@@ -59,6 +69,9 @@ export default {
         ],
         is_automatic_payout: [
           { required: true, message: "Select Payout Mode.", trigger: "blur" }
+        ],
+        is_maintenance: [
+          { required: true, message: "Is application in Maintenance ?", trigger: "blur" }
         ],
       },
       buttonLoading: false

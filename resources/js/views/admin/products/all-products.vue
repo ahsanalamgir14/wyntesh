@@ -106,7 +106,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        sort: "+id"
+        sort: "-id"
       },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },

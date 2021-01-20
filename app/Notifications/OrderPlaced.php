@@ -64,7 +64,7 @@ class OrderPlaced extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->greeting('Hi, '.$this->order->user->name)
                     ->subject('New Order Placed')
-                    ->line('You have placed order of amount - '.$this->order->final_amount);
+                    ->line('You have placed order of amount - '.$this->order->net_amount);
     }
 
     public function toSms($notifiable)
