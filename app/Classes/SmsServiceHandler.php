@@ -19,7 +19,7 @@ class SmsServiceHandler
             return $this->sendTextLocalSMS($contact_no,$content,$is_promotional);
         }else if($driver=='msg91'){            
             $res= $this->sendMsg91SMS($contact_no,$content,$is_promotional);
-            dd($res);
+            //dd($res);
         }
 
     }
