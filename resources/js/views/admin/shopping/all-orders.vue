@@ -28,11 +28,19 @@
       <!-- <el-table-column label="Sr#" :class-name="getSortClass('id')" prop="id" sortable="custom" align="center" type="index" :index="indexMethod
 " width="70">
       </el-table-column> -->
-      <el-table-column label="Sr#" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
+      <el-table-column
+        label="Sr#"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="70"
+        :class-name="getSortClass('id')"
+      >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
+      
       <el-table-column label="Actions" align="center" width="170" class-name="small-padding">
         <template slot-scope="{row}">
           <el-tooltip content="View" placement="right" effect="dark">

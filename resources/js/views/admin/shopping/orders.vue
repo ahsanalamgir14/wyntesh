@@ -21,7 +21,7 @@
           <p><b>Created at</b>: {{ row.created_at | parseTime('{d}-{m}-{y}') }}</p>
         </template>
       </el-table-column>
-      <!--   <el-table-column
+        <el-table-column
         label="ID"
         prop="id"
         sortable="custom"
@@ -32,8 +32,6 @@
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
-      </el-table-column> -->
-      <el-table-column label="Sr#"  prop="id" align="center" type="index" :index="indexMethod" width="70">
       </el-table-column>
       <el-table-column label="Actions" align="center" width="140" class-name="small-padding">
         <template slot-scope="{row}">

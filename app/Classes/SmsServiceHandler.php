@@ -18,7 +18,8 @@ class SmsServiceHandler
         if($driver=='textlocal'){
             return $this->sendTextLocalSMS($contact_no,$content,$is_promotional);
         }else if($driver=='msg91'){            
-            return $this->sendMsg91SMS($contact_no,$content,$is_promotional);
+            $res= $this->sendMsg91SMS($contact_no,$content,$is_promotional);
+            dd($res);
         }
 
     }

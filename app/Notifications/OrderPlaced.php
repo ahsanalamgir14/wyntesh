@@ -71,7 +71,8 @@ class OrderPlaced extends Notification implements ShouldQueue
     {
         $message='Hi, '.$this->order->user->name.chr(10);
         $message.='Order has been placed, your order number is #'.$this->order->order_no;
-        return LaravelMsg91::message($this->order->user->contact,$message);
+        $res=LaravelMsg91::message($this->order->user->contact,$message);
+        return $res;
     }
 
     /**

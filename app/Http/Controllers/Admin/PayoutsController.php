@@ -177,7 +177,7 @@ class PayoutsController extends Controller
         $matchingPoints=$matchingPoints->where('matched','>',0)->with('member.user')->orderBy('id',$sort)->paginate($limit);
 
         $MatchingPoint=MatchingPoint::first();
-        $total_bv=$MatchingPoint->total_sales;
+        $total_bv=$MatchingPoint?$MatchingPoint->total_sales:0;
         $total_matching_points=MatchingPoint::sum('matched');
  
         $response = array('status' => true,'message'=>"Data retrieved.",'data'=>$matchingPoints,'sum'=>array('total_matched'=>$total_matching_points,'total_bv'=>$total_bv));
