@@ -12,8 +12,8 @@
         Show Low Stock Products ?
       </el-checkbox>
     </div>
-    <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;">
-      <el-table-column label="Sr#" prop="id" align="center" type="index" :index="indexMethod" width="70">
+    <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;" @sort-change="sortChange" >
+      <el-table-column label="Sr#"  align="center" type="index" :index="indexMethod" width="70">
       </el-table-column>
       <el-table-column label="Product" min-width="180px" align="center">
         <template slot-scope="{row}">
@@ -35,7 +35,7 @@
           <span>{{ row.sku_code }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Stock" min-width="150px" align="center">
+      <el-table-column label="Stock" min-width="150px" align="center" prop="id" :class-name="getSortClass('id')" sortable="custom" >
         <template slot-scope="{row}">
           <el-tag :type="row.stock <= low_stock_count? 'danger':'success'" class="notranslate">{{ row.stock }}</el-tag>
         </template>
@@ -120,6 +120,28 @@ export default {
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();
+    },
+    sortChange(data) {
+      const { prop, order } = data;
+      if (prop === "id") {
+        this.sortByID(order);
+      }
+    },
+    sortByID(order) {
+      if (order === "ascending") {
+        this.listQuery.sort = "+id";
+      } else {
+        this.listQuery.sort = "-id";
+      }
+      this.handleFilter();
+    },
+    getSortClass: function(key) {
+      const sort = this.listQuery.sort;
+      return sort === `+${key}`
+        ? "ascending"
+        : sort === `-${key}`
+        ? "descending"
+        : "";
     },
     handleDownload() {
       this.downloadLoading = true;

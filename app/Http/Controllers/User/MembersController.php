@@ -22,17 +22,18 @@ use App\Events\MemberRegisteredEvent;
 use App\Models\Admin\MemberPayout;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\PayoutNotification;
-use App\Classes\SmsServiceHandler;
+use App\Notifications\OrderPlaced;
+use App\Notifications\MemberRegisteredNotification;
 
 class MembersController extends Controller
 {    
     
     public function sendSMS(){
-        $Member=User::where('contact',8000501652)->first();
-        $SmsServiceHandler=new SmsServiceHandler;
-        //$Order=Order::find(36);
-        $SmsServiceHandler->sendSMS('8000501652', 'Hi, Hiren. Welcome');
-        //return Notification::send($Member, new OrderPlaced($Order));
+        // $Member=User::where('username','142040')->first();
+        // $MemberPayout=MemberPayout::find(1);
+        // $Order=Order::find(560);
+        // //return Notification::send($Member, new OrderPlaced($Order));
+        // return Notification::send($Member, new PayoutNotification($MemberPayout));
     }
 
     public function getProfile()

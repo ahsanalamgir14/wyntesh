@@ -19,7 +19,6 @@ class SmsServiceHandler
             return $this->sendTextLocalSMS($contact_no,$content,$is_promotional);
         }else if($driver=='msg91'){            
             $res= $this->sendMsg91SMS($contact_no,$content,$is_promotional);
-            //dd($res);
         }
 
     }
@@ -38,7 +37,6 @@ class SmsServiceHandler
     public function sendTextLocalSMS($contact_no,$content,$is_promotional=0)
     {
         $apiKey = urlencode(env('TEXTLOCAL_KEY'));
-    
         $numbers = array($contact_no);
         $sender = urlencode(env('TEXTLOCAL_SENDER'));
         $message = rawurlencode($content);        
@@ -55,7 +53,7 @@ class SmsServiceHandler
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         curl_close($ch);
-        
+
         return true;
     }
 

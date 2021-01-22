@@ -53,12 +53,12 @@
                 <span class="text-gray-800 mt-3">PV - {{temp.pv}}</span>
               </div>
               <hr class="my-3">
-              <div class="mt-2">
+              <!-- <div class="mt-2">
                 <label class="text-gray-700 text-sm" for="count">Units Available:</label>
                 <div class="flex items-center mt-1">
                   <span class="text-gray-700 text-lg ">{{temp.stock}}</span>
                 </div>
-              </div>
+              </div> -->
               <div class="mt-3" v-if="temp.is_color_variant">
                 <label class="text-gray-700 text-sm" for="count">Color:</label>
                 <div class="flex items-center mt-1">

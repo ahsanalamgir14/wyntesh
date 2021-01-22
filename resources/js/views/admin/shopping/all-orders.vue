@@ -456,6 +456,9 @@ export default {
           "Admin Charge",
           "Discount",
           "Final Amount",
+          "Status",
+          "City",
+          "State",
           "Created At",
         ];
         const filterVal = [
@@ -476,6 +479,9 @@ export default {
           "admin_fee",
           "discount",
           "net_amount",
+          "delivery_status",
+          "city",
+          "state",
           "created_at",
         ];
         const data = this.formatJson(filterVal, this.list);
@@ -510,6 +516,9 @@ export default {
             admin_fee: v.admin_fee,
             discount: v.discount,
             net_amount: v.net_amount,
+            delivery_status: v.delivery_status,
+            city: v.city,
+            state: v.state,
 
             created_at: v.created_at,
           };

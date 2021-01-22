@@ -171,7 +171,7 @@ class ProductStockController extends Controller
             $ProductVariants=$ProductVariants->where('stock','<=',$low_stock_count);    
         }
 
-        $ProductVariants=$ProductVariants->with('product','color','size')->orderBy('id',$sort)->paginate($limit);
+        $ProductVariants=$ProductVariants->with('product','color','size')->orderBy('stock',$sort)->paginate($limit);
         
         $response = array('status' => true,'message'=>"Product stock count retrieved.",'data'=>$ProductVariants);
         return response()->json($response, 200);

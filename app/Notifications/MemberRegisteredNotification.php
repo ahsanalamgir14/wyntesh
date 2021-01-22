@@ -12,9 +12,11 @@ use App\Channels\SmsChannel;
 use RobinCSamuel\LaravelMsg91\Facades\LaravelMsg91;
 use App\Models\Admin\NotificationSetting;
 use App\Models\Admin\Email;
+use App\Models\Admin\Sms;
 use App\Mail\CustomHtmlMail;
+use App\Classes\SmsServiceHandler;
 
-class MemberRegisteredNotification extends Notification
+class MemberRegisteredNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -72,14 +74,17 @@ class MemberRegisteredNotification extends Notification
 
     public function toSms($notifiable)
     {
-        $company_name=Setting::getValue('company_name');
-        $website=Setting::getValue('website');
-        $message='Hi, '.$notifiable->name.chr(10);
-        $message.='Thanks for joining '.$company_name.chr(10);
-        $message.='Please log in to '.$website.chr(10);
-        $message.='Username - '.$notifiable->username.chr(10);
-        $message.='Password - ******'.chr(10);
-        $message.='Wish you a prosperous future.'.chr(10);
-        return LaravelMsg91::message($notifiable->contact,$message);
+        $Sms=Sms::where('title','Welcome SMS')->first();        
+        if($Sms){
+            $SmsServiceHandler=new SmsServiceHandler;
+            $sms_content=$Sms->description;
+            $site_name=Setting::getValue('site_name');
+            $sms_content=str_replace("{name}",$notifiable->name,$sms_content);
+            $sms_content=str_replace("{username}",$notifiable->username,$sms_content);
+            $sms_content=str_replace("{site_name}",$site_name,$sms_content);
+            $contact_no=(double)$notifiable->contact;
+            return $SmsServiceHandler->sendSMS($contact_no,$sms_content,0);
+        }
+
     }
 }

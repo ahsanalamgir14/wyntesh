@@ -8,9 +8,12 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 use App\Models\User\Order;
+use App\Models\Admin\Sms;
+use App\Models\Admin\Setting;
 use App\Channels\SmsChannel;
 use RobinCSamuel\LaravelMsg91\Facades\LaravelMsg91;
 use App\Models\Admin\NotificationSetting;
+use App\Classes\SmsServiceHandler;
 
 class OrderPlaced extends Notification implements ShouldQueue
 {
@@ -69,10 +72,21 @@ class OrderPlaced extends Notification implements ShouldQueue
 
     public function toSms($notifiable)
     {
-        $message='Hi, '.$this->order->user->name.chr(10);
-        $message.='Order has been placed, your order number is #'.$this->order->order_no;
-        $res=LaravelMsg91::message($this->order->user->contact,$message);
-        return $res;
+        $Sms=Sms::where('title','Order Placed SMS')->first();        
+        if($Sms){
+            $SmsServiceHandler=new SmsServiceHandler;
+            $sms_content=$Sms->description;
+            $site_url=Setting::getValue('website');
+
+            $sms_content=str_replace("{name}",$this->order->user->name,$sms_content);
+            $sms_content=str_replace("{username}",$this->order->user->username,$sms_content);
+            $sms_content=str_replace("{mobile_number}",$this->order->user->contact,$sms_content);
+            $sms_content=str_replace("{order_no}",$this->order->order_no,$sms_content);
+            $sms_content=str_replace("{net_amount}",$this->order->net_amount,$sms_content);
+            $sms_content=str_replace("{site_name}",$site_url,$sms_content);
+            $contact_no=(double)$this->order->user->contact;
+            return $SmsServiceHandler->sendSMS($contact_no,$sms_content,0);
+        }
     }
 
     /**

@@ -86,15 +86,13 @@ class PayoutNotification extends Notification implements ShouldQueue
         
         $Sms=Sms::where('title','Payout SMS')->first();        
         if($Sms){
-            $total_income=MemberPayoutIncome::whereNotIn('income_id',[1,2])->where('member_id',$this->MemberPayout->member_id)->where('member_payout_id',$this->MemberPayout->id)->sum('net_payable_amount');
-
             $SmsServiceHandler=new SmsServiceHandler;
             $sms_content=$Sms->description;
             $site_name=Setting::getValue('site_name');
 
             $sms_content=str_replace("{name}",$this->MemberPayout->member->user->name,$sms_content);
             $sms_content=str_replace("{username}",$this->MemberPayout->member->user->username,$sms_content);
-            $sms_content=str_replace("{payout_amount}",$total_income,$sms_content);
+            $sms_content=str_replace("{payout_amount}",$this->MemberPayout->net_payable_amount,$sms_content);
             $sms_content=str_replace("{site_name}",$site_name,$sms_content);
             $contact_no=(double)$this->MemberPayout->member->user->contact;
             return $SmsServiceHandler->sendSMS($contact_no,$sms_content,0);
