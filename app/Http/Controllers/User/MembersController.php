@@ -439,6 +439,8 @@ class MembersController extends Controller
             'gender'=>$request->gender,
             'dob'=>$request->dob,
             'is_active'=>0,
+            'country_code'=>91,
+            'currency_code'=>'INR',
             'verified_at'=>Carbon::now()
         ]);
 
@@ -513,6 +515,8 @@ class MembersController extends Controller
             'gender'=>$request->gender,
             'dob'=>$request->dob,
             'is_active'=>0,
+            'country_code'=>91,
+            'currency_code'=>'INR',
             'verified_at'=>Carbon::now()
         ]);
 
