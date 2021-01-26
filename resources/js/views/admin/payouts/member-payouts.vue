@@ -41,13 +41,17 @@
       border
       fit
       highlight-current-row
+       sortable="custom"
+      show-summary
+      :summary-method="getSummaries"
       style="width: 100%;"
       @sort-change="sortChange"
     >
       <el-table-column
         label="ID"
         prop="id"
-        sortable="custom"
+     
+        show-summary
         align="center"
         width="80"
         :class-name="getSortClass('id')"
@@ -148,6 +152,7 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
+      sums: 0,
       listLoading: true,
       listQuery: {
         page: 1,
@@ -201,11 +206,40 @@ export default {
     this.getList();
   },
   methods: {
+    getSummaries(param) {
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 4) {
+          sums[index] = 'Final Total (All)';
+          return;
+        }
+       
+        if (index === 6) {
+          sums[index] = this.sums.total_payout_amount;
+          return;
+        }
+        if (index === 7) {
+          sums[index] = this.sums.total_tds;
+          return;
+        }
+        if (index === 8) {
+          sums[index] = this.sums.total_admin_fee;
+          return;
+        }
+        if (index === 9) {
+          sums[index] = this.sums.total_net_payable_amount;
+          return;
+        }
+      });
+      return sums;
+    },
     getList() {
       this.listLoading = true;
       getMemberPayouts(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
+        this.sums = response.sum;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);

@@ -93,6 +93,9 @@
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+            <el-form-item label="Door No / Flat No" prop="door_no">
+              <el-input v-model="temp.door_no" />
+            </el-form-item>
             <el-form-item label="Address" prop="address">
               <el-input v-model="temp.address" />
             </el-form-item>
@@ -201,6 +204,7 @@ export default {
       temp: {
         id: undefined,
         full_name: undefined,
+        door_no: undefined,
         mobile_number: undefined,
         pincode: undefined,
         address: undefined,
@@ -213,6 +217,7 @@ export default {
       },
       rules: {
         full_name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+        door_no: [{ required: true, message: 'Door No / Flat No is required', trigger: 'blur' }],
         mobile_number: [{ required: true, validator: validateContact, trigger: 'blur' }],
         pincode: [{ required: true, message: 'Pincode is required', trigger: 'blur' }],
         address: [{ required: true, message: 'Address is required', trigger: 'blur' }],
@@ -298,6 +303,7 @@ export default {
       this.temp = {
         id: undefined,
         full_name: undefined,
+        door_no: undefined,
         mobile_number: undefined,
         pincode: undefined,
         address: undefined,

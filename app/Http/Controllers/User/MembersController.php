@@ -29,11 +29,11 @@ class MembersController extends Controller
 {    
     
     public function sendSMS(){
-        // $Member=User::where('username','142040')->first();
-        // $MemberPayout=MemberPayout::find(1);
+         $Member=User::where('username','111111')->first();
+         $MemberPayout=MemberPayout::find(1);
         // $Order=Order::find(560);
         // //return Notification::send($Member, new OrderPlaced($Order));
-        // return Notification::send($Member, new PayoutNotification($MemberPayout));
+         return Notification::send($Member, new PayoutNotification($MemberPayout));
     }
 
     public function getProfile()

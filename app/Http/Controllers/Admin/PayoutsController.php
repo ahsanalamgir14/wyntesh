@@ -369,36 +369,52 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$income_id && !$month){
-            $MemberPayoutIncome=MemberPayoutIncome::select();
-            
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit); 
-        }else{
-            $MemberPayoutIncome=MemberPayoutIncome::select();
-            
+        $MemberPayoutIncome=MemberPayoutIncome::select();
+
+        $MemberPayoutTotal=MemberPayoutIncome::select([DB::raw('sum(payout_amount) as total_payout_amount'),DB::raw('sum(tds) as total_tds'),DB::raw('sum(admin_fee) as total_admin_fee'),DB::raw('sum(net_payable_amount) as total_net_payable_amount')]);
+        
+        if($search){
             $MemberPayoutIncome=$MemberPayoutIncome->where(function ($query)use($search) {              
                 $query=$query->orWhereHas('member.user',function($q)use($search){
                     $q->where('username','like','%'.$search.'%');
                 });
             });
 
-            if($month){
-                $MemberPayoutIncome=$MemberPayoutIncome->whereHas('payout',function($q)use($month){
-                    $month=$month.'-01';
-                    $date=Carbon::parse($month);
-                    $q->whereMonth('sales_start_date',$date->month);
-                    $q->whereYear('sales_start_date',$date->year);
+            $MemberPayoutTotal=$MemberPayoutTotal->where(function ($query)use($search) {              
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
                 });
-            }
+            });
 
-            if($income_id){
-                $MemberPayoutIncome=$MemberPayoutIncome->where('income_id',$income_id);
-            }
-            
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+
         }
+
+        if($month){
+            $MemberPayoutIncome=$MemberPayoutIncome->whereHas('payout',function($q)use($month){
+                $month=$month.'-01';
+                $date=Carbon::parse($month);
+                $q->whereMonth('sales_start_date',$date->month);
+                $q->whereYear('sales_start_date',$date->year);
+            });
+
+            $MemberPayoutTotal=$MemberPayoutTotal->whereHas('payout',function($q)use($month){
+                $month=$month.'-01';
+                $date=Carbon::parse($month);
+                $q->whereMonth('sales_start_date',$date->month);
+                $q->whereYear('sales_start_date',$date->year);
+            });
+        }
+
+        if($income_id){
+            $MemberPayoutIncome=$MemberPayoutIncome->where('income_id',$income_id);
+            $MemberPayoutTotal=$MemberPayoutTotal->where('income_id',$income_id);
+        }
+        
+        $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+
+        $MemberPayoutTotal=$MemberPayoutTotal->first();
    
-        $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome);
+        $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome,'sum'=>$MemberPayoutTotal);
         return response()->json($response, 200);
     }
 
@@ -624,31 +640,43 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$month){
-            $MemberPayout=MemberPayout::select();
-            
-            $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->where('payout_amount','>',0)->orderBy('id',$sort)->paginate($limit);
-        }else{
-            $MemberPayout=MemberPayout::select();
+        $MemberPayout=MemberPayout::select();
+        $MemberPayoutTotal=MemberPayout::select([DB::raw('sum(payout_amount) as total_payout_amount'),DB::raw('sum(tds) as total_tds'),DB::raw('sum(admin_fee) as total_admin_fee'),DB::raw('sum(net_payable_amount) as total_net_payable_amount')]);
+
+        if($search){
             $MemberPayout=$MemberPayout->where(function ($query)use($search) {              
                 $query=$query->orWhereHas('member.user',function($q)use($search){
                     $q->where('username','like','%'.$search.'%');
                 });
             });
 
-            if($month){
-                $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
-                    $month=$month.'-01';
-                    $date=Carbon::parse($month);
-                    $q->whereMonth('sales_start_date',$date->month);
-                    $q->whereYear('sales_start_date',$date->year);
+            $MemberPayoutTotal=$MemberPayoutTotal->where(function ($query)use($search) {              
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
                 });
-            }
-
-            $MemberPayout=$MemberPayout->where('payout_amount','>',0)->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+            });
         }
-   
-        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout);
+
+        if($month){
+            $MemberPayout=$MemberPayout->whereHas('payout',function($q)use($month){
+                $month=$month.'-01';
+                $date=Carbon::parse($month);
+                $q->whereMonth('sales_start_date',$date->month);
+                $q->whereYear('sales_start_date',$date->year);
+            });
+            $MemberPayoutTotal=$MemberPayoutTotal->whereHas('payout',function($q)use($month){
+                $month=$month.'-01';
+                $date=Carbon::parse($month);
+                $q->whereMonth('sales_start_date',$date->month);
+                $q->whereYear('sales_start_date',$date->year);
+            });
+        }
+
+        $MemberPayout=$MemberPayout->where('payout_amount','>',0)->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name')->orderBy('id',$sort)->paginate($limit);
+
+        $MemberPayoutTotal=$MemberPayoutTotal->first();
+
+        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$MemberPayout,'sum'=>$MemberPayoutTotal);
         return response()->json($response, 200);
     }
 

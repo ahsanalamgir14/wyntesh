@@ -109,6 +109,9 @@
                 <el-option v-for="item in addresses" :key="item.id" :label="item.full_name" :value="item.id" />
               </el-select>
             </el-form-item>
+            <el-form-item label="Door No / Flat No" prop="door_no">
+              <el-input v-model="shipping_address.door_no" disabled/>
+            </el-form-item>
             <el-form-item label="Full Name" prop="full_name">
               <el-input v-model="shipping_address.full_name" disabled />
             </el-form-item>
@@ -151,10 +154,14 @@
             <el-checkbox v-model="billing_address_tick" @change="selectSameBillingAddress()">Same as shipping address</el-checkbox>
             <br>
             <br>
+
             <el-form-item label="Billing Address" prop="billing_address_id">
               <el-select v-model="temp.billing_address_id" style="width: 100%" clearable autocomplete="off" filterable placeholder="Select billing Address" @clear="resetBillingAddress()" @change="selectBillingAddress()">
                 <el-option v-for="item in addresses" :key="item.full_name" :label="item.full_name" :value="item.id" />
               </el-select>
+            </el-form-item>
+             <el-form-item label="Door No / Flat No" prop="door_no">
+              <el-input v-model="billing_address.door_no" disabled />
             </el-form-item>
             <el-form-item label="Full Name" prop="full_name">
               <el-input v-model="billing_address.full_name" disabled />
@@ -229,6 +236,7 @@
       <el-form ref="AddressData" :rules="rulesAddress" :model="tempAddress" style="">
         <el-row :gutter="10">
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+
             <el-form-item label="Full Name" prop="full_name">
               <el-input v-model="tempAddress.full_name" />
             </el-form-item>
@@ -256,6 +264,10 @@
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+
+            <el-form-item label="Door No / Flat No" prop="door_no">
+              <el-input v-model="tempAddress.door_no" />
+            </el-form-item>
             <el-form-item label="Address" prop="address">
               <el-input v-model="tempAddress.address" />
             </el-form-item>
@@ -373,6 +385,7 @@ export default {
       tempAddress: {
         id: undefined,
         full_name: undefined,
+        door_no: undefined,
         mobile_number: undefined,
         pincode: undefined,
         country_code: undefined,
@@ -390,6 +403,7 @@ export default {
 
       rulesAddress: {
         full_name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+        door_no: [{ required: true, message: 'Door No / Flat No is required', trigger: 'blur' }],
         mobile_number: [{ required: true, validator: validateContact, trigger: 'blur' }],
         address: [{ required: true, message: 'Address is required', trigger: 'blur' }],
         city: [{ required: true, message: 'City is required', trigger: 'blur' }],
@@ -518,6 +532,7 @@ export default {
       this.tempAddress = {
         id: undefined,
         full_name: undefined,
+        door_no: undefined,
         mobile_number: undefined,
         country_code: undefined,
         pincode: undefined,

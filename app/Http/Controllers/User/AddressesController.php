@@ -59,6 +59,7 @@ class AddressesController extends Controller
         $validate = Validator::make($request->all(), [           
             'full_name' => "required",
             'mobile_number' => "required",
+            'door_no' => "required",
             'address' => "required",
             'city' => "required",
             'country' => "required",
@@ -74,6 +75,7 @@ class AddressesController extends Controller
         $address=new Address;
         $address->full_name=$request->full_name;
         $address->mobile_number=$request->mobile_number;
+        $address->door_no=$request->door_no;
         $address->pincode=$request->pincode;
         $address->address=$request->address;
         $address->landmark=$request->landmark;
@@ -100,6 +102,7 @@ class AddressesController extends Controller
         $validate = Validator::make($request->all(), [           
             'full_name' => "required",
             'mobile_number' => "required",
+            'door_no' => "required",
             'pincode' => "required",
             'address' => "required",
             'city' => "required",
@@ -115,6 +118,7 @@ class AddressesController extends Controller
         $address=Address::find($request->id);
         if($address){
             $address->full_name=$request->full_name;
+            $address->door_no=$request->door_no;
             $address->mobile_number=$request->mobile_number;
             $address->pincode=$request->pincode;
             $address->address=$request->address;

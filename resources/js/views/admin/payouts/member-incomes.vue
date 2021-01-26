@@ -17,19 +17,14 @@
         </el-option>
       </el-select>
 
-      <el-date-picker
-        v-model="listQuery.date_range"
-        class="filter-item"
-        type="daterange"
-        align="right"
-        unlink-panels
+       <el-date-picker
+        v-model="listQuery.month"
+        type="month"
         @change="handleFilter"
-        format="yyyy-MM-dd"
-        value-format="yyyy-MM-dd"
-        range-separator="|"
-        start-placeholder="Start date"
-        end-placeholder="End date"
-        :picker-options="pickerOptions">
+        format="yyyy-MM"
+        value-format="yyyy-MM"
+         class="filter-item"
+        placeholder="Pick a month">
       </el-date-picker>
 
       <el-button
@@ -53,6 +48,8 @@
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
+      show-summary
+      :summary-method="getSummaries"
       border
       fit
       highlight-current-row
@@ -140,6 +137,7 @@ export default {
       tableKey: 0,
       list: null,
       total: 0,
+      sums:{},
       listLoading: true,
       listQuery: {
         page: 1,
@@ -211,10 +209,39 @@ export default {
       getMemberPayoutIncomes(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
+        this.sums = response.sum;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
       });
+    },
+    getSummaries(param) {
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 2) {
+          sums[index] = 'Final Total (All)';
+          return;
+        }
+       
+        // if (index === 6) {
+        //   sums[index] = this.sums.total_payout_amount;
+        //   return;
+        // }
+        // if (index === 7) {
+        //   sums[index] = this.sums.total_tds;
+        //   return;
+        // }
+        // if (index === 8) {
+        //   sums[index] = this.sums.total_admin_fee;
+        //   return;
+        // }
+        if (index === 5) {
+          sums[index] = this.sums.total_net_payable_amount;
+          return;
+        }
+      });
+      return sums;
     },
     handleFilter() {
       this.listQuery.page = 1;
