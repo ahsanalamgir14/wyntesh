@@ -27,10 +27,12 @@ class PayoutNotification extends Notification implements ShouldQueue
      * @return void
      */
     public $MemberPayout;
+    public $total_income;
 
     public function __construct(MemberPayout $MemberPayout)
     {
         $this->MemberPayout=$MemberPayout;
+        $this->total_income=MemberPayoutIncome::whereNotIn('income_id',[1,2])->where('member_id',$this->MemberPayout->member_id)->where('member_payout_id',$this->MemberPayout->id)->sum('net_payable_amount');
     }
 
     /**
@@ -69,9 +71,11 @@ class PayoutNotification extends Notification implements ShouldQueue
         $Email=Email::where('title','Payout Email')->first();
         if($Email){
             
+            
+
             $email_content=$Email->description;
             $email_content=str_replace("{name}",$this->MemberPayout->member->user->name,$email_content);
-            $email_content=str_replace("{payout_amount}",$this->MemberPayout->net_payable_amount,$email_content);
+            $email_content=str_replace("{payout_amount}",$this->total_income,$email_content);
             $email_content=str_replace("{username}",$this->MemberPayout->member->user->username,$email_content);            
             $email_content=str_replace("{mobile_number}",$this->MemberPayout->member->user->contact,$email_content);            
             $subject='You just got paid !';
@@ -90,7 +94,7 @@ class PayoutNotification extends Notification implements ShouldQueue
 
             $sms_content=str_replace("{name}",$this->MemberPayout->member->user->name,$sms_content);
             $sms_content=str_replace("{username}",$this->MemberPayout->member->user->username,$sms_content);
-            $sms_content=str_replace("{net_payable_amount}",(int)$this->MemberPayout->net_payable_amount,$sms_content);
+            $sms_content=str_replace("{net_payable_amount}",(int)$this->total_income,$sms_content);
             $sms_content=str_replace("{site_name}",$site_name,$sms_content);
             $contact_no=(double)$this->MemberPayout->member->user->contact;
             return $SmsServiceHandler->sendSMS($contact_no,$sms_content,0);
