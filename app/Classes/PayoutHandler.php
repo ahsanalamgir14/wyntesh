@@ -51,6 +51,7 @@ class PayoutHandler
         $this->calculatePayoutSales();
         $this->calculateMatchedBV();
         $this->distributeSquadIncome();
+        $this->payAffiliateAndRewardIncomes();
         $this->calculateIncomeParameters();        
         $this->payIncomes();
         $this->updateMemberPayoutSum();        
@@ -305,7 +306,7 @@ class PayoutHandler
         }
     }
 
-    public function payIncomes(){
+    public function payAffiliateAndRewardIncomes(){
         $Members=Member::whereHas('user',function($q){
             $q->where('is_active',1);
             $q->where('is_blocked',0);
@@ -325,7 +326,23 @@ class PayoutHandler
                 if($PayoutIncome->income->code=='AFFILIATE'){
                     $this->addAffiliateIncome($PayoutIncome,$memberPayout);
                 }
+            }            
+        }
+    }
 
+    public function payIncomes(){
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+            $q->where('is_blocked',0);
+        })->orderBy('level','desc')->get();
+
+        foreach ($Members as $Member) {
+            
+            $PayoutIncomes=PayoutIncome::where('payout_id',$this->payout->id)->get();
+            $memberPayout= MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
+
+            foreach($PayoutIncomes as $PayoutIncome){
+                               
                 if($PayoutIncome->income->code=='ELEVATION'){
                     $this->payElevationIncome($PayoutIncome,$memberPayout);
                 }
@@ -354,6 +371,7 @@ class PayoutHandler
             $MemberPayoutIncome->tds                             = $Rewards->total_tds;        
             $MemberPayoutIncome->tds_percent                     = $Rewards->tds_percent;
             $MemberPayoutIncome->net_payable_amount              = $Rewards->total_net_payable_amount;
+            $MemberPayoutIncome->created_at              = $this->payout->sales_end_date;
             $MemberPayoutIncome->save();
         }
     }
@@ -381,6 +399,7 @@ class PayoutHandler
             $MemberPayoutIncome->tds                             = $AffiliateBonus->total_tds;        
             $MemberPayoutIncome->tds_percent                     = $AffiliateBonus->tds_percent;
             $MemberPayoutIncome->net_payable_amount              = $AffiliateBonus->total_net_payable_amount;
+            $MemberPayoutIncome->created_at              = $this->payout->sales_end_date;
             $MemberPayoutIncome->save();
         }
     }
@@ -689,9 +708,11 @@ class PayoutHandler
 
                 if($total_income != 0){
                     try{
-                            Notification::send($MemberPayout->member->user, new PayoutNotification($MemberPayout));
+                       
+                        Notification::send($MemberPayout->member->user, new PayoutNotification($MemberPayout));
                     }catch(\Exception $e)
                     {
+                        //Log::info($e);
                     }
                 }    
             }
@@ -757,7 +778,9 @@ class PayoutHandler
 
         $eligibles=MemberPayoutIncome::select([ DB::raw("SUM(payout_amount) as total_payout_amount"),DB::raw("member_id")])
                 ->havingRaw('total_payout_amount >= ?',[$criteria])
-                ->whereDate('created_at','>=', $from)
+                ->whereIn('income_id',[1,2,3])
+                //->whereDate('created_at','>=', $from) this needs to be added
+                ->whereDate('created_at','>', $from)
                 ->whereDate('created_at','<=', $to)
                 ->whereIn('member_id',$eligible_rank_members)
                 ->groupBy('member_id')
@@ -798,6 +821,7 @@ class PayoutHandler
         $MemberPayoutIncome->tds_percent                     = $this->tds_percentage;
         $MemberPayoutIncome->admin_fee_percent               = $this->admin_fee_percent;
         $MemberPayoutIncome->net_payable_amount              = $net_payable_amount;
+        $MemberPayoutIncome->created_at              = $this->payout->sales_end_date;
         $MemberPayoutIncome->save();
 
         $TransactionType=TransactionType::where('name',$PayoutIncome->income->name)->first();
