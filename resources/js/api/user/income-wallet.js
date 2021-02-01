@@ -80,3 +80,11 @@ export function createCreditRequest(data) {
     data
   })
 }
+
+export function getLuxuryWalletTransactions(query) {
+  return request({
+    url: '/user/luxury-wallet-transactions',
+    method: 'get',
+    params: query
+  })
+}

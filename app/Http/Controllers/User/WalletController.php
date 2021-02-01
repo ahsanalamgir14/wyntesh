@@ -11,6 +11,7 @@ use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\IncomeWalletTransactions;
+use App\Models\Admin\LuxuryWalletTransaction;
 use App\Models\Admin\IncomeWalletTransfers;
 use App\Models\Admin\CreditRequest;
 use App\Models\Admin\CompanySetting;
@@ -340,6 +341,54 @@ class WalletController extends Controller
 
         
         $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        return response()->json($response, 200);
+    }
+
+    public function getLuxuryWalletTransactions(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $transaction_type=$request->transaction_type;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $WalletTransactions=LuxuryWalletTransaction::select();
+
+        if($date_range){
+            $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
+            $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
+        }
+
+        $WalletTransactions=$WalletTransactions->where(function ($query)use($User) {
+            $query=$query->orWhere('transaction_by',$User->id);
+            $query=$query->orWhere('member_id',$User->member->id);
+        });
+
+        if($transaction_type){
+            $WalletTransactions=$WalletTransactions->where('transaction_type_id',$transaction_type);                
+        }
+
+        $WalletTransactions=$WalletTransactions->with('transaction_by_user','transaction');
+        $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+
+        $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions,'balance'=>$User->member->luxury_wallet_balance);
         return response()->json($response, 200);
     }
 

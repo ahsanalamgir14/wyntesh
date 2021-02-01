@@ -128,6 +128,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::post('wallet/balance/transfer', 'WalletController@createBalanceTransfer');
 
     Route::get('income-wallet-transactions', 'WalletController@getIncomeWalletTransactions');
+    Route::get('luxury-wallet-transactions', 'WalletController@getLuxuryWalletTransactions');
 
     Route::get('wallet/credit-requests', 'WalletController@creditRequests');
     Route::post('wallet/credit-requests', 'WalletController@createCreditRequest');

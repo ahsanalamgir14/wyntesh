@@ -58,6 +58,8 @@ class DashboardController extends Controller
         $total_payout+=$cur_reward+$cur_affiliate_bonus;
 
         $income_wallet_balance=Member::where('id',$User->member->id)->sum('income_wallet_balance');
+
+        $luxury_wallet_balance=Member::where('id',$User->member->id)->sum('luxury_wallet_balance');
         
         $squad_bonus_income=Income::where('code','SQUAD')->first();
         $squad_bonus = MemberPayoutIncome::where('income_id',$squad_bonus_income->id)->where('member_id',$User->member->id)->sum(\DB::raw('payout_amount'));
@@ -100,6 +102,7 @@ class DashboardController extends Controller
                 'total_matched'=>$total_matched,
                 'distributor_discount'=>$distributor_discount,
                 'affiliateIncome'=>$affiliate_bonus,
+                'luxury_wallet_balance'=>$luxury_wallet_balance,
                 // 'cashback_income'=>$cashback_income,
             )
         );             

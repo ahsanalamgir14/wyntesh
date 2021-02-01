@@ -1098,7 +1098,7 @@ export const asyncRoutes = [
         component: () => import('@/views/user/wallet/incomewallet'),
         name: 'My Income Wallet',
         meta: { title: 'My Income Wallet', icon: 'fas fa-rupee-sign', color:'color:#31a816', affix: true, roles: ['user'] }
-      },
+      },      
       {
         path: 'credit-requests',
         component: () => import('@/views/user/wallet/credit-requests'),
@@ -1128,7 +1128,13 @@ export const asyncRoutes = [
         component: () => import('@/views/user/wallet/income-transactions'),
         name: 'Income Wallet Trans',
         meta: { title: 'Income Wallet Trans', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['user'] }
-      }
+      },
+      {
+        path: 'luxury-wallet-transactions',
+        component: () => import('@/views/user/wallet/luxury-wallet-transactions'),
+        name: 'Luxury Wallet Trans',
+        meta: { title: 'Luxury Wallet Trans', icon: 'fas fa-rupee-sign', color:'color:#31a816', affix: true, roles: ['user'] }
+      },
     ]
   },
 
