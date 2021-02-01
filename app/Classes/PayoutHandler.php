@@ -17,6 +17,7 @@ use App\Models\Admin\AffiliateBonus;
 use App\Models\Admin\Reward;
 use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\IncomeWalletTransactions;
+use App\Models\Admin\LuxuryWalletTransaction;
 use App\Models\Admin\MemberCarryForwardPv;
 
 use App\Models\Superadmin\TransactionType;
@@ -559,7 +560,7 @@ class PayoutHandler
         if(!$payout_amount)
             return;
 
-        $this->addWalletTransaction($memberPayout,$payoutIncome,$memberPayout->member,$payout_amount);
+        $this->addLuxuryWalletTransaction($memberPayout,$payoutIncome,$memberPayout->member,$payout_amount);
 
     }
 
@@ -828,13 +829,54 @@ class PayoutHandler
         $IncomeWalletTransactions=new IncomeWalletTransactions;
         $IncomeWalletTransactions->member_id           = $Member->id;
         $IncomeWalletTransactions->amount              = $net_payable_amount;
-        $IncomeWalletTransactions->balance             = $net_payable_amount+$Member->income_wallet_balance;
+        $IncomeWalletTransactions->balance             = $net_payable_amount+$Member->luxury_wallet_balance;
         $IncomeWalletTransactions->transaction_type_id = $TransactionType->id;
         $IncomeWalletTransactions->transfered_to       = $Member->user->id;
         $IncomeWalletTransactions->note                = $PayoutIncome->income->name;
         $IncomeWalletTransactions->save(); 
 
         $Member->income_wallet_balance+=$net_payable_amount;
+        $Member->save(); 
+
+    }
+
+    public function addLuxuryWalletTransaction($MemberPayout,$PayoutIncome,$Member,$payout_amount){
+
+        $net_payable_amount=0;
+        $income_tds=0;
+        $income_admin_fee=0;
+
+        $net_payable_amount         = $payout_amount;
+        $income_tds                 = floatval(($net_payable_amount*$this->tds_percentage)/100);
+        $income_admin_fee           = floatval(($net_payable_amount*$this->admin_fee_percent)/100);
+        $net_payable_amount         = $net_payable_amount-$income_tds-$income_admin_fee;
+
+        $MemberPayoutIncome=new MemberPayoutIncome;
+        $MemberPayoutIncome->member_payout_id                = $MemberPayout->id;
+        $MemberPayoutIncome->payout_id                       = $this->payout->id;
+        $MemberPayoutIncome->income_id                       = $PayoutIncome->income_id;
+        $MemberPayoutIncome->member_id                       = $Member->id;
+        $MemberPayoutIncome->income_payout_parameter_1_name  = $PayoutIncome->income_payout_parameter_1_name;
+        $MemberPayoutIncome->income_payout_parameter_1_value = $PayoutIncome->income_payout_parameter_1_value;
+        $MemberPayoutIncome->payout_amount                   = $payout_amount;
+        $MemberPayoutIncome->tds                             = $income_tds;
+        $MemberPayoutIncome->admin_fee                       = $income_admin_fee;
+        $MemberPayoutIncome->tds_percent                     = $this->tds_percentage;
+        $MemberPayoutIncome->admin_fee_percent               = $this->admin_fee_percent;
+        $MemberPayoutIncome->net_payable_amount              = $net_payable_amount;
+        $MemberPayoutIncome->created_at              = $this->payout->sales_end_date;
+        $MemberPayoutIncome->save();
+
+        $TransactionType=TransactionType::where('name',$PayoutIncome->income->name)->first();
+        $LuxuryWalletTransaction=new LuxuryWalletTransaction;
+        $LuxuryWalletTransaction->member_id           = $Member->id;
+        $LuxuryWalletTransaction->amount              = $net_payable_amount;
+        $LuxuryWalletTransaction->balance             = $net_payable_amount+$Member->luxury_wallet_balance;
+        $LuxuryWalletTransaction->transaction_type_id = $TransactionType->id;
+        $LuxuryWalletTransaction->note                = $PayoutIncome->income->name.' - Credit';
+        $LuxuryWalletTransaction->save(); 
+
+        $Member->luxury_wallet_balance+=$net_payable_amount;
         $Member->save(); 
 
     }
@@ -875,8 +917,10 @@ class PayoutHandler
                         if($Rank->name =='5% Club'){
                             if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
                                 if($squad_plus_affiliate_pinnacle >= $Rank->bv_to){
-                                    $Member->rank_id=$Rank->id;
-                                    $Member->save(); 
+                                    if($Member->rank_id<$Rank->id){
+                                        $Member->rank_id=$Rank->id;
+                                        $Member->save(); 
+                                    }
                                 }                           
                                   
                             }
@@ -884,8 +928,10 @@ class PayoutHandler
 
                             if($Rank->leg_rank===$key && $Rank->leg_rank_count == $value){
                                 if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
-                                    $Member->rank_id=$Rank->id;
-                                    $Member->save(); 
+                                    if($Member->rank_id<$Rank->id){
+                                        $Member->rank_id=$Rank->id;
+                                        $Member->save(); 
+                                    }
                                 }                           
                                   
                             }
@@ -895,8 +941,10 @@ class PayoutHandler
                 }else{
 
                     if($personal_pv >= $Rank->personal_bv_condition && $total_inr_turn_over >= $Rank->bv_from && $squad_plus_affiliate >= $Rank->bv_to){
-                        $Member->rank_id=$Rank->id;
-                        $Member->save(); 
+                        if($Member->rank_id<$Rank->id){
+                            $Member->rank_id=$Rank->id;
+                            $Member->save(); 
+                        }
                     }   
                 }
             }

@@ -133,6 +133,9 @@ class UserAndRoleController extends Controller
         }
 
         $User= User::find($request->id);
+        $total_personal_pv=$request['member']['total_personal_pv'];
+        $rank_id=$request['member']['rank_id'];
+
         if($User){
             $User->name=$request->name;
             $User->contact=$request->contact;
@@ -143,6 +146,16 @@ class UserAndRoleController extends Controller
 
             if($request->password){
                 $User->password=Hash::make($request->password);
+            }
+            
+            if($total_personal_pv){
+                $User->member->total_personal_pv=$total_personal_pv;
+                $User->member->save();
+            }
+            
+            if($rank_id){
+                $User->member->rank_id=$rank_id;
+                $User->member->save();
             }
 
             $User->save();

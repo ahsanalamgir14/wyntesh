@@ -519,6 +519,13 @@ export const asyncRoutes = [
         meta: { title: 'Debit Income Balance', icon: 'fas fa-upload', color:'color:#e01b34', affix: true, roles: ['admin'] }
       },
       {
+        path: 'debit-luxury-balance',
+        component: () => import('@/views/admin/wallet/debit-luxury-balance'),
+        name: 'Debit Lux. Balance',
+        hidden:false,
+        meta: { title: 'Debit Lux. Balance', icon: 'fas fa-upload', color:'color:#e01b34', affix: true, roles: ['admin'] }
+      },
+      {
         path: 'wallet-transactions',
         component: () => import('@/views/admin/wallet/transactions'),
         name: 'Wallet Transactions',
@@ -529,6 +536,12 @@ export const asyncRoutes = [
         component: () => import('@/views/admin/wallet/income-transactions'),
         name: 'Income Wallet Trans',
         meta: { title: 'Income Wallet Trans', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
+      },
+      {
+        path: 'luxury-wallet-transactions',
+        component: () => import('@/views/admin/wallet/luxury-wallet-transactions'),
+        name: 'Luxury Wallet Trans',
+        meta: { title: 'Luxury Wallet Trans', icon: 'fas fa-list-alt', color:'color:#FF5733', affix: true, roles: ['admin'] }
       }
     ]
   },

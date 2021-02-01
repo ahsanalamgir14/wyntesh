@@ -209,7 +209,7 @@
         <el-tab-pane label="Details">
           <el-form ref="dataForm" :rules="rules" :model="temp" style="">
             <el-row :gutter="20">
-              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
+              <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8" >
                 <el-form-item label="Name" prop="name">
                   <el-input v-model="temp.name" />
                 </el-form-item>
@@ -226,7 +226,7 @@
                   <el-input type="password" v-model="temp.password" />
                 </el-form-item>
               </el-col>
-              <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+              <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                 
                 <el-form-item label="Contact" prop="contact">
                   <el-input v-model="temp.contact" />
@@ -249,6 +249,19 @@
                     value-format="yyyy-MM-dd"
                     placeholder="Date of birth">
                   </el-date-picker>
+                </el-form-item>
+                
+              </el-col>
+              <el-col  :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                <el-form-item label="Personal PV" prop="total_personal_pv">
+                  <el-input v-model="temp.member.total_personal_pv" />
+                </el-form-item>
+                <el-form-item label="Rank" prop="total_personal_pv">
+                  <br>
+                  <el-select v-model="temp.member.rank_id" class="filter-item " style="width: 100%" filterable placeholder="Select Rank">
+                    <el-option v-for="item in ranks" :key="item.name" :label="item.name" :value="item.id">
+                  </el-option>
+                </el-select>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -299,6 +312,11 @@ import {
   updateExpireDate,
   changeUserActivationStatus
 } from "@/api/admin/users";
+
+import {
+  getAllRanks,
+} from "@/api/admin/ranks";
+
 import waves from "@/directive/waves"; // waves directive
 import { getToken } from '@/utils/auth';
 import { parseTime } from "@/utils";
@@ -328,6 +346,7 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
+      ranks:[],
       listQuery: {
         page: 1,
         limit: 10,
@@ -357,6 +376,9 @@ export default {
         gender: "m",
         dob: undefined,
         is_active: 0,
+        member:{
+          total_personal_pv: 0,
+        }
       },
       userStatusLog:{
         user_id:undefined,
@@ -387,6 +409,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getAllRanks();
   },
   methods: {
     getList() {
@@ -397,6 +420,11 @@ export default {
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
+      });
+    },
+    getAllRanks() {
+      getAllRanks().then(response => {
+        this.ranks = response.data;
       });
     },
     loginLink(row){
@@ -457,6 +485,9 @@ export default {
         gender: "m",
         dob: undefined,
         is_active: 0,
+        member:{
+          total_personal_pv: 0,
+        }
       };
     },
     handleCreate() {
@@ -489,6 +520,7 @@ export default {
     },
     handleEdit(row) {
       this.temp = Object.assign({}, row);
+      
       this.dialogStatus = "update";
       this.dialogUserVisible = true;
       this.$nextTick(() => {

@@ -310,6 +310,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::get('member/balance/{code}', '\App\Http\Controllers\User\MembersController@checkMemberBalance');
     Route::get('member/income-balance/{code}', '\App\Http\Controllers\User\MembersController@checkMemberIncomeBalance');
+    Route::get('member/luxury-balance/{code}', '\App\Http\Controllers\User\MembersController@checkMemberLuxuryBalance');
 
     Route::get('withdrawals', 'WalletController@getWithdrawals');
     Route::get('wallet-transactions', 'WalletController@getWalletTransactions');
@@ -322,6 +323,10 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('wallet/debits', 'WalletController@getDebitTransactions');
     Route::post('wallet/balance/debit', 'WalletController@debitBalance');
     Route::post('wallet/income-balance/debit', 'WalletController@debitIncomeBalance');
+
+    Route::get('luxury-wallet-transactions', 'WalletController@getLuxuryWalletTransactions');
+    Route::get('wallet/luxury-debits', 'WalletController@getLuxuryWalletDebitTransactions');
+    Route::post('wallet/luxury-balance/debit', 'WalletController@debitLuxuryBalance');
 
     Route::get('wallet/credit-requests', 'WalletController@creditRequests');
     Route::post('wallet/approve-credit-requests', 'WalletController@approveCreditRequest');

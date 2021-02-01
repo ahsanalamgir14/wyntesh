@@ -98,6 +98,17 @@ class MembersController extends Controller
             return response()->json($response, 404);  
         }
     }
+    
+    public function checkMemberLuxuryBalance($code){
+        $Member=User::select('id','name')->where('username',$code)->role('user')->with('member:id,user_id,luxury_wallet_balance')->first();
+        if($Member){
+            $response = array('status' => true,'message'=>'Member recieved.','data' => $Member);
+            return response()->json($response, 200);  
+        }else{
+            $response = array('status' => false,'message'=>'Member not found');
+            return response()->json($response, 404);  
+        }
+    }
 
     public function adminGeneology(){
         $zero=Member::with('children.children')->with('kyc')->with('user')->with('rank')

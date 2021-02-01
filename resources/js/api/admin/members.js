@@ -35,6 +35,13 @@ export function getMemberIncomeBalance(code) {
   })
 }
 
+export function getMemberLuxuryBalance(code) {
+  return request({
+    url: '/admin/member/luxury-balance/'+code,
+    method: 'get'
+  })
+}
+
 export function getAdminGeneology() {
   return request({
     url: '/admin/geneology',

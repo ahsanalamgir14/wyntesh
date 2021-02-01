@@ -135,3 +135,27 @@ export function debitIncomeBalance(data) {
     data
   })
 }
+
+export function getLuxuryWalletTransactions(query) {
+  return request({
+    url: '/admin/luxury-wallet-transactions',
+    method: 'get',
+    params: query
+  })
+}
+
+export function getLuxuryWalletDebitTransactions(query) {
+  return request({
+    url: '/admin/wallet/luxury-debits',
+    method: 'get',
+    params: query
+  })
+}
+
+export function debitLuxuryBalance(data) {
+  return request({
+    url: '/admin/wallet/luxury-balance/debit',
+    method: 'post',
+    data
+  })
+}

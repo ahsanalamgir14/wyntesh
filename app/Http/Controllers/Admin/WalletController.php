@@ -11,6 +11,7 @@ use App\Models\Admin\Withdrawal;
 use App\Models\Admin\WithdrawalRequest;
 use App\Models\Admin\WalletTransaction;
 use App\Models\Admin\IncomeWalletTransactions;
+use App\Models\Admin\LuxuryWalletTransaction;
 use App\Models\Admin\IncomeWalletTransfers;
 use App\Models\Admin\CreditRequest;
 use App\Models\Admin\Setting;
@@ -1074,6 +1075,151 @@ class WalletController extends Controller
         }
 
     }
+
+    public function getLuxuryWalletTransactions(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $transaction_type=$request->transaction_type;
+        $transaction_by=$request->transaction_by;
+        $member_id=$request->member_id;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $WalletTransactions=LuxuryWalletTransaction::select();
+            
+        if($date_range){
+            $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
+            $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
+        }
+
+        if($member_id){
+            $WalletTransactions=$WalletTransactions->whereHas('member.user',function($q)use($member_id){
+                $q->where('username','like','%'.$member_id.'%');
+            });               
+        }
+
+        if($transaction_type){
+            $WalletTransactions=$WalletTransactions->where('transaction_type_id',$transaction_type);                
+        }
+
+        if($transaction_by){
+            $WalletTransactions=$WalletTransactions->whereHas('transaction_by_user',function($q)use($transaction_by){
+                $q->where('username','like','%'.$transaction_by.'%');
+            });
+        }
+
+        $WalletTransactions=$WalletTransactions->with('transaction_by_user','member.user','transaction');
+        $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        
+        $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        return response()->json($response, 200);
+    }
+
+     public function getLuxuryWalletDebitTransactions(Request $request)
+    {
+        $User=JWTAuth::user();
+
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $date_range=$request->date_range;
+        $TransactionType=TransactionType::where('name','Debit (Admin)')->first();
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{ 
+            $sort = 'desc';
+        }
+
+        $WalletTransactions=LuxuryWalletTransaction::select();
+            
+        if($date_range){
+            $WalletTransactions=$WalletTransactions->whereDate('created_at','>=', $date_range[0]);
+            $WalletTransactions=$WalletTransactions->whereDate('created_at','<=', $date_range[1]);
+        }
+
+        $WalletTransactions=$WalletTransactions->where('transaction_type_id',$TransactionType->id);
+
+        $WalletTransactions=$WalletTransactions->with('transaction_by_user','member.user','transaction');
+        $WalletTransactions=$WalletTransactions->orderBy('id',$sort)->paginate($limit);
+        
+        $response = array('status' => true,'message'=>"Wallet transaction retrieved.",'data'=>$WalletTransactions);
+        return response()->json($response, 200);
+    }
+
+    public function debitLuxuryBalance(Request $request){
+        $user=JWTAuth::user();
+
+        $Member=User::where('username',$request->member_id)->first();
+
+        $transfered_from_user=$user;
+        $debited_from=$Member;
+        
+        if(!$debited_from){
+            $response = array('status' => false,'message'=>'Member not found.');
+            return response()->json($response, 404);
+        }
+
+        $balance=floatval($debited_from->member->luxury_wallet_balance);
+        $amount=$request->amount;
+        $TransactionType=TransactionType::where('name','Debit (Admin)')->first();
+        
+        if($balance<$amount){
+            $response = array('status' => false,'message'=>'Member does not have enough income balance.');
+            return response()->json($response, 404);
+        }
+
+        if($TransactionType){
+            $WalletTransaction=new LuxuryWalletTransaction;
+            $WalletTransaction->member_id=$Member->id;
+            $WalletTransaction->transaction_type_id=$TransactionType->id;
+            $WalletTransaction->balance=$balance-$amount;
+            $WalletTransaction->amount=$amount;
+            $WalletTransaction->transaction_by=$user->id;
+            $WalletTransaction->note=$request->note;
+            $WalletTransaction->save();
+
+            $final_balance=$balance-$amount;
+            $debited_from->member->luxury_wallet_balance=$final_balance;
+            $debited_from->member->save();
+
+            $response = array('status' => true,'message'=>'Income Balance debited successfully.');
+            return response()->json($response, 200);
+
+        }else{
+            $response = array('status' => false,'message'=>'Invalid transaction type, contact admin.');
+            return response()->json($response, 404);
+        }
+
+    }
+
 
     
 }
