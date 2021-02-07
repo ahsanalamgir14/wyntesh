@@ -360,7 +360,12 @@ class PayoutHandler
     }
 
     public function addRewardIncome($PayoutIncome,$memberPayout){
-        $Rewards=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount'),DB::raw("tds_percent")])->where('member_id',$memberPayout->member_id)->whereDate('created_at','>=',$this->payout->sales_start_date)->where('created_at','<=',$this->payout->sales_end_date)->first();
+        
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
+        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+
+        $Rewards=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount'),DB::raw("tds_percent")])->where('member_id',$memberPayout->member_id)->whereMonth('created_at',$payout_month)
+            ->whereYear('created_at',$payout_year)->first();
 
         if($Rewards->total_payout_amount > 0){
             $MemberPayoutIncome=new MemberPayoutIncome;
@@ -379,14 +384,17 @@ class PayoutHandler
 
     public function addAffiliateIncome($PayoutIncome,$memberPayout){
 
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
+        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+
         $AffiliateBonus= AffiliateBonus::select([                
                 DB::raw("SUM(amount) as total_payout_amount"),
                 DB::raw("SUM(tds_amount) as total_tds"),
                 DB::raw("SUM(final_amount) as total_net_payable_amount"),
                 DB::raw("tds_percent"),
             ])
-            ->whereDate('created_at','<=',$this->payout->sales_end_date)
-            ->whereDate('created_at','>=',$this->payout->sales_start_date)
+            ->whereMonth('created_at',$payout_month)
+            ->whereYear('created_at',$payout_year)
             ->where('member_id',$memberPayout->member_id)
             ->first();
 
@@ -419,10 +427,12 @@ class PayoutHandler
         
         $eb_eligibles=$this->getElevationEligibles($income,$this->payout);
         $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
-        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
+        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->whereYear('sales_start_date',$payout_year)->get()->pluck('id')->toArray();
+
         $ebp=MemberPayout::whereIn('member_id',$eb_eligibles)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
 
-        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->sum('pv');
+        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->whereYear('created_at',$payout_year)->sum('pv');
 
         if($ebp==0){
             $income_factor=0;
@@ -474,7 +484,8 @@ class PayoutHandler
         }
 
         $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
-        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
+        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->whereYear('sales_start_date',$payout_year)->get()->pluck('id')->toArray();
         $member_matched=MemberPayout::where('member_id',$memberPayout->member->id)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
 
         $payout_amount = $member_matched*$factor;
@@ -505,10 +516,11 @@ class PayoutHandler
                                                 $q->where('is_blocked',0);
                                             })->get()->pluck('id')->toArray();
         $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
-        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
+        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->whereYear('sales_start_date',$payout_year)->get()->pluck('id')->toArray();
 
         $lbp=MemberPayout::whereIn('member_id',$lbp_eligibles)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
-        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->sum('pv');
+        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->whereYear('created_at',$payout_year)->sum('pv');
 
         if($lbp==0){
             $income_factor=0;
@@ -552,7 +564,8 @@ class PayoutHandler
         }
 
         $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
-        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->get()->pluck('id')->toArray();
+        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+        $month_payouts=Payout::whereMonth('sales_start_date',$payout_month)->whereYear('sales_start_date',$payout_year)->get()->pluck('id')->toArray();
         $member_matched=MemberPayout::where('member_id',$memberPayout->member->id)->whereIn('payout_id',$month_payouts)->sum('total_matched_bv');
 
         $payout_amount = $member_matched*$factor;
@@ -579,8 +592,10 @@ class PayoutHandler
         $total_points_collected=array_sum(array_values($pb_eligibles_and_points));
         $pb_eligibles=array_keys($pb_eligibles_and_points);   
 
-        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');      
-        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->sum('pv');     
+        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');  
+        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+
+        $current_month_bv=Sale::whereMonth('created_at',$payout_month)->whereYear('created_at',$payout_year)->sum('pv');     
 
         if($total_points_collected==0){
             $income_factor=0;
