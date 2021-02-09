@@ -30,6 +30,8 @@
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
+      show-summary
+      :summary-method="getSummaries"
       border
       fit
       highlight-current-row
@@ -62,6 +64,12 @@
        <el-table-column label="Income Wallet Balance" min-width="200px" align="center" >
         <template slot-scope="{row}">
           <span >{{ row.income_wallet_balance }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="Luxury Wallet Balance" min-width="200px" align="center" >
+        <template slot-scope="{row}">
+          <span >{{ row.luxury_wallet_balance }}</span>
         </template>
       </el-table-column>
      
@@ -105,7 +113,11 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
-      sum:0,
+      sums:{
+        total_wallet_balance:0,
+        total_income_wallet_balance:0,
+        total_luxury_wallet_balance:0,
+      },
       listQuery: {
         page: 1,
         limit: 20,
@@ -158,6 +170,30 @@ export default {
     this.getList();
   },
   methods: {
+    getSummaries(param) {
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 1) {
+          sums[index] = 'Final Total (All)';
+          return;
+        }
+        if (index === 3) {
+          sums[index] = this.sums.total_wallet_balance;
+          return;
+        }
+        if (index === 4) {
+          sums[index] = this.sums.total_income_wallet_balance;
+          return;
+        }
+        if (index === 5) {
+          sums[index] = this.sums.total_luxury_wallet_balance;
+          return;
+        }
+      });
+
+      return sums;
+    },
     handleDownload() {
       this.downloadLoading = true;
       import("@/vendor/Export2Excel").then(excel => {

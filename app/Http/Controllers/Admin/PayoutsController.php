@@ -701,30 +701,30 @@ class PayoutsController extends Controller
             $sort = 'desc';
         }
 
+        $memberWallet=Member::select();
 
-        if(!$search){
-            $memberWallet=Member::select()->with('user')->where('wallet_balance','>',0)->orderBy('wallet_balance',$sort)->paginate($limit);
-        }else{
-            $memberWallet=Member::select();
-            if($search){
+        $total=Member::select([DB::raw('sum(wallet_balance) as total_wallet_balance'),DB::raw('sum(income_wallet_balance) as total_income_wallet_balance'),DB::raw('sum(luxury_wallet_balance) as total_luxury_wallet_balance')]);
 
-                // $memberWallet=$memberWallet->where('id',$search);
-                $memberWallet=$memberWallet->where(function ($query)use($search) {              
-                    $query=$query->WhereHas('user',function($q)use($search){
-                        $q->where('username','like','%'.$search.'%');
-                    });
+
+        if($search){
+            $memberWallet=$memberWallet->where(function ($query)use($search) {
+                $query=$query->WhereHas('user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
                 });
+            });
 
-
-            }
-
-
-            $memberWallet=$memberWallet->with('user')->orderBy('wallet_balance',$sort)->paginate($limit);
+            $total=$total->where(function ($query)use($search) {
+                $query=$query->WhereHas('user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });
         }
 
+        $total=$total->first();
 
-   
-        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$memberWallet);
+        $memberWallet=$memberWallet->with('user')->orderBy('wallet_balance',$sort)->paginate($limit);
+
+        $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$memberWallet,'sum'=>$total);
         return response()->json($response, 200);
     }
     public function getMemberTDS(Request $request)

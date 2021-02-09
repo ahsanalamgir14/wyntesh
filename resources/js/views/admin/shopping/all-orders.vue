@@ -440,49 +440,45 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "Sr.No",
+          "Created At",
           "Order No",
           "Member",
           "Product Code",
           "Product Name",
           "Variant",
-          "Quantity",
           "Product Price",
-          "Order Amount",
+          "Admin Charge",
+          "Discount",
+          "Quantity",
           "GST",
           "CGST",
           "SGST",
           "UTGST",
-          "Shipping Fee",
-          "Admin Charge",
-          "Discount",
           "Final Amount",
           "Status",
-          "City",
+          //"City",
           "State",
-          "Created At",
         ];
         const filterVal = [
           "id",
+          "created_at",
           "order_no",
           "member_id",
           "product_number",
           "product_name",
           "variant",
-          "product_quantity",
-          "product_price",
           "base_amount",
+          "admin_fee",
+          "discount",
+          "product_quantity",
           "gst_amount",
           "cgst_amount",
           "sgst_amount",
           "utgst_amount",
-          "shipping_fee",
-          "admin_fee",
-          "discount",
           "net_amount",
           "delivery_status",
-          "city",
+          //"city",
           "state",
-          "created_at",
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
@@ -496,34 +492,55 @@ export default {
     formatJson(filterVal, jsonData) {
       let orders = [];
       jsonData.forEach((v) => {
-        v.products.forEach((p) => {
+        v.products.forEach((p,index) => {
           let ad = v.shipping_address;
           let order = {
-            id: v.id,
-            order_no: v.order_no,
-            member_id: v.user.username,
+            id: index==0?v.id:'',
+            created_at: index==0?v.created_at:'',
+            order_no: index==0?v.order_no:'',
+            member_id: index==0?v.user.username:'',
             product_number: p.product.product_number,
             product_name: p.product.name,
             variant: (p.variant.color ? p.variant.color.name : '') + ' - ' + (p.variant.size ? p.variant.size.brand_size : ''),
+            base_amount: p.base_amount,
+            admin_fee: p.admin_fee,
+            discount: p.discount,
             product_quantity: p.quantity,
-            product_price: p.net_amount,
-            base_amount: v.base_amount,
-            gst_amount: v.gst_amount,
-            cgst_amount: v.cgst_amount,
-            sgst_amount: v.sgst_amount,
-            utgst_amount: v.utgst_amount,
-            shipping_fee: v.shipping_fee,
-            admin_fee: v.admin_fee,
-            discount: v.discount,
-            net_amount: v.net_amount,
+            gst_amount: p.gst_amount,
+            cgst_amount: p.cgst_amount,
+            sgst_amount: p.sgst_amount,
+            utgst_amount: p.utgst_amount,
+            net_amount: p.net_amount,
             delivery_status: v.delivery_status,
-            city: v.city,
+            //city: v.city,
             state: v.state,
 
-            created_at: v.created_at,
           };
           orders.push(order);
         });
+        let order = {
+            id: '',
+            created_at: '',
+            order_no: '',
+            member_id: '',
+            product_number: '',
+            product_name: 'Shipping Charges',
+            variant: '',
+            base_amount: v.shipping_fee,
+            admin_fee: '',
+            discount: '',
+            product_quantity: '',
+            gst_amount: (parseInt(v.shipping_fee)*5)/100,
+            cgst_amount: 0,
+            sgst_amount: 0,
+            utgst_amount: 0,
+            net_amount: parseInt(v.shipping_fee)+(parseInt(v.shipping_fee)*5)/100,
+            delivery_status: '',
+            //city:'',
+            state: '',
+
+          };
+          orders.push(order);
         v.packages.forEach((p) => {
           let ad = v.shipping_address;
           let order = {
@@ -554,7 +571,10 @@ export default {
       return orders.map(v =>
         filterVal.map(j => {
           if (j === "created_at") {
-            return parseTime(v[j]);
+            if(v[j])
+              return parseTime(v[j]);
+            else
+              return '';
           } else {
             return v[j];
           }
