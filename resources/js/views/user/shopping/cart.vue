@@ -141,7 +141,7 @@ export default {
       getMyCart().then(response => {
         this.cartProducts = response.data;
         this.calculateFinal();
-        
+        this.$events.fire('update-cart-count');
         if(!this.is_shipping_waiver){
           if(this.temp.grand_total < this.settings.shipping_criteria){
             this.temp.shipping=parseFloat(this.settings.shipping_charge_2);
