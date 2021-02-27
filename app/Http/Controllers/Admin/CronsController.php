@@ -181,14 +181,16 @@ class CronsController extends Controller
             $to=$dt->year.'-'.$dt->month.'-'.'24';
             $incomes=Income::where('code','SQUAD')->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
-        }else if($day=='28'){
+        }else if($day=='26'){
+            //28
             $from=$dt->year.'-'.$dt->month.'-'.'25';
             $to=$dt->year.'-'.$dt->month.'-'.'27';
             $incomes=Income::where('code','SQUAD')->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='1'){
             $dt->modify('-1 months');
-            $from=$dt->year.'-'.$dt->month.'-'.'28';
+            $from=$dt->year.'-'.$dt->month.'-'.'25';
+            //28
             $to= $dt->endOfMonth()->toDateString('Y-m-d');
             //$to=$dt->year.'-'.$dt->month.'-'.date('t');
             $incomes=Income::all();
