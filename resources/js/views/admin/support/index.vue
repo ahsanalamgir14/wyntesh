@@ -401,7 +401,7 @@ export default {
     },
     getClosedList() {
       this.listLoading = true;
-      fetchClosedList(this.listQuery).then(response => {
+      fetchClosedList(this.listClosedQuery).then(response => {
         this.closedlist = response.data.data;
         this.closedtotal = response.data.total;
         setTimeout(() => {

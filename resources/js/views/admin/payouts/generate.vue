@@ -384,6 +384,8 @@ export default {
           "Sales Amount",
           "Total BV",          
           "Total Payout",
+          "TDS",
+          "Net Payable",
           "Generated At",
         ];
         const filterVal = [
@@ -393,7 +395,10 @@ export default {
           "sales_gst",
           "sales_shipping_fee",
           "sales_total_amount",
-          "total_payout",
+          "sales_bv",
+          "payout_amount",
+          "tds",
+          "net_payable_amount",
           "created_at",
         ];
         const data = this.formatJson(filterVal, this.list);
