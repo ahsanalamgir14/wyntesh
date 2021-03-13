@@ -192,6 +192,7 @@ class ShoppingController extends Controller
 
         $orders=Order::select();           
         $orderTotal=Order::select([DB::raw('sum(net_amount) as final_total'),DB::raw('sum(pv) as pv')]);
+        $orderTotal=$orderTotal->whereNotIn('delivery_status',['Order Cancelled','Order Returned']);
         
         if($search){
             $orders=$orders->where(function ($query)use($search) {
