@@ -325,7 +325,14 @@ class ShoppingController extends Controller
             // dd($request->delivery_status);
             if($request->delivery_status=='Order Confirmed' && !$ExistingSale ){
 
-                $final_amount_company=($Order->net_amount)-($Order->gst_amount)-($Order->shipping_fee);
+
+                if($Order->gst_amount){
+
+                    $final_amount_company=($Order->net_amount)-($Order->gst_amount)-($Order->shipping_fee);
+                }else{
+                    $final_amount_company=($Order->net_amount)-($Order->cgst_amount)-($Order->sgst_amount)-($Order->shipping_fee);
+                }
+
                 $Sale=new Sale;
                 $Sale->member_id=$Order->user->member->id;
                 $Sale->pv=$Order->pv;
