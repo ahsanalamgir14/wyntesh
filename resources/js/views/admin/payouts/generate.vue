@@ -90,11 +90,12 @@
           <span>{{ row.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sales BV" width="130px" align="right">
+      <el-table-column label="Base Sales Amount" width="150px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.sales_bv }}</span>
+          <span >{{ row.sales_amount }}</span>
         </template>
       </el-table-column>
+     
       <el-table-column label="GST" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.sales_gst }}</span>
@@ -105,11 +106,20 @@
           <span >{{ row.sales_shipping_fee }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Sales Amount" width="130px" align="right">
+
+      <el-table-column label="Net Sales Amount" width="150px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.sales_amount }}</span>
+          <span >{{ row.sales_total_amount }}</span>
         </template>
       </el-table-column>
+
+       <el-table-column label="Sales BV" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.sales_bv }}</span>
+        </template>
+      </el-table-column>
+
+     
       <el-table-column label="Total Matched" width="130px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.total_matched_bv }}</span>
@@ -379,6 +389,7 @@ export default {
           "Sr.No",
           "Sales start date",
           "Sales end date",
+          "Base Sales Amount",
           "GST",
           "Courier",
           "Sales Amount",
@@ -392,6 +403,7 @@ export default {
           "id",
           "sales_start_date",
           "sales_end_date",
+          "sales_amount",
           "sales_gst",
           "sales_shipping_fee",
           "sales_total_amount",
