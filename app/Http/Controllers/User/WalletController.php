@@ -562,7 +562,7 @@ class WalletController extends Controller
         $minimum_withdrawal=CompanySetting::getValue('minimum_withdrawal_pv');
         $total_personal_pv=$user->member->total_personal_pv;
         if($total_personal_pv<=$minimum_withdrawal){
-            $response = array('status' => false,'message'=>'Your self purchase must be '+$minimum_withdrawal+', to withdraw your earnings.');
+            $response = array('status' => false,'message'=>'Your self purchase must be '.($minimum_withdrawal).', to withdraw your earnings.');
             return response()->json($response, 400);
         }
         $balance=$user->member->income_wallet_balance;
