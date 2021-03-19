@@ -915,7 +915,7 @@ class WalletController extends Controller
 
         if($TransactionType){
             $WalletTransaction=new IncomeWalletTransactions;
-            $WalletTransaction->member_id=$Member->id;
+            $WalletTransaction->member_id=$Member->member->id;
             $WalletTransaction->balance=$balance-$amount;
             $WalletTransaction->amount=$amount;
             $WalletTransaction->transaction_type_id=$TransactionType->id;
@@ -962,7 +962,7 @@ class WalletController extends Controller
 
         if($TransactionType){
             $WalletTransaction=new WalletTransaction;
-            $WalletTransaction->member_id=$Member->id;
+            $WalletTransaction->member_id=$Member->member->id;
             $WalletTransaction->balance=$balance-$amount;
             $WalletTransaction->amount=$amount;
             $WalletTransaction->transaction_type_id=$TransactionType->id;
