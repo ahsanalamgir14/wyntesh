@@ -45,6 +45,7 @@ class DashboardController extends Controller
         $total_income_wallet_balance=Member::sum('income_wallet_balance');
 
         $affiliateIncomeWithTDS=AffiliateBonus::sum('amount');
+        $currentAffiliate=AffiliateBonus::whereMonth('created_at',date('m'))->whereYear('created_at',date('Y'))->sum('amount');
         $reward=Reward::sum('amount');
 
         $total_payout=MemberPayout::sum('payout_amount');
@@ -66,7 +67,7 @@ class DashboardController extends Controller
                 'pending_kyc'=>$pending_kyc,
                 'inquiries'=>$inquiries,
                 'wallet_balance'=>$wallet_balance,
-                'total_payout'=>$total_payout,
+                'total_payout'=>$total_payout+$currentAffiliate,
                 'pending_withdrawals'=>$pending_withdrawals,
                 'pending_orders'=>$pending_orders,
                 'total_income_wallet_balance'=>$total_income_wallet_balance,
