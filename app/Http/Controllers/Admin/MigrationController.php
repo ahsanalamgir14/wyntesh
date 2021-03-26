@@ -33,55 +33,78 @@ class MigrationController extends Controller
     public function affiliateCorrection(){
         $payout=Payout::find(20);
 
-       
-
         $payout_month=Carbon::createFromFormat('Y-m-d', $payout->sales_start_date)->format('m');
         $payout_year=Carbon::createFromFormat('Y-m-d', $payout->sales_start_date)->format('Y');
+            
+        $Members=Member::all();
+
+        foreach ($Members as $Member) {
+            
+            $MemberPayoutIncomesReward=MemberPayoutIncome::where('payout_id',$payout->id)->where('income_id',1)->where('member_id',$Member->id)->first();
+
+            $Reward= Reward::select([                
+                DB::raw("SUM(amount) as total_payout_amount"),
+                DB::raw("SUM(tds_amount) as total_tds"),
+                DB::raw("SUM(final_amount) as total_net_payable_amount"),
+                DB::raw("tds_percent"),
+            ])
+            ->whereMonth('created_at',$payout_month)
+            ->whereYear('created_at',$payout_year)
+            ->where('member_id',$Member->id)
+            ->first();
+
+            if(!$MemberPayoutIncomesReward){
+                $MemberPayout=MemberPayout::where('payout_id',$payout->id)->where('member_id',$Member->id)->first();
+
+                if(!$MemberPayout)
+                    continue;
+
+                $MemberPayoutIncomesReward=new MemberPayoutIncome;
+                $MemberPayoutIncomesReward->member_payout_id=$MemberPayout->id; 
+                $MemberPayoutIncomesReward->member_id=$Member->id; 
+                $MemberPayoutIncomesReward->payout_id=$payout->id; 
+            }
+
+            if($Reward->total_payout_amount){
+                 $MemberPayoutIncomesReward->payout_amount                   = $Reward->total_payout_amount;
+                $MemberPayoutIncomesReward->tds                             = $Reward->total_tds;        
+                $MemberPayoutIncomesReward->tds_percent                     = $Reward->tds_percent;
+                $MemberPayoutIncomesReward->net_payable_amount              = $Reward->total_net_payable_amount;     
+                $MemberPayoutIncomesReward->save();
+            }
+
+            $MemberPayoutIncomeAffiliate=MemberPayoutIncome::where('payout_id',$payout->id)->where('member_id',$Member->id)->where('income_id',2)->first();
+
+            $AffiliateBonus= AffiliateBonus::select([                
+                DB::raw("SUM(amount) as total_payout_amount"),
+                DB::raw("SUM(tds_amount) as total_tds"),
+                DB::raw("SUM(final_amount) as total_net_payable_amount"),
+                DB::raw("tds_percent"),
+            ])
+            ->whereMonth('created_at',$payout_month)
+            ->whereYear('created_at',$payout_year)
+            ->where('member_id',$Member->id)
+            ->first();
+
+            if(!$MemberPayoutIncomeAffiliate){
+                $MemberPayoutIncomeAffiliate=new MemberPayoutIncome;
+                $MemberPayoutIncomeAffiliate->member_payout_id=$MemberPayout->id; 
+                $MemberPayoutIncomeAffiliate->member_id=$Member->id; 
+                $MemberPayoutIncomeAffiliate->payout_id=$payout->id; 
+            }
+
+            if($AffiliateBonus->total_payout_amount){
+
+                $MemberPayoutIncomeAffiliate->payout_amount                   = $AffiliateBonus->total_payout_amount;
+                $MemberPayoutIncomeAffiliate->tds                             = $AffiliateBonus->total_tds;        
+                $MemberPayoutIncomeAffiliate->tds_percent                     = $AffiliateBonus->tds_percent;
+                $MemberPayoutIncomeAffiliate->net_payable_amount              = $AffiliateBonus->total_net_payable_amount;     
+                $MemberPayoutIncomeAffiliate->save();
+            }
+
+        }
+
         
-        $MemberPayoutIncomesReward=MemberPayoutIncome::where('payout_id',$payout->id)->where('income_id',1)->get();
-         
-        foreach ($MemberPayoutIncomesReward as $MemberPayoutIncome) {
-             $Reward= Reward::select([                
-                DB::raw("SUM(amount) as total_payout_amount"),
-                DB::raw("SUM(tds_amount) as total_tds"),
-                DB::raw("SUM(final_amount) as total_net_payable_amount"),
-                DB::raw("tds_percent"),
-            ])
-            ->whereMonth('created_at',$payout_month)
-            ->whereYear('created_at',$payout_year)
-            ->where('member_id',$MemberPayoutIncome->member_id)
-            ->first();
-
-            $MemberPayoutIncome->payout_amount                   = $Reward->total_payout_amount;
-            $MemberPayoutIncome->tds                             = $Reward->total_tds;        
-            $MemberPayoutIncome->tds_percent                     = $Reward->tds_percent;
-            $MemberPayoutIncome->net_payable_amount              = $Reward->total_net_payable_amount;     
-            $MemberPayoutIncome->save();
-
-        }
-
-       
-         $MemberPayoutIncomes=MemberPayoutIncome::where('payout_id',$payout->id)->where('income_id',2)->get();
-
-        foreach ($MemberPayoutIncomes as $MemberPayoutIncome) {
-             $AffiliateBonus= AffiliateBonus::select([                
-                DB::raw("SUM(amount) as total_payout_amount"),
-                DB::raw("SUM(tds_amount) as total_tds"),
-                DB::raw("SUM(final_amount) as total_net_payable_amount"),
-                DB::raw("tds_percent"),
-            ])
-            ->whereMonth('created_at',$payout_month)
-            ->whereYear('created_at',$payout_year)
-            ->where('member_id',$MemberPayoutIncome->member_id)
-            ->first();
-
-            $MemberPayoutIncome->payout_amount                   = $AffiliateBonus->total_payout_amount;
-            $MemberPayoutIncome->tds                             = $AffiliateBonus->total_tds;        
-            $MemberPayoutIncome->tds_percent                     = $AffiliateBonus->tds_percent;
-            $MemberPayoutIncome->net_payable_amount              = $AffiliateBonus->total_net_payable_amount;     
-            $MemberPayoutIncome->save();
-
-        }
         
         $this->updateMemberPayoutSum($payout);
         $this->updatePayoutSum($payout);
