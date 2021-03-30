@@ -17,6 +17,8 @@ Route::get('/', function (Request $request) {
     return 'Working';
 });
 
+//Route::get('migration', '\App\Http\Controllers\Admin\MigrationController@doMigration');
+
 Route::get('edu', 'Auth\AuthController@edu');
 Route::get('sms', '\App\Http\Controllers\User\MembersController@sendSMS');
 

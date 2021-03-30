@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use DB;
 
-use App\Models\Admin\User;
+use App\Models\User\User;
 use App\Models\Admin\Member;
 use App\Models\Admin\Product;
 use App\Models\Admin\Payout;
@@ -18,6 +18,7 @@ use App\Models\Admin\MemberIncomeHolding;
 use App\Models\Admin\ProductImage;
 use App\Models\Admin\ProductVariant;
 use App\Models\Admin\AffiliateBonus;
+use App\Models\Admin\LuxuryWalletTransaction;
 use App\Models\Admin\Reward;
 use App\Models\User\Order;
 use Illuminate\Support\Facades\Storage;
@@ -26,8 +27,19 @@ class MigrationController extends Controller
 {    
 
     public function doMigration(){
-        $this->affiliateCorrection();
+        //$this->affiliateCorrection();
+        $this->correctLuxuryWallet();
        
+    }
+
+    public function correctLuxuryWallet(){
+        $LuxuryWalletTransactions=LuxuryWalletTransaction::get();
+
+        foreach ($LuxuryWalletTransactions as $tran) {
+            $user=User::where('id',$tran->member_id)->first();
+            $tran->member_id=$user->member->id;
+            $tran->save();
+        }
     }
 
     public function affiliateCorrection(){
