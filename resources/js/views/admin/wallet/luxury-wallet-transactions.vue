@@ -243,20 +243,20 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "ID",
+          "Member",
           "Amount",
           "Balance",
           "Transaction Type",
-          "Transfer from",
           "Transfer to",          
           "Transaction by",
           "Created at",
         ];
         const filterVal = [
           "id",
+          "member_id",
           "amount",
           "balance",
           "transaction_type_id",
-          "transfered_from",
           "transfered_to",
           "transaction_by",
           "created_at"
@@ -277,8 +277,8 @@ export default {
             return parseTime(v[j]);
           } else if(j === "transaction_type_id") {
             return v.transaction?v.transaction.name:''
-          }else if(j === "transfered_from") {
-            return v.transfered_from_user?v.transfered_from_user.username:''
+          }else if(j === "member_id") {
+            return v.member.user?v.member.user.username:''
           }else if(j === "transfered_to") {
             return v.transfered_to_user?v.transfered_to_user.username:''
           }else if(j === "transaction_by") {
