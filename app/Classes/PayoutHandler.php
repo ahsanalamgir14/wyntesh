@@ -164,7 +164,7 @@ class PayoutHandler
         //Counting Carry forward and Matched points of Member Legs.
 
         //Getting Member Legs in decenting based on current PV
-        $legs=0;
+        $legs=array();
         $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
                     ->whereDate('created_at','<=',$this->payout->sales_end_date)
                     ->whereDate('created_at','>=',$this->payout->sales_start_date)
@@ -176,10 +176,8 @@ class PayoutHandler
         $last_carry_forward=MemberCarryForwardPv::where('member_id',$Member->id)->orderBy('payout_id','desc')->first();
 
         if($last_carry_forward){
-            if(count($legs)){
                 $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
                 $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
-            }
         }
 
         arsort($legs);
