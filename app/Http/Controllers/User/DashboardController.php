@@ -48,8 +48,7 @@ class DashboardController extends Controller
         $current_personal_pv=$User->member->current_personal_pv;
         $total_personal_pv=$User->member->total_personal_pv;
         $balance=floatval($User->member->wallet_balance);
-        $currentAffiliate=AffiliateBonus::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->whereYear('created_at',date('Y'))->sum('amount');
-      
+       
         $affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->sum('amount');        
         $reward=Reward::where('member_id',$User->member->id)->sum('amount');
 
@@ -93,7 +92,7 @@ class DashboardController extends Controller
                 'withdrawals'=>$withdrawals,
                 'pins_available'=>$pins_available,
                 'balance'=>$balance,
-                'total_payout'=>$total_payout+$currentAffiliate,
+                'total_payout'=>$total_payout,
                 'income_wallet_balance'=>$income_wallet_balance,
                 'total_reward'=>$reward,
                 'current_personal_pv'=>$current_personal_pv,
