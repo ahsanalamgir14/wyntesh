@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->backupDatabase();
-        })->dailyAt('23:59');
+        });
 
         $schedule->call(function () {
             $CronsController=new CronsController;
@@ -48,10 +48,10 @@ class Kernel extends ConsoleKernel
             $CronsController->WallOfWyntashReport();
         })->monthlyOn(1, '00:20');
 
-        $schedule->call(function () {
-            $CronsController=new CronsController;
-            $CronsController->releaseHoldPayout();
-        })->monthlyOn(1, '00:22');
+        // $schedule->call(function () {
+        //     $CronsController=new CronsController;
+        //     $CronsController->releaseHoldPayout();
+        // })->monthlyOn(1, '00:22');
 
         // $schedule->call(function () {
         //     $MigrationController=new MigrationController;
