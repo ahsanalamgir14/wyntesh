@@ -38,10 +38,10 @@
             <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
               <!-- <el-form-item label="Discount Rate" prop="discount_rate">
                 <el-input type="number" min="0" v-model="temp.discount_rate" />
-              </el-form-item>
-              <el-form-item label="Discount Amount" prop="discount_amount">
-                <el-input type="number" min="0" v-model="temp.discount_amount" />
               </el-form-item> -->
+              <el-form-item label="Priority" prop="priority">
+                <el-input type="number" min="0" v-model="temp.priority" />
+              </el-form-item>
               <el-form-item label="Color variant available ?" prop="is_color_variant">
                 <el-checkbox size="mini" v-model="temp.is_color_variant" label="Yes/No" prop="is_color_variant" border></el-checkbox>
               </el-form-item>
@@ -473,6 +473,7 @@ export default {
         retail_utgst_amount: 0,
         retail_amount: 0,
         dp_gst_rate: 0,
+        priority: 0,
         dp_gst: undefined,
         retail_gst: undefined,
         discount_rate: undefined,

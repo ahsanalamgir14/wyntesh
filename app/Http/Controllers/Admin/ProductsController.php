@@ -60,7 +60,7 @@ class ProductsController extends Controller
             });    
         }
      
-        $Products=$Products->with('categories')->orderBy('id',$sort)->paginate($limit);
+        $Products=$Products->with('categories')->orderBy('priority',$sort)->paginate($limit);
         
         $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
         return response()->json($response, 200);
@@ -102,7 +102,7 @@ class ProductsController extends Controller
             });    
         }
      
-        $Products=$Products->where('is_active',1)->with('categories')->orderBy('id',$sort)->paginate($limit);
+        $Products=$Products->where('is_active',1)->with('categories')->orderBy('priority','desc')->paginate($limit);
         
         $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
         return response()->json($response, 200);
@@ -170,6 +170,7 @@ class ProductsController extends Controller
         $Product->discount_amount=$request->discount_amount?:0;
         $Product->is_active=0;
         $Product->pv=$request->pv;
+        $Product->priority=$request->priority;
         $Product->is_color_variant=$request->is_color_variant=="true"?1:0;
         $Product->is_size_variant=$request->is_size_variant=="true"?1:0;
         $Product->is_shipping_waiver=$request->is_shipping_waiver=="true"?1:0;
@@ -259,6 +260,7 @@ class ProductsController extends Controller
         $Product->is_size_variant=$request->is_size_variant=="true"?1:0;
         $Product->is_shipping_waiver=$request->is_shipping_waiver=="true"?1:0;
         $Product->pv=$request->pv;
+        $Product->priority=$request->priority;
         $Product->save();
 
         $cats=explode(',', $request->categories);

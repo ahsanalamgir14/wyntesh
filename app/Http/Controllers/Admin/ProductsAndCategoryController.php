@@ -276,6 +276,7 @@ public function createProduct(Request $request){
     $Product->is_active=$isActive;
     $Product->is_shipping_waiver=$isShippingWaiver;
     $Product->stock=$request->stock;
+    $Product->priority=$request->priority;
     $Product->save();
 
     $cats=explode(',', $request->categories);
@@ -376,7 +377,10 @@ public function updateProduct(Request $request){
     $Product->pv=$request->pv;
     $Product->is_active=$isActive;
     $Product->stock=$request->stock;
+    $Product->priority=$request->priority;
     $Product->save();
+
+    dd($request->priority);
 
     $cats=explode(',', $request->categories);
     $Product->categories()->sync($cats);

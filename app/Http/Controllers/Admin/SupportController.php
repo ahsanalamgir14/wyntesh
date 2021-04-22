@@ -10,6 +10,10 @@ use App\Models\User\TicketConversation;
 use Storage;
 Use JWTAuth;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\SupportTicketCreated;
+use App\Notifications\SupportTicketReplied;
+
 class SupportController extends Controller
 {    
 
@@ -134,6 +138,8 @@ class SupportController extends Controller
         }
 
         $Ticket=Ticket::with('conversations')->find($Ticket->id);
+
+        Notification::send($Ticket->user, new SupportTicketCreated($Ticket));
 
         $response = array('status' => false,'message'=>'Ticket created successfully.','data' => $Ticket);
         return response()->json($response, 200);
@@ -337,6 +343,8 @@ class SupportController extends Controller
                 $TicketConversation->attachment=$cdn_url;
                 $TicketConversation->save();
             }
+
+            Notification::send($Ticket->user, new SupportTicketReplied($Ticket));
 
             $response = array('status' => true,'message'=>'Message sent.');
             return response()->json($response, 200);
