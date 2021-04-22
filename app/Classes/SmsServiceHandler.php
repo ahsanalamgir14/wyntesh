@@ -54,8 +54,6 @@ class SmsServiceHandler
         $response = curl_exec($ch);
         curl_close($ch);
 
-        \Log::info($response);
-
         return true;
     }
 

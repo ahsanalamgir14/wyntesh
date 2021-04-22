@@ -56,6 +56,8 @@
       :data="list"
       border
       fit
+      show-summary
+      :summary-method="getSummaries"
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
@@ -64,6 +66,7 @@
         label="ID"
         prop="id"
         sortable="custom"
+       
         align="center"
         width="80"
         :class-name="getSortClass('id')"
@@ -408,6 +411,9 @@ export default {
         { label: "ID Ascending", key: "+id" },
         { label: "ID Descending", key: "-id" }
       ],
+      sums:{
+        total_amount:0,
+      },
       temp: {
         id: undefined,
         amount:0,
@@ -505,12 +511,29 @@ export default {
         this.list = response.data.data;
         this.total = response.data.total;
         this.balance = parseFloat(response.balance);
+        this.sums=response.sum;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 100);
       }).catch((er)=>{
         this.listLoading = false;
       });
+    },
+    getSummaries(param) {
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 1) {
+          sums[index] = 'Final Total (All)';
+          return;
+        }
+        if (index === 7) {
+          sums[index] = this.sums.total_amount;
+          return;
+        }
+      });
+
+      return sums;
     },
     getCompanySettings() {      
       getCompanySettings().then(response => {

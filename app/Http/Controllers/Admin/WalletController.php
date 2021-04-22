@@ -104,34 +104,44 @@ class WalletController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$status && !$date_range){           
-            $WithdrawalRequests=WithdrawalRequest::select();           
-            $WithdrawalRequests=$WithdrawalRequests->with('member:id,user_id','member.kyc','approver');
-            $WithdrawalRequests=$WithdrawalRequests->where('is_income_wallet',0)->orderBy('id',$sort)->paginate($limit);
-        }else{
-            $WithdrawalRequests=WithdrawalRequest::select();
+        $WithdrawalRequests=WithdrawalRequest::select();
+
+        $WithdrawalRequestsTotal=WithdrawalRequest::select([DB::raw('sum(amount) as total_amount')]);
             
+        if($search){
             $WithdrawalRequests=$WithdrawalRequests->where(function ($query)use($search) {
                 $query=$query->orWhereHas('member.user',function($q)use($search){
                     $q->where('username','like','%'.$search.'%');
                 });
             });
 
-            if($date_range){
-                $WithdrawalRequests=$WithdrawalRequests->whereDate('created_at','>=', $date_range[0]);
-                $WithdrawalRequests=$WithdrawalRequests->whereDate('created_at','<=', $date_range[1]);
-            }
-
-            if($status){
-                $WithdrawalRequests=$WithdrawalRequests->where('request_status',$status);
-            }
-
-            $WithdrawalRequests=$WithdrawalRequests->with('member:id,user_id','member.kyc','approver');
-            $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
+            $WithdrawalRequestsTotal=$WithdrawalRequestsTotal->where(function ($query)use($search) {
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });                
         }
 
+        if($date_range){
+            $WithdrawalRequests=$WithdrawalRequests->whereDate('created_at','>=', $date_range[0]);
+            $WithdrawalRequests=$WithdrawalRequests->whereDate('created_at','<=', $date_range[1]);
+
+            $WithdrawalRequestsTotal=$WithdrawalRequestsTotal->whereDate('created_at','>=', $date_range[0]);
+            $WithdrawalRequestsTotal=$WithdrawalRequestsTotal->whereDate('created_at','<=', $date_range[1]);
+        }
+
+        if($status){
+            $WithdrawalRequests=$WithdrawalRequests->where('request_status',$status);
+            $WithdrawalRequestsTotal=$WithdrawalRequestsTotal->where('request_status',$status);
+        }
+
+        $WithdrawalRequestsTotal=$WithdrawalRequestsTotal->first();
+
+        $WithdrawalRequests=$WithdrawalRequests->with('member:id,user_id','member.kyc','approver');
+        $WithdrawalRequests=$WithdrawalRequests->orderBy('id',$sort)->paginate($limit);
+
         
-        $response = array('status' => true,'message'=>"Pin requests retrieved.",'data'=>$WithdrawalRequests);
+        $response = array('status' => true,'message'=>"Pin requests retrieved.",'data'=>$WithdrawalRequests,'sum'=>$WithdrawalRequestsTotal);
         return response()->json($response, 200);
     }
 
