@@ -41,12 +41,12 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->generateMonthlyPayout();
-        })->dailyAt('00:10');
+        })->dailyAt('00:15');
 
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->WallOfWyntashReport();
-        })->monthlyOn(1, '00:20');
+        })->monthlyOn(1, '00:30');
 
         // $schedule->call(function () {
         //     $CronsController=new CronsController;

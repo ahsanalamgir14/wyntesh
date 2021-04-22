@@ -16,8 +16,8 @@
                 </div>
               </section>
               <section id="invoice-title-number">
-                <span id="title">{{monthNumToName(temp.date) }}</span>
-                <!-- <span id="number">₹ {{temp.netPayble}}</span> -->
+                <span id="title" v-if="payout.payout.payout_type">{{ payout.payout.sales_start_date | parseTime('{d}-{m}-{y}') }} - {{ payout.payout.sales_end_date | parseTime('{d}-{m}-{y}') }}</span>
+                <span id="title" v-else>{{ monthNumToName(payout.payout.sales_start_date) }}</span>
               </section>
               <div class="clearfix"></div>
               <section id="client-info-name">
@@ -99,7 +99,7 @@
   </div>
 </template>
 <script>
-import { getMemberPayout } from "@/api/user/payouts";
+import { getMemberPayoutReport } from "@/api/user/payouts";
 import { parseTime } from "@/utils";
 import PanThumb from '@/components/PanThumb';
 export default {
@@ -123,7 +123,15 @@ export default {
       },
       monthNames: ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"],
       rank: undefined,
-      payout: {},
+      payout: {
+        payout:{
+          sales_start_date:'',
+          sales_end_date:'',
+          payout_type:{
+            name:''
+          }
+        }
+      },
       company_details: {},
       user: {},
       payout_incomes: [],
@@ -150,13 +158,12 @@ export default {
       return this.monthNames[moonLanding.getMonth()] + " " + moonLanding.getFullYear();
     },
     getPayout(id) {
-      getMemberPayout(id).then(response => {
+      getMemberPayoutReport(id).then(response => {
 
         this.temp.contact_no = response.payout.member.user.contact;
         this.temp.email = response.payout.member.user.email;
         this.temp.id = response.user.username;
         this.temp.pic = response.payout.member.user.profile_picture;
-        this.temp.address = response.payout.member.kyc.address;
         this.temp.name = response.payout.member.user.name;
         this.temp.rank = response.payout.rank.name;
         this.temp.userid = response.payout.member.user.username;
@@ -170,29 +177,28 @@ export default {
         this.rank = response.user.rank;
         let scope = this
 
-        this.temp.totalIncome = response.payout.payout_amount;
-        this.temp.totalDeductions = response.payout.tds;
-        this.temp.netPayble = response.payout.net_payable_amount;
+        this.temp.totalIncome = response.payout.total_payout_amount;
+        this.temp.totalDeductions = response.payout.total_tds;
+        this.temp.netPayble = response.payout.total_net_payable_amount;
 
         response.incomes.forEach(function(nObj) {
-
           if (nObj['income'].code == "SQUAD") {
-            scope.squad_bonus = parseFloat(nObj.payout_amount) ;
+            scope.squad_bonus = parseFloat(nObj.total_payout_amount) ;
           }
           if (nObj['income'].code == "ELEVATION") {
-            scope.elevation_bonus = parseFloat(nObj.payout_amount) ;
+            scope.elevation_bonus = parseFloat(nObj.total_payout_amount) ;
           }
           if (nObj['income'].code == "LUXURY") {
-            scope.luxury_bonus = parseFloat(nObj.payout_amount) ;
+            scope.luxury_bonus = parseFloat(nObj.total_payout_amount) ;
           }
           if (nObj['income'].code == "PREMIUM") {
-            scope.premium_bonus = parseFloat(nObj.payout_amount) ;
+            scope.premium_bonus = parseFloat(nObj.total_payout_amount) ;
           }
           if (nObj['income'].code == "AFFILIATE") {
-            scope.affiliate_bonus = parseFloat(nObj.payout_amount) ;
+            scope.affiliate_bonus = parseFloat(nObj.total_payout_amount) ;
           }
           if (nObj['income'].code == "REWARD") {
-            scope.rewards = parseFloat(nObj.payout_amount) ;
+            scope.rewards = parseFloat(nObj.total_payout_amount) ;
           }
 
         })

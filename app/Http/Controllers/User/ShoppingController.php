@@ -32,9 +32,9 @@ class ShoppingController extends Controller
     {
         $Product=Product::with('categories','images.variant.color','images.variant.size','variants.color','variants.size')->find($id);
         
-        $productColorVariant = ProductVariant::where('product_id', $Product->id)->with('size','color')->groupBy('color_id')->get();
-
          if($Product){
+            $productColorVariant = ProductVariant::where('product_id', $Product->id)->with('size','color')->groupBy('color_id')->get();
+            
             $response = array('status' => true,'message'=>'Product retrieved.','data'=>$Product,'productColorVariant'=>$productColorVariant);             
             return response()->json($response, 200);
         }else{

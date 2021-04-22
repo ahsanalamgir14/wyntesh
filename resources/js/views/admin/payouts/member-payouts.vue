@@ -60,7 +60,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-       <el-table-column label="Actions" align="center" width="100" class-name="small-padding">
+     <!--   <el-table-column label="Actions" align="center" width="100" class-name="small-padding">
         <template slot-scope="{row}">
           <el-button
             type="warning"
@@ -70,7 +70,7 @@
             @click="payoutReport(row.id)"
           ></el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       
       <el-table-column label="Member" width="130px" align="right">
         <template slot-scope="{row}">
@@ -210,24 +210,24 @@ export default {
       const { columns, data } = param;
       const sums = [];
       columns.forEach((column, index) => {
-        if (index === 4) {
+        if (index === 3) {
           sums[index] = 'Final Total (All)';
           return;
         }
        
-        if (index === 6) {
+        if (index === 5) {
           sums[index] = this.sums.total_payout_amount;
           return;
         }
-        if (index === 7) {
+        if (index === 6) {
           sums[index] = this.sums.total_tds;
           return;
         }
-        if (index === 8) {
+        if (index === 7) {
           sums[index] = this.sums.total_admin_fee;
           return;
         }
-        if (index === 9) {
+        if (index === 8) {
           sums[index] = this.sums.total_net_payable_amount;
           return;
         }

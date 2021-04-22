@@ -88,6 +88,15 @@ export function getMemberPayout(id) {
   })
 }
 
+
+export function getMemberPayoutReport(id) {
+  return request({
+    url: '/user/member-payout/'+id+'/report',
+    method: 'get'
+  })
+}
+
+
 export function getDailyBVReport(query) {
   return request({
     url: '/user/daily/bv',

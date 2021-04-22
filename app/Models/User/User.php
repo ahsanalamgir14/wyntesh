@@ -79,6 +79,7 @@ class User extends  Authenticatable implements JWTSubject
         return Validator::make($request->all(), [
             'name' => 'required|max:255',
             'dob'=>'date|date_format:Y-m-d',
+            'email' => 'required|regex:/^.+@.+$/i',
             'gender'=>'max:1'
         ]);
     }

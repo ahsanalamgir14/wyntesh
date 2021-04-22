@@ -172,6 +172,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('personal-pv-monthly', 'ShoppingController@getPersonalPVMonthly');
     Route::get('rank-logs', 'RanksController@getRankLogs');
 
+    Route::get('member-payout/{id}/report', 'PayoutsController@getMemberPayoutReport');
 
 });
 

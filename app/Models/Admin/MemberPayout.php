@@ -14,7 +14,7 @@ class MemberPayout extends Model
 
     public function payout()
     {
-        return $this->belongsTo('App\Models\Admin\Payout');
+        return $this->belongsTo('App\Models\Admin\Payout','payout_id');
     }    
 
     public function getAffiliateTdsAttribute()

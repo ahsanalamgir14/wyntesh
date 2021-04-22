@@ -19,6 +19,7 @@ use App\Models\User\Order;
 use App\Models\User\User;
 use App\Models\Admin\Sale;
 use App\Models\Admin\CompanySetting;
+use App\Models\Admin\Setting;
 use JWTAuth;
 use DB;
 use Carbon\Carbon;
@@ -26,34 +27,7 @@ use Carbon\Carbon;
 class PayoutsController extends Controller
 {    
 
-    public function payout_pro(){
-
-        $Order  = Order::with('user')->whereNotIn('delivery_status',['Order Cancelled','Order Returned','Order Created'])->get();
-      
-        foreach ($Order as $key => $value) {
-            // dd($value);
-            $userdata = User::where("id",$value->user_id)->with('member')->first();
-
-            // Entry in sale table
-            $sale = new Sale();
-            $sale->member_id                        = $userdata->member->id; 
-            $sale->order_id                         = $value->id; 
-            $sale->pv                               = $value->pv; 
-            $sale->final_amount_company             = $value->amount; 
-            $sale->created_at                       = $value->created_at; 
-            $sale->save();
-
-            // Update memebr info pvs info
-            $userdata->member->current_personal_pv  += $value->pv;
-            $userdata->member->total_personal_pv    += $value->pv;
-            $userdata->member->save();
-
-            event(new UpdateGroupPVEvent($value,$value->user,'add'));
-
-        }
-    }
-
-
+    
     public function myAffiliateBonus(Request $request){
         $user=JWTAuth::user();
         $page=$request->page;
@@ -366,6 +340,65 @@ class PayoutsController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getMemberPayoutReport($id)
+    {   
+        $user=JWTAuth::user();
+
+        $settings= Setting::orWhere('is_public',1)
+        ->get()->pluck('value', 'key')->toArray();
+
+        $MemberPayout=MemberPayout::select();
+        $MemberPayout=$MemberPayout->where('id',$id)->where('member_id',$user->member->id);
+        $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date,payout_type_id','member.kyc')->first();
+
+        if(!$MemberPayout){
+             $response = array('status' => false,'message'=>'Member payout not found');
+            return response()->json($response, 404);  
+        }
+
+        if($MemberPayout->payout->payout_type->name=="Weekly"){
+             $MemberPayoutIncome= MemberPayoutIncome::addSelect(['*', \DB::raw('sum(payout_amount) as total_payout_amount')])
+                    ->whereDate('created_at','<=',$MemberPayout->payout->sales_end_date)
+                    ->whereDate('created_at','>=',$MemberPayout->payout->sales_start_date)
+                    ->where('payout_id',$MemberPayout->payout_id)
+                    ->where('member_id',$MemberPayout->member->id)
+                    ->with('income')
+                    ->groupBy('income_id')
+                    ->get();
+        }else{
+             $MemberPayoutIncome= MemberPayoutIncome::addSelect(['*', \DB::raw('sum(payout_amount) as total_payout_amount')])
+                    ->whereMonth('created_at',$MemberPayout->payout->sales_end_date->month)
+                    ->whereYear('created_at',$MemberPayout->payout->sales_end_date->year)
+                    ->where('member_id',$MemberPayout->member->id)
+                    ->with('income')
+                    ->groupBy('income_id')
+                    ->get();
+        }
+
+
+        if($MemberPayout->payout->payout_type->name=="Weekly"){
+             $payout= MemberPayout::addSelect(['*', \DB::raw('sum(payout_amount) as total_payout_amount'), \DB::raw('sum(tds) as total_tds'), \DB::raw('sum(net_payable_amount) as total_net_payable_amount')])
+                    ->whereDate('created_at','<=',$MemberPayout->payout->sales_end_date)
+                    ->whereDate('created_at','>=',$MemberPayout->payout->sales_start_date)
+                    ->where('payout_id',$MemberPayout->payout_id)
+                    ->where('member_id',$MemberPayout->member->id)
+                    ->with('member.user','payout.payout_type')
+                    ->first();
+        }else{
+            $payout= MemberPayout::addSelect(['*', \DB::raw('sum(payout_amount) as total_payout_amount'), \DB::raw('sum(tds) as total_tds'), \DB::raw('sum(net_payable_amount) as total_net_payable_amount')])
+                    ->whereMonth('created_at',$MemberPayout->payout->sales_end_date->month)
+                    ->whereYear('created_at',$MemberPayout->payout->sales_end_date->year)
+                    ->where('member_id',$MemberPayout->member->id)
+                    ->with('member.user')
+                    ->first();
+
+        }
+
+        $user_details=array('name' => $MemberPayout->member->user->name,'username'=>$MemberPayout->member->user->username,'profile_picture'=>$MemberPayout->member->user->profile_picture,'rank'=>$MemberPayout->member->rank->name,'contact'=> $MemberPayout->member->user->contact);
+
+        $response = array('status' => true,'message'=>"Member Payout retrieved.",'payout'=>$payout,'incomes'=>$MemberPayoutIncome,'company_details'=>$settings,'user'=>$user_details);
+        return response()->json($response, 200);
+    }
 
 
 }
