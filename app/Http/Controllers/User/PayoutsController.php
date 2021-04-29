@@ -262,7 +262,7 @@ class PayoutsController extends Controller
         $user=JWTAuth::user();
         $lastPayout =Payout::orderBy('id','desc')->first();
 
-        $last_date=Carbon::createFromDate($lastPayout->sales_end_date)->addDays(1)->format('Y-m-d');
+        $last_date=$lastPayout->sales_end_date->addDays(1)->format('Y-m-d');
         $allPayouts =Payout::whereYear('sales_start_date', '=', date("Y"))
                     ->whereMonth('sales_start_date', '=', date("m"))
                     ->get();
