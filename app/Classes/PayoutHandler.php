@@ -315,8 +315,8 @@ class PayoutHandler
     
     public function addRewardIncome($PayoutIncome,$memberPayout){
         
-        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
-        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+        $payout_month=$this->payout->sales_start_date->format('m');
+        $payout_year=$this->payout->sales_start_date->format('Y');
 
         $Rewards=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount'),DB::raw("tds_percent")])->where('member_id',$memberPayout->member_id)->whereMonth('created_at',$payout_month)
             ->whereYear('created_at',$payout_year)->first();
@@ -338,8 +338,8 @@ class PayoutHandler
 
     public function addAffiliateIncome($PayoutIncome,$memberPayout){
 
-        $payout_month=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('m');
-        $payout_year=Carbon::createFromFormat('Y-m-d', $this->payout->sales_start_date)->format('Y');
+        $payout_month=$this->payout->sales_start_date->format('m');
+        $payout_year=$this->payout->sales_start_date->format('Y');
 
         $AffiliateBonus= AffiliateBonus::select([                
                 DB::raw("SUM(amount) as total_payout_amount"),
