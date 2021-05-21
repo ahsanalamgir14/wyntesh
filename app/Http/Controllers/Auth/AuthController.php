@@ -18,6 +18,7 @@ use App\Mail\CustomHtmlMail;
 use App\Models\User\User;
 use App\Models\Admin\Setting;
 use App\Models\Admin\CompanySetting;
+use App\Http\Controllers\User\ShoppingController;
 
 use JWTAuth;
 use RobinCSamuel\LaravelMsg91\Facades\LaravelMsg91;
@@ -153,18 +154,16 @@ class AuthController extends Controller
                 return response()->json(['status'=>false,'message' => 'Only Member login allowed'], 401);
             }
 
+            $ShoppingController=new ShoppingController;
+            $package=$ShoppingController->getUserCourses($user);
+
             $userinfo['name']           = $user->name;
             $userinfo['joining_date']   = date('d-m-Y h:i:s',strtotime($user->created_at)); ;
             $userinfo['dob']            = date('d-m-Y',strtotime($user->dob));
             $userinfo['contact']        = $user->contact;
-            $userinfo['email']          = $user->email;  
-            if($user->member->total_personal_pv ==500 ){
-                $userinfo['package']  = "Advanced Courses 1";  
-            }else if($user->member->total_personal_pv >=501 && $user->member->total_personal_pv <= 3999){
-                $userinfo['package']  = "Advanced Courses 2";  
-            }else if($user->member->total_personal_pv >=4000 ){
-                $userinfo['package']  = "Advanced Courses 3";  
-            }
+            $userinfo['email']          = $user->email;              
+            $userinfo['package']  = $package;  
+            
             $response = array('status' => true,'message'=>"Education info.",'data'=>$userinfo);
             return response()->json($response, 400);
         }else{

@@ -651,4 +651,25 @@ class ShoppingController extends Controller
             return response()->json($response, 400);
         }        
     }
+
+    public function getUserCourses($user){
+        $products=Product::whereIn('product_number',['EC 01','EC 02'])->get()->pluck('id');
+        $orderIds=Order::where('user_id',$user->id)->whereNotIn('delivery_status',['Order Returned','Order Created','Order Cancelled'])->get()->pluck('id');
+        $orderProducts=OrderProduct::whereIn('order_id',$orderIds)->whereIn('product_id',$products)->get();
+
+        $userPackage='';
+
+        foreach ($orderProducts as $orderProduct) {
+            if($orderProduct->product->product_number=='EC 01'){
+                $userPackage='Advanced Courses 1';
+            }
+
+            if($orderProduct->product->product_number=='EC 02'){
+                $userPackage='Advanced Courses 2';
+            }
+        }
+
+        return $userPackage;
+
+    }
 }
