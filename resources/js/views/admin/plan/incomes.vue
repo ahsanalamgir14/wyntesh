@@ -207,7 +207,7 @@
             <span>{{ row.id }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Actions" align="center" width="200" class-name="small-padding" v-if="checkRole(['superadmin'])">
+        <el-table-column label="Actions" align="center" width="200" class-name="small-padding" >
           <template slot-scope="{row}">
             <el-button
               type="primary"
@@ -257,7 +257,7 @@
         <el-row :gutter="20">
           <el-col  :xs="24" :sm="24" :md="12" :lg="12" :xl="12" >
             <el-form-item label="Name" prop="name">
-              <el-input v-model="parameterTemp.name" />
+              <el-input v-model="parameterTemp.name" :disabled="!checkRole(['superadmin'])"/>
             </el-form-item>
             <el-form-item label="Value 1" prop="value_1">
               <el-input v-model="parameterTemp.value_1" />

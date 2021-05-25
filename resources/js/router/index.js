@@ -800,7 +800,7 @@ export const asyncRoutes = [
         path: 'payout-types',
         component: () => import('@/views/admin/plan/payout-types'),
         name: 'Payout Types',
-        hidden:false,
+        hidden:true,
         meta: { title: 'Payout Types', color:'color:#9261fa',  icon: 'fas fa-redo', affix: true, roles: ['admin'] }
       },
       {
