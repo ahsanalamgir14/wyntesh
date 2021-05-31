@@ -478,16 +478,34 @@ class PayoutHandler
         $PayoutIncome->income_payout_parameter_1_name='factor';
         $PayoutIncome->income_payout_parameter_2_name='total_points';
 
-        $TotalMatchedBv=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv DIV ".$minimum_matched.")) as total_points")])
-            ->where('total_matched_bv','>=',$minimum_matched)
-            ->whereHas('member',function($q)use($minimum_rank){
-                $q->where('rank_id','>=',$minimum_rank);
-            })
-            ->whereDate('created_at','>=',$this->payout->sales_start_date)
-            ->whereDate('created_at','<=',$this->payout->sales_end_date)
-            ->first();
+        $payout_month=$this->payout->sales_start_date->format('m');
+        $payout_year=$this->payout->sales_start_date->format('Y');
 
-        $total_points=$TotalMatchedBv->total_points;
+
+        $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})->whereMonth('created_at',$payout_month)
+            ->whereYear('created_at',$payout_year)->groupBy('member_id')->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
+
+      
+        $total_points=0;
+
+        foreach ($points_array as $key => $value) {
+            $points=intdiv($value,$minimum_matched);
+            if($points >= 1){
+                $total_points+=$points;
+            }
+        }
+
+
+        // $TotalMatchedBv=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv DIV ".$minimum_matched.")) as total_points")])
+        //     ->where('total_matched_bv','>=',$minimum_matched)
+        //     ->whereHas('member',function($q)use($minimum_rank){
+        //         $q->where('rank_id','>=',$minimum_rank);
+        //     })
+        //     ->whereMonth('created_at',$payout_month)
+        //     ->whereYear('created_at',$payout_year)
+        //     ->first();
+
+        // $total_points=$TotalMatchedBv->total_points;
 
         if(!$total_points){
             $income_factor=0;
@@ -559,9 +577,12 @@ class PayoutHandler
             return;
         }
 
+        $payout_month=$this->payout->sales_start_date->format('m');
+        $payout_year=$this->payout->sales_start_date->format('Y');
+
         $total_matched_bv=MemberPayout::where('member_id',$Member->id)
-            ->whereDate('created_at','>=',$this->payout->sales_start_date)
-            ->whereDate('created_at','<=',$this->payout->sales_end_date)
+            ->whereMonth('created_at',$payout_month)
+            ->whereYear('created_at',$payout_year)
             ->sum('total_matched_bv');
 
         if($total_matched_bv < $minimum_matched)
