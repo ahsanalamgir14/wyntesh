@@ -57,10 +57,7 @@ class PayoutHandler
         $this->payIncomes();
         $this->updateMemberPayoutSum();        
         $this->updatePayoutSum();
-
-        if($this->payout->payout_type->name=='Monthly'){
-            $this->updateRank($this->payout);
-        }
+        $this->updateRank($this->payout);
 
     }
 
@@ -315,11 +312,10 @@ class PayoutHandler
     
     public function addRewardIncome($PayoutIncome,$memberPayout){
         
-        $payout_month=$this->payout->sales_start_date->format('m');
-        $payout_year=$this->payout->sales_start_date->format('Y');
-
-        $Rewards=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount'),DB::raw("tds_percent")])->where('member_id',$memberPayout->member_id)->whereMonth('created_at',$payout_month)
-            ->whereYear('created_at',$payout_year)->first();
+        $Rewards=Reward::select([DB::raw('sum(amount) as total_payout_amount'),DB::raw('sum(tds_amount) as total_tds'),DB::raw('sum(final_amount) as total_net_payable_amount'),DB::raw("tds_percent")])
+            ->where('member_id',$memberPayout->member_id)
+            ->whereDate('created_at','<=', $this->payout->sales_end_date)
+            ->whereDate('created_at','>=', $this->payout->sales_start_date)->first();
 
         if($Rewards->total_payout_amount > 0){
             $MemberPayoutIncome=new MemberPayoutIncome;
@@ -338,17 +334,15 @@ class PayoutHandler
 
     public function addAffiliateIncome($PayoutIncome,$memberPayout){
 
-        $payout_month=$this->payout->sales_start_date->format('m');
-        $payout_year=$this->payout->sales_start_date->format('Y');
-
+        
         $AffiliateBonus= AffiliateBonus::select([                
                 DB::raw("SUM(amount) as total_payout_amount"),
                 DB::raw("SUM(tds_amount) as total_tds"),
                 DB::raw("SUM(final_amount) as total_net_payable_amount"),
                 DB::raw("tds_percent"),
             ])
-            ->whereMonth('created_at',$payout_month)
-            ->whereYear('created_at',$payout_year)
+            ->whereDate('created_at','<=', $this->payout->sales_end_date)
+            ->whereDate('created_at','>=', $this->payout->sales_start_date)
             ->where('member_id',$memberPayout->member_id)
             ->first();
 
@@ -798,7 +792,7 @@ class PayoutHandler
 
     public function updateRank($payout){
         $Members=Member::orderBy('level','desc')->get();
-        $Ranks=Rank::all();
+        $Ranks=Rank::orderBy('priority','ASC')->get();
         $MembersController=new MembersController;
         foreach ($Members as $Member) {
             $total_income=MemberPayout::where('member_id',$Member->id)->sum('payout_amount');
@@ -823,7 +817,7 @@ class PayoutHandler
                 if($Rank->leg_rank){                                          
                     foreach ($counts as $key => $value) {                              
                         if($Rank->leg_rank===$key && $value >= $Rank->leg_rank_count ){
-                            if($total_income >= $Rank->bv_to && $Member->rank_id<$Rank->id){
+                            if($total_income >= $Rank->bv_to && $Member->rank->priority<$Rank->priority){
                                 $Member->rank_id=$Rank->id;
                                 $Member->save(); 
                             }                           
@@ -832,7 +826,7 @@ class PayoutHandler
                     }
 
                 }else{
-                    if($total_income >= $Rank->bv_to && $Member->rank_id<$Rank->id){
+                    if($total_income >= $Rank->bv_to && $Member->rank->priority<$Rank->priority){
                         $Member->rank_id=$Rank->id;
                         $Member->save(); 
                     }  

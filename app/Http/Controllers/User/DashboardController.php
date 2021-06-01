@@ -49,13 +49,20 @@ class DashboardController extends Controller
         $total_personal_pv=$User->member->total_personal_pv;
         $balance=floatval($User->member->wallet_balance);
        
-        $affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->sum('amount');        
-        $reward=Reward::where('member_id',$User->member->id)->sum('amount');
+        $affiliate_bonus_income=Income::where('code','AFFILIATE')->first();
+        $affiliate_bonus = MemberPayoutIncome::where('income_id',$affiliate_bonus_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+
+        $reward_income=Income::where('code','REWARD')->first();
+        $reward = MemberPayoutIncome::where('income_id',$reward_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
+
+       // $affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->sum('amount');        
+        //$reward=Reward::where('member_id',$User->member->id)->sum('amount');
 
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('payout_amount');
-        $cur_affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');        
-        $cur_reward=Reward::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');
-        $total_payout+=$cur_reward+$cur_affiliate_bonus;
+
+        // $cur_affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');        
+        // $cur_reward=Reward::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');
+        //$total_payout+=$cur_reward+$cur_affiliate_bonus;
 
         $income_wallet_balance=Member::where('id',$User->member->id)->sum('income_wallet_balance');
 

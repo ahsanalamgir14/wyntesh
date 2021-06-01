@@ -145,47 +145,47 @@ class CronsController extends Controller
         if($day=='4'){
             $from=$dt->year.'-'.$dt->month.'-'.'1';
             $to=$dt->year.'-'.$dt->month.'-'.'3';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='7'){
             $from=$dt->year.'-'.$dt->month.'-'.'4';
             $to=$dt->year.'-'.$dt->month.'-'.'6';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='10'){
             $from=$dt->year.'-'.$dt->month.'-'.'7';
             $to=$dt->year.'-'.$dt->month.'-'.'9';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='13'){
             $from=$dt->year.'-'.$dt->month.'-'.'10';
             $to=$dt->year.'-'.$dt->month.'-'.'12';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='16'){
             $from=$dt->year.'-'.$dt->month.'-'.'13';
             $to=$dt->year.'-'.$dt->month.'-'.'15';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='19'){
             $from=$dt->year.'-'.$dt->month.'-'.'16';
             $to=$dt->year.'-'.$dt->month.'-'.'18';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='22'){
             $from=$dt->year.'-'.$dt->month.'-'.'19';
             $to=$dt->year.'-'.$dt->month.'-'.'21';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='25'){
             $from=$dt->year.'-'.$dt->month.'-'.'22';
             $to=$dt->year.'-'.$dt->month.'-'.'24';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='28'){
             $from=$dt->year.'-'.$dt->month.'-'.'25';
             $to=$dt->year.'-'.$dt->month.'-'.'27';
-            $incomes=Income::whereIn('code',['SQUAD','ELEVATION','LUXURY'])->get();
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
             $PayoutType=PayoutType::where('name','Weekly')->first();
         }else if($day=='1'){
             $dt->modify('-1 months');
