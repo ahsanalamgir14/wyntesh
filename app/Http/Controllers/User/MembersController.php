@@ -265,10 +265,8 @@ class MembersController extends Controller
         $User=User::find($id);
         
         if($User){
-            $User->name=$request->name;
             $User->contact=$request->contact;
             $User->gender=$request->gender;
-            $User->email=$request->email;
             $User->dob=$request->dob;
             $User->save();
 

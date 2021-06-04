@@ -399,8 +399,11 @@ export default {
         username: [
           { required: true, message: "Username required", trigger: "blur" }
         ],
+        contact: [
+          { required: true, message: "Contact no required", trigger: "blur" }
+        ],
         email:[
-          { type: 'email', message: 'Please input correct email address', trigger: ['blur', 'change'] }
+          { required: true, type: 'email', message: 'Please input correct email address', trigger: ['blur', 'change'] }
         ]
       },
       downloadLoading: false,

@@ -71,8 +71,6 @@ class PayoutNotification extends Notification implements ShouldQueue
         $Email=Email::where('title','Payout Email')->first();
         if($Email){
             
-            
-
             $email_content=$Email->description;
             $email_content=str_replace("{name}",$this->MemberPayout->member->user->name,$email_content);
             $email_content=str_replace("{payout_amount}",$this->total_income,$email_content);
