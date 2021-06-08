@@ -73,7 +73,7 @@ class CronsController extends Controller
         $folder     =   str_replace(" ","-",env('APP_NAME'));
         $backup = Backup::whereDate('created_at','<=',Carbon::now()->subDays(7))->get();
         foreach ($backup as $key => $value) {
-            Storage::disk('spaces')->delete($value->path);
+            Storage::disk('s3')->delete($value->path);
             $temp  = Backup::find($value->id);
             $temp->delete();
         }
@@ -82,20 +82,20 @@ class CronsController extends Controller
             '--only-db' => 'default'
         ]);
 
-       
         $allFiles   =   Storage::disk('local')->allFiles($folder);
         $filename   =   Storage::url($allFiles[0]);    
 
+        $timeStamp=str_replace(':','-',str_replace(' ','-',Carbon::now()));
+
         $file       =   Storage::disk('local')->get($allFiles[0]);  // full zip file
         $filename   =   Storage::files($folder)[0];
-        $filename   = 'backup/'.env('APP_ENV').'-'.rand(10,100000).'-'.Carbon::now();
+        $filename   = 'backup/'.env('APP_ENV').'-'.rand(10,100000).'-'.$timeStamp;
        // $filename   =   str_replace(env('APP_NAME').'/','backup/', $filename);
    
         $project_directory=env('DO_STORE_PATH');
-        $store=Storage::disk('spaces')->put($project_directory.'/'.$filename,$file);
-        $url=Storage::disk('spaces')->url($project_directory.'/'.$filename);
-        $cdn_url=str_replace('digitaloceanspaces','cdn.digitaloceanspaces', $url);
-
+        $store=Storage::disk('s3')->put($project_directory.'/'.$filename,$file);
+        $url=Storage::disk('s3')->url($project_directory.'/'.$filename);
+        
         $backup = new Backup;
         $backup->path = env('DO_STORE_PATH').'/'.$filename;
         $backup->url = $url;
