@@ -94,6 +94,7 @@ class CronsController extends Controller
    
         $project_directory=env('DO_STORE_PATH');
         $store=Storage::disk('s3')->put($project_directory.'/'.$filename,$file);
+        Storage::disk('spaces')->put($project_directory.'/'.$filename,$file);
         $url=Storage::disk('s3')->url($project_directory.'/'.$filename);
         
         $backup = new Backup;
