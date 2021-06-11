@@ -56,7 +56,7 @@
             <router-link to="/wallet/wallet">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.balance)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">E Wallet</div>
+                <div class="text-xs font-bold mt-1 text-blue-500">E Wallet</div>
               </div>
             </router-link>
           </el-col>
@@ -64,7 +64,7 @@
             <router-link to="/wallet/income-wallet">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.income_wallet_balance)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Income Wallet</div>
+                <div class="text-xs font-bold mt-1 text-blue-500">Income Wallet</div>
               </div>
             </router-link>
           </el-col>
@@ -72,7 +72,7 @@
             <router-link to="/wallet/luxury-wallet-transactions">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.luxury_wallet_balance)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Luxury Wallet</div>
+                <div class="text-xs font-bold mt-1 text-blue-500">Luxury Wallet</div>
               </div>
             </router-link>
           </el-col>
@@ -80,7 +80,7 @@
             <router-link to="/network/downlines">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.downlines)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Downlines</div>
+                <div class="text-xs font-bold mt-1 text-purple-500">Downlines</div>
               </div>
             </router-link>
           </el-col>
@@ -88,7 +88,7 @@
             <router-link to="/network/referrals">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.referrals)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Referrals</div>
+                <div class="text-xs font-bold mt-1 text-purple-500">Referrals</div>
               </div>
             </router-link>
           </el-col>
@@ -96,7 +96,7 @@
             <router-link to="/reports/personal-pv">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.self_pv)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Self PV</div>
+                <div class="text-xs font-bold mt-1 text-purple-500">Self PV</div>
               </div>
             </router-link>
           </el-col>
@@ -104,7 +104,7 @@
             <router-link to="/member/payouts/incomes">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.affiliateIncome)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Affiliate Income</div>
+                <div class="text-xs font-bold mt-1 text-yellow-500">Affiliate Income</div>
               </div>
             </router-link>
           </el-col>
@@ -112,7 +112,7 @@
             <router-link to="/member/payouts/incomes">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.squad_bonus)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Squad Bonus</div>
+                <div class="text-xs font-bold mt-1 text-yellow-500">Squad Bonus</div>
               </div>
             </router-link>
           </el-col>
@@ -120,7 +120,7 @@
             <router-link to="/member/payouts/incomes">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.elevation)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Elevation Income</div>
+                <div class="text-xs font-bold mt-1 text-yellow-500">Elevation Income</div>
               </div>
             </router-link>
           </el-col>
@@ -128,7 +128,7 @@
             <router-link to="/member/payouts/incomes">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.luxury)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Luxury Income</div>
+                <div class="text-xs font-bold mt-1 text-yellow-500">Luxury Income</div>
               </div>
             </router-link>
           </el-col>
@@ -136,56 +136,56 @@
             <router-link to="/member/payouts/incomes">
               <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
                 <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{parseFloat(dashboardStats.premium)}}</div>
-                <div class="text-xs font-bold mt-1 text-green-500">Pro Bonus</div>
+                <div class="text-xs font-bold mt-1 text-yellow-500">Pro Bonus</div>
               </div>
             </router-link>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.leg_pv[1]?dashboardStats.member.gmember.leg_pv[1]:0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">LEG A <span class="text-red-500">(CF - {{getCarryForward(1)}})</span></div>
+              <div class="text-xs font-bold mt-1 text-indigo-500">LEG A</div>
             </div>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.leg_pv[2]?dashboardStats.member.gmember.leg_pv[2]:0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">LEG B <span class="text-red-500">(CF - {{getCarryForward(2)}})</span></div>
+              <div class="text-xs font-bold mt-1 text-indigo-500">LEG B</div>
             </div>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.leg_pv[3]?dashboardStats.member.gmember.leg_pv[3]:0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">LEG C <span class="text-red-500">(CF - {{getCarryForward(3)}})</span></div>
+              <div class="text-xs font-bold mt-1 text-indigo-500">LEG C</div>
             </div>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.leg_pv[4]?dashboardStats.member.gmember.leg_pv[4]:0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">LEG D <span class="text-red-500">(CF - {{getCarryForward(4)}})</span></div>
+              <div class="text-xs font-bold mt-1 text-indigo-500">LEG D</div>
             </div>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.total_leg_pv[1]?parseInt(dashboardStats.member.gmember.total_leg_pv[1]):0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">Total LEG A </div>
+              <div class="text-xs font-bold mt-1 text-green-900">Total LEG A </div>
             </div>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.total_leg_pv[2]?parseInt(dashboardStats.member.gmember.total_leg_pv[2]):0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">Total LEG B </div>
+              <div class="text-xs font-bold mt-1 text-green-900">Total LEG B </div>
             </div>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.total_leg_pv[3]?parseInt(dashboardStats.member.gmember.total_leg_pv[3]):0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">Total LEG C </div>
+              <div class="text-xs font-bold mt-1 text-green-900">Total LEG C </div>
             </div>
           </el-col>
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <div class="shadow-md p-2 pl-4 pt-1 pr-1 md:pr-3 bg-white rounded-md overflow-hidden">
               <div class="text-2xl font-bold leading-8 mt-2 text-gray-700">{{temp.gmember.total_leg_pv[4]?parseInt(dashboardStats.member.gmember.total_leg_pv[4]):0}}</div>
-              <div class="text-xs font-bold mt-1 text-green-500">Total LEG D </div>
+              <div class="text-xs font-bold mt-1 text-green-900">Total LEG D </div>
             </div>
           </el-col>
           

@@ -55,12 +55,12 @@ class GMember extends Model
                     ->groupBy('position')
                     ->get()->pluck('totalPv','position')->toArray();
 
-        $last_carry_forward=MemberCarryForwardPv::where('member_id',$this->id)->orderBy('payout_id','desc')->first();
+        // $last_carry_forward=MemberCarryForwardPv::where('member_id',$this->id)->orderBy('payout_id','desc')->first();
 
-        if($last_carry_forward){
-                $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
-                $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
-        }
+        // if($last_carry_forward){
+        //         $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
+        //         $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
+        // }
         
 
         return $legs;
