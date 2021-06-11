@@ -95,6 +95,11 @@ class User extends  Authenticatable implements JWTSubject
         return $this->hasOne('App\Models\Admin\Member');
     }
 
+    public function gmember()
+    {
+        return $this->hasOne('App\Models\Admin\GMember');
+    }
+
     public function currency()
     {
         return $this->belongsTo('App\Models\Admin\Currency','currency_code','code');

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User\User;
 use App\Models\Admin\Member;
+use App\Models\Admin\GMember;
 use App\Models\Admin\MemberPayout;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\MemberPayoutIncome;
@@ -32,7 +33,7 @@ class DashboardController extends Controller
 
       
         $Member=User::with('kyc')
-                ->with('member:id,user_id,wallet_balance')
+                ->with('member:id,user_id,wallet_balance','gmember')
                 ->with('member.rank')
                 ->find($User->id);
     	
@@ -55,14 +56,7 @@ class DashboardController extends Controller
         $reward_income=Income::where('code','REWARD')->first();
         $reward = MemberPayoutIncome::where('income_id',$reward_income->id)->where('member_id',$User->member->id)->sum('payout_amount');
 
-       // $affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->sum('amount');        
-        //$reward=Reward::where('member_id',$User->member->id)->sum('amount');
-
         $total_payout=MemberPayout::where('member_id',$User->member->id)->sum('payout_amount');
-
-        // $cur_affiliate_bonus=AffiliateBonus::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');        
-        // $cur_reward=Reward::where('member_id',$User->member->id)->whereMonth('created_at',date('m'))->sum('amount');
-        //$total_payout+=$cur_reward+$cur_affiliate_bonus;
 
         $income_wallet_balance=Member::where('id',$User->member->id)->sum('income_wallet_balance');
 
