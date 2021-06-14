@@ -276,7 +276,7 @@
           </el-col>
 
 
-          <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+          <!-- <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/reports/group-and-matching">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-shopping">
@@ -291,7 +291,7 @@
                 </div>
               </div>
             </router-link>
-          </el-col>
+          </el-col> -->
 
           <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
             <router-link to="/reports/group-and-matching">
