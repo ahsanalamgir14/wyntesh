@@ -304,6 +304,27 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/contests',
+    component: Layout,
+    hidden:true,
+    redirect: '/contests/add',
+    name: 'Contests',
+    meta: {
+      title: 'Contests',
+      icon: 'fas fa-trophy',
+      roles: ['admin'],
+      color:'color:#078F6A'
+    },
+    children: [
+      {
+        path: 'add',
+        component: () => import('@/views/admin/website/achievers/index'),
+        name: 'Create Contest',
+        meta: { title: 'Create Contest', icon: 'fas fa-award', color:'color:#48C9B0', affix: true, roles: ['admin'] }
+      },
+    ]
+  },
+  {
     path: '/packages',
     component: Layout,
     hidden:true,

@@ -21,19 +21,21 @@
           <div style="padding: 14px;">
             <span>{{product.name}}</span>
             <el-row style="margin-top: 20px;">
-              <el-col :span="12" class="price">
-                <span style="text-align: left;"> DP <br>
-                  {{product.dp_amount}}</span>
+              <el-col :span="8" class="price">
+                <span style="text-align: left;"> Price <br></span>
+                  <span v-if="parseInt(product.display_price) != 0"><strike>{{product.display_price}}</strike></span>
+                  <span v-else>{{product.retail_amount}}</span>
               </el-col>
+             
               <el-col :span="12" class="price" style="text-align: right;">
                 <span>PV <br>
                   {{product.pv}}</span>
               </el-col>
             </el-row>
             <el-row style="margin-top: 20px;">
-              <el-col :span="8" class="price">
-                <span style="text-align: left;"> MRP <br>
-                  {{product.retail_amount}}</span>
+               <el-col :span="8" class="price">
+                <span style="text-align: left;"> DP <br>
+                  {{product.dp_amount}}</span>
               </el-col>
               <el-col :span="6" class="price" style="text-align: right;">
                 <span>{{product.qty}} <br>
@@ -89,7 +91,13 @@ export default {
     };
   },
   created() {
-    this.getList();
+    let category_id = this.$route.query.category_id
+    if(category_id){
+      this.listQuery.category_id=parseInt(category_id);
+      this.getList();
+    }else{
+      this.getList();
+    }
     this.getConfig();
     this.getMyCartProducts();
   },

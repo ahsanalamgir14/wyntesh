@@ -136,6 +136,7 @@ class ProductsController extends Controller
         $Product->qty_unit=$request->qty_unit;
         $Product->description=$request->description;
         $Product->benefits=$request->benefits;
+        $Product->display_price=$request->display_price??0;
         $Product->cost_base=$request->cost_base;
         $Product->cost_gst_rate=$request->cost_gst_rate;
         $Product->cost_gst_amount=$request->cost_gst_amount;
@@ -224,6 +225,7 @@ class ProductsController extends Controller
         $Product->qty_unit=$request->qty_unit;
         $Product->description=$request->description;
         $Product->benefits=$request->benefits;
+        $Product->display_price=$request->display_price??0;
         $Product->cost_base=$request->cost_base;
         $Product->cost_gst_rate=$request->cost_gst_rate;
         $Product->cost_gst_amount=$request->cost_gst_amount;

@@ -39,6 +39,9 @@
               <!-- <el-form-item label="Discount Rate" prop="discount_rate">
                 <el-input type="number" min="0" v-model="temp.discount_rate" />
               </el-form-item> -->
+              <el-form-item label="Display Price" prop="display_price">
+                <el-input type="number" min="0" v-model="temp.display_price" />
+              </el-form-item>
               <el-form-item label="Priority" prop="priority">
                 <el-input type="number" min="0" v-model="temp.priority" />
               </el-form-item>
@@ -442,6 +445,7 @@ export default {
         is_color_variant: false,
         is_size_variant: false,
         is_shipping_waiver: false,
+        display_price: 0,
         cost_base: 0,
         cost_gst_rate: 0,
         cost_gst_amount: 0,
