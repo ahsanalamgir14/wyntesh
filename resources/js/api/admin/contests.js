@@ -8,6 +8,13 @@ export function getContests(query) {
   })
 }
 
+export function getAllContests() {
+  return request({
+    url: '/admin/contests/all',
+    method: 'get'
+  })
+}
+
 export function fetchContest(id) {
   return request({
     url: '/admin/contest/'+id,
@@ -45,6 +52,23 @@ export function updateContest(data) {
     method: 'post',
     data,
     headers: { "Content-Type": "multipart/form-data" }
+  })
+}
+
+
+export function createSpecialReward(data) {
+  return request({
+    url: '/admin/contest',
+    method: 'post',
+    data,
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+}
+
+export function deleteContestSpecialReward(id) {
+  return request({
+    url: '/admin/contest/special/reward/'+id+'/delete',
+    method: 'delete'
   })
 }
 

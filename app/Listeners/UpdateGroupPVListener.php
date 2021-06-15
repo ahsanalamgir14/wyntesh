@@ -10,7 +10,7 @@ use App\Models\Admin\Member;
 use App\Models\Admin\Contest;
 use App\Models\Admin\ContestMember;
 use Illuminate\Support\Facades\Log;
-use DB;
+use DB, Carbon\Carbon;
 
 class UpdateGroupPVListener implements ShouldQueue
 {
@@ -102,6 +102,13 @@ class UpdateGroupPVListener implements ShouldQueue
     public function updateContestPoints($member)
     {
         $contest=Contest::where('is_current',1)->first();
+
+        $today=Carbon::today();
+
+        if($today->gt($contest->end_date)){
+            return; 
+        }
+
         $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
                 ->whereDate('created_at','>=',$contest->start_date)
                 ->whereDate('created_at','<=',$contest->end_date)

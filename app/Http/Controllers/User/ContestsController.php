@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\Contest;
 use App\Models\Admin\ContestMember;
+use App\Models\Admin\ContestReward;
 use App\Models\Admin\Member;
 use Storage, Carbon\Carbon;
 
@@ -45,9 +46,44 @@ class ContestsController extends Controller
         }
 
         $ContestMembers=$ContestMembers->where('rank_id',$rank_id);
-        $ContestMembers=$ContestMembers->orderBy('points','desc')->paginate($limit);
+        $ContestMembers=$ContestMembers->with('member.user')->orderBy('points','desc')->paginate($limit);
         
         $response = array('status' => true,'message'=>"Contest members retrieved.",'data'=>$ContestMembers);
+        return response()->json($response, 200);
+    }
+
+    public function getSpecialAwards(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=10;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+        
+        $ContestRewards=ContestReward::select();
+
+        if($search){
+            $ContestRewards=$ContestRewards->whereHas('member.user',function($q)use($search){
+                $q->where('username',$search);
+            });
+        }
+        
+        $ContestRewards=$ContestRewards->with('member.user')->orderBy('points','asc')->paginate($limit);
+        
+        $response = array('status' => true,'message'=>"Contest reward members retrieved.",'data'=>$ContestRewards);
         return response()->json($response, 200);
     }
 

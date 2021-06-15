@@ -7,13 +7,22 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\Contest;
 use App\Models\Admin\ContestMember;
+use App\Models\Admin\ContestReward;
 use App\Models\Admin\Member;
+use App\Models\User\User;
 use Storage, Carbon\Carbon;
 
 class ContestsController extends Controller
 {    
 
     //  get Contests
+    
+    public function getAllContests(){
+        $contests=Contest::orderBy('id','desc')->get();
+        $response = array('status' => true,'message'=>"Contests retrieved.",'data'=>$contests);
+        return response()->json($response, 200);
+    }
+
     public function getContests(Request $request)
     {
         $page=$request->page;
@@ -198,6 +207,59 @@ class ContestsController extends Controller
 
         $Contest->delete(); 
         $response = array('status' => true,'message'=>'Contest successfully deleted.');             
+        return response()->json($response, 200);
+    }
+
+    public function createSpecialReward(Request $request){        
+        
+        $validate = Validator::make($request->all(), [           
+            'title' => "required",
+            'member_id' => "required",
+            'contest_id' => "required",
+        ]);
+
+        
+        if($validate->fails()){
+            $response = array('status' => false,'message'=>'Validation error','data'=>$validate->messages());
+            return response()->json($response, 400);
+        }
+
+        $Contest=Contest::find($request->id);
+
+        if(!$Contest){
+            $response = array('status' => false,'message'=>'Contest not found');
+            return response()->json($response, 404);
+        }
+
+        $member=Member::whereHas('user',function($q)use($request){
+            $q->where('username',$request->member_id);
+        })->first();
+
+        if(!$member){
+            $response = array('status' => false,'message'=>'member not found');
+            return response()->json($response, 404);   
+        }
+
+        $ContestReward=new ContestReward;
+        $ContestReward->title=$request->title;
+        $ContestReward->member_id=$request->member_id;
+        $ContestReward->contest_id=$request->contest_id;
+        $ContestReward->save();
+
+        $response = array('status' => true,'message'=>'Contest Reward added successfully.','data'=>$Contest);
+        return response()->json($response, 200);
+    }
+
+    public function deleteContestSpecialReward($id){
+        $ContestReward= ContestReward::find($id);         
+        
+        if(!$ContestReward){
+            $response = array('status' => false,'message'=>'Contest Reward not found');
+            return response()->json($response, 404);
+        }
+
+        $ContestReward->delete(); 
+        $response = array('status' => true,'message'=>'Contest Reward successfully deleted.');             
         return response()->json($response, 200);
     }
 

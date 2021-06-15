@@ -38,11 +38,11 @@
     </div>
     <el-row>
       <el-col>
-        <el-tabs v-model="currentTab" @tab-click="tabChange">
+        <el-tabs v-model="currentTab" @tab-click="tabChange" class="mt-4">
           <el-tab-pane label="Afiiliate" name="affiliate">
 
           </el-tab-pane>
-          <el-tab-pane label="Affiliate" name="rising-affiliate">
+          <el-tab-pane label="Rising Affiliate" name="rising-affiliate">
             
           </el-tab-pane>
           <el-tab-pane label="Team Affiliate" name="team-affiliate">
@@ -64,7 +64,7 @@
   </div>
 </template>
 <script>
-  import { getCurrentContest,getContestStats } from "@/api/user/contests";
+  import { getCurrentContest,getContestStats,getSpecialAwards } from "@/api/user/contests";
 import crown from '@/assets/images/crown.png'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -81,7 +81,8 @@ export default {
       pageSize: 10,
       layout: 'total, sizes, prev,next, jumper',
       pageSizes: [5,10, 15, 20, 30, 50,500,5000],
-      list: null,
+      list: [],
+      specialAwards: [],
       total: 0,
       listLoading: true,
       listQuery: {
@@ -115,6 +116,12 @@ export default {
         this.total = response.data.total;        
       });
     },
+    getSpecialAwards(){
+      getSpecialAwards(this.listQuery).then(response => {
+        this.specialAwards = response.data.data;
+        this.total = response.data.total;        
+      });
+    },
     getContest(){
       getCurrentContest().then(response => {
         this.contest = response.data;      
@@ -126,12 +133,15 @@ export default {
     tabChange(tab, event){
       if(tab.name=='affiliate'){
         this.listQuery.rank_id=1;
+        this.getList();
       }else if(tab.name=='rising-affiliate'){
         this.listQuery.rank_id=11;        
+        this.getList();
       }else if(tab.name=='team-affiliate'){
         this.listQuery.rank_id=2;                
+        this.getList();
       }else if(tab.name=='awards'){
-        
+        this.getSpecialAwards();
       }
     },
     handleFilter() {
