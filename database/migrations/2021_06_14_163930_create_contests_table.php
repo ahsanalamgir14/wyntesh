@@ -20,6 +20,8 @@ class CreateContestsTable extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('number_of_winners')->default(3);
+            $table->boolean('is_current')->default(0)->nullable();
+            $table->text('image',2048)->nullable();
             $table->timestamps();
         });
     }

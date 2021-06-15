@@ -66,6 +66,9 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('notice', '\App\Http\Controllers\Admin\NoticesController@get');
     Route::get('welcome-letter', '\App\Http\Controllers\Admin\WelcomeLetterController@get');
 
+    Route::get('contests', 'ContestsController@getContestStats');
+    Route::get('contest/current', 'ContestsController@getCurrentContest');
+    
     Route::get('currencies/all', '\App\Http\Controllers\Admin\CurrenciesController@all');
 
     Route::get('stats', 'DashboardController@stats');
@@ -240,6 +243,13 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::get('achievers', 'AchieversController@getAchievers');
     Route::get('achiever/{id}', 'AchieversController@getAchiever');
     Route::delete('achiever/{id}/delete', 'AchieversController@deleteAchiever');
+
+    Route::post('contest','ContestsController@createContest');
+    Route::post('contest/update', 'ContestsController@updateContest');
+    Route::get('contests', 'ContestsController@getContests');
+    Route::get('contest/{id}', 'ContestsController@getContest');
+    Route::get('contest/start/{id}', 'ContestsController@startContest');
+    Route::delete('contest/{id}/delete', 'ContestsController@deleteContest');
 
     Route::post('popup','PopupsController@createPopup');
     Route::post('popup/update', 'PopupsController@updatePopup');

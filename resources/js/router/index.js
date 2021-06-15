@@ -306,7 +306,7 @@ export const asyncRoutes = [
   {
     path: '/contests',
     component: Layout,
-    hidden:true,
+    hidden:false,
     redirect: '/contests/add',
     name: 'Contests',
     meta: {
@@ -318,7 +318,7 @@ export const asyncRoutes = [
     children: [
       {
         path: 'add',
-        component: () => import('@/views/admin/website/achievers/index'),
+        component: () => import('@/views/admin/contests/add'),
         name: 'Create Contest',
         meta: { title: 'Create Contest', icon: 'fas fa-award', color:'color:#48C9B0', affix: true, roles: ['admin'] }
       },
@@ -945,6 +945,19 @@ export const asyncRoutes = [
         name: 'Addresses',
         meta: { title: 'Addresses', icon: 'fas fa-map-marked-alt', color:'color:#C39BD3', affix: true, roles: ['user'] }
       },
+    ]
+  },
+  {
+    path: '/contest',
+    component: Layout,
+    redirect: '/contest/championship',
+    children: [
+      {
+        path: 'championship',
+        component: () => import('@/views/user/contests/index'),
+        name: 'Contest',
+        meta: { title: 'Contest', icon: 'fas fa-trophy', color:'color:#fc4e03', affix: true }
+      }
     ]
   },
   {

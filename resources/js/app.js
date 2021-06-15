@@ -15,9 +15,10 @@ import { VueReCaptcha } from 'vue-recaptcha-v3'
 import * as filters from './filters'; // global filters
 import VueEvents from 'vue-events'
 import VueLazyload from 'vue-lazyload'
- 
+ import VueCountdownTimer from 'vuejs-countdown-timer';
 
 Vue.use(VueReCaptcha, { siteKey: '6LeNueQUAAAAAOdXr5rhWWz5f4KodsexOwonkLAp' })
+Vue.use(VueCountdownTimer);
 
 Vue.use(VueEvents)
 Vue.use(VueLazyload)

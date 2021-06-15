@@ -7,7 +7,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\Member;
+use App\Models\Admin\Contest;
+use App\Models\Admin\ContestMember;
 use Illuminate\Support\Facades\Log;
+use DB;
 
 class UpdateGroupPVListener implements ShouldQueue
 {
@@ -80,6 +83,7 @@ class UpdateGroupPVListener implements ShouldQueue
                     $MembersLegPv->pv=$order->pv;
                     $MembersLegPv->created_at=$order->created_at;
                     $MembersLegPv->save();
+                    $this->updateContestPoints($MembersLegPv->member);
                 }elseif($type=='subtract'){
                     $MembersLegPv=new MembersLegPv;
                     $MembersLegPv->member_id=$upline;
@@ -87,10 +91,51 @@ class UpdateGroupPVListener implements ShouldQueue
                     $MembersLegPv->pv=-$order->pv;
                     $MembersLegPv->created_at=$order->created_at;
                     $MembersLegPv->save();
+                    $this->updateContestPoints($MembersLegPv->member);
                 }
             }
             
             $position=$Members->position;
+        }
+    }
+
+    public function updateContestPoints($member)
+    {
+        $contest=Contest::where('is_current',1)->first();
+        $legs= MembersLegPv::addSelect(['*', \DB::raw('sum(pv) as totalPv')])
+                ->whereDate('created_at','>=',$contest->start_date)
+                ->whereDate('created_at','<=',$contest->end_date)
+                ->where('member_id',$member->id)
+                ->orderBy('totalPv','desc')
+                ->groupBy('position')
+                ->get()->pluck('totalPv','position')->toArray();
+
+        arsort($legs);
+
+        $index = 0;
+        $leg_1_pv=0;
+        $leg_2_pv=0;
+        $matched_bv=0;
+        foreach ($legs as $position => $pv) {
+            if($index==0){
+                $leg_1_pv=$pv;
+               
+                $index++;
+                continue;
+            }
+            if($index==1){
+                $leg_2_pv=$pv;                
+            }
+            // Add current pv to matched_bv of all legs except strong one.
+            $matched_bv+=$pv;
+            $index++;
+        }
+
+        $contestMember=ContestMember::where('member_id',$member->id)->where('contest_id',$contest->id)->first();
+
+        if($contestMember){
+            $contestMember->points=$matched_bv;
+            $contestMember->save();
         }
     }
 }
