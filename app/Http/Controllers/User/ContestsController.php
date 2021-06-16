@@ -46,7 +46,7 @@ class ContestsController extends Controller
         }
 
         $ContestMembers=$ContestMembers->where('rank_id',$rank_id);
-        $ContestMembers=$ContestMembers->with('member.user')->orderBy('points','desc')->paginate($limit);
+        $ContestMembers=$ContestMembers->with('member.user','member.kyc')->where('points','!=',0)->orderBy('points','desc')->paginate($limit);
         
         $response = array('status' => true,'message'=>"Contest members retrieved.",'data'=>$ContestMembers);
         return response()->json($response, 200);

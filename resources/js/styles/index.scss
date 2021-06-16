@@ -315,6 +315,19 @@ hr {
     padding: 1px 0;
 }
 
+.el-tabs__item{
+    color:#fff !important;
+    font-size:20px;
+  }
+
+  .el-tabs__item.is-active{
+    background-color:#fff;
+    color:#000 !important;
+    border-radius:5px;
+    padding-left:10px !important;
+    width: 180px !important;
+  }
+
 .el-form-item {
     margin-bottom: 25px;
 }
