@@ -55,13 +55,27 @@ export function updateContest(data) {
   })
 }
 
+export function getContestRewards(query) {
+  return request({
+    url: '/admin/contest/special/rewards',
+    method: 'get',
+    params: query
+  })
+}
 
 export function createSpecialReward(data) {
   return request({
-    url: '/admin/contest',
+    url: '/admin/contest/special/reward',
     method: 'post',
-    data,
-    headers: { "Content-Type": "multipart/form-data" }
+    data
+  })
+}
+
+export function updateSpecialReward(data) {
+  return request({
+    url: '/admin/contest/special/reward/update',
+    method: 'post',
+    data
   })
 }
 
@@ -72,3 +86,26 @@ export function deleteContestSpecialReward(id) {
   })
 }
 
+export function getContestBanners(query) {
+  return request({
+    url: '/admin/contest/banners',
+    method: 'get',
+    params: query
+  })
+}
+
+export function createBanner(data) {
+  return request({
+    url: '/admin/contest/banner',
+    method: 'post',
+    data,
+    headers: { "Content-Type": "multipart/form-data" }
+  })
+}
+
+export function deleteBanner(id) {
+  return request({
+    url: '/admin/contest/banner/'+id+'/delete',
+    method: 'delete'
+  })
+}

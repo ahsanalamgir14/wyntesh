@@ -23,6 +23,10 @@
         <el-option  key="1203" label="Rejected" value="rejected" />
         <el-option  key="1204" label="Verified" value="verified" />
       </el-select>
+      <el-select v-model="listQuery.rank_id" @change="handleFilter" clearable class="filter-item mobile_class" style="width:150px;" filterable placeholder="Ranks" size="mini">
+        <el-option v-for="item in ranks" :key="item.name" :label="item.name" :value="item.id">
+        </el-option>
+      </el-select>
       <el-button
         v-waves
         class="filter-item"

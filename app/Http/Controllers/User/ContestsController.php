@@ -8,6 +8,7 @@ use Validator;
 use App\Models\Admin\Contest;
 use App\Models\Admin\ContestMember;
 use App\Models\Admin\ContestReward;
+use App\Models\Admin\ContestBanner;
 use App\Models\Admin\Member;
 use Storage, Carbon\Carbon;
 
@@ -36,6 +37,12 @@ class ContestsController extends Controller
             $sort = 'desc';
         }
 
+        $contest=Contest::where('is_current',1)->first();
+        
+        if(!$contest){
+            $response = array('status' => false,'message'=>"Contest not found.");
+            return response()->json($response, 404);
+        }
         
         $ContestMembers=ContestMember::select();
 
@@ -45,7 +52,7 @@ class ContestsController extends Controller
             });
         }
 
-        $ContestMembers=$ContestMembers->where('rank_id',$rank_id);
+        $ContestMembers=$ContestMembers->where('contest_id',$contest->id)->where('rank_id',$rank_id);
         $ContestMembers=$ContestMembers->with('member.user','member.kyc')->where('points','!=',0)->orderBy('points','desc')->paginate($limit);
         
         $response = array('status' => true,'message'=>"Contest members retrieved.",'data'=>$ContestMembers);
@@ -81,7 +88,7 @@ class ContestsController extends Controller
             });
         }
         
-        $ContestRewards=$ContestRewards->with('member.user')->orderBy('points','asc')->paginate($limit);
+        $ContestRewards=$ContestRewards->with('member.user')->paginate($limit);
         
         $response = array('status' => true,'message'=>"Contest reward members retrieved.",'data'=>$ContestRewards);
         return response()->json($response, 200);
@@ -96,6 +103,21 @@ class ContestsController extends Controller
         }
 
         $response = array('status' => true,'message'=>"Contest retrieved.",'data'=>$contest);
+        return response()->json($response, 200);
+    }
+
+    public function getCurrentContestRankBanner(Request $request){
+        $contest=Contest::where('is_current',1)->first();
+        
+        if(!$contest){
+            $response = array('status' => false,'message'=>"Contest not found.");
+            return response()->json($response, 404);
+        }
+        $contestBanner=null;
+        if($contest->is_ended)
+            $contestBanner=ContestBanner::where('rank_id',$request->rank_id)->where('contest_id',$contest->id)->first();
+
+        $response = array('status' => true,'message'=>"Contest banner retrieved.",'data'=>$contestBanner);
         return response()->json($response, 200);
     }
   

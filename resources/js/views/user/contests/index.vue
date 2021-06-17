@@ -35,17 +35,11 @@
           <el-tabs v-model="currentTab" @tab-click="tabChange" class="mt-4">
             <el-tab-pane label="Afiiliate" name="affiliate">
               <section class="flex items-center justify-center  pb-4">
-                <div class="container">
-                  <div class="flex items-center justify-center ">
-                    <!--  <div class="text-center md:w-1/3">
-                      <h2 class="mb-2 md:text-4xl text-xl" style="color: #fff;">Points Table</h2>
-                    </div> -->
-                  </div>
+                <div class="container">                 
                   <div>
                     <div class="text-left flex bg-red font-medium md:text-2xl px-3 py-4 rounded-full" style="background: #ddddddc7;color: #000;">
                       <div class="relative w-1/2 md:w-1/2 px-0 md:px-4 self-center text-sm md:text-xl lg:text-xl"> Position </div>
-                      <div class="relative w-full px-4 self-start text-sm md:text-xl lg:text-xl"> Member </div>
-                      <!-- <div class="relative w-full px-4 self-center text-sm md:text-xl lg:text-xl"> District</div> -->
+                      <div class="relative w-full px-4 self-start text-sm md:text-xl lg:text-xl"> Name </div>
                       <div class="relative w-1/2  px-4 self-center text-sm md:text-xl lg:text-xl">Points</div>
                     </div>
                     <div v-for=" (item,index) in list">
@@ -59,8 +53,7 @@
                             <div class="block"> {{item.member.kyc.city}} </div>
                           </span>
                         </div>
-                        <!-- <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div> -->
-                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
                       </div>
                       <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==1">
                         <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
@@ -72,8 +65,7 @@
                             <div class="block"> {{item.member.kyc.city}} </div>
                           </span>
                         </div>
-                        <!-- <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div> -->
-                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
                       </div>
                       <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==2">
                         <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
@@ -85,8 +77,7 @@
                             <div class="block"> {{item.member.kyc.city}} </div>
                           </span>
                         </div>
-                        <!-- <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div> -->
-                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
                       </div>
                       <div class="text-left flex px-3 py-4 rounded-full mt-1" style="linear-gradient(#f02ec200, #6094ea33);color: #fff;border: 1px solid #fff;" v-if="index>2">
                         <div class="relative text-3xl w-1/2 md:w-1/2 px-0 md:px-4 self-center">
@@ -98,21 +89,8 @@
                             <div class="block"> {{item.member.kyc.city}} </div>
                           </span>
                         </div>
-                        <!-- <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div> -->
-                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
                       </div>
-                      <!-- <div class="text-left flex px-3 py-4 rounded-full mt-1" style="linear-gradient(#f02ec200, #6094ea33);color: #fff;border: 1px solid #fff;" v-if="index > 2">
-                        <div class="relative w-1/2 text-3xl px-4 self-center">
-                          {{index+1}}
-                        </div>
-                        <div class="flex relative w-full px-4 ">
-                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
-                            <div class="block"> {{item.member.kyc.city}} </div>
-                          </span>
-                        </div>
-                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg"> {{item.points}} pts </div>
-                      </div> -->
                     </div>
                   </div>
                 </div>
@@ -120,187 +98,160 @@
             </el-tab-pane>
             <el-tab-pane label="Rising Affiliate" name="rising-affiliate">
               <div>
-                <div class="text-center flex bg-red font-medium md:text-2xl px-3 py-4 rounded-full" style="background: #ddddddc7;color: #000;">
-                  <div class="relative w-full md:w-1/2 px-0 md:px-4 self-center text-sm md:text-xl lg:text-xl"> Position </div>
-                  <div class="relative w-full px-4 self-center text-sm md:text-xl lg:text-xl"> Member </div>
-                  <div class="relative w-full px-4 self-center text-sm md:text-xl lg:text-xl"> District</div>
-                  <div class="relative w-1/2  px-4 self-center text-sm md:text-xl lg:text-xl">Points</div>
-                </div>
-                <div v-for=" (item,index) in list">
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==0">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award1" alt="">
+                    <div class="text-left flex bg-red font-medium md:text-2xl px-3 py-4 rounded-full" style="background: #ddddddc7;color: #000;">
+                      <div class="relative w-1/2 md:w-1/2 px-0 md:px-4 self-center text-sm md:text-xl lg:text-xl"> Position </div>
+                      <div class="relative w-full px-4 self-start text-sm md:text-xl lg:text-xl"> Name </div>
+                      <div class="relative w-1/2  px-4 self-center text-sm md:text-xl lg:text-xl">Points</div>
                     </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}} </span>
+                    <div v-for=" (item,index) in list">
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==0">
+                        <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          <img class="w-12 md:w-16" :src="award1" alt="">
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==1">
+                        <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          <img class="w-12 md:w-16" :src="award2" alt="">
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==2">
+                        <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          <img class="w-12 md:w-16" :src="award3" alt="">
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="linear-gradient(#f02ec200, #6094ea33);color: #fff;border: 1px solid #fff;" v-if="index>2">
+                        <div class="relative text-3xl w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          {{index+1}}
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
                     </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
                   </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==1">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award2" alt="">
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}</span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
-                  </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==2">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award3" alt="">
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}} </span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
-                  </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="linear-gradient(#f02ec200, #6094ea33);color: #fff;border: 1px solid #fff;" v-if="index > 2">
-                    <div class="relative w-1/2 text-3xl px-4 self-center">
-                      {{index+1}}
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg"> {{item.member.user.name}} </span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg"> {{item.member.kyc.city}} </div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg"> {{item.points}} pts </div>
-                  </div>
-                </div>
-              </div>
             </el-tab-pane>
             <el-tab-pane label="Team Affiliate" name="team-affiliate">
               <div>
-                <div class="text-center flex bg-red font-medium md:text-2xl px-3 py-4 rounded-full" style="background: #ddddddc7;color: #000;">
-                  <div class="relative w-full md:w-1/2 px-0 md:px-4 self-center text-sm md:text-xl lg:text-xl"> Position </div>
-                  <div class="relative w-full px-4 self-center text-sm md:text-xl lg:text-xl"> Member </div>
-                  <div class="relative w-full px-4 self-center text-sm md:text-xl lg:text-xl"> District</div>
-                  <div class="relative w-1/2  px-4 self-center text-sm md:text-xl lg:text-xl">Points</div>
-                </div>
-                <div v-for=" (item,index) in list">
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==0">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award1" alt="">
+                    <div class="text-left flex bg-red font-medium md:text-2xl px-3 py-4 rounded-full" style="background: #ddddddc7;color: #000;">
+                      <div class="relative w-1/2 md:w-1/2 px-0 md:px-4 self-center text-sm md:text-xl lg:text-xl"> Position </div>
+                      <div class="relative w-full px-4 self-start text-sm md:text-xl lg:text-xl"> Name </div>
+                      <div class="relative w-1/2  px-4 self-center text-sm md:text-xl lg:text-xl">Points</div>
                     </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}} </span>
+                    <div v-for=" (item,index) in list">
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==0">
+                        <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          <img class="w-12 md:w-16" :src="award1" alt="">
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==1">
+                        <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          <img class="w-12 md:w-16" :src="award2" alt="">
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==2">
+                        <div class="relative  w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          <img class="w-12 md:w-16" :src="award3" alt="">
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="linear-gradient(#f02ec200, #6094ea33);color: #fff;border: 1px solid #fff;" v-if="index>2">
+                        <div class="relative text-3xl w-1/2 md:w-1/2 px-0 md:px-4 self-center">
+                          {{index+1}}
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            <div class="block"> {{item.member.kyc.city}} </div>
+                          </span>
+                        </div>
+                        <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold">{{parseInt(item.points)}}</div>
+                      </div>
                     </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
                   </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==1">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award2" alt="">
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}</span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
-                  </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==2">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award3" alt="">
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}} </span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
-                  </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="linear-gradient(#f02ec200, #6094ea33);color: #fff;border: 1px solid #fff;" v-if="index > 2">
-                    <div class="relative w-1/2 text-3xl px-4 self-center">
-                      {{index+1}}
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg"> {{item.member.user.name}} </span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg"> {{item.member.kyc.city}} </div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg"> {{item.points}} pts </div>
-                  </div>
-                </div>
-              </div>
             </el-tab-pane>
-            <el-tab-pane label="Special Awards" name="awards">
+            <el-tab-pane label="Special Awards" name="awards" v-if="contest.is_ended">
               <div>
-                <div class="text-center flex bg-red font-medium md:text-2xl px-3 py-4 rounded-full" style="background: #ddddddc7;color: #000;">
-                  <div class="relative w-full md:w-1/2 px-0 md:px-4 self-center text-sm md:text-xl lg:text-xl"> Position </div>
-                  <div class="relative w-full px-4 self-center text-sm md:text-xl lg:text-xl"> Member </div>
-                  <div class="relative w-full px-4 self-center text-sm md:text-xl lg:text-xl"> District</div>
-                  <div class="relative w-1/2  px-4 self-center text-sm md:text-xl lg:text-xl">Points</div>
-                </div>
-                <div v-for=" (item,index) in list">
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==0">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award1" alt="">
+                    <div class="text-left flex bg-red font-medium md:text-2xl px-3 py-4 rounded-full" style="background: #ddddddc7;color: #000;">
+                      <div class="relative w-full md:w-1/2 px-0 md:px-4 self-center text-sm md:text-xl lg:text-xl"> Title </div>
+                      <div class="relative w-full px-4 self-start text-sm md:text-xl lg:text-xl"> Name </div>
                     </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}} </span>
+                    <div v-for=" (item,index) in specialAwards">
+                      
+                      <div class="text-left flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" >
+                        <div class="relative text-md w-full md:w-1/2 px-0 md:px-4 self-center">
+                          {{item.title}}
+                        </div>
+                        <div class="flex relative w-full px-4 items-center">
+                          <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
+                          <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}
+                            
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
                   </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==1">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award2" alt="">
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}}</span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
-                  </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="background: linear-gradient(#03256C, #1768AC);color: #fff;" v-if="index==2">
-                    <div class="relative  w-full md:w-1/2 px-0 md:px-4 self-center">
-                      <img class="w-12 md:w-16" :src="award3" alt="">
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.user.name}} </span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.member.kyc.city}}</div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg md:font-semibold"> {{item.points}} pts </div>
-                  </div>
-                  <div class="text-center flex px-3 py-4 rounded-full mt-1" style="linear-gradient(#f02ec200, #6094ea33);color: #fff;border: 1px solid #fff;" v-if="index > 2">
-                    <div class="relative w-1/2 text-3xl px-4 self-center">
-                      {{index+1}}
-                    </div>
-                    <div class="flex relative w-full px-4 items-center justify-center">
-                      <pan-thumb :image="item.member.user.profile_picture?item.member.user.profile_picture:'/images/avatar.png'" :height="'60px'" :width="'60px'" :hoverable="false" />
-                      <span class="pl-3 text-xs md:text-lg lg:text-lg"> {{item.member.user.name}} </span>
-                    </div>
-                    <div class="relative w-full px-4 self-center text-xs md:text-lg lg:text-lg"> {{item.member.kyc.city}} </div>
-                    <div class="relative w-1/2  px-4 self-center text-xs md:text-lg lg:text-lg"> {{item.points}} pts </div>
-                  </div>
-                </div>
-              </div>
             </el-tab-pane>
           </el-tabs>
         </el-col>
       </el-row>
     </div>
-    <div class="filter-container">
-      <!--  <el-input v-model="listQuery.search" placeholder="Member Id" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">Search</el-button> -->
-    </div>
+    <el-dialog width="100%" top="5px" :visible.sync="dialogWinnerPupup">
+      <div v-if="popup">
+        <img :src="popup.image" />  
+      </div>
+    </el-dialog>
     <div :class="{'hidden':hidden}" class="pagination-container">
       <el-pagination :current-page.sync="listQuery.page" :page-size.sync="pageSize" :layout="layout" :page-sizes="pageSizes" :total="this.total" @current-change="handleCurrentChange" />
     </div>
   </div>
 </template>
 <script>
-  import { getCurrentContest,getContestStats,getSpecialAwards } from "@/api/user/contests";
+  import { getCurrentContest,getContestStats,getSpecialAwards,getCurrentContestRankBanner } from "@/api/user/contests";
 import crown from '@/assets/images/crown.png'
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -340,12 +291,16 @@ export default {
         rank_id: 1,
         sort: "+id"
       },
+      popup:{
+        image:null
+      },
       currentTab:'affiliate',
       contest:{
         name:undefined,
         description:undefined,
         image:undefined,
       },
+      dialogWinnerPupup: false,
       buttonLoading: false
     };
   },
@@ -362,6 +317,14 @@ export default {
       getContestStats(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;        
+      });
+      getCurrentContestRankBanner(this.listQuery).then(response => {
+        if(response.data)
+          this.popup.image=null;
+        this.popup = response.data;
+        if(this.popup){
+          this.dialogWinnerPupup=true;
+        }
       });
     },
     getSpecialAwards(){

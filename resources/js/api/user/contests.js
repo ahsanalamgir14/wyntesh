@@ -22,3 +22,11 @@ export function getCurrentContest() {
     method: 'get'
   })
 }
+
+export function getCurrentContestRankBanner(query) {
+  return request({
+    url: '/user/contest/current/banner',
+    method: 'get',
+    params: query    
+  })
+}
