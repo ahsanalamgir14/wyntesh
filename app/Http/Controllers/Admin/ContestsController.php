@@ -468,4 +468,16 @@ class ContestsController extends Controller
         return response()->json($response, 200);
     }
 
+
+    public function addMemberToContest($user){
+        $Contest=Contest::where('is_current',1)->first();
+        if($Contest){            
+            $ContestMember=new ContestMember;
+            $ContestMember->contest_id=$Contest->id;
+            $ContestMember->member_id=$user->member->id;
+            $ContestMember->rank_id=$user->member->rank_id;
+            $ContestMember->save();
+        }
+    }
+
 }

@@ -9,6 +9,7 @@ use App\Models\Admin\Email;
 use App\Mail\CustomHtmlMail;
 use Mail;
 use App\Notifications\MemberRegisteredNotification;
+use App\Http\Controllers\Admin\ContestsController;
 
 class MemberRegisteredListener implements ShouldQueue
 {
@@ -32,5 +33,8 @@ class MemberRegisteredListener implements ShouldQueue
     {
         $user=$event->user;
         $user->notify(new MemberRegisteredNotification());
+
+        $ContestsController=new ContestsController;
+        $ContestsController->addMemberToContest($user);
     }
 }
