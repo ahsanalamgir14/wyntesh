@@ -653,19 +653,55 @@ class ShoppingController extends Controller
     }
 
     public function getUserCourses($user){
-        $products=Product::whereIn('product_number',['EC 01','EC 02'])->get()->pluck('id');
+        $products=Product::whereIn('product_number',['EC01','EC 01','EC02','EC 02','EC03','EC04','EC05','EC06','EC07','EC08','EC09','EC10','EC11'])->get()->pluck('id');
         $orderIds=Order::where('user_id',$user->id)->whereNotIn('delivery_status',['Order Returned','Order Created','Order Cancelled'])->get()->pluck('id');
         $orderProducts=OrderProduct::whereIn('order_id',$orderIds)->whereIn('product_id',$products)->get();
 
         $userPackage='';
 
         foreach ($orderProducts as $orderProduct) {
-            if($orderProduct->product->product_number=='EC 01'){
+            if($orderProduct->product->product_number=='EC 01' || $orderProduct->product->product_number=='EC01'){
                 $userPackage='Advanced Courses 1';
             }
 
-            if($orderProduct->product->product_number=='EC 02'){
+            if($orderProduct->product->product_number=='EC 02' || $orderProduct->product->product_number=='EC02'){
                 $userPackage='Advanced Courses 2';
+            }
+
+            if($orderProduct->product->product_number=='EC03'){
+                $userPackage='TALLY';
+            }
+
+            if($orderProduct->product->product_number=='EC04'){
+                $userPackage='PRO ENGINEER';
+            }
+
+            if($orderProduct->product->product_number=='EC05'){
+                $userPackage='AUTO DESK AUTO CAD';
+            }
+
+            if($orderProduct->product->product_number=='EC06'){
+                $userPackage='ADOBE PREMIER PRO';
+            }
+
+            if($orderProduct->product->product_number=='EC07'){
+                $userPackage='ADOBE PHOTOSHOP';
+            }
+
+            if($orderProduct->product->product_number=='EC08'){
+                $userPackage='ADOBE EDGE ANIMATE';
+            }
+
+            if($orderProduct->product->product_number=='EC09'){
+                $userPackage='ETHICAL HACKING';
+            }
+
+            if($orderProduct->product->product_number=='EC10'){
+                $userPackage='ADOBE PACKAGE';
+            }
+
+            if($orderProduct->product->product_number=='EC11'){
+                $userPackage='CLASSIC PACKAGE';
             }
         }
 

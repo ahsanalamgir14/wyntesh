@@ -322,6 +322,12 @@ export const asyncRoutes = [
         name: 'Create Contest',
         meta: { title: 'Create Contest', icon: 'fas fa-award', color:'color:#48C9B0', affix: true, roles: ['admin'] }
       },
+      {
+        path: 'championship',
+        component: () => import('@/views/user/contests/index'),
+        name: 'WCL',
+        meta: { title: 'WCL', icon: 'fas fa-trophy', color:'color:#fc4e03', affix: true }
+      }
     ]
   },
   {
@@ -955,8 +961,8 @@ export const asyncRoutes = [
       {
         path: 'championship',
         component: () => import('@/views/user/contests/index'),
-        name: 'Contest',
-        meta: { title: 'Contest', icon: 'fas fa-trophy', color:'color:#fc4e03', affix: true }
+        name: 'WCL',
+        meta: { title: 'WCL', icon: 'fas fa-trophy', color:'color:#fc4e03', affix: true }
       }
     ]
   },

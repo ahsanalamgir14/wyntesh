@@ -18,6 +18,50 @@ class ContestsController extends Controller
 
     //  get Contests
     
+    public function getContestStats(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $rank_id=$request->rank_id;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=10;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $contest=Contest::where('is_current',1)->first();
+        
+        if(!$contest){
+            $response = array('status' => false,'message'=>"Contest not found.");
+            return response()->json($response, 404);
+        }
+        
+        $ContestMembers=ContestMember::select();
+
+        if($search){
+            $ContestMembers=$ContestMembers->whereHas('member.user',function($q)use($search){
+                $q->where('username',$search);
+            });
+        }
+
+        $ContestMembers=$ContestMembers->where('contest_id',$contest->id)->where('rank_id',$rank_id);
+        $ContestMembers=$ContestMembers->with('member.user','member.kyc')->where('points','!=',0)->orderBy('points','desc')->paginate($limit);
+        
+        $response = array('status' => true,'message'=>"Contest members retrieved.",'data'=>$ContestMembers);
+        return response()->json($response, 200);
+    }
+    
     public function getAllContests(){
         $contests=Contest::orderBy('id','desc')->get();
         $response = array('status' => true,'message'=>"Contests retrieved.",'data'=>$contests);

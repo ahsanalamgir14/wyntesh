@@ -66,10 +66,7 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('notice', '\App\Http\Controllers\Admin\NoticesController@get');
     Route::get('welcome-letter', '\App\Http\Controllers\Admin\WelcomeLetterController@get');
 
-    Route::get('contests', 'ContestsController@getContestStats');
-    Route::get('contest/current', 'ContestsController@getCurrentContest');
-    Route::get('contest/current/banner', 'ContestsController@getCurrentContestRankBanner');
-    Route::get('contest/awards', 'ContestsController@getSpecialAwards');
+ 
     
     Route::get('currencies/all', '\App\Http\Controllers\Admin\CurrenciesController@all');
 
@@ -193,6 +190,11 @@ Route::group(['middleware' => ['jwt.verify','role:user|admin'],'prefix' => 'user
     Route::get('incomes/all', '\App\Http\Controllers\Admin\IncomesController@getAllIncomes');
     Route::get('member-payout/{id}', '\App\Http\Controllers\Admin\PayoutsController@getMemberPayout');
     Route::get('wall-of-wyntash', '\App\Http\Controllers\Admin\PayoutsController@wallOfWyntash');
+
+    Route::get('contests', 'ContestsController@getContestStats');
+    Route::get('contest/current', 'ContestsController@getCurrentContest');
+    Route::get('contest/current/banner', 'ContestsController@getCurrentContestRankBanner');
+    Route::get('contest/awards', 'ContestsController@getSpecialAwards');
 
 
 });

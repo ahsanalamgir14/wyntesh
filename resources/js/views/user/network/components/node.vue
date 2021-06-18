@@ -45,6 +45,10 @@
               <p class="mt-2"><b>Team</b> : {{node.team_size}}</p>
               <p class="mt-2"><b>Total Group PV</b> : {{node.group_pv?node.group_pv:0}}</p>
               <p class="mt-2"><b>KYC Status</b> : {{node.kyc.verification_status}}</p>
+              <p class="mt-2"><b>LEG A</b> : {{node.leg_pv[1]!='undefined' ?node.leg_pv[1]:0}}</p>
+              <p class="mt-2"><b>LEG B</b> : {{node.leg_pv[2]!='undefined' ?node.leg_pv[2]:0}}</p>
+              <p class="mt-2"><b>LEG C</b> : {{node.leg_pv[3]!='undefined' ?node.leg_pv[3]:0}}</p>
+              <p class="mt-2"><b>LEG D</b> : {{node.leg_pv[4]!='undefined' ?node.leg_pv[4]:0}}</p>
 
             </div>
         </el-popover>

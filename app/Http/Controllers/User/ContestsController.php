@@ -40,8 +40,8 @@ class ContestsController extends Controller
         $contest=Contest::where('is_current',1)->first();
         
         if(!$contest){
-            $response = array('status' => false,'message'=>"Contest not found.");
-            return response()->json($response, 404);
+            $response = array('status' => true,'message'=>"Contest retrieved.",'data'=>null);
+            return response()->json($response, 200);
         }
         
         $ContestMembers=ContestMember::select();
@@ -98,8 +98,8 @@ class ContestsController extends Controller
         $contest=Contest::where('is_current',1)->first();
         
         if(!$contest){
-            $response = array('status' => false,'message'=>"Contest not found.");
-            return response()->json($response, 404);
+            $response = array('status' => true,'message'=>"Contest retrieved.",'data'=>null);
+            return response()->json($response, 200);
         }
 
         $response = array('status' => true,'message'=>"Contest retrieved.",'data'=>$contest);
@@ -110,8 +110,8 @@ class ContestsController extends Controller
         $contest=Contest::where('is_current',1)->first();
         
         if(!$contest){
-            $response = array('status' => false,'message'=>"Contest not found.");
-            return response()->json($response, 404);
+            $response = array('status' => true,'message'=>"Contest retrieved.",'data'=>null);
+            return response()->json($response, 200);
         }
         $contestBanner=null;
         if($contest->is_ended)

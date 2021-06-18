@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User\User;
 use App\Models\User\Kyc;
 use App\Models\Admin\Member;
+use App\Models\Admin\GMember;
 use App\Models\Admin\Rank;
 use App\Models\Admin\RankLog;
 use App\Models\Admin\MembersLegPv;
@@ -139,7 +140,7 @@ class MembersController extends Controller
 
     public function myGeneology(){
         $id=JWTAuth::user()->id;
-        $zero=Member::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->with('rank')
+        $zero=GMember::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')->with('user')->with('rank')
             ->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }])
@@ -236,10 +237,10 @@ class MembersController extends Controller
         $User=User::where('username',$id)->first();
 
         if($User){
-            $tempMember=Member::where('user_id',$User->id)->first();            
+            $tempMember=GMember::where('user_id',$User->id)->first();            
             $pathArray=(explode("/",$tempMember->path));            
             if(in_array($my_member_id,$pathArray)){
-                $zero=Member::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')
+                $zero=GMember::with('children.children')->with('kyc:id,member_id,verification_status,is_verified')
                 ->with('user')->with('rank')
                 ->withCount(['leg as group_pv' => function($query){
                    $query->select(DB::raw('sum(pv)'));
