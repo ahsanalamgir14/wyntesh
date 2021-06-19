@@ -118,8 +118,6 @@ class UpdateGroupPVListener implements ShouldQueue
                 ->get()->pluck('totalPv','position')->toArray();
 
         $last_carry_forward=MemberCarryForwardPv::where('member_id',$member->id)->orderBy('payout_id','desc')->first();
-        \Log::info($last_carry_forward);
-        \Log::info($member->id);
         if($last_carry_forward){
                 $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
                 $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
