@@ -53,7 +53,7 @@ class ContestsController extends Controller
         }
 
         if($rank_id >1 && $rank_id <=4){
-            $ContestMembers=$ContestMembers->where('contest_id',$contest->id)->where('member_id',3)->where('rank_id','>=',$rank_id);
+            $ContestMembers=$ContestMembers->where('contest_id',$contest->id)->where('member_id','!=',3)->where('rank_id','>=',$rank_id);
         }else{
             $ContestMembers=$ContestMembers->where('contest_id',$contest->id)->where('rank_id',$rank_id);            
         }
