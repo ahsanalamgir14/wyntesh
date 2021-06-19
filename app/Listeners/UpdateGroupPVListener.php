@@ -6,6 +6,7 @@ use App\Events\UpdateGroupPVEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Admin\MembersLegPv;
+use App\Models\Admin\MemberCarryForwardPv;
 use App\Models\Admin\Member;
 use App\Models\Admin\Contest;
 use App\Models\Admin\ContestMember;
@@ -72,8 +73,8 @@ class UpdateGroupPVListener implements ShouldQueue
                 }else if($type=='subtract'){
                     $MembersLegPv->pv-=$order->pv;    
                 }
-                
                 $MembersLegPv->save();
+                $this->updateContestPoints($MembersLegPv->member);
             }else{
 
                 if($type=='add'){
@@ -83,7 +84,6 @@ class UpdateGroupPVListener implements ShouldQueue
                     $MembersLegPv->pv=$order->pv;
                     $MembersLegPv->created_at=$order->created_at;
                     $MembersLegPv->save();
-                    $this->updateContestPoints($MembersLegPv->member);
                 }elseif($type=='subtract'){
                     $MembersLegPv=new MembersLegPv;
                     $MembersLegPv->member_id=$upline;
@@ -91,11 +91,11 @@ class UpdateGroupPVListener implements ShouldQueue
                     $MembersLegPv->pv=-$order->pv;
                     $MembersLegPv->created_at=$order->created_at;
                     $MembersLegPv->save();
-                    $this->updateContestPoints($MembersLegPv->member);
                 }
             }
             
             $position=$Members->position;
+            $this->updateContestPoints($MembersLegPv->member);
         }
     }
 
@@ -116,6 +116,14 @@ class UpdateGroupPVListener implements ShouldQueue
                 ->orderBy('totalPv','desc')
                 ->groupBy('position')
                 ->get()->pluck('totalPv','position')->toArray();
+
+        $last_carry_forward=MemberCarryForwardPv::where('member_id',$member->id)->orderBy('payout_id','desc')->first();
+        \Log::info($last_carry_forward);
+        \Log::info($member->id);
+        if($last_carry_forward){
+                $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
+                $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
+        }
 
         arsort($legs);
 

@@ -27,6 +27,7 @@ class UserAndRoleController extends Controller
         $is_active=$request->is_active;
         $kyc_status=$request->kyc_status;
         $is_blocked=$request->is_blocked;
+        $rank_id=$request->rank_id;
 
         if(!$page){
             $page=1;
@@ -42,7 +43,7 @@ class UserAndRoleController extends Controller
             $sort = 'desc';
         }
 
-        if(!$search && !$kyc_status && !$is_blocked){
+        if(!$search && !$kyc_status && !$is_blocked && !$rank_id){
             $users = User::role('user');
           
             if($is_active!='all'){
@@ -75,6 +76,12 @@ class UserAndRoleController extends Controller
             if($kyc_status){
                 $users=$users->whereHas('kyc',function($q)use($kyc_status){
                     $q->where('verification_status',$kyc_status);
+                });    
+            }
+
+            if($rank_id){
+                $users=$users->whereHas('member',function($q)use($rank_id){
+                    $q->where('rank_id',$rank_id);
                 });    
             }
             
