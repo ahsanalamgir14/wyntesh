@@ -103,6 +103,9 @@ class UpdateGroupPVListener implements ShouldQueue
     {
         $contest=Contest::where('is_current',1)->first();
 
+        if(!$contest)
+            return;
+
         $today=Carbon::today();
 
         if($today->gt($contest->end_date)){
@@ -117,7 +120,8 @@ class UpdateGroupPVListener implements ShouldQueue
                 ->groupBy('position')
                 ->get()->pluck('totalPv','position')->toArray();
 
-        $last_carry_forward=MemberCarryForwardPv::where('member_id',$member->id)->orderBy('payout_id','desc')->first();
+        $last_carry_forward=MemberCarryForwardPv::where('member_id',$member->id)->where('payout_id',65)->first();
+        
         if($last_carry_forward){
                 $exsting_pv=intval(isset($legs[$last_carry_forward->position])?$legs[$last_carry_forward->position]:0);
                 $legs[$last_carry_forward->position]=$exsting_pv+$last_carry_forward->pv;
