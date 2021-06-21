@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User\User;
+use App\Models\Admin\Member;
 use App\Models\Admin\ActivationLog;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -79,10 +80,10 @@ class UserAndRoleController extends Controller
                 });    
             }
 
+
             if($rank_id){
-                $users=$users->whereHas('member',function($q)use($rank_id){
-                    $q->where('rank_id',$rank_id);
-                });    
+                $rankUsers=Member::where('rank_id',$rank_id)->get()->pluck('user_id')->toArray();
+                $users=$users->whereIn('id',$rankUsers);    
             }
             
             $users =$users->role('user');
