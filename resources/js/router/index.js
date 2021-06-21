@@ -1028,10 +1028,17 @@ export const asyncRoutes = [
     },
     children: [     
       {
-        path: 'products',
-        component: () => import('@/views/user/shopping/products'),
+        path: 'categories',
+        component: () => import('@/views/user/shopping/categories'),
         name: 'Products',
         meta: { title: 'Products', icon: 'fas fa-shopping-basket', color:'color:#EE7642', affix: true, roles: ['user'] }
+      },
+      {
+        path: 'products',
+        component: () => import('@/views/user/shopping/products'),
+        name: 'Cat Products',
+        hidden: true,
+        meta: { title: 'Cat Products', icon: 'fas fa-shopping-basket', color:'color:#EE7642', affix: true, roles: ['user'] }
       },
       {
         path: 'product/:id',
