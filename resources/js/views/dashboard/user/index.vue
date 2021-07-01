@@ -135,7 +135,7 @@
               </div>
             </router-link>
           </el-col>
-          <!--  <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/withdrawals">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-message">
@@ -150,7 +150,7 @@
                 </div>
               </div>
             </router-link>
-          </el-col> -->
+          </el-col>
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/member/payouts/incomes">
               <div class="card-panel gr2">
