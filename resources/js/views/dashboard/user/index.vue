@@ -135,7 +135,7 @@
               </div>
             </router-link>
           </el-col>
-           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
+           <!-- <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/wallet/withdrawals">
               <div class="card-panel gr2" >
                 <div class="card-panel-icon-wrapper icon-message">
@@ -150,7 +150,7 @@
                 </div>
               </div>
             </router-link>
-          </el-col>
+          </el-col> -->
           <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
             <router-link to="/member/payouts/incomes">
               <div class="card-panel gr2">
@@ -314,7 +314,7 @@
                     <div class="card-panel-description">
                       <count-to :start-val="0" :end-val="temp.gmember.leg_pv[4]?parseInt(dashboardStats.member.gmember.leg_pv[4]):0" :duration="3600" class="card-panel-num" />
                       <div class="card-panel-text">
-                        Leg A
+                        Leg D
                       </div>
                     </div>
                   </div>

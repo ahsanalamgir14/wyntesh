@@ -38,6 +38,7 @@ class DashboardController extends Controller
         $pending_withdrawals=WithdrawalRequest::where('request_status','Pending')->count();
         $pending_orders=Order::where('delivery_status','Order Created')->count();
         $tickets=Ticket::count();
+        $withdrawals=floor(Withdrawal::sum('amount'));
         $used_pin=Pin::where('used_at','!=',null)->count();
         $unused_pin=Pin::where('used_at',null)->count();
         $pending_kyc=Kyc::where('verification_status','pending')->count();
@@ -66,6 +67,7 @@ class DashboardController extends Controller
                 'pending_kyc'=>$pending_kyc,
                 'inquiries'=>$inquiries,
                 'wallet_balance'=>$wallet_balance,
+                'withdrawals'=>$withdrawals,
                 'total_payout'=>$total_payout,
                 'pending_withdrawals'=>$pending_withdrawals,
                 'pending_orders'=>$pending_orders,
