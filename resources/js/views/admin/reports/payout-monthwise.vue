@@ -32,43 +32,52 @@
     >      
       <el-table-column
         label="ID"
-        prop="id"
-        sortable="custom"
-        align="center"
-        width="80"
-        :class-name="getSortClass('id')"
+         type="index"
       >
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
       </el-table-column>
       
       <el-table-column label="Payout Duration" width="200px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.sales_start_date | parseTime('{y}-{m}-{d}') }} - {{ row.sales_end_date | parseTime('{y}-{m}-{d}') }}</span>
+          <span>{{ row.sales_start_date | parseTime('{m}-{d}') }} </span>
         </template>
       </el-table-column>
       <el-table-column label="Sales BV" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.sales_bv }}</span>
+          <span >{{ row.total_sales_bv }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Sales Amount" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.sales_amount }}</span>
+          <span >{{ row.total_sales_amount }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Sales GST" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.total_sales_gst }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Shipping" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.total_sales_shipping_fee }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="TDS" width="130px" align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.total_tds }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Total Payout" width="130px" align="right">
         <template slot-scope="{row}">
-          <span >{{ row.payout_amount }}</span>
+          <span >{{ row.total_payout_amount }}</span>
         </template>
       </el-table-column>
 
-       <el-table-column label="Payout Generated at" min-width="150px" align="center">
+      <el-table-column label="Payable" width="130px" align="right">
         <template slot-scope="{row}">
-          <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
+          <span >{{ row.total_net_payable_amount }}</span>
         </template>
       </el-table-column>
+
     </el-table>
 
     <pagination
@@ -127,7 +136,7 @@
 </template>
 
 <script>
-import { fetchPayouts, generateManualPayout,} from "@/api/admin/payouts";
+import { getMonthlyBusiness, generateManualPayout,} from "@/api/admin/payouts";
 import { getAllIncomes,} from "@/api/admin/incomes";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -223,7 +232,7 @@ export default {
     checkRole,
     getList() {
       this.listLoading = true;
-      fetchPayouts(this.listQuery).then(response => {
+      getMonthlyBusiness(this.listQuery).then(response => {
         this.list = response.data.data;
         this.total = response.data.total;
         setTimeout(() => {

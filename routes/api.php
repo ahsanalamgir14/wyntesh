@@ -431,6 +431,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     
     Route::post('reward-add', 'PayoutsController@AddReward');
         
+    Route::get('monthly-business', 'PayoutsController@getMonthlyBusiness');
     Route::get('payouts', 'PayoutsController@getPayouts');
     Route::get('payout-incomes', 'PayoutsController@getPayoutIncomes');
     Route::get('payouts/member', 'PayoutsController@getMemberPayouts');

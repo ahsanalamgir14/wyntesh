@@ -134,6 +134,22 @@
         </router-link>
       </el-col>          
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <router-link to="/wallet/withdrawals">
+          <div class="card-panel gr8" >
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <i class="fas fa-upload card-panel-icon"  ></i>
+            </div>
+            <div class="card-panel-description">
+              
+              <count-to :start-val="0" :end-val="dashboardStats.withdrawals" :duration="3600" class="card-panel-num" />
+              <div class="card-panel-text">
+                Withdrawals
+              </div>
+            </div>
+          </div>
+        </router-link>
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <router-link to="/wallet/withdrawal-requests">
           <div class="card-panel gr5" >
             <div class="card-panel-icon-wrapper icon-shopping">
@@ -165,7 +181,7 @@
           </div>
         </router-link>
       </el-col>
-      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <router-link to="/kyc/pending">
           <div class="card-panel gr7" >
             <div class="card-panel-icon-wrapper icon-shopping">
@@ -180,7 +196,7 @@
             </div>
           </div>
         </router-link>
-      </el-col>
+      </el-col> -->
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <router-link to="/support/tickets">
           <div class="card-panel gr14" >
@@ -409,7 +425,7 @@ export default {
         }
 
         .card-panel-num {
-          font-size: 25px;
+          font-size: 22px;
           float:right;
           display: block;
         }

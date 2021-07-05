@@ -8,6 +8,14 @@ export function fetchPayouts(query) {
   })
 }
 
+export function getMonthlyBusiness(query) {
+  return request({
+    url: '/admin/monthly-business',
+    method: 'get',
+    params: query
+  })
+}
+
 export function fetchRewards(query) {
   return request({
     url: '/admin/rewards',

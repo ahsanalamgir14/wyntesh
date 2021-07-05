@@ -727,6 +727,7 @@ class PayoutsController extends Controller
         $response = array('status' => true,'message'=>"MemberPayout Types retrieved.",'data'=>$memberWallet,'sum'=>$total);
         return response()->json($response, 200);
     }
+
     public function getMemberTDS(Request $request)
     {
         $page=$request->page;
@@ -784,6 +785,44 @@ class PayoutsController extends Controller
         $MemberPayout=$MemberPayout->with('payout:id,sales_start_date,sales_end_date','member.user:id,username,name','member.kyc')->orderBy('id',$sort)->paginate($limit);
 
         $response = array('status' => true,'message'=>"Member TDS retrieved.",'data'=>$MemberPayout,'sum'=>$total);
+        return response()->json($response, 200);
+    }
+
+    public function getMonthlyBusiness(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+        $month=$request->month?$request->month:'';
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1000;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+
+        $Payout=Payout::select([DB::raw('sum(sales_bv) as total_sales_bv'),DB::raw('sum(sales_amount) as total_sales_amount'),DB::raw('sum(sales_gst) as total_sales_gst'),DB::raw('sum(sales_shipping_fee) as total_sales_shipping_fee'),DB::raw('sum(tds) as total_tds'),DB::raw('sum(payout_amount) as total_payout_amount'),DB::raw('sum(net_payable_amount) as total_net_payable_amount'),DB::raw('sales_start_date'),DB::raw("CONCAT_WS('-',MONTH(sales_start_date),YEAR(sales_start_date)) as monthyear")]);
+
+                
+        if($month){ 
+            $month=$month.'-01';
+            $date=Carbon::parse($month);           
+            $Payout=$Payout->whereMonth('sales_start_date',$date->month);
+            $Payout=$Payout->whereYear('sales_start_date',$date->year);
+        }
+        
+        $Payout=$Payout->groupBy('monthyear')->orderBy('id',$sort)->paginate($limit);
+
+        $response = array('status' => true,'message'=>"Business Overview retrieved.",'data'=>$Payout);
         return response()->json($response, 200);
     }
 
