@@ -19,7 +19,7 @@ use JWTAuth;
 use DB;
 use Storage;
 use App\Events\MemberRegisteredEvent;
-
+use App\Classes\FileUploadHandler;
 use App\Models\Admin\MemberPayout;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\PayoutNotification;
@@ -289,105 +289,39 @@ class MembersController extends Controller
             $User->kyc->ifsc=$kyc['ifsc']??'';
             $User->kyc->verification_status=$kyc['verification_status']??'';
             $User->kyc->save();
+            $fileUploadHandler=new FileUploadHandler;
+            if($request->hasFile('profile_picture')){
+                $cdn_url=$fileUploadHandler->uploadThumbFile($request,'profile_picture','kyc');
+                $User->profile_picture=$cdn_url;
+                $User->save();
+            }
 
             if($request->hasFile('adhar_image')){
-                $file = $request->file('adhar_image');
-                $str=rand(); 
-                $randomID = md5($str);
-                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
-                $project_directory=env('DO_STORE_PATH');
-
-                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
-                
-                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
-                
-                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
+                $cdn_url=$fileUploadHandler->uploadFile($request,'adhar_image','kyc');
                 $User->kyc->adhar_image=$cdn_url;
                 $User->kyc->save();
             }
 
             if($request->hasFile('adhar_image_back')){
-                $file = $request->file('adhar_image_back');
-                $str=rand(); 
-                $randomID = md5($str);
-                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
-                $project_directory=env('DO_STORE_PATH');
-
-                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
-                
-                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
-                
-                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
+                $cdn_url=$fileUploadHandler->uploadFile($request,'adhar_image_back','kyc');
                 $User->kyc->adhar_image_back=$cdn_url;
                 $User->kyc->save();
             }
 
-            if($request->hasFile('profile_picture')){
-                $file = $request->file('profile_picture');
-                $str=rand(); 
-                $randomID = md5($str);
-                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
-                $project_directory=env('DO_STORE_PATH');
-
-                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
-                
-                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
-                
-                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
-                $User->profile_picture=$cdn_url;
-                $User->save();
-            }
-
             if($request->hasFile('pan_image')){
-                $file = $request->file('pan_image');
-                $str=rand(); 
-                $randomID = md5($str);
-                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
-                $project_directory=env('DO_STORE_PATH');
-
-                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
-                
-                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
-                
-                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
+                $cdn_url=$fileUploadHandler->uploadFile($request,'pan_image','kyc');
                 $User->kyc->pan_image=$cdn_url;
                 $User->kyc->save();
             }
 
             if($request->hasFile('cheque_image')){
-                $file = $request->file('cheque_image');
-                $str=rand(); 
-                $randomID = md5($str);
-                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
-                $project_directory=env('DO_STORE_PATH');
-
-                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
-                
-                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
-                
-                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
+                $cdn_url=$fileUploadHandler->uploadFile($request,'cheque_image','kyc');
                 $User->kyc->cheque_image=$cdn_url;
                 $User->kyc->save();
             }
-            
+
             if($request->hasFile('distributor_image')){
-                $file = $request->file('distributor_image');
-                $str=rand(); 
-                $randomID = md5($str);
-                $filename=$randomID.'-'.$User->id.".".$file->getClientOriginalExtension();          
-                $project_directory=env('DO_STORE_PATH');
-
-                $store=Storage::disk('spaces')->put($project_directory.'/kyc/'.$filename, file_get_contents($file->getRealPath()), 'public');
-                
-                $url=Storage::disk('spaces')->url($project_directory.'/kyc/'.$filename);
-                
-                $cdn_url=str_replace('digitaloceanspaces', 'cdn.digitaloceanspaces', $url);
-
+                $cdn_url=$fileUploadHandler->uploadFile($request,'distributor_image','kyc');
                 $User->kyc->distributor_image=$cdn_url;
                 $User->kyc->save();
             }
