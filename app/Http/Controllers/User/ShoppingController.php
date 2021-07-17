@@ -154,8 +154,11 @@ class ShoppingController extends Controller
         }
 
         $cart=Cart::where('variant_id',$request->variant_id)->where('user_id',$user->id)->first();
-        $cart->qty=$request->qty;
-        $cart->save();
+        
+        if($cart){            
+            $cart->qty=$request->qty;
+            $cart->save();
+        }
 
         $response = array('status' => true,'message'=>'Cart updated.');
         return response()->json($response, 200);
