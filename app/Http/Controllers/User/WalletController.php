@@ -855,6 +855,17 @@ class WalletController extends Controller
         $WithdrawalRequest= WithdrawalRequest::where('member_id',$member_id)->where('id',$id)->first();
         
         if($WithdrawalRequest){
+
+            if($WithdrawalRequest->request_status=='Approved'){ 
+                $response = array('status' => false,'message'=>'Request already Approved');
+                return response()->json($response, 400);    
+            }
+
+            if($WithdrawalRequest->request_status=='Rejected'){ 
+                $response = array('status' => false,'message'=>'Request already Rejected');
+                return response()->json($response, 400);    
+            } 
+
             $amount=$WithdrawalRequest->amount;
             $WithdrawalRequest->member->income_wallet_balance+=$amount;
             $WithdrawalRequest->member->save();
@@ -873,6 +884,17 @@ class WalletController extends Controller
         $WithdrawalRequest= WithdrawalRequest::where('member_id',$member_id)->where('id',$id)->first();
         
         if($WithdrawalRequest){
+
+            if($WithdrawalRequest->request_status=='Approved'){ 
+                $response = array('status' => false,'message'=>'Request already Approved');
+                return response()->json($response, 400);    
+            }
+
+            if($WithdrawalRequest->request_status=='Rejected'){ 
+                $response = array('status' => false,'message'=>'Request already Rejected');
+                return response()->json($response, 400);    
+            } 
+
             $amount=$WithdrawalRequest->amount;
             $WithdrawalRequest->member->income_wallet_balance+=$amount;
             $WithdrawalRequest->member->save();
@@ -891,6 +913,17 @@ class WalletController extends Controller
         $IncomeWalletTransfers= IncomeWalletTransfers::where('member_id',$member_id)->where('id',$id)->first();
         
         if($IncomeWalletTransfers){
+
+            if($IncomeWalletTransfers->request_status=='Approved'){ 
+                $response = array('status' => false,'message'=>'Request already Approved');
+                return response()->json($response, 400);    
+            }
+
+            if($IncomeWalletTransfers->request_status=='Rejected'){ 
+                $response = array('status' => false,'message'=>'Request already Rejected');
+                return response()->json($response, 400);    
+            } 
+            
             $amount=$IncomeWalletTransfers->amount;
             $IncomeWalletTransfers->member->income_wallet_balance+=$amount;
             $IncomeWalletTransfers->member->save();
