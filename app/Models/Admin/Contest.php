@@ -15,8 +15,8 @@ class Contest extends Model {
 
     protected $casts = [
         'created_at' => 'datetime',
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     public function getIsEndedAttribute()

@@ -6,7 +6,7 @@
           <img :src="contest.image" style="margin:0 auto;">
         </div> -->
         <!-- <h1 class="text-xl pt-6 mb-2 text-white text-center">{{contest.name}}</h1> -->
-        <vue-countdown-timer class="text-center mb-4 pt-4" :start-time="'2018-10-10 00:00:00'" :end-time="parseTime(contest.end_date,'{y}-{m}-{d}')" :interval="1000" :start-label="'Until start:'" :end-label="'To go...'" label-position="end" :end-text="'Contest ended!'" :day-txt="'days'" :hour-txt="'hours'" :minutes-txt="'minutes'" :seconds-txt="'seconds'">
+        <vue-countdown-timer class="text-center mb-4 pt-4" :start-time="'2018-10-10 00:00:00'" :end-time="parseTime(contest.end_date,'{y}-{m}-{d} {h}:{i}:{s}')" :interval="1000" :start-label="'Until start:'" :end-label="'To go...'" label-position="end" :end-text="'Contest ended!'" :day-txt="'days'" :hour-txt="'hours'" :minutes-txt="'minutes'" :seconds-txt="'seconds'">
           <template slot="start-label" slot-scope="scope">
             <span style="color: red" v-if="scope.props.startLabel !== '' && scope.props.tips && scope.props.labelPosition === 'begin'">{{scope.props.startLabel}}:</span>
             <span style="color: white" v-if="scope.props.endLabel !== '' && !scope.props.tips && scope.props.labelPosition === 'begin'">{{scope.props.endLabel}}</span>
