@@ -307,7 +307,7 @@ class ContestsController extends Controller
         }
 
         $ContestBanner=new ContestBanner;
-        $ContestBanner->rank_id=$request->rank_id??11;
+        $ContestBanner->rank_id=$request->rank_id??12;
         $ContestBanner->contest_id=$request->contest_id;
         $ContestBanner->save();
 

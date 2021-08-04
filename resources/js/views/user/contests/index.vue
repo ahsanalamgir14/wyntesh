@@ -357,7 +357,7 @@ export default {
       }else if(tab.name=='awards'){
         this.getSpecialAwards();
         let data={
-          rank_id:11,
+          rank_id:12,
           contest_id:this.listQuery.contest_id
         };
         getCurrentContestRankBanner(data).then(response => {
