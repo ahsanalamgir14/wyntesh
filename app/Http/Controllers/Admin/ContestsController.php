@@ -289,7 +289,7 @@ class ContestsController extends Controller
 
     public function createContestBanner(Request $request){
         $validate = Validator::make($request->all(), [           
-            'rank_id' => "required",
+            // 'rank_id' => "required",
             'contest_id' => "required",
         ]);
 
@@ -307,7 +307,7 @@ class ContestsController extends Controller
         }
 
         $ContestBanner=new ContestBanner;
-        $ContestBanner->rank_id=$request->rank_id;
+        $ContestBanner->rank_id=$request->rank_id??11;
         $ContestBanner->contest_id=$request->contest_id;
         $ContestBanner->save();
 

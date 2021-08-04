@@ -239,9 +239,9 @@
           </el-col>
         </el-row>
       </div>
-      <el-dialog width="100%" top="5px" :visible.sync="dialogWinnerPupup">
+      <el-dialog width="40%" top="5px" height="700px" :visible.sync="dialogWinnerPupup">
         <div v-if="popup">
-          <img :src="popup.image" />
+          <img :src="popup.image" max-height="500px;" />
         </div>
       </el-dialog>
       <div :class="{'hidden':hidden}" class="pagination-container">
@@ -356,6 +356,18 @@ export default {
         this.getList();
       }else if(tab.name=='awards'){
         this.getSpecialAwards();
+        let data={
+          rank_id:11,
+          contest_id:this.listQuery.contest_id
+        };
+        getCurrentContestRankBanner(data).then(response => {
+          if(response.data)
+            this.popup.image=null;
+          this.popup = response.data;
+          if(this.popup){
+            this.dialogWinnerPupup=true;
+          }
+        });
       }
     },
     handleFilter() {

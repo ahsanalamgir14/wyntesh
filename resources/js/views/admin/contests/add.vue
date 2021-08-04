@@ -311,7 +311,7 @@ export default {
         member_id: [{ required: true, message: 'Member ID is required', trigger: 'blur' }],
       },
       rulesBanner: {
-        rank_id: [{ required: true, message: 'Select Rank', trigger: 'blur' }],
+        // rank_id: [{ required: true, message: 'Select Rank', trigger: 'blur' }],
       },
       downloadLoading: false,
       buttonLoading: false
