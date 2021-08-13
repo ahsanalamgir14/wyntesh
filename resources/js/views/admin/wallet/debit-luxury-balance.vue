@@ -435,11 +435,11 @@ export default {
           if (j === "timestamp") {
             return parseTime(v[j]);
           } else if(j === "transfered_from") {
-            return v.transfered_from_user.username
+            return v.transfered_from_user?v.transfered_from_user.username:''
           }else if(j === "transfered_to") {
-            return v.transfered_to_user.username
+            return v.transfered_to_user?v.transfered_to_user.username:''
           }else if(j === "transaction_by") {
-            return v.transaction_by_user.username
+            return v.transaction_by_user?v.transaction_by_user.username:''
           }else {
             return v[j];
           }
