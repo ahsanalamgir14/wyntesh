@@ -86,6 +86,11 @@
           <span >{{ row.transfered_from_user?row.transfered_from_user.username:'' }}</span>
         </template>
       </el-table-column>
+       <el-table-column label="Debited from Name" min-width="120px"align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.transfered_from_user?row.transfered_from_user.name:'' }}</span>
+        </template>
+      </el-table-column>
      <!--  <el-table-column label="Transfer to" min-width="120px"align="right">
         <template slot-scope="{row}">
           <span >{{ row.transfered_to_user?row.transfered_to_user.username:'' }}</span>
@@ -403,20 +408,18 @@ export default {
       import("@/vendor/Export2Excel").then(excel => {
         const tHeader = [
           "ID",
+          "Member ID",
+          "Member Name",
           "Amount",
-          "Balance",
-          "Transfer from",
-          "Transfer to",          
-          "Transaction by",
+          "Note",
           "Created at",
         ];
         const filterVal = [
           "id",
-          "amount",
-          "balance",
           "transfered_from",
-          "transfered_to",
-          "transaction_by",
+          "transfered_from_name",
+          "amount",
+          "note",
           "created_at"
         ];
         const data = this.formatJson(filterVal, this.list);
@@ -435,10 +438,8 @@ export default {
             return parseTime(v[j]);
           } else if(j === "transfered_from") {
             return v.transfered_from_user?v.transfered_from_user.username:''
-          }else if(j === "transfered_to") {
-            return v.transfered_to_user?v.transfered_to_user.username:''
-          }else if(j === "transaction_by") {
-            return v.transaction_by_user?v.transaction_by_user.username:''
+          } else if(j === "transfered_from_name") {
+            return v.transfered_from_user?v.transfered_from_user.name:''
           }else {
             return v[j];
           }

@@ -71,6 +71,11 @@
           <span >{{ row.member?row.member.user.username:'' }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="Member Name" min-width="120px"align="right">
+        <template slot-scope="{row}">
+          <span >{{ row.member?row.member.user.name:'' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="Amount" width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.amount }}</span>
@@ -402,22 +407,20 @@ export default {
     handleDownload() {
       this.downloadLoading = true;
       import("@/vendor/Export2Excel").then(excel => {
-        const tHeader = [
+         const tHeader = [
           "ID",
+          "Member ID",
+          "Member Name",
           "Amount",
-          "Balance",
-          "Transfer from",
-          "Transfer to",          
-          "Transaction by",
+          "Note",
           "Created at",
         ];
         const filterVal = [
           "id",
-          "amount",
-          "balance",
           "transfered_from",
-          "transfered_to",
-          "transaction_by",
+          "transfered_from_name",
+          "amount",
+          "note",
           "created_at"
         ];
         const data = this.formatJson(filterVal, this.list);
@@ -432,14 +435,12 @@ export default {
     formatJson(filterVal, jsonData) {
       return jsonData.map(v =>
         filterVal.map(j => {
-          if (j === "timestamp") {
+         if (j === "timestamp") {
             return parseTime(v[j]);
           } else if(j === "transfered_from") {
-            return v.transfered_from_user?v.transfered_from_user.username:''
-          }else if(j === "transfered_to") {
-            return v.transfered_to_user?v.transfered_to_user.username:''
-          }else if(j === "transaction_by") {
-            return v.transaction_by_user?v.transaction_by_user.username:''
+            return v.member.user?v.member.user.username:''
+          } else if(j === "transfered_from_name") {
+            return v.member.user?v.member.user.name:''
           }else {
             return v[j];
           }
