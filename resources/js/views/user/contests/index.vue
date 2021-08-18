@@ -239,7 +239,7 @@
           </el-col>
         </el-row>
       </div>
-      <el-dialog width="40%" top="5px" height="700px" :visible.sync="dialogWinnerPupup">
+      <el-dialog width="40%" top="5px":fullscreen="is_mobile"  height="700px" :visible.sync="dialogWinnerPupup">
         <div v-if="popup">
           <img :src="popup.image" max-height="500px;" />
         </div>
