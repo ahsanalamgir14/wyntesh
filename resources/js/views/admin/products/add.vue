@@ -910,6 +910,7 @@ export default {
             this.temp = response.data;
             this.temp.is_color_variant = response.data.is_color_variant == 1 ? true : false;
             this.temp.is_size_variant = response.data.is_size_variant == 1 ? true : false;
+            this.temp.is_shipping_waiver = response.data.is_shipping_waiver == 1 ? true : false;
             this.fileList = [];
             this.loading = false;
             this.buttonLoading = false;
