@@ -54,6 +54,9 @@
               <el-form-item size="mini" label="Waive Shipping ?" prop="is_shipping_waiver">
                 <el-checkbox v-model="temp.is_shipping_waiver" border>Waive Shipping ?</el-checkbox>
               </el-form-item>
+              <el-form-item size="mini" label="Education Courses ?" prop="is_course">
+                <el-checkbox v-model="temp.is_course" border>Education Courses ?</el-checkbox>
+              </el-form-item>
             </el-col>
             <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
               <div class="img-upload">
@@ -445,6 +448,7 @@ export default {
         is_color_variant: false,
         is_size_variant: false,
         is_shipping_waiver: false,
+        is_course: false,
         display_price: 0,
         cost_base: 0,
         cost_gst_rate: 0,
@@ -680,6 +684,7 @@ export default {
           this.temp.is_color_variant = response.data.is_color_variant == 1 ? true : false;
           this.temp.is_size_variant = response.data.is_size_variant == 1 ? true : false;
           this.temp.is_shipping_waiver = response.data.is_shipping_waiver == 1 ? true : false;
+          this.temp.is_course = response.data.is_course == 1 ? true : false;
           var keys = [];
           response.data.categories.map(cat => {
             keys.push(cat.id);
@@ -911,6 +916,7 @@ export default {
             this.temp.is_color_variant = response.data.is_color_variant == 1 ? true : false;
             this.temp.is_size_variant = response.data.is_size_variant == 1 ? true : false;
             this.temp.is_shipping_waiver = response.data.is_shipping_waiver == 1 ? true : false;
+            this.temp.is_course = response.data.is_course == 1 ? true : false;
             this.fileList = [];
             this.loading = false;
             this.buttonLoading = false;

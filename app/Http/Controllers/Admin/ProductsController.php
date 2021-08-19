@@ -175,6 +175,8 @@ class ProductsController extends Controller
         $Product->is_color_variant=$request->is_color_variant=="true"?1:0;
         $Product->is_size_variant=$request->is_size_variant=="true"?1:0;
         $Product->is_shipping_waiver=$request->is_shipping_waiver=="true"?1:0;
+        $Product->is_course=$request->is_course=="true"?1:0;
+        $Product->is_course=$request->is_course=="true"?1:0;
 
         $Product->save();
 
@@ -261,6 +263,7 @@ class ProductsController extends Controller
         $Product->is_color_variant=$request->is_color_variant=="true"?1:0;
         $Product->is_size_variant=$request->is_size_variant=="true"?1:0;
         $Product->is_shipping_waiver=$request->is_shipping_waiver=="true"?1:0;
+        $Product->is_course=$request->is_course=="true"?1:0;
         $Product->pv=$request->pv;
         $Product->priority=$request->priority;
         $Product->save();
