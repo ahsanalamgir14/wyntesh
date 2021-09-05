@@ -55,8 +55,9 @@ class MembersController extends Controller
 
     public function checkSponsorCode($code)
     {
-        $Member=User::select('id','name')->where('username',$code)->role('user')->with('member:id,user_id')->first();
+        $Member=User::select('id','name')->where('username',$code)->role('user')->first();
         if($Member){
+           
             $response = array('status' => true,'message'=>'Sponsor recieved.','data' => $Member);
             return response()->json($response, 200);  
         }else{
@@ -68,7 +69,7 @@ class MembersController extends Controller
 
     public function checkMemberCode($code)
     {
-        $Member=User::select('id','name')->where('username',$code)->role('user')->with('member:id,user_id')->first();
+        $Member=User::select('id','name')->where('username',$code)->role('user')->first();
         if($Member){
             $response = array('status' => true,'message'=>'Member recieved.','data' => $Member);
             return response()->json($response, 200);  

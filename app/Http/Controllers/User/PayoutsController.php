@@ -169,7 +169,7 @@ class PayoutsController extends Controller
         if(!$search && !$income_id && !$month){
             $MemberPayoutIncome=MemberPayoutIncome::select();
             $MemberPayoutIncome=$MemberPayoutIncome->where('member_id',$user->member->id);
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit); 
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout:id,sales_start_date,sales_end_date,payout_type_id')->orderBy('id',$sort)->paginate($limit); 
         }else{
             $MemberPayoutIncome=MemberPayoutIncome::select();
             
@@ -186,7 +186,7 @@ class PayoutsController extends Controller
                 $MemberPayoutIncome=$MemberPayoutIncome->whereIn('income_id',$income_id);
             }
             $MemberPayoutIncome=$MemberPayoutIncome->where('member_id',$user->member->id);
-            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout')->orderBy('id',$sort)->paginate($limit);
+            $MemberPayoutIncome=$MemberPayoutIncome->with('income','payout:id,sales_start_date,sales_end_date,payout_type_id')->orderBy('id',$sort)->paginate($limit);
         }
 
         $response = array('status' => true,'message'=>"Payout Incomes retrieved.",'data'=>$MemberPayoutIncome);
@@ -216,7 +216,7 @@ class PayoutsController extends Controller
         }
 
         $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id')
-        ->with('payout')->selectRaw('*, sum(amount) as withhold_amount')
+        ->with('payout:id,sales_start_date,sales_end_date,payout_type_id')->selectRaw('*, sum(amount) as withhold_amount')
         ->where('member_id',$user->member->id)->where('is_paid',0)->paginate($limit);
 
         $response = array('status' => true,'message'=>"Member Income Holding retrieved.",'data'=>$MemberIncomeHolding);
@@ -229,7 +229,7 @@ class PayoutsController extends Controller
         
 
         $MemberIncomeHolding=MemberIncomeHolding::groupBy('payout_id')
-        ->with('payout')->selectRaw('*, sum(amount) as withhold_amount')
+        ->with('payout:id,sales_start_date,sales_end_date,payout_type_id')->selectRaw('*, sum(amount) as withhold_amount')
         ->where('member_id',$user->member->id)->where('is_paid',0)->get();
 
         $response = array('status' => true,'message'=>"Member Income Holding Payouts retrieved.",'data'=>$MemberIncomeHolding);
@@ -382,7 +382,7 @@ class PayoutsController extends Controller
                     ->whereDate('created_at','>=',$MemberPayout->payout->sales_start_date)
                     ->where('payout_id',$MemberPayout->payout_id)
                     ->where('member_id',$MemberPayout->member->id)
-                    ->with('member.user','payout.payout_type')
+                    ->with('member.user','payout:id,sales_start_date,sales_end_date,payout_type_id','payout.payout_type')
                     ->first();
         }else{
             $payout= MemberPayout::addSelect(['*', \DB::raw('sum(payout_amount) as total_payout_amount'), \DB::raw('sum(tds) as total_tds'), \DB::raw('sum(net_payable_amount) as total_net_payable_amount')])
