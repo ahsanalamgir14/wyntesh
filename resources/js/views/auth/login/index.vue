@@ -1,8 +1,13 @@
 <template>
   <el-row>
-      <el-dialog :visible.sync="isOpen" class="popups"  v-if="popups">
-        <img class="img-responsive" :src="popups[0].image" alt="">  
-      </el-dialog>   
+    <div v-if="popups.length>=1">
+      <div v-if="isOpen" class="fixed h-20 w-20 h-full w-full top-0 z-50 " v-bind:class="{'class1': popups.length>=1, 'class2':popups.length<=1}">
+              <div id="onstartmodal" class="fixed h-4/6 rounded-xl inset-x-1/4 z-50 top-20">
+                  <div id="close" class="simplePopupClose text-sm absolute right-0 items-center justify-center flex top-2 w-10 h-10" @click="isOpen=false" >X</div>
+                  <img class="img-responsive rounded-xl max-h-full w-max" :src="popups[0].image" alt="">
+              </div> 
+          </div>
+        </div>
     <el-col :xs="24" :sm="24" :md="10" :lg="10" :xl="10">
       <div class="welcome-container">
         <div class="logo-text">
@@ -95,7 +100,6 @@ export default {
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
       },
       isOpen: false,
-      closed: false,
       popups:{},
       settings: {},
       loading: false,
@@ -209,26 +213,13 @@ $light_gray:#eee;
         }
     }
 }
-.popups .el-dialog__body ,
-.popups .el-dialog__header {
-    padding: 0px !important;
+.class1{
+  display: block;
+  background-color: rgba(0, 0, 0, 0.7);
 }
- .popups .el-dialog {
-    display: block !important;
-    max-width: 60% !important;
-    position: relative !important;
-    margin: 20px auto 50px !important;
-    border-radius: 10px !important;
-    box-sizing: border-box !important;
-
-  }
-   .popups .el-dialog__headerbtn{
-    top: 5px;
-    right: 5px;
-  }
- .popups .el-dialog__close{
-    color: #000 !important;
-  }
+.class1{
+  display: hidden;
+}
 
 .welcome-container{
   width: 100%;
