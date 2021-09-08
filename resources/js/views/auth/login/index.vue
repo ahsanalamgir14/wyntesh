@@ -1,5 +1,8 @@
 <template>
   <el-row>
+      <el-dialog :visible.sync="isOpen" class="popups"  v-if="popups">
+        <img class="img-responsive" :src="popups[0].image" alt="">  
+      </el-dialog>   
     <el-col :xs="24" :sm="24" :md="10" :lg="10" :xl="10">
       <div class="welcome-container">
         <div class="logo-text">
@@ -62,6 +65,7 @@
 import { validEmail } from '@/utils/validate';
 import logo from '@/assets/images/logo.png';
 import { getPublicSettings } from '@/api/user/settings';
+import { getSoftwarePopup } from '@/api/admin/software-popups';
 
 export default {
   name: 'Login',
@@ -90,6 +94,9 @@ export default {
         username: [{ required: true, trigger: 'blur', message: 'Username is required' }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
       },
+      isOpen: false,
+      closed: false,
+      popups:{},
       settings: {},
       loading: false,
       pwdType: 'password',
@@ -115,6 +122,10 @@ export default {
       this.handleAdminLogin();
     }
 
+    getSoftwarePopup().then(response => {
+      this.popups = response.data;
+    });
+    this.popupsOpen();
 
     getPublicSettings().then(response => {
       this.settings = response.data;
@@ -140,6 +151,16 @@ export default {
         .catch((error) => {
           this.loading = false;
         });
+    },
+    popupsOpen() {
+       if(this.popups){
+          var self = this;
+          setTimeout(function() { 
+            self.isOpen = true; 
+          }, 1000);
+      }else{
+        self.isOpen = false;
+      }
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
@@ -188,8 +209,26 @@ $light_gray:#eee;
         }
     }
 }
+.popups .el-dialog__body ,
+.popups .el-dialog__header {
+    padding: 0px !important;
+}
+ .popups .el-dialog {
+    display: block !important;
+    max-width: 60% !important;
+    position: relative !important;
+    margin: 20px auto 50px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
 
-
+  }
+   .popups .el-dialog__headerbtn{
+    top: 5px;
+    right: 5px;
+  }
+ .popups .el-dialog__close{
+    color: #000 !important;
+  }
 
 .welcome-container{
   width: 100%;
@@ -289,6 +328,15 @@ $light_gray:#eee;
         margin-right: 16px;
       }
     }
+  }
+  .el-dialog{
+    
+   display: block !important;
+    max-width: 60% !important;
+    position: relative !important;
+    margin: 20px auto 50px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
   }
   .svg-container {
     padding: 6px 5px 6px 15px;

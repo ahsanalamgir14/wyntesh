@@ -25,6 +25,7 @@ Route::get('sms', '\App\Http\Controllers\User\MembersController@sendSMS');
 Route::get('geneology', '\App\Http\Controllers\User\MembersController@adminGeneology');
 Route::get('download-file', 'Admin\SettingsController@downloadFile');
 Route::get('settings','\App\Http\Controllers\User\SettingsController@getCopanyDetailsSettings');
+Route::get('software-popups','\App\Http\Controllers\Admin\SoftwarePopupController@softwarePopup');
 
 Route::get('country', '\App\Http\Controllers\User\ConfigController@getCountry');
 Route::get('cities/{state}', '\App\Http\Controllers\User\ConfigController@getStateCities');
@@ -266,7 +267,12 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
     Route::post('popup','PopupsController@createPopup');
     Route::post('popup/update', 'PopupsController@updatePopup');
     Route::get('popups', 'PopupsController@getPopups');
-    Route::delete('popup/{id}/delete', 'PopupsController@deletePopup');    
+    Route::delete('popup/{id}/delete', 'PopupsController@deletePopup');   
+    
+    Route::post('software-popups','SoftwarePopupController@createSoftwarePopup');
+    Route::post('software-popups/update', 'SoftwarePopupController@updateSoftwarePopup');
+    Route::get('software-popups', 'SoftwarePopupController@getSoftwarePopups');
+    Route::delete('software-popups/{id}/delete', 'SoftwarePopupController@deleteSoftwarePopup');   
 
     Route::post('download','DownloadsController@createDownload');
     Route::post('download/update', 'DownloadsController@updateDownload');
