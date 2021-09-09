@@ -160,7 +160,7 @@ class SoftwarePopupController extends Controller
         }
     }
     public function softwarePopup() {
-        $Popup= SoftwarePopup::get();
+        $Popup= SoftwarePopup::where('is_visible',1)->first();
         $response = array('status' => true,'message'=>'Software Popup retrived.','data'=>$Popup);             
         return response()->json($response, 200);
     }

@@ -1,13 +1,18 @@
 <template>
   <el-row>
-    <div v-if="popups.length>=1">
-      <div v-if="isOpen" class="fixed h-20 w-20 h-full w-full top-0 z-50 " v-bind:class="{'class1': popups.length>=1, 'class2':popups.length<=1}">
-              <div id="onstartmodal" class="fixed h-4/6 rounded-xl inset-x-1/4 z-50 top-20">
-                  <div id="close" class="simplePopupClose text-sm absolute right-0 items-center justify-center flex top-2 w-10 h-10" @click="isOpen=false" >X</div>
-                  <img class="img-responsive rounded-xl max-h-full w-max" :src="popups[0].image" alt="">
-              </div> 
-          </div>
+     <!-- <el-dialog width="50%" class="popups" :fullscreen="is_mobile"  height="700px" :visible.sync="dialogWinnerPupup">
+        <div v-if="popup">
+          <img :src="popup[0].image" class="img" max-height="500px;" />
         </div>
+      </el-dialog> -->
+      <div v-if="popup">
+        <div v-if="dialogWinnerPupup" class="simplePopupBackground">
+            <div id="onstartmodal" class="simplePopup">
+                <div id="close" class="simplePopupClose" @click="dialogWinnerPupup=false" >X</div>
+                <img class="img-responsive" :src="popup.image" alt="">
+            </div> 
+        </div>
+      </div>
     <el-col :xs="24" :sm="24" :md="10" :lg="10" :xl="10">
       <div class="welcome-container">
         <div class="logo-text">
@@ -99,8 +104,11 @@ export default {
         username: [{ required: true, trigger: 'blur', message: 'Username is required' }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
       },
-      isOpen: false,
-      popups:{},
+      is_mobile:false,
+      dialogWinnerPupup: false,
+      popup:{
+        image:null
+      },
       settings: {},
       loading: false,
       pwdType: 'password',
@@ -127,9 +135,17 @@ export default {
     }
 
     getSoftwarePopup().then(response => {
-      this.popups = response.data;
+       if(response.data)
+          this.popup.image=null;
+        this.popup = response.data;
+        if(this.popup){
+           this.popupsOpen();
+        }
     });
-    this.popupsOpen();
+
+     if(window.screen.width <= '550'){
+      this.is_mobile=true;
+    }
 
     getPublicSettings().then(response => {
       this.settings = response.data;
@@ -157,14 +173,10 @@ export default {
         });
     },
     popupsOpen() {
-       if(this.popups){
-          var self = this;
-          setTimeout(function() { 
-            self.isOpen = true; 
-          }, 1000);
-      }else{
-        self.isOpen = false;
-      }
+      var self = this;
+      setTimeout(function() { 
+        self.dialogWinnerPupup=true;
+      }, 1000);
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
@@ -194,7 +206,22 @@ export default {
 $bg:#2d3a4b;
 $light_gray:#eee;
 
+  @media (min-width: 768px) {
+    .simplePopup {
+        left: 50%;
+    }
+  }
 
+  @media (max-width: 768px) {
+    .simplePopup {
+        width: calc(100% - 30px);
+        height: calc(100% - 50px);
+    }
+  }
+  .simplePopup img {
+      width: calc(100%);
+      height: auto;
+  }
 
 @media only screen and (max-width: 500px) {
     .welcome-container{
@@ -213,14 +240,84 @@ $light_gray:#eee;
         }
     }
 }
-.class1{
-  display: block;
-  background-color: rgba(0, 0, 0, 0.7);
+// Popup Css
+.simplePopupBackground {
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 300001;
+    overflow: hidden;
 }
-.class1{
-  display: hidden;
+.simplePopup {
+    padding: 0;
+    border-radius: 5px;
+    overflow: hidden;
+    height: 80%;
+    /* max-height: calc(100% - 40px); */
+}
+.simplePopup {
+    position: fixed;
+    z-index: 300001;
+    color: #414141;
+    padding: 20px;
+    border-radius: 8px;
+    left: 50%;
+    top: 50%!important;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
 }
 
+.simplePopupClose {
+    cursor: pointer;
+    font-size: 0;
+    position: absolute;
+    cursor: pointer;
+    top: 25px;
+    right: 25px;
+    width: 30px;
+    height: 30px;
+}
+
+.simplePopupClose:before,
+.simplePopupClose:after {
+    content: '';
+    top: 0px;
+    width: 2px;
+    height: 30px;
+    background: rgb(255, 255, 255);
+    display: block;
+    position: absolute;
+    cursor: pointer;
+    left: 50%;
+    margin-left: -1px;
+}
+
+.simplePopup img {
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.simplePopup img {
+    border: 0;
+    height: 100%;
+}
+
+.simplePopupClose:after {
+    -ms-transform: rotate(+45deg);
+    transform: rotate(+45deg);
+    -webkit-transform: rotate(+45deg);
+}
+
+.simplePopupClose:before {
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
 .welcome-container{
   width: 100%;
   height: 100vh;
@@ -320,15 +417,6 @@ $light_gray:#eee;
       }
     }
   }
-  .el-dialog{
-    
-   display: block !important;
-    max-width: 60% !important;
-    position: relative !important;
-    margin: 20px auto 50px !important;
-    border-radius: 10px !important;
-    box-sizing: border-box !important;
-  }
   .svg-container {
     padding: 6px 5px 6px 15px;
     color: $dark_gray;
@@ -359,5 +447,7 @@ $light_gray:#eee;
     top: 40px;
     right: 35px;
   }
+
+
 }
 </style>
