@@ -746,6 +746,13 @@ export const asyncRoutes = [
                 name: 'Joinings',
                 meta: { title: 'Joinings', icon: 'fas fa-users', color: 'color:#EE7642', affix: true, roles: ['admin'] }
             },
+            {
+                path: 'rank-logs',
+                component: () =>
+                    import ('@/views/admin/reports/rank-logs'),
+                name: 'Rank Logs',
+                meta: { title: 'Rank Logs', icon: 'fas fa-award', color: 'color:#5742f5', affix: true, roles: ['admin'] }
+            },
         ]
     },
     {

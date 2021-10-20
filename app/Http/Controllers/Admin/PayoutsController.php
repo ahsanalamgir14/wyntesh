@@ -30,25 +30,33 @@ use App\Models\Admin\MatchingPoint;
 use App\Models\Admin\IncomeWalletTransactions;
 use Carbon\Carbon;
 use DB;
- 
+use App\Jobs\ProcessTestMatching;
+
 class PayoutsController extends Controller
 {    
 
     public function generateMatchingPoints(Request $request){
-        $Members=Member::whereHas('user',function($q){
-            $q->where('is_active',1);
-            $q->where('is_blocked',0);
-        })->get();
+
         $date_range=$request->date_range;
-
         DB::statement('TRUNCATE matching_points');
-        $total_sales=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->whereDate('created_at','<=',$date_range[1])
-                        ->whereDate('created_at','>=',$date_range[0])
-                        ->sum('pv');
+        ProcessTestMatching::dispatch($date_range[0],$date_range[1]);
 
-        foreach ($Members as $Member) {
-            $this->calculateMemberMatchedBV($Member,$request,$total_sales);
-        }
+        $response = array('status' => true,'message'=>"Matching process is started in background, refresh after a while.");
+        return response()->json($response, 200);
+
+        // $Members=Member::whereHas('user',function($q){
+        //     $q->where('is_active',1);
+        //     $q->where('is_blocked',0);
+        // })->get();
+
+
+        // $total_sales=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->whereDate('created_at','<=',$date_range[1])
+        //                 ->whereDate('created_at','>=',$date_range[0])
+        //                 ->sum('pv');
+
+        // foreach ($Members as $Member) {
+        //     $this->calculateMemberMatchedBV($Member,$request,$total_sales);
+        // }
     }
 
     public function calculateMemberMatchedBV($Member,$request,$total_sales){

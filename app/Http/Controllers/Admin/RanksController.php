@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Admin\Rank;
+use App\Models\Admin\RankLog;
 
 class RanksController extends Controller
 {    
@@ -43,6 +44,45 @@ class RanksController extends Controller
    
        $response = array('status' => true,'message'=>"Ranks retrieved.",'data'=>$Ranks);
             return response()->json($response, 200);
+    }
+
+    public function getRankLogs(Request $request)
+    {
+        $page=$request->page;
+        $limit=$request->limit;
+        $sort=$request->sort;
+        $search=$request->search;
+
+        if(!$page){
+            $page=1;
+        }
+
+        if(!$limit){
+            $limit=1;
+        }
+
+        if ($sort=='+id'){
+            $sort = 'asc';
+        }else{
+            $sort = 'desc';
+        }
+        
+        $RankLogs=RankLog::select();
+
+        if($search){
+            $RankLogs=$RankLogs->where(function ($query)use($search) {          
+                $query=$query->orWhereHas('rank',function($q)use($search){
+                    $q->where('name','like','%'.$search.'%');
+                });
+                $query=$query->orWhereHas('member.user',function($q)use($search){
+                    $q->where('username','like','%'.$search.'%');
+                });
+            });  
+        }
+        
+        $RankLogs=$RankLogs->with('rank','member.user')->groupBy('member_id')->groupBy('rank_id')->orderBy('id',$sort)->paginate($limit);
+        $response = array('status' => true,'message'=>"Rank Logs retrieved.",'data'=>$RankLogs);
+        return response()->json($response, 200);
     }
     
     public function getAllRanks(Request $request)

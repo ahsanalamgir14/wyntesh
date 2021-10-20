@@ -142,3 +142,11 @@ export function generateMatchingPoints(data) {
     data
   })
 }
+
+export function getRankLogs(query) {
+  return request({
+    url: '/admin/rank-logs',
+    method: 'get',
+    params: query
+  })
+}

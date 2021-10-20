@@ -102,6 +102,8 @@ class PayoutHandler
             $q->where('is_active',1);
             $q->where('is_blocked',0);
         })->get();
+
+        \Log::info($Members->count());
         // dd($Members);
         $total_mached_bv=0;
         $total_carry_forward_bv=0;

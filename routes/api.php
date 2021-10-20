@@ -491,6 +491,7 @@ Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' =>
     Route::get('ranks/all', 'RanksController@getAllRanks');
     Route::get('rank/{id}', 'RanksController@getRank');
     Route::delete('rank/{id}/delete', 'RanksController@deleteRank');
+    Route::get('rank-logs', 'RanksController@getRankLogs');
 
 });
 

@@ -14,14 +14,15 @@
         type="primary"
         icon="el-icon-search"
         @click="handleFilter"
-      >Search</el-button>
+      >Search / Refresh</el-button>
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
         type="success"
         icon="el-icon-refresh-left"
         @click="handleCreate"
-      > Generate</el-button>
+        :disabled="is_generate_disabled"
+      > {{generate_caption}}</el-button>
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -193,6 +194,8 @@ export default {
         search: undefined,
         sort: "-id"
       },
+      generate_caption:'Generate',
+      is_generate_disabled:false,
       sums:{
         total_matched:0,
         total_bv:0,  
@@ -311,6 +314,8 @@ export default {
           this.buttonLoading=true;
           generateMatchingPoints(this.temp).then((data) => {
             this.dialogGenerateMatchingVisible = false;
+            this.is_generate_disabled = true;
+            this.generate_caption = 'Matching Will be generated in while... Wait for 10 to 15 Minutes. Do not generate again.';
             this.getList();
             this.$notify({
               title: "Success",
