@@ -267,24 +267,24 @@
           <el-table
             :data="monthlyBusiness"
             style="width: 100%">
-           <el-table-column label="Month" width="150px" align="center">
+           <el-table-column label="Month" width="100px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.sales_start_date | parseTime('{y}-{m}') }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Sales BV" width="130px" align="right">
+            <el-table-column label="Sales BV" width="100px" align="right">
               <template slot-scope="{row}">
-                <span >{{ row.sales_bv }}</span>
+                <span >{{ row.total_sales_bv }}</span>
               </template>
             </el-table-column>
             <el-table-column label="Sales Amount" width="130px" align="right">
               <template slot-scope="{row}">
-                <span >{{ row.sales_amount }}</span>
+                <span >{{ row.total_sales_amount }}</span>
               </template>
             </el-table-column>
             <el-table-column label="Total Payout" width="130px" align="right">
               <template slot-scope="{row}">
-                <span >{{ row.payout_amount }}</span>
+                <span >{{ row.total_net_payable_amount }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -333,7 +333,8 @@ export default {
     });
     
     await monthlyBusiness().then(response => {
-      this.monthlyBusiness = response.data;
+
+      this.monthlyBusiness = response.data.data;
     });
 
   },
