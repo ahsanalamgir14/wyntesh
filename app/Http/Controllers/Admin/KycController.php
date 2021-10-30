@@ -50,7 +50,7 @@ class KycController extends Controller
 
             });
 
-            $Kyc=$Kyc->with('member.user')->orderBy('id',$sort)->paginate($limit);
+            $Kyc=$Kyc->with('member.user')->orderBy('submitted_at','asc')->paginate($limit);
         }
    
        $response = array('status' => true,'message'=>"Kycs retrieved.",'data'=>$Kyc);

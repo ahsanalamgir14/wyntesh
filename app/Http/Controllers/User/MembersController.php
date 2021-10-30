@@ -288,8 +288,16 @@ class MembersController extends Controller
             $User->kyc->nominee_dob=$kyc['nominee_dob']??'';
             $User->kyc->nominee_contact=$kyc['nominee_contact']??'';
             $User->kyc->ifsc=$kyc['ifsc']??'';
+            $old_status=$User->kyc->verification_status;
+            $new_status=$kyc['verification_status']??'';
             $User->kyc->verification_status=$kyc['verification_status']??'';
             $User->kyc->save();
+
+            if($new_status=='submitted' && ($new_status!=$old_status)){
+                $User->kyc->submitted_at=Carbon::now();
+                $User->kyc->save();
+            }
+
             $fileUploadHandler=new FileUploadHandler;
             if($request->hasFile('profile_picture')){
                 $cdn_url=$fileUploadHandler->uploadThumbFile($request,'profile_picture','kyc');

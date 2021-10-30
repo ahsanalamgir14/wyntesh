@@ -35,7 +35,7 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column
+      <!-- <el-table-column
         label="ID"
         prop="id"
         sortable="custom"
@@ -46,7 +46,12 @@
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
+      <el-table-column label="Submitted at" width="150px">
+        <template slot-scope="{row}">
+          <span>{{ row.submitted_at? parseTime(row.submitted_at,'{y}-{m}-{d} {h}:{i}'):'-' }}</span>
+        </template>
+      </el-table-column>  
       <el-table-column label="Actions" align="center" width="80" class-name="small-padding">
         <template slot-scope="{row}">          
           <el-button
@@ -437,6 +442,7 @@ export default {
     console.log(documentimg)
   },
   methods: {
+  parseTime,
    handleAdharChange(f, fl){     
       if(fl.length > 1){
         fl.shift()  
