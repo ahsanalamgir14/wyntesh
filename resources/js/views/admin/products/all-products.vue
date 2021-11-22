@@ -8,6 +8,10 @@
       <el-input v-model="listQuery.search" placeholder="Search Records" style="width: 200px;" size="mini" class="filter-item mobile_class" @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" type="primary" size="mini" icon="el-icon-search" @click="handleFilter">Search</el-button>
       <el-button size="mini" class="filter-item" style="margin-left: 10px;" type="success" @click="handleCreate"><i class="fas fa-plus"></i> Add</el-button>
+       <el-select size="mini" v-model="listQuery.is_active" style="width: 140px" clearable placeholder="Products Status" class="filter-item" @change="handleFilter">        
+        <el-option  key="1201" label="Active" value="Active" />
+        <el-option  key="1202" label="InActive" value="InActive" />
+      </el-select>
     </div>
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;" @sort-change="sortChange">
       
@@ -106,7 +110,7 @@ export default {
       listQuery: {
         page: 1,
         limit: 5,
-        sort: "-id"
+        sort: "-id",
       },
       sortOptions: [
         { label: "ID Ascending", key: "+id" },

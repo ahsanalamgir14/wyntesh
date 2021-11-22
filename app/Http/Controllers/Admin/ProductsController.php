@@ -31,6 +31,8 @@ class ProductsController extends Controller
         $sort=$request->sort;
         $search=$request->search;
         $category_id=$request->category_id;
+        $is_active=$request->is_active;
+
 
         if(!$page){
             $page=1;
@@ -45,7 +47,7 @@ class ProductsController extends Controller
         }else{
             $sort = 'desc';
         }
-
+        
         $Products=Product::select();
         
         if($search){
@@ -59,7 +61,14 @@ class ProductsController extends Controller
                 $q->where('categories.id',$category_id);
             });    
         }
-     
+        if ($is_active){
+            if($is_active=="Active"){
+                $Products=$Products->where('is_active',1);
+            }else{
+                $Products=$Products->where('is_active',0);
+            }
+        }
+        
         $Products=$Products->with('categories')->orderBy('priority',$sort)->paginate($limit);
         
         $response = array('status' => true,'message'=>"Products retrieved.",'data'=>$Products);
