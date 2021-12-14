@@ -9,7 +9,7 @@
             
               <tr class="item-row" >
                   <td class="item-name" style="border: none;">
-                     <img id="image" src="images/dark_logo.png" height="150px"   alt="logo" style="width: 20% !important;height:20% !important;" /><br>
+                     <img id="image" src="images/dark_logo.png" height="150px"   alt="logo" style="width: 20% !important;" /><br>
                     <span style="font-size: 15px;font-weight: bold;">WYNTASH Ecom Pvt Ltd</span><p class="company-details">
                     CIN - U74999TZ2020PTC033882</p>
                     <p class="company-details">
@@ -64,10 +64,10 @@
                   </td>
                   <td class="item-name">
                     
-                    <p style="font-size: 12px;font-weight: bold;">Billing to</p><br>
+                    <!-- <p style="font-size: 12px;font-weight: bold;">Billing to</p><br>
                     <p style="font-size: 12px;font-weight: bold;">{{order.user.name}}</p>
                     <p style="font-size: 12px;">Member Id : {{order.user.username}}</p>
-                    <p style="font-size: 12px;">{{order.billing_address}}</p>
+                    <p style="font-size: 12px;">{{order.billing_address}}</p> -->
                   </td>
                   
               </tr>
