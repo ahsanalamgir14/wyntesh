@@ -1040,6 +1040,7 @@ export const asyncRoutes = [
     {
         path: '/contest',
         component: Layout,
+        hidden: true,
         redirect: '/contest/championship',
         children: [{
             path: 'championship',
