@@ -14,14 +14,14 @@
                         <el-row class="mt-2 mb-2">
                             <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                                 <label class="text-gray-700 text-sm" for="count">Select Color : </label>
-                                <el-select size="mini" v-model="selectedCategoryColors[comboCategory.category_id + '_' + quantity]" @change="getProductsBySizeAndColor(comboCategory.category_id + '_' + quantity)" clearable class="filter-item " style="width:150px;" filterable placeholder="Select color">
+                                <el-select size="mini" v-model="selectedCategoryColors[comboCategory.category_id + '_' + quantity]" @change="getProductsBySizeAndColor(comboCategory.category_id, comboCategory.category_id + '_' + quantity)" clearable class="filter-item " style="width:150px;" filterable placeholder="Select color">
                                     <el-option v-for="item in comboCategoryColors[comboCategory.category_id + '_' + quantity]" :key="item.name" :label="item.name" :value="item.id">
                                     </el-option>
                                 </el-select>
                             </el-col>
                             <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                                 <label class="text-gray-700 text-sm" for="count">Select Size : </label>
-                                <el-select size="mini" v-model="selectedCategorySizes[comboCategory.category_id + '_' + quantity]" @change="getProductsBySizeAndColor(comboCategory.category_id + '_' + quantity)" clearable class="filter-item " style="width:150px;" filterable placeholder="Select size">
+                                <el-select size="mini" v-model="selectedCategorySizes[comboCategory.category_id + '_' + quantity]" @change="getProductsBySizeAndColor(comboCategory.category_id, comboCategory.category_id + '_' + quantity)" clearable class="filter-item " style="width:150px;" filterable placeholder="Select size">
                                     <el-option v-for="item in comboCategorySizes[comboCategory.category_id + '_' + quantity]" :key="item.name" :label="item.name" :value="item.id">
                                     </el-option>
                                 </el-select>
@@ -29,7 +29,7 @@
                             <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                                 <label class="text-gray-700 text-sm" for="count">Select Product : </label>
                                 <el-select size="mini" v-model="selectedCategoryProducts[comboCategory.category_id + '_' + quantity]" clearable class="filter-item " style="width:150px;" filterable placeholder="Select size">
-                                    <el-option v-for="item in comboCategoryProducts[comboCategory.category_id + '_' + quantity]" :key="item.name" :label="item.name" :value="item">
+                                    <el-option v-for="item in comboCategoryProducts[comboCategory.category_id + '_' + quantity]" :key="item.id" :label="item.product.name" :value="item">
                                     </el-option>
                                 </el-select>
                             </el-col>
@@ -40,11 +40,11 @@
                                 <div class="shopping-cart rounded-lg shadow">
                                     <div class="item">
                                         <div class="image flex justify-center" v-lazy-container="{ selector: 'img' }">
-                                            <img :data-src="selectedCategoryProducts[comboCategory.category_id + '_' + quantity].cover_image_thumbnail" data-loading="images/fallback-product.png" alt="" style="max-height: 78px;max-width: 78px;" class="" />
+                                            <img :data-src="selectedCategoryProducts[comboCategory.category_id + '_' + quantity].product.cover_image_thumbnail || selectedCategoryProducts[comboCategory.category_id + '_' + quantity].product.cover_image" data-loading="images/fallback-product.png" alt="" style="max-height: 78px;max-width: 78px;" class="" />
                                         </div>
                                         <div class="description">
-                                            <div class="text-gray-700 font-bold text-sm mt-3 ">{{ selectedCategoryProducts[comboCategory.category_id + '_' + quantity].name }}</div>
-                                            <div class="text-gray-500 font-bold text-sm  ">{{selectedCategoryProducts[comboCategory.category_id + '_' + quantity].qty}} {{selectedCategoryProducts[comboCategory.category_id + '_' + quantity].qty_unit }}</div>
+                                            <div class="text-gray-700 font-bold text-sm mt-3 ">{{ selectedCategoryProducts[comboCategory.category_id + '_' + quantity].product.name }}</div>
+                                            <div class="text-gray-500 font-bold text-sm  ">{{selectedCategoryProducts[comboCategory.category_id + '_' + quantity].product.qty}} {{selectedCategoryProducts[comboCategory.category_id + '_' + quantity].product.qty_unit }}</div>
                                         </div>
                                         <div class="description-base">
                                             <span class="text-gray-700 mt-3 ">DP - ₹ {{comboCategory.dp_amount}} /-
@@ -83,11 +83,11 @@
                 </div>
                 <div class="calculations">
                     <div class="cal-title">
-                        <span>IGST</span>
+                        <span>GST</span>
                     </div>
                     <div class="cal-amount"><span>{{combo.gst_amount | convert_with_symbol}}</span></div>
                 </div>
-                <div class="calculations">
+                <!-- <div class="calculations">
                     <div class="cal-title">
                         <span>SGST</span>
                     </div>
@@ -98,7 +98,7 @@
                         <span>CGST</span>
                     </div>
                     <div class="cal-amount"><span>{{combo.cgst_amount | convert_with_symbol}}</span></div>
-                </div>
+                </div> -->
                 <div class="calculations">
                     <div class="cal-title">
                         <span>Total PV</span>
@@ -109,7 +109,7 @@
                     <div class="cal-grand">
                         <span>Grand Total</span>
                     </div>
-                    <div class="cal-amount"><span>{{combo.mrp | convert_with_symbol}}</span></div>
+                    <div class="cal-amount"><span>{{combo.net_amount | convert_with_symbol}}</span></div>
                 </div>
                 <div class="checkout-btn make-payment-btn">
                     <el-button class="checkout" type="success" round size="large" icon="el-icon-shopping-cart-full" :loading="buttonLoading" @click="gotoStep1()">Place Order</el-button>
@@ -238,7 +238,7 @@
                             <div class="cal-grand">
                                 <span>Amount Payable</span>
                             </div>
-                            <div class="cal-amount"><span>{{ temp.grand_total | convert_with_symbol }}</span></div>
+                            <div class="cal-amount"><span>{{ combo.net_amount | convert_with_symbol }}</span></div>
                         </div>
                         <div class="">
                             <div class="payment-mode">
@@ -373,6 +373,8 @@ import {
 } from "@/utils";
 import Pagination from "@/components/Pagination";
 import defaultSettings from '@/settings';
+import { getMyBalance } from '@/api/user/wallet';
+
 const {
     pvLabel
 } = defaultSettings;
@@ -425,8 +427,7 @@ export default {
                gstin:undefined,
                shipping_address_id: undefined,
                billing_address_id: undefined,
-               combo:[],
-               products:[],
+               productVariantIds:[],
                grand_total:undefined
             },
              orderRules: {
@@ -546,7 +547,7 @@ export default {
         getAllCountry().then(response => {
             this.Country = response.data;
         });
-
+        this.getMyBalance();
     },
     methods: {
         getCombo(id) {
@@ -555,6 +556,11 @@ export default {
                 const combo = response.data;
                 this.combo = combo;
                 this.getComboFilters(combo);
+            });
+        },
+        getMyBalance() {
+            getMyBalance().then(response => {
+                this.balance = response.data;
             });
         },
         getAllAddresses() {
@@ -604,6 +610,7 @@ export default {
         distributor_discount: 0,
         shipping_address_id: undefined,
         billing_address_id: undefined,
+        productVariantIds:[],
       };
     },
     resetTempAddress() {
@@ -663,9 +670,48 @@ export default {
             }
         },
         gotoStep1() {
-        this.step = 1;
-        this.temp.products = this.selectedCategoryProducts;
-        this.temp.combo=this.combo;
+        let check = true;
+        let productVariantIds = [];
+
+        this.combo.categories.forEach((comboCategory) => {
+            if (comboCategory.quantity > 1) {
+                for (let qty = 1; qty <= comboCategory.quantity; qty++) {
+                    let key = comboCategory.category_id + '_' + qty;
+                    if(!(this.selectedCategoryProducts[key] &&  this.selectedCategoryProducts[key]['id'])) {
+                        this.$notify({
+                            title: "Error",
+                            message: "All poducts in the combo needs to be selected",
+                            type: "error",
+                            duration: 2000
+                        });
+                        check = false;
+                        return false;
+                    } else {
+                        productVariantIds.push(this.selectedCategoryProducts[key]['id']);
+                    }
+                }
+            } else {
+                let key = comboCategory.category_id + '_' + 1;
+                if(!(this.selectedCategoryProducts[key] &&  this.selectedCategoryProducts[key]['id'])) {
+                    this.$notify({
+                        title: "Error",
+                        message: "All poducts in the combo needs to be selected",
+                        type: "error",
+                        duration: 2000
+                    });
+                    check = false;
+                    return false;
+                } else {
+                    productVariantIds.push(this.selectedCategoryProducts[key]['id']);
+                }
+            }
+        });
+
+        if(check) {
+            this.temp.productVariantIds = productVariantIds;
+            this.step = 1;
+        }
+        
       },
         getComboFilters(combo) {
             combo.categories.forEach((comboCategory, index) => {
@@ -703,12 +749,12 @@ export default {
 
             });
         },
-        getProductsBySizeAndColor(key) {
+        getProductsBySizeAndColor(categoryId, key) {
 
             let color_id = this.selectedCategoryColors[key] || 0;
             let size_id = this.selectedCategorySizes[key] || 0;
 
-            getProductsBySizeAndColor(size_id, color_id).then(response => {
+            getProductsBySizeAndColor(categoryId, size_id, color_id).then(response => {
                 this.$set(this.comboCategoryProducts, key, response.data);
             });
         },
@@ -743,30 +789,32 @@ export default {
         },
          placeCombo() {
          this.$refs['orderForm'].validate(valid => {
-        if (valid) {
-          if (parseFloat(this.balance) < parseFloat(this.temp.grand_total)) {
-            this.$message.error('Oops, You have not enough balance to place order.');
-            return;
-          }
-          this.buttonLoading = true;
-          placeCombo(this.temp).then((response) => {
-            this.step = 2;
-            this.processStatus = 'success';
-            this.order_no = response.data.order_no;
-            this.$events.fire('update-cart-count');
-            this.$notify({
-              title: 'Success',
-              message: response.message,
-              type: 'success',
-              duration: 2000,
+            console.log(this.temp);
+            this.temp.combo_id = this.combo.id;
+            if (valid) {
+                if (parseFloat(this.balance) < parseFloat(this.combo.net_amount)) {
+                    this.$message.error('Oops, You have not enough balance to place order.');
+                    return;
+                }
+                this.buttonLoading = true;
+                placeCombo(this.temp).then((response) => {
+                    this.step = 2;
+                    this.processStatus = 'success';
+                    this.order_no = response.data.order_no;
+                    this.$events.fire('update-cart-count');
+                    this.$notify({
+                    title: 'Success',
+                    message: response.message,
+                    type: 'success',
+                    duration: 2000,
+                    });
+                    this.buttonLoading = false;
+                }).catch((error) => {
+                    this.buttonLoading = false;
+                });
+            }
             });
-            this.buttonLoading = false;
-          }).catch((error) => {
-            this.buttonLoading = false;
-          });
-        }
-      });
-    },
+        },
     }
 };
 </script>

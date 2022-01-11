@@ -27,9 +27,9 @@ export function getSizeOfProducts(id) {
     })
 }
 
-export function getProductsBySizeAndColor(size_id, color_id) {
+export function getProductsBySizeAndColor(category_id, size_id, color_id) {
     return request({
-        url: '/user/products/size/' + size_id + '/color/' + color_id,
+        url: '/user/products/category/' + category_id + '/size/' + size_id + '/color/' + color_id,
         method: 'get'
     })
 }

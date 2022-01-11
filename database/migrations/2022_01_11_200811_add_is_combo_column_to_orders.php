@@ -14,7 +14,7 @@ class AddIsComboColumnToOrders extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->boolean('is_package')->default(0);
+            $table->boolean('is_package')->default(0)->nullable();
         });
     }
 
