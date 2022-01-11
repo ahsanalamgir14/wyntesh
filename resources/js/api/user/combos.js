@@ -13,3 +13,30 @@ export function getCombo(id) {
         method: 'get'
     })
 }
+export function getColorOfProducts(id) {
+    return request({
+        url: '/user/combo-color/Products/' + id,
+        method: 'get'
+    })
+}
+
+export function getSizeOfProducts(id) {
+    return request({
+        url: '/user/combo-size/Products/' + id,
+        method: 'get'
+    })
+}
+
+export function getProductsBySizeAndColor(size_id, color_id) {
+    return request({
+        url: '/user/products/size/' + size_id + '/color/' + color_id,
+        method: 'get'
+    })
+}
+export function placeCombo(data) {
+    return request({
+        url: '/user/combo/place',
+        method: 'post',
+        data
+    })
+}

@@ -151,6 +151,9 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::get('combos', '\App\Http\Controllers\Admin\CombosController@getUserCombos');
     Route::get('combo/{id}', 'CombosController@getSingleCombo');
+    Route::get('products/size/{size_id}/color/{color_id}', 'CombosController@getProductsBySizeAndColor');
+    Route::post('combo/place', 'CombosController@placeCombo');
+
 
     Route::get('product/{id}', 'ShoppingController@getSingleProduct');
     Route::get('getsizebycolor', 'ShoppingController@getSizebyColor');

@@ -91,7 +91,7 @@ class ShoppingController extends Controller
 
         $sizesId = ProductVariant::whereHas('product.categories', function($q)use($category){
             $q->where('categories.id',$category->id);
-        })->get()->pluck('size_id')->toArray();
+        })->where('stock','>',0)->get()->pluck('size_id')->toArray();
 
         $sizes = SizeVariant::whereIn('id',$sizesId )->get();
 
@@ -108,7 +108,7 @@ class ShoppingController extends Controller
         }
         $colorsId = ProductVariant::whereHas('product.categories', function($q)use($category){
             $q->where('categories.id',$category->id);
-        })->get()->pluck('color_id')->toArray();
+        })->where('stock','>',0)->get()->pluck('color_id')->toArray();
 
         $colors = ColorVariant::whereIn('id',$colorsId)->get();
 
@@ -396,7 +396,7 @@ class ShoppingController extends Controller
             'grand_total' => "required|numeric",
             'shipping_address_id' => 'required|integer'
         ]);
-
+        
         $home_state=CompanySetting::getValue('home_state')?CompanySetting::getValue('home_state'):1;
 
         if($validate->fails()){
