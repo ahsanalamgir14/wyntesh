@@ -41,6 +41,19 @@ export function fetchProducts(query) {
     })
 }
 
+export function getColorsByCategory(categoryId) {
+    return request({
+        url: '/user/get-category-colors/' + categoryId,
+        method: 'get',
+    })
+}
+export function getSizesByCategory(categoryId) {
+    return request({
+        url: '/user/get-category-sizes/' + categoryId,
+        method: 'get',
+    })
+}
+
 export function getStock(query) {
     return request({
         url: '/user/getstock',

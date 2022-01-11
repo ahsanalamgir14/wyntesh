@@ -20,8 +20,9 @@
           </div>
           <div style="padding: 14px;">
             <span class="font-black">{{combo.name}}</span>
-            (<span class="text-xs font-extralight text-slate-900" v-for="category in combo.categories" :key="category.id">{{ category.category.name | uppercase }}
-               +</span>)
+            <!-- (<span class="text-xs font-extralight text-slate-900" v-for="(item, index) in combo.categories" :key="item.id">{{ item.category.name }}
+               <span v-if="index+1 < combo.categories.length">+</span></span>) -->
+            <div v-for="category in combo.categories" :key="category.id"><span class="text-xs font-extralight text-slate-900">{{ category.quantity }} x {{ category.category.name }}</span></div>
             <el-row style="margin-top: 20px;">
               <el-col :span="8" class="price">
                 <span style="text-align: left;"> Price <br></span>

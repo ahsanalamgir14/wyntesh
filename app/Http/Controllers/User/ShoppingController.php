@@ -12,6 +12,7 @@ use App\Models\User\Address;
 use Illuminate\Http\Request;
 use App\Models\Admin\Product;
 use App\Models\Admin\Setting;
+use App\Models\Admin\Category;
 use App\Models\Admin\StockLogs;
 use App\Events\OrderPlacedEvent;
 use App\Models\User\DeliveryLog;
@@ -77,6 +78,41 @@ class ShoppingController extends Controller
     public function getStock(Request $request){
         $productaStock = ProductVariant::where('product_id',$request->product_id)->where('color_id',$request->color_id)->where('size_id',$request->size_id)->first();
         $response = array('status' => true,'message'=>"Stock retrieved.",'data'=>$productaStock);
+        return response()->json($response, 200);
+    }
+
+    public function getSizesByCategory($categoryId){
+        $category = Category::find($categoryId);
+    
+        if(!$category) {
+            $response = array('status' => false,'message'=>"Category not found");
+            return response()->json($response, 404);
+        }
+
+        $sizesId = ProductVariant::whereHas('product.categories', function($q)use($category){
+            $q->where('categories.id',$category->id);
+        })->get()->pluck('size_id')->toArray();
+
+        $sizes = SizeVariant::whereIn('id',$sizesId )->get();
+
+        $response = array('status' => true,'message'=>"Sizes retrieved.",'data'=>$sizes);
+        return response()->json($response, 200);
+    }
+
+    public function getColorsByCategory($categoryId){
+        $category = Category::find($categoryId);
+    
+        if(!$category) {
+            $response = array('status' => false,'message'=>"Category not found");
+            return response()->json($response, 404);
+        }
+        $colorsId = ProductVariant::whereHas('product.categories', function($q)use($category){
+            $q->where('categories.id',$category->id);
+        })->get()->pluck('color_id')->toArray();
+
+        $colors = ColorVariant::whereIn('id',$colorsId)->get();
+
+        $response = array('status' => true,'message'=>"Colors retrieved.",'data'=>$colors);
         return response()->json($response, 200);
     }
 

@@ -159,6 +159,8 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
 
     Route::get('getcolors', 'ShoppingController@getColors');
     Route::get('getsizes', 'ShoppingController@getSizes');
+    Route::get('get-category-colors/{id}', 'ShoppingController@getColorsByCategory');
+    Route::get('get-category-sizes/{id}', 'ShoppingController@getSizesByCategory');
 
     Route::post('cart/add/product', 'ShoppingController@addToCart');
     Route::post('cart/update/qty', 'ShoppingController@updateCartQty');
