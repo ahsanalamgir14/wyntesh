@@ -207,6 +207,13 @@ export const asyncRoutes = [
                 meta: { title: 'Packages', icon: 'fas fa-box', color: 'color:#854CE2', affix: true, roles: ['superadmin'] }
             },
             {
+                path: 'combos',
+                component: () =>
+                    import ('@/views/admin/combos/index'),
+                name: 'Combos',
+                meta: { title: 'Combos', icon: 'fas fa-box', color: 'color:#854CE2', affix: true, roles: ['superadmin'] }
+            },
+            {
                 path: 'notifications',
                 component: () =>
                     import ('@/views/admin/settings/notifications'),
@@ -361,6 +368,22 @@ export const asyncRoutes = [
                 import ('@/views/admin/packages/index'),
             name: 'Packages',
             meta: { title: 'Packages', icon: 'fas fa-box', color: 'color:#854CE2', affix: true, roles: ['admin'] }
+        }]
+    },
+    {
+        path: '/combos',
+        component: Layout,
+        hidden: false,
+        redirect: '/combos/manage',
+        meta: {
+            roles: ['admin']
+        },
+        children: [{
+            path: 'manage',
+            component: () =>
+                import ('@/views/admin/combos/index'),
+            name: 'Combos',
+            meta: { title: 'Combos', icon: 'fas fa-box', color: 'color:#854CE2', affix: true, roles: ['admin'] }
         }]
     },
     {
@@ -1119,6 +1142,22 @@ export const asyncRoutes = [
                     import ('@/views/user/shopping/categories'),
                 name: 'Products',
                 meta: { title: 'Products', icon: 'fas fa-shopping-basket', color: 'color:#EE7642', affix: true, roles: ['user'] }
+            },
+            {
+                path: 'combos',
+                component: () =>
+                    import ('@/views/user/shopping/combos'),
+                name: 'Combos',
+                hidden: false,
+                meta: { title: 'Combos', icon: 'fas fa-shopping-basket', color: 'color:#42f560', affix: true, roles: ['user'] }
+            },
+            {
+                path: 'combo/:id',
+                component: () =>
+                    import ('@/views/user/shopping/combo'),
+                name: 'Combo',
+                hidden: true,
+                meta: { title: 'Combo', icon: 'fas fa-shopping-basket', color: 'color:#EE7642', affix: true, roles: ['user'] }
             },
             {
                 path: 'products',

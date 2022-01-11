@@ -149,10 +149,16 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('products', '\App\Http\Controllers\Admin\ProductsController@getUserProducts');
     Route::get('products/{id}', '\App\Http\Controllers\Admin\ProductsController@getProduct');
 
+    Route::get('combos', '\App\Http\Controllers\Admin\CombosController@getUserCombos');
+    Route::get('combo/{id}', 'CombosController@getSingleCombo');
+
     Route::get('product/{id}', 'ShoppingController@getSingleProduct');
     Route::get('getsizebycolor', 'ShoppingController@getSizebyColor');
     Route::get('getcolorbysize/{id}', 'ShoppingController@getColorBySize');
     Route::get('getstock', 'ShoppingController@getStock');
+
+    Route::get('getcolors', 'ShoppingController@getColors');
+    Route::get('getsizes', 'ShoppingController@getSizes');
 
     Route::post('cart/add/product', 'ShoppingController@addToCart');
     Route::post('cart/update/qty', 'ShoppingController@updateCartQty');
@@ -449,10 +455,19 @@ Route::group(['middleware' => ['jwt.verify','role:admin'],'prefix' => 'admin','n
 
     Route::get('tds/member', 'PayoutsController@getMemberTDS');
     Route::get('top-wallet', 'PayoutsController@getMemberTopWallet');
+    
 });
 
 Route::group(['middleware' => ['jwt.verify','role:admin|superadmin'],'prefix' => 'admin','namespace'=>'Admin'], function($router)
 {  
+    Route::get('categories/all', 'ProductConfigurationsController@getAllCategories');
+    Route::delete('combo-category/{id}/delete', 'CombosController@categoryDelete');
+    Route::get('combos', 'CombosController@getCombos');
+    Route::post('combos', 'CombosController@createCombo');
+    Route::post('combo/{id}/update','CombosController@updateCombo');
+    Route::post('combo/change-status', 'CombosController@changeComboStatus');
+    Route::delete('combo/{id}/delete', 'CombosController@deleteCombo');
+
     Route::get('packages', 'PackagesController@index');
     Route::get('packages/all', 'PackagesController@all');
     Route::post('packages', 'PackagesController@store');

@@ -2,28 +2,30 @@
 
 namespace App\Http\Controllers\User;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Admin\Product;
-use App\Models\Admin\ProductVariant;
-use App\Models\Admin\ProductImage;
-use App\Models\Admin\StockLogs;
+use JWTAuth;
+use Validator;
+use Carbon\Carbon;
+use App\Models\Admin\Pin;
 use App\Models\User\Cart;
 use App\Models\User\Order;
-use App\Models\User\OrderProduct;
-use App\Models\User\OrderPackage;
-use App\Models\Admin\Pin;
-use App\Models\User\DeliveryLog;
-use App\Models\Superadmin\TransactionType;
-use App\Models\Superadmin\PaymentMode;
 use App\Models\User\Address;
-use App\Models\Admin\WalletTransaction;
+use Illuminate\Http\Request;
+use App\Models\Admin\Product;
 use App\Models\Admin\Setting;
-use App\Models\Admin\CompanySetting;
-use Validator;
-use JWTAuth;
-use Carbon\Carbon;
+use App\Models\Admin\StockLogs;
 use App\Events\OrderPlacedEvent;
+use App\Models\User\DeliveryLog;
+use App\Models\Admin\SizeVariant;
+use App\Models\User\OrderPackage;
+use App\Models\User\OrderProduct;
+use App\Models\Admin\ColorVariant;
+use App\Models\Admin\ProductImage;
+use App\Http\Controllers\Controller;
+use App\Models\Admin\CompanySetting;
+use App\Models\Admin\ProductVariant;
+use App\Models\Superadmin\PaymentMode;
+use App\Models\Admin\WalletTransaction;
+use App\Models\Superadmin\TransactionType;
 
 class ShoppingController extends Controller
 {
@@ -57,6 +59,18 @@ class ShoppingController extends Controller
     public function getColorBySize($id){
         $productVariant = ProductVariant::where('size_id',$id)->with('size','color')->get();
         $response = array('status' => true,'message'=>"Size and color retrieved.",'data'=>$productVariant);
+        return response()->json($response, 200);
+    }
+    public function getSizes(){
+        $sizes = SizeVariant::all();
+
+        $response = array('status' => true,'message'=>"Sizes retrieved.",'data'=>$sizes);
+        return response()->json($response, 200);
+    }
+
+    public function getColors(){
+        $colors = ColorVariant::all();
+        $response = array('status' => true,'message'=>"Colors retrieved.",'data'=>$colors);
         return response()->json($response, 200);
     }
 

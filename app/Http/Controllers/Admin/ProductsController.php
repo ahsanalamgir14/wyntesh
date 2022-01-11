@@ -82,6 +82,8 @@ class ProductsController extends Controller
         $sort=$request->sort;
         $search=$request->search;
         $category_id=$request->category_id;
+        $size_id=$request->size_id;
+        $color_id=$request->color_id;
 
         if(!$page){
             $page=1;
@@ -108,6 +110,16 @@ class ProductsController extends Controller
         if($category_id){
             $Products=$Products->whereHas('categories', function($q)use($category_id){
                 $q->where('categories.id',$category_id);
+            });    
+        }
+        if($size_id){
+            $Products=$Products->whereHas('variants.size', function($q)use($size_id){
+                $q->where('id',$size_id);
+            });    
+        }
+        if($color_id){
+            $Products=$Products->whereHas('variants.color', function($q)use($color_id){
+                $q->where('id',$color_id);
             });    
         }
      

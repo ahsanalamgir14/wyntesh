@@ -5,6 +5,14 @@
         <el-option v-for="item in categories" :key="item.name" :label="item.name" :value="item.id">
         </el-option>
       </el-select>
+      <el-select size="mini" v-model="listQuery.color_id" @change="handleFilter" clearable class="filter-item " style="width:200px;" filterable placeholder="Select color">
+        <el-option v-for="item in colors" :key="item.name" :label="item.name" :value="item.id">
+        </el-option>
+      </el-select>
+      <el-select size="mini" v-model="listQuery.size_id" @change="handleFilter" clearable class="filter-item " style="width:200px;" filterable placeholder="Select size">
+        <el-option v-for="item in sizes" :key="item.name" :label="item.name" :value="item.id">
+        </el-option>
+      </el-select>
       <el-input v-model="listQuery.search" style="width:200px" placeholder="Search" size="mini" class="filter-item " @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" size="mini" type="primary" icon="el-icon-search" @click="handleFilter">Search</el-button>
     </div>
@@ -62,7 +70,7 @@
   </div>
 </template>
 <script>
-import { fetchProducts, getAllCategories, getMyCartProducts, addToCart, removeFromCart } from "@/api/user/shopping";
+import { fetchProducts, getAllCategories, getMyCartProducts, addToCart, removeFromCart ,getSizes,getColors} from "@/api/user/shopping";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination";
@@ -86,6 +94,8 @@ export default {
         sort: "+id"
       },
       categories: [],
+      colors:[],
+      sizes:[],
       cartProducts: [],
       buttonLoading: false
     };
@@ -115,6 +125,12 @@ export default {
     getConfig() {
       getAllCategories().then(response => {
         this.categories = response.data;
+      });
+      getColors().then(response => {
+        this.colors = response.data;
+      });
+       getSizes().then(response => {
+        this.sizes = response.data;
       });
     },
     getMyCartProducts() {
