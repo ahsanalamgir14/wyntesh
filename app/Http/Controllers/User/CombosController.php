@@ -75,7 +75,9 @@ class CombosController extends Controller
         $validate = Validator::make($request->all(), [           
             'payment_mode' => "required|max:32",
             'combo_id' => 'required|integer',
-            'productVariantIds' => 'required|array|min:3',
+            'productVariantIds' => 'required|array|min:1',
+            'productVariantIds.*.category_id' => 'required|integer',
+            'productVariantIds.*.product_variant_id' => 'required|integer',
             'shipping_address_id' => 'required|integer'
         ]);
 
@@ -109,8 +111,8 @@ class CombosController extends Controller
             return response()->json($response, 400);
         }
 
-        $shipping_address = Address::where("id",$request->shipping_address_id)->first();
-        $billing_address = Address::where("id",$request->shipping_address_id)->first();
+        $shipping_address = Address::where("id",$shipping_address_id)->first();
+        $billing_address = Address::where("id",$shipping_address_id)->first();
 
         if(!$shipping_address){
             $response = array('status' => false,'message'=>'Shipping address not found');
@@ -126,40 +128,78 @@ class CombosController extends Controller
             return response()->json($response, 404);
         }
 
-
         $PaymentMode=PaymentMode::where('name','Wallet')->first();
 
         $order_no = substr(str_shuffle("01234012345678900123456789123456012345678978956789"), 0, 10);
 
+        $subtotal=0;
+        $gst_amount=0;
+        $sgst_amount=0;
+        $cgst_amount=0;
+        $utgst_amount=0;
+        $shipping=0;
+        $discount_amount=0;
+        $grand_total=0;
+        $pv=0;
+        $distributor_discount=0;
+        $shipping=0;
+        $is_shipping_waiver=1;
+        $virtualCart = [];
+        
+        foreach ($productVariantIds as $item) {
+            $virtualCart[$item['product_variant_id']] = array();
+            $virtualCart[$item['product_variant_id']]['product_variant_id'] = $item['product_variant_id'];
+            $virtualCart[$item['product_variant_id']]['category_id'] = $item['category_id'];
+            $virtualCart[$item['product_variant_id']]['qty'] = 1; 
+        }
+
+        foreach ($virtualCart as $virtualCartItem) {
+            // lookout for same category in the combo_categories
+            $item = ComboCategory::where('combo_id', $combo_id)->where('category_id', $virtualCartItem['category_id'])->first();
+            
+            $subtotal+=floatval($item->dp_base);
+            if($shipping_address->state==$home_state){
+                $sgst_amount+=floatval($item->dp_sgst_amount);
+                $cgst_amount+=floatval($item->dp_cgst_amount);
+            }else{
+                $gst_amount+=floatval($item->dp_gst_amount);
+            }
+
+            $pv+=floatval($item->pv?:0);
+            $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount+$shipping-$discount_amount);
+            // $distributor_discount+=(($item->mrp))-(($item->dp_amount));
+            $distributor_discount+=0;
+        }
+        
         $TransactionType=TransactionType::where('name','Debit (Purchase)')->first();
 
         if($TransactionType){
             $WalletTransaction=new WalletTransaction;
             $WalletTransaction->member_id=$User->member->id;
-            $WalletTransaction->balance=$balance-$combo->net_amount;
-            $WalletTransaction->amount=$combo->net_amount;
+            $WalletTransaction->balance=$balance-$grand_total;
+            $WalletTransaction->amount=$grand_total;
             $WalletTransaction->transaction_type_id=$TransactionType->id;
             $WalletTransaction->transaction_by=$User->id;
-            $WalletTransaction->note='Product combo Purchase';
+            $WalletTransaction->note='Product Combo Purchase';
             $WalletTransaction->save();
 
-            $final_balance=$balance-$combo->net_amount;
+            $final_balance=$balance-$grand_total;
             $User->member->wallet_balance=$final_balance;
             $User->member->save();
 
             $Order=new Order;
             $Order->order_no=$order_no;
             $Order->user_id=$User->id;
-            $Order->base_amount=$combo->base_amount;
-            $Order->discount_amount=0;
-            $Order->cgst_amount=$combo->cgst_amount;
-            $Order->sgst_amount=$combo->sgst_amount;
-            $Order->utgst_amount=$combo->utgst_amount;
-            $Order->gst_amount=$combo->gst_amount;
+            $Order->base_amount=$subtotal;
+            $Order->discount_amount=$discount_amount;
+            $Order->cgst_amount=$cgst_amount;
+            $Order->sgst_amount=$sgst_amount;
+            $Order->utgst_amount=$utgst_amount;
+            $Order->gst_amount=$gst_amount;
             $Order->shipping_fee=0;
-            $Order->net_amount=$combo->net_amount;
+            $Order->net_amount=$grand_total;
             $Order->distributor_discount=0;
-            $Order->pv=$combo->pv;
+            $Order->pv=$pv;
             $Order->payment_status='Success';
             $Order->wallet_transaction_id=$WalletTransaction->id;            
             $Order->payment_mode=$PaymentMode->id;
@@ -175,43 +215,53 @@ class CombosController extends Controller
             $Order->order_no=$Order->id;
             $Order->save();
             
-            // foreach ($Cart as $item) {
+            foreach ($virtualCart as $virtualCartItem) {
 
-            //     $orderProduct=new OrderProduct;
-            //     $orderProduct->order_id=$Order->id;
-            //     $orderProduct->product_id=$item->products->id;
-            //     $orderProduct->base_amount=floatval($item->products->dp_base)*intval($item->qty);
+                // lookout for same category in the combo_categories
+                $item = ComboCategory::where('combo_id', $combo_id)->where('category_id', $virtualCartItem['category_id'])->first();
+                $productVariantId = $virtualCartItem['product_variant_id'];
+                $productVariant = ProductVariant::find($productVariantId);
 
-            //     if($shipping_address->state==$home_state){
-            //         $orderProduct->sgst_amount=floatval($item->products->dp_sgst_amount)*intval($item->qty);
-            //         $orderProduct->sgst_rate=$item->products->dp_sgst_rate;
-            //         $orderProduct->cgst_amount=floatval($item->products->dp_cgst_amount)*intval($item->qty);
-            //         $orderProduct->cgst_rate=$item->products->dp_cgst_rate;
-            //     }else{
-            //         $orderProduct->gst_amount=floatval($item->products->dp_gst_amount)*intval($item->qty);
-            //         $orderProduct->gst_rate=$item->products->dp_gst_rate;                    
-            //     }
+                Log::info($virtualCartItem);
+                Log::info($productVariant);
+                // $response = array('status' => false,'message'=>'debug stop');
+                // return response()->json($response, 404);
+
+                $orderProduct=new OrderProduct;
+                $orderProduct->order_id=$Order->id;
+                $orderProduct->product_id=$productVariant->product_id;
+                $orderProduct->base_amount=floatval($item->dp_base);
+
+                if($shipping_address->state==$home_state){
+                    $orderProduct->sgst_amount=floatval($item->dp_sgst_amount);
+                    $orderProduct->sgst_rate=$item->dp_sgst_rate;
+                    $orderProduct->cgst_amount=floatval($item->dp_cgst_amount);
+                    $orderProduct->cgst_rate=$item->dp_cgst_rate;
+                }else{
+                    $orderProduct->gst_amount=floatval($item->dp_gst_amount);
+                    $orderProduct->gst_rate=$item->dp_gst_rate;                    
+                }
                 
-            //     $orderProduct->discount=floatval($item->products->discount_amount)*intval($item->qty);
-            //     $orderProduct->net_amount=$orderProduct->base_amount+$orderProduct->gst_amount+$orderProduct->sgst_amount+$orderProduct->cgst_amount-$orderProduct->discount;
-            //     $orderProduct->pv=floatval($item->products->pv?:0)*intval($item->qty);
-            //     $orderProduct->quantity=$item->qty;
-            //     $orderProduct->variant_id=$item->variant->id;
-            //     $orderProduct->save();
+                $orderProduct->discount=0;
+                $orderProduct->net_amount=$orderProduct->base_amount+$orderProduct->gst_amount+$orderProduct->sgst_amount+$orderProduct->cgst_amount-$orderProduct->discount;
+                $orderProduct->pv=floatval($item->pv?:0);
+                $orderProduct->quantity=1;
+                $orderProduct->variant_id=$productVariantId;
+                $orderProduct->save();
 
-            //     $item->variant->stock-=$item->qty;
-            //     $item->variant->save();
+                $productVariant->stock-=1;
+                $productVariant->save();
 
-            //     $StockLogs = new StockLogs;
-            //     $StockLogs->product_id      = $item->variant->product_id;
-            //     $StockLogs->variant_id      = $item->variant->id;
-            //     $StockLogs->sku             = $item->variant->sku_code;
-            //     $StockLogs->units_outward   = $item->qty;
-            //     $StockLogs->order_id   = $Order->id;
-            //     $StockLogs->is_order_placed   = 1;
-            //     $StockLogs->note            = "Product purchase";
-            //     $StockLogs->save();
-            // }
+                $StockLogs = new StockLogs;
+                $StockLogs->product_id      = $productVariant->id;
+                $StockLogs->variant_id      = $productVariant->id;
+                $StockLogs->sku             = $productVariant->sku_code;
+                $StockLogs->units_outward   = 1;
+                $StockLogs->order_id   = $Order->id;
+                $StockLogs->is_order_placed   = 1;
+                $StockLogs->note            = "Product Combo purchase";
+                $StockLogs->save();
+            }
 
             $DeliveryLog=new DeliveryLog;
             $DeliveryLog->order_id=$Order->id;
