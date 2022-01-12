@@ -565,6 +565,8 @@ export default {
                 pv: undefined,
             };
             this.dialogCategoryAddVisible = true;
+            this.dialogCategoryStatus = 'create';
+            this.dialogCategoryTitle = 'Add Category';
         },
         addCategory() {
             this.$refs['categoryForm'].validate((valid) => {

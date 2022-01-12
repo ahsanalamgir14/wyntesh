@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-bind:class="[step == 0 ? 'app-container' : '']">
     <el-row :gutter="10" style="height:100%" v-if="step == 0">
       <el-col
         :xs="24"
@@ -11,7 +11,7 @@
       >
         <div>
           <h2 class="font-bold uppercase text-gray-500 mb-2">
-            Product Combo Order : Combo # {{ combo.id }}
+            Product Combo Order : Combo # {{ combo.name }}
           </h2>
         </div>
         <el-row
@@ -36,6 +36,40 @@
                 >
               </div>
               <el-row class="mt-2 mb-2">
+                  <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                  <label class="text-gray-700 text-sm" for="count"
+                    >Select Size :
+                  </label>
+                  <el-select
+                    size="mini"
+                    v-model="
+                      selectedCategorySizes[
+                        comboCategory.category_id + '_' + quantity
+                      ]
+                    "
+                    @change="
+                      getProductsBySizeAndColor(
+                        comboCategory.category_id,
+                        comboCategory.category_id + '_' + quantity
+                      )
+                    "
+                    clearable
+                    class="filter-item "
+                    style="width:150px;"
+                    filterable
+                    placeholder="Select size"
+                  >
+                    <el-option
+                      v-for="item in comboCategorySizes[
+                        comboCategory.category_id + '_' + quantity
+                      ]"
+                      :key="item.name"
+                      :label="item.name"
+                      :value="item.id"
+                    >
+                    </el-option>
+                  </el-select>
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <label class="text-gray-700 text-sm" for="count"
                     >Select Color :
@@ -70,40 +104,7 @@
                     </el-option>
                   </el-select>
                 </el-col>
-                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-                  <label class="text-gray-700 text-sm" for="count"
-                    >Select Size :
-                  </label>
-                  <el-select
-                    size="mini"
-                    v-model="
-                      selectedCategorySizes[
-                        comboCategory.category_id + '_' + quantity
-                      ]
-                    "
-                    @change="
-                      getProductsBySizeAndColor(
-                        comboCategory.category_id,
-                        comboCategory.category_id + '_' + quantity
-                      )
-                    "
-                    clearable
-                    class="filter-item "
-                    style="width:150px;"
-                    filterable
-                    placeholder="Select size"
-                  >
-                    <el-option
-                      v-for="item in comboCategorySizes[
-                        comboCategory.category_id + '_' + quantity
-                      ]"
-                      :key="item.name"
-                      :label="item.name"
-                      :value="item.id"
-                    >
-                    </el-option>
-                  </el-select>
-                </el-col>
+              
                 <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <label class="text-gray-700 text-sm" for="count"
                     >Select Product :
@@ -694,13 +695,6 @@
 
 <script>
 import {
-  getProduct,
-  getMyCartProducts,
-  addToCart,
-  removeFromCart,
-  getSizeByColor,
-  getColorBySize,
-  getStock,
   getSizesByCategory,
   getColorsByCategory,
 } from '@/api/user/shopping';

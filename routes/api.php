@@ -160,8 +160,6 @@ Route::group(['middleware' => ['jwt.verify','role:user'],'prefix' => 'user','nam
     Route::get('getcolorbysize/{id}', 'ShoppingController@getColorBySize');
     Route::get('getstock', 'ShoppingController@getStock');
 
-    Route::get('getcolors', 'ShoppingController@getColors');
-    Route::get('getsizes', 'ShoppingController@getSizes');
     Route::get('get-category-colors/{id}', 'ShoppingController@getColorsByCategory');
     Route::get('get-category-sizes/{id}', 'ShoppingController@getSizesByCategory');
 

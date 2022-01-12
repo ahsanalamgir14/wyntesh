@@ -41,7 +41,7 @@ class CombosController extends Controller
 
         $categoryProducts = Product::whereHas('categories', function($q)use($categoryId){
             $q->where('categories.id',$categoryId);
-        })->get()->pluck('id')->toArray();
+        })->where('is_active',1)->get()->pluck('id')->toArray();
 
         $Products=ProductVariant::select();
         
@@ -60,7 +60,7 @@ class CombosController extends Controller
             $q->whereIn('id',$categoryProducts);
         });
         
-        $Products=$Products->with('product')->where('is_active',1)->get();   
+        $Products=$Products->with('product')->get();   
         
         if($Products){
             $response = array('status' => true,'message'=>'Products retrieved.','data'=>$Products);             
@@ -140,7 +140,7 @@ class CombosController extends Controller
         $shipping=0;
         $discount_amount=0;
         $grand_total=0;
-        $pv=0;
+        $pv=floatval($combo->pv?:0);
         $distributor_discount=0;
         $shipping=0;
         $is_shipping_waiver=1;
@@ -165,7 +165,6 @@ class CombosController extends Controller
                 $gst_amount+=floatval($item->dp_gst_amount);
             }
 
-            $pv+=floatval($item->pv?:0);
             $grand_total=round($subtotal+$gst_amount+$cgst_amount+$sgst_amount+$utgst_amount+$shipping-$discount_amount);
             // $distributor_discount+=(($item->mrp))-(($item->dp_amount));
             $distributor_discount+=0;
@@ -210,6 +209,7 @@ class CombosController extends Controller
             $Order->shipping_address=$shipping_address->door_no.', '.$shipping_address->full_name.', '.$shipping_address->address.', '.$shipping_address->landmark.', '.$shipping_address->state.', '.$shipping_address->city.', '.$shipping_address->pincode.', '.$shipping_address->mobile_number;
             $Order->billing_address=$billing_address->door_no.', '.$billing_address->full_name.', '.$billing_address->address.', '.$billing_address->landmark.', '.$billing_address->state.', '.$billing_address->city.', '.$billing_address->pincode.', '.$billing_address->mobile_number;
             $Order->delivery_status='Order Created';
+            $Order->is_combo=1;
             $Order->save();
 
             $Order->order_no=$Order->id;
@@ -222,8 +222,6 @@ class CombosController extends Controller
                 $productVariantId = $virtualCartItem['product_variant_id'];
                 $productVariant = ProductVariant::find($productVariantId);
 
-                Log::info($virtualCartItem);
-                Log::info($productVariant);
                 // $response = array('status' => false,'message'=>'debug stop');
                 // return response()->json($response, 404);
 

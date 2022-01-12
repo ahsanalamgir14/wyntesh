@@ -6,18 +6,6 @@ export function getAllCategories() {
         method: 'get'
     })
 }
-export function getColors() {
-    return request({
-        url: '/user/getcolors',
-        method: 'get',
-    })
-}
-export function getSizes() {
-    return request({
-        url: '/user/getsizes',
-        method: 'get',
-    })
-}
 export function getSizeByColor(query) {
     return request({
         url: '/user/getsizebycolor/',

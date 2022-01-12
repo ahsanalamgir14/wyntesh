@@ -70,7 +70,8 @@
   </div>
 </template>
 <script>
-import { fetchProducts, getAllCategories, getMyCartProducts, addToCart, removeFromCart ,getSizes,getColors} from "@/api/user/shopping";
+import { fetchProducts, getAllCategories, getMyCartProducts, addToCart, removeFromCart , getSizesByCategory,
+  getColorsByCategory,} from "@/api/user/shopping";
 import waves from "@/directive/waves"; 
 import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination";
@@ -105,6 +106,7 @@ export default {
     if(category_id){
       this.listQuery.category_id=parseInt(category_id);
       this.getList();
+      this.getColorAndSize(category_id);
     }else{
       this.getList();
     }
@@ -122,15 +124,17 @@ export default {
         }, 1 * 100);
       });
     },
+    getColorAndSize(category_id){
+      getColorsByCategory(category_id).then(response => {
+        this.colors = response.data;
+      });
+      getSizesByCategory(category_id).then(response => {
+        this.sizes = response.data;
+      });
+    },
     getConfig() {
       getAllCategories().then(response => {
         this.categories = response.data;
-      });
-      getColors().then(response => {
-        this.colors = response.data;
-      });
-       getSizes().then(response => {
-        this.sizes = response.data;
       });
     },
     getMyCartProducts() {

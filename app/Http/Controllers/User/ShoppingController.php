@@ -62,18 +62,6 @@ class ShoppingController extends Controller
         $response = array('status' => true,'message'=>"Size and color retrieved.",'data'=>$productVariant);
         return response()->json($response, 200);
     }
-    public function getSizes(){
-        $sizes = SizeVariant::all();
-
-        $response = array('status' => true,'message'=>"Sizes retrieved.",'data'=>$sizes);
-        return response()->json($response, 200);
-    }
-
-    public function getColors(){
-        $colors = ColorVariant::all();
-        $response = array('status' => true,'message'=>"Colors retrieved.",'data'=>$colors);
-        return response()->json($response, 200);
-    }
 
     public function getStock(Request $request){
         $productaStock = ProductVariant::where('product_id',$request->product_id)->where('color_id',$request->color_id)->where('size_id',$request->size_id)->first();
@@ -91,6 +79,8 @@ class ShoppingController extends Controller
 
         $sizesId = ProductVariant::whereHas('product.categories', function($q)use($category){
             $q->where('categories.id',$category->id);
+        })->whereHas('product', function($q){
+            $q->where('is_active',1);
         })->where('stock','>',0)->get()->pluck('size_id')->toArray();
 
         $sizes = SizeVariant::whereIn('id',$sizesId )->get();
@@ -108,6 +98,8 @@ class ShoppingController extends Controller
         }
         $colorsId = ProductVariant::whereHas('product.categories', function($q)use($category){
             $q->where('categories.id',$category->id);
+        })->whereHas('product', function($q){
+            $q->where('is_active',1);
         })->where('stock','>',0)->get()->pluck('color_id')->toArray();
 
         $colors = ColorVariant::whereIn('id',$colorsId)->get();
