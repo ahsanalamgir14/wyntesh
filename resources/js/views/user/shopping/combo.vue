@@ -1139,6 +1139,10 @@ export default {
       });
     },
     getProductsBySizeAndColor(categoryId, key) {
+
+      delete this.product[key];
+      delete this.selectedCategoryProducts[key];
+
       let color_id = this.selectedCategoryColors[key] || 0;
       let size_id = this.selectedCategorySizes[key] || 0;
 
