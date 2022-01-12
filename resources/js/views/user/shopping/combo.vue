@@ -1,5 +1,9 @@
 <template>
   <div v-bind:class="[step == 0 ? 'app-container' : '']">
+     <div class="filter-container">
+      <el-button v-waves class="filter-item" type="success" icon="el-icon-back" @click="$router.push('/shopping/combos')">Go to All Combos</el-button>
+      <!-- <el-button v-waves class="filter-item" type="success" icon="el-icon-shopping-cart-full" @click="$router.push('/shopping/cart')" style="float: right;">Go to Cart</el-button> -->
+    </div>
     <el-row :gutter="10" style="height:100%" v-if="step == 0">
       <el-col
         :xs="24"
@@ -55,7 +59,7 @@
                     "
                     clearable
                     class="filter-item "
-                    style="width:150px;"
+                    style="width:200px;"
                     filterable
                     placeholder="Select size"
                   >
@@ -89,7 +93,7 @@
                     "
                     clearable
                     class="filter-item "
-                    style="width:150px;"
+                    style="width:200px;"
                     filterable
                     placeholder="Select color"
                   >
@@ -118,9 +122,14 @@
                     "
                     clearable
                     class="filter-item "
-                    style="width:150px;"
+                    style="width:200px;"
                     filterable
                     placeholder="Select size"
+                     @change="
+                      getProduct(
+                        comboCategory.category_id + '_' + quantity
+                      )
+                    " value-key="id"
                   >
                     <el-option
                       v-for="item in comboCategoryProducts[
@@ -129,6 +138,7 @@
                       :key="item.id"
                       :label="item.product.name"
                       :value="item"
+                      
                     >
                     </el-option>
                   </el-select>
@@ -138,7 +148,7 @@
               <el-row
                 :gutter="10"
                 v-if="
-                  selectedCategoryProducts[
+                  product[
                     comboCategory.category_id + '_' + quantity
                   ]
                 "
@@ -152,12 +162,12 @@
                       >
                         <img
                           :data-src="
-                            selectedCategoryProducts[
+                            product[
                               comboCategory.category_id + '_' + quantity
-                            ].product.cover_image_thumbnail ||
-                              selectedCategoryProducts[
+                            ].cover_image_thumbnail ||
+                              product[
                                 comboCategory.category_id + '_' + quantity
-                              ].product.cover_image
+                              ].cover_image
                           "
                           data-loading="images/fallback-product.png"
                           alt=""
@@ -168,21 +178,21 @@
                       <div class="description">
                         <div class="text-gray-700 font-bold text-sm mt-3 ">
                           {{
-                            selectedCategoryProducts[
+                            product[
                               comboCategory.category_id + '_' + quantity
-                            ].product.name
+                            ].name
                           }}
                         </div>
                         <div class="text-gray-500 font-bold text-sm  ">
                           {{
-                            selectedCategoryProducts[
+                            product[
                               comboCategory.category_id + '_' + quantity
-                            ].product.qty
+                            ].qty
                           }}
                           {{
-                            selectedCategoryProducts[
+                            product[
                               comboCategory.category_id + '_' + quantity
-                            ].product.qty_unit
+                            ].qty_unit
                           }}
                         </div>
                       </div>
@@ -755,7 +765,6 @@ export default {
         selectedCategorySizes: {},
         selectedCategorySizes: {},
       },
-      cartProducts: [],
       colors: [],
       sizes: [],
       comboCategorySizes: {},
@@ -764,7 +773,7 @@ export default {
       selectedCategoryProducts: {},
       selectedCategorySizes: {},
       selectedCategoryColors: {},
-      product: [],
+      product: {},
       buttonLoading: undefined,
       temp: {
         gstin: undefined,
@@ -1137,6 +1146,9 @@ export default {
         }
       );
     },
+    getProduct(key){
+      this.product[key]=this.selectedCategoryProducts[key].product;
+    },
     handleCreate() {
       this.resetTempAddress();
       this.dialogStatus = 'create';
@@ -1212,7 +1224,7 @@ export default {
 }
 
 .app-container {
-  height: calc(100vh - 50px);
+  height: calc(94vh - 50px);
 }
 
 #categoryScroll::-webkit-scrollbar-track,

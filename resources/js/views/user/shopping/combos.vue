@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-select size="mini" v-model="listQuery.category_id" @change="handleFilter" clearable class="filter-item " style="width:200px;" filterable placeholder="Select Category">
+      <!-- <el-select size="mini" v-model="listQuery.category_id" @change="handleFilter" clearable class="filter-item " style="width:200px;" filterable placeholder="Select Category">
         <el-option v-for="item in categories" :key="item.name" :label="item.name" :value="item.id">
         </el-option>
-      </el-select>
+      </el-select> -->
       <el-input v-model="listQuery.search" style="width:200px" placeholder="Search" size="mini" class="filter-item " @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" size="mini" type="primary" icon="el-icon-search" @click="handleFilter">Search</el-button>
     </div>
