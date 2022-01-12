@@ -147,10 +147,11 @@ class CombosController extends Controller
         $virtualCart = [];
         
         foreach ($productVariantIds as $item) {
-            $virtualCart[$item['product_variant_id']] = array();
-            $virtualCart[$item['product_variant_id']]['product_variant_id'] = $item['product_variant_id'];
-            $virtualCart[$item['product_variant_id']]['category_id'] = $item['category_id'];
-            $virtualCart[$item['product_variant_id']]['qty'] = 1; 
+            $virtualItem = array();
+            $virtualItem['product_variant_id'] = $item['product_variant_id'];
+            $virtualItem['category_id'] = $item['category_id'];
+            $virtualItem['qty'] = 1; 
+            array_push($virtualCart, $virtualItem);
         }
 
         foreach ($virtualCart as $virtualCartItem) {
