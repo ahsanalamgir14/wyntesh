@@ -74,7 +74,7 @@
                     </el-option>
                   </el-select>
                 </el-col>
-                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                <!-- <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                   <label class="text-gray-700 text-sm" for="count"
                     >Select Color :
                   </label>
@@ -107,12 +107,13 @@
                     >
                     </el-option>
                   </el-select>
-                </el-col>
+                </el-col> -->
               
-                <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
                   <label class="text-gray-700 text-sm" for="count"
                     >Select Product :
                   </label>
+                  <br/>
                   <el-select
                     size="mini"
                     v-model="
@@ -122,9 +123,9 @@
                     "
                     clearable
                     class="filter-item "
-                    style="width:200px;"
+                    style="width:400px;"
                     filterable
-                    placeholder="Select size"
+                    placeholder="Select product"
                      @change="
                       getProduct(
                         comboCategory.category_id + '_' + quantity
@@ -140,6 +141,7 @@
                       :value="item"
                       
                     >
+                    <img style="max-width:20px;display: inline-block;margin-right: 8px;" :src="item.product.cover_image_thumbnail"><span>{{ item.product.name }}</span>
                     </el-option>
                   </el-select>
                 </el-col>

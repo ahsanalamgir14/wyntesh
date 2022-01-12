@@ -373,7 +373,7 @@ export const asyncRoutes = [
     {
         path: '/combos',
         component: Layout,
-        hidden: false,
+        hidden: true,
         redirect: '/combos/manage',
         meta: {
             roles: ['admin']
@@ -419,6 +419,13 @@ export const asyncRoutes = [
                 name: 'Edit Product',
                 hidden: true,
                 meta: { title: 'Edit Product', icon: 'fas fa-plus', color: 'color:#854CE2', affix: true, roles: ['admin'] }
+            },
+            {
+                path: '/combos/manage',
+                component: () =>
+                    import ('@/views/admin/combos/index'),
+                name: 'Combos',
+                meta: { title: 'Combos', icon: 'fas fa-box', color: 'color:#854CE2', affix: true, roles: ['admin'] }
             },
             {
                 path: 'categories',

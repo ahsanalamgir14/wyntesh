@@ -175,6 +175,11 @@ export default {
     },
     handleFilter() {
       this.listQuery.page = 1;
+      // this.getList();
+      let category_id = this.listQuery.category_id;
+      if(category_id){
+        this.getColorAndSize(category_id);
+      }
       this.getList();
     },
   }

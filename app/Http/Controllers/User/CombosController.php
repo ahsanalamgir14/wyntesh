@@ -60,7 +60,7 @@ class CombosController extends Controller
             $q->whereIn('id',$categoryProducts);
         });
         
-        $Products=$Products->with('product')->get();   
+        $Products=$Products->where('stock', '>' ,0)->with('product')->get();   
         
         if($Products){
             $response = array('status' => true,'message'=>'Products retrieved.','data'=>$Products);             
@@ -252,7 +252,7 @@ class CombosController extends Controller
                 $productVariant->save();
 
                 $StockLogs = new StockLogs;
-                $StockLogs->product_id      = $productVariant->id;
+                $StockLogs->product_id      = $productVariant->product_id;
                 $StockLogs->variant_id      = $productVariant->id;
                 $StockLogs->sku             = $productVariant->sku_code;
                 $StockLogs->units_outward   = 1;
