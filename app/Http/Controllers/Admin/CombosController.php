@@ -117,6 +117,7 @@ class CombosController extends Controller
         $combo->net_amount=$request->net_amount;
         $combo->pv=$request->pv;  
         $combo->is_active=$request->is_active;  
+        $combo->is_shipping_waiver=$request->is_shipping_waiver=="true"?1:0;
         $combo->save();
 
         $categories=json_decode($request->categories);
@@ -185,6 +186,7 @@ class CombosController extends Controller
         $combo->mrp=$request->mrp;
         $combo->net_amount=$request->net_amount;
         $combo->pv=$request->pv;  
+        $combo->is_shipping_waiver=$request->is_shipping_waiver=="true"?1:0;
         $combo->is_active=$request->is_active;  
         $combo->save();
 

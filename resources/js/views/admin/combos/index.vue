@@ -72,6 +72,9 @@
                             <el-form-item label="Combo Code" prop="combo_code">
                                 <el-input v-model="temp.combo_code" />
                             </el-form-item>
+                             <el-form-item size="mini" label="Waive Shipping ?" prop="is_shipping_waiver"><br>
+                                <el-checkbox v-model="temp.is_shipping_waiver" border>Waive Shipping ?</el-checkbox>
+                            </el-form-item>
                         </el-col>
                         <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
                             <el-form-item :label="pvLabel" prop="pv">
@@ -298,6 +301,7 @@ export default {
                 description: undefined,
                 image: undefined,
                 base_amount: undefined,
+                is_shipping_waiver: 0,
                 gst_rate: undefined,
                 gst_amount: undefined,
                 cgst_rate: undefined,
@@ -743,6 +747,7 @@ export default {
                 utgst_amount: undefined,
                 net_amount: undefined,
                 mrp: undefined,
+                is_shipping_waiver:undefined,
                 pv: 0,
                 is_active: 1,
                 categories: [],
@@ -812,6 +817,7 @@ export default {
             this.file = undefined;
             this.fileList = [];
             this.temp = Object.assign({}, row);
+            this.temp.is_shipping_waiver = row.is_shipping_waiver == 1 ? true : false;
             this.dialogStatus = 'update';
             this.dialogComboVisible = true;
 

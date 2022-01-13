@@ -1,6 +1,6 @@
 <template>
   <div v-bind:class="[step == 0 ? 'app-container' : '']">
-     <div class="filter-container">
+     <div class="filter-container" v-if="step == 0">
       <el-button v-waves class="filter-item" type="success" icon="el-icon-back" @click="$router.push('/shopping/combos')">Go to All Combos</el-button>
       <!-- <el-button v-waves class="filter-item" type="success" icon="el-icon-shopping-cart-full" @click="$router.push('/shopping/cart')" style="float: right;">Go to Cart</el-button> -->
     </div>
@@ -277,6 +277,12 @@
                     <div class="cal-amount"><span>{{combo.cgst_amount | convert_with_symbol}}</span></div>
                 </div> -->
           <div class="calculations">
+              <div class="cal-title">
+                <span>Shipping</span>
+              </div>
+              <div class="cal-amount"><span>{{temp.shipping | convert_with_symbol}}</span></div>
+            </div>
+          <div class="calculations">
             <div class="cal-title">
               <span>Total PV</span>
             </div>
@@ -289,7 +295,7 @@
               <span>Grand Total</span>
             </div>
             <div class="cal-amount">
-              <span>{{ combo.net_amount | convert_with_symbol }}</span>
+              <span>{{ temp.grand_total | convert_with_symbol }}</span>
             </div>
           </div>
           <div class="checkout-btn make-payment-btn">
@@ -725,7 +731,7 @@ import {
   getStateCities,
   getPackages,
 } from '@/api/user/config';
-import { getSettings } from '@/api/user/settings';
+import { getSettings } from "@/api/user/settings";
 import { parseTime } from '@/utils';
 import Pagination from '@/components/Pagination';
 import defaultSettings from '@/settings';
@@ -782,7 +788,8 @@ export default {
         shipping_address_id: undefined,
         billing_address_id: undefined,
         productVariantIds: [],
-        grand_total: undefined,
+        grand_total: 0,
+        shipping:0,
       },
       orderRules: {
         shipping_address_id: [
@@ -899,10 +906,7 @@ export default {
       Country: [],
       states: [],
       cities: [],
-      settings: {
-        shipping_charge: 0,
-        shipping_charge_2: 0,
-      },
+      settings: { shipping_charge: 0,shipping_charge_2:0 },
       billing_address_tick: false,
       processStatus: 'process',
       payment_modes: [
@@ -916,10 +920,12 @@ export default {
         //   disabled: true,
         // }
       ],
+      is_shipping_waiver:true,
       orderSuccess: orderSuccess,
     };
   },
   created() {
+     this.getSettings();
     this.getCombo(this.$route.params.id);
     this.getAllAddresses();
     if (window.screen.width <= '550') {
@@ -936,7 +942,19 @@ export default {
       getCombo(id).then(response => {
         const combo = response.data;
         this.combo = combo;
+        this.temp.grand_total =parseFloat(this.combo.net_amount);
         this.getComboFilters(combo);
+        if(!this.combo.is_shipping_waiver){
+          this.is_shipping_waiver=false;
+        }
+        if(!this.is_shipping_waiver){
+          if(this.temp.grand_total < this.settings.shipping_criteria){
+            this.temp.shipping=parseFloat(this.settings.shipping_charge_2);
+          }else{
+            this.temp.shipping=parseFloat(this.settings.shipping_charge);
+          }
+        }
+        this.temp.grand_total+=this.temp.shipping;
       });
     },
     getMyBalance() {
@@ -951,8 +969,9 @@ export default {
     },
     getSettings() {
       getSettings().then(response => {
-        this.settings = response.data;
+        this.settings = response.data  
         this.tempAddress.country_code = response.data.default_country_code;
+
       });
     },
     handleStateChange() {
@@ -1126,6 +1145,7 @@ export default {
               this.$set(this.comboCategorySizes, key, response.data);
             }
           });
+          this.getProductsBySizeAndColor(comboCategory.category_id,key);
         } else {
           key = comboCategory.category_id + '_' + 1;
           getColorsByCategory(comboCategory.category_id).then(response => {
@@ -1135,6 +1155,7 @@ export default {
           getSizesByCategory(comboCategory.category_id).then(response => {
             this.$set(this.comboCategorySizes, key, response.data);
           });
+          this.getProductsBySizeAndColor(comboCategory.category_id,key);
         }
       });
     },
@@ -1188,7 +1209,6 @@ export default {
     },
     placeCombo() {
       this.$refs['orderForm'].validate(valid => {
-        console.log(this.temp);
         this.temp.combo_id = this.combo.id;
         if (valid) {
           if (parseFloat(this.balance) < parseFloat(this.combo.net_amount)) {

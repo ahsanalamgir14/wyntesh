@@ -170,6 +170,23 @@ class CombosController extends Controller
             // $distributor_discount+=(($item->mrp))-(($item->dp_amount));
             $distributor_discount+=0;
         }
+        if(!$combo->is_shipping_waiver){
+            $is_shipping_waiver=0;
+        }
+
+        if(!$is_shipping_waiver){
+            if($grand_total < $shipping_criteria){
+                $shipping=$shipping_charge_2;
+            }else{
+                $shipping=$shipping_charge;
+            }
+        }
+        $grand_total+=$shipping;
+        
+        if($grand_total != $request->grand_total){
+            $response = array('status' => false,'message'=>'Order data mismatch. try again');
+            return response()->json($response, 400);
+        }
         
         $TransactionType=TransactionType::where('name','Debit (Purchase)')->first();
 
@@ -196,7 +213,7 @@ class CombosController extends Controller
             $Order->sgst_amount=$sgst_amount;
             $Order->utgst_amount=$utgst_amount;
             $Order->gst_amount=$gst_amount;
-            $Order->shipping_fee=0;
+            $Order->shipping_fee=$shipping;
             $Order->net_amount=$grand_total;
             $Order->distributor_discount=0;
             $Order->pv=$pv;
