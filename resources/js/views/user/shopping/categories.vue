@@ -5,16 +5,30 @@
       <el-button v-waves class="filter-item" size="mini" type="primary" icon="el-icon-search" @click="handleFilter">Search</el-button>
     </div>
     <el-row :gutter="10">
-      <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6" v-for="category in categories" :key="category.id" style="">
-        <el-card :body-style="{ padding: '0px' }">
-          <div style="background-color: #fff;">
+      <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6" style="" class="mb-4">
+        <el-card :body-style="{ padding: '0px' }" class="border-dashed border-green-600">
+          <div style="background-color: #fff; mb-4">
             <center>
-              <router-link :to="'/shopping/products?category_id='+category.id" v-lazy-container="{ selector: 'img' }">
-                <img :data-src="category.image" class="image" data-loading="images/fallback-product.png">
+              <router-link :to="'/shopping/combos'" v-lazy-container="{ selector: 'img' }">
+                <img :data-src="'images/combo.jpg'" class="image h-96" data-loading="images/combo.jpg">
               </router-link>
             </center>
           </div>
-          <div style="padding: 14px;">
+          <div style="padding: 14px;" class="text-center w-full">
+            <span>Combos <el-tag type="success" size="mini">NEW</el-tag></span>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="6" :lg="6" :xl="6" v-for="category in categories" :key="category.id" style="" class="mb-4">
+        <el-card :body-style="{ padding: '0px' }">
+          <div style="background-color: #fff; mb-4">
+            <center>
+              <router-link :to="'/shopping/products?category_id='+category.id" v-lazy-container="{ selector: 'img' }">
+                <img :data-src="category.image" class="image h-96" data-loading="images/fallback-product.png">
+              </router-link>
+            </center>
+          </div>
+          <div style="padding: 14px;" class="text-center w-full">
             <span>{{category.name}}</span>
           </div>
         </el-card>

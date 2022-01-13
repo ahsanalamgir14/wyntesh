@@ -44,6 +44,7 @@
                   <label class="text-gray-700 text-sm" for="count"
                     >Select Size :
                   </label>
+                  <br/>
                   <el-select
                     size="mini"
                     v-model="
@@ -123,7 +124,7 @@
                     "
                     clearable
                     class="filter-item "
-                    style="width:400px;"
+                    style="width:280px;"
                     filterable
                     placeholder="Select product"
                      @change="
@@ -141,7 +142,7 @@
                       :value="item"
                       
                     >
-                    <img style="max-width:20px;display: inline-block;margin-right: 8px;" :src="item.product.cover_image_thumbnail"><span>{{ item.product.name }}</span>
+                    <img style="max-width:32px;display: inline-block;margin-right: 8px;" :src="item.product.cover_image_thumbnail"><span>{{ item.product.name }}</span>
                     </el-option>
                   </el-select>
                 </el-col>
@@ -157,9 +158,9 @@
               >
                 <el-col>
                   <div class="shopping-cart rounded-lg shadow">
-                    <div class="item">
+                    <div class="item flex flex-col md:flex-row h-full md:h-128">
                       <div
-                        class="image flex justify-center"
+                        class="image flex justify-center w-auto"
                         v-lazy-container="{ selector: 'img' }"
                       >
                         <img
@@ -173,8 +174,7 @@
                           "
                           data-loading="images/fallback-product.png"
                           alt=""
-                          style="max-height: 78px;max-width: 78px;"
-                          class=""
+                          class="max-h-128 md:max-h-48"
                         />
                       </div>
                       <div class="description">
@@ -1270,7 +1270,7 @@ export default {
 
 .item {
   padding: 20px 30px;
-  height: 120px;
+  /* height: 120px; */
   display: flex;
 }
 
@@ -1282,7 +1282,7 @@ export default {
 /* Product Image */
 .image {
   margin-right: 30px;
-  width: 100px;
+  /* width: 100px; */
   text-align: center;
 }
 
