@@ -492,7 +492,7 @@
                   <span>Amount Payable</span>
                 </div>
                 <div class="cal-amount">
-                  <span>{{ combo.net_amount | convert_with_symbol }}</span>
+                  <span>{{ temp.grand_total | convert_with_symbol }}</span>
                 </div>
               </div>
               <div class="">
@@ -1211,7 +1211,7 @@ export default {
       this.$refs['orderForm'].validate(valid => {
         this.temp.combo_id = this.combo.id;
         if (valid) {
-          if (parseFloat(this.balance) < parseFloat(this.combo.net_amount)) {
+          if (parseFloat(this.balance) < parseFloat(this.temp.grand_total)) {
             this.$message.error(
               'Oops, You have not enough balance to place order.'
             );

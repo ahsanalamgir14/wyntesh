@@ -102,7 +102,7 @@ class CombosController extends Controller
         $combo=Combo::find($combo_id);
 
         if($combo){
-            if($balance < $combo->net_amount){
+            if($balance < $request->grand_total){
                 $response = array('status' => false,'message'=>'You do not have enough balance place order');
                 return response()->json($response, 400);
             }
