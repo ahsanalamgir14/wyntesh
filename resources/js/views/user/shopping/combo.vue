@@ -925,8 +925,8 @@ export default {
     };
   },
   created() {
-     this.getSettings();
-    this.getCombo(this.$route.params.id);
+    this.getSettings();
+    // this.getCombo(this.$route.params.id);
     this.getAllAddresses();
     if (window.screen.width <= '550') {
       this.is_mobile = true;
@@ -971,7 +971,7 @@ export default {
       getSettings().then(response => {
         this.settings = response.data  
         this.tempAddress.country_code = response.data.default_country_code;
-
+        this.getCombo(this.$route.params.id);
       });
     },
     handleStateChange() {
