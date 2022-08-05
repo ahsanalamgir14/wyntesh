@@ -96,7 +96,8 @@
             <tr class="item-row"  v-for="product in order.products" :key="product.id">
                 <td class="item-name"><div>{{product.product.name}}</h3>{{ (product.variant.color?product.variant.color.name:' ') +' '+ (product.variant.size?'('+product.variant.size.brand_size+')':'') }}</div></td>
                 <td class="qty"><div >{{product.product.hsn}}</div></td>
-                <td class="cost"><div >{{product.product.dp_base}}</div></td>
+                
+                <td class="cost"><div >{{order.is_combo?product.base_amount:product.product.dp_base}}</div></td>
                 <!-- <td class="cost"><div >{{product.product.retail_amount}}</div></td> -->
                 <!-- <td class="cost"><div >{{product.product.retail_amount-product.product.retail_amount}}</div></td> -->
                 <td class="qty"><div >{{product.quantity}}</div></td>
