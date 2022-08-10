@@ -60,6 +60,7 @@
                     
                     <p style="font-size: 12px;">Member Id : {{order.user.username}}</p>
                     
+                   
                     <p style="font-size: 12px;">{{order.shipping_address}}</p>
                   </td>
                   <td class="item-name">
