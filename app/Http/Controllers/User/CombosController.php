@@ -224,8 +224,8 @@ class CombosController extends Controller
             $Order->city=$shipping_address->city;
             $Order->gstin=$request->gstin;
 
-            $Order->shipping_address=$shipping_address->door_no.', '.$shipping_address->address.', '.$shipping_address->landmark.', '.$shipping_address->state.', '.$shipping_address->city.', '.$shipping_address->pincode.', '.$shipping_address->mobile_number;
-            $Order->billing_address=$billing_address->door_no.', '.$billing_address->address.', '.$billing_address->landmark.', '.$billing_address->state.', '.$billing_address->city.', '.$billing_address->pincode.', '.$billing_address->mobile_number;
+            $Order->shipping_address=$shipping_address->door_no.', '.$shipping_address->full_name.', '.$shipping_address->address.', '.$shipping_address->landmark.', '.$shipping_address->state.', '.$shipping_address->city.', '.$shipping_address->pincode.', '.$shipping_address->mobile_number;
+            $Order->billing_address=$billing_address->door_no.', '.$billing_address->full_name.', '.$billing_address->address.', '.$billing_address->landmark.', '.$billing_address->state.', '.$billing_address->city.', '.$billing_address->pincode.', '.$billing_address->mobile_number;
             $Order->delivery_status='Order Created';
             $Order->is_combo=1;
             $Order->save();

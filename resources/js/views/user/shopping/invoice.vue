@@ -61,7 +61,7 @@
                     <p style="font-size: 12px;">Member Id : {{order.user.username}}</p>
                     
                    
-                    <p style="font-size: 12px;">{{order.shipping_address}}</p>
+                    <p style="font-size: 12px;">{{order.shipping_address.replace(order.shipping_address.split(",")[1] + ',','')}}</p>
                   </td>
                   <td class="item-name">
                     
