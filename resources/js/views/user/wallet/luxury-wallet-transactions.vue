@@ -75,13 +75,13 @@
           <span>{{ row.balance }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Tran. Type" min-width="140px"align="center">
+      <el-table-column label="Tran. Type" min-width="140px" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.transaction.name | statusFilter">{{ row.transaction?row.transaction.name:''}}</el-tag>
         </template>
       </el-table-column>
      
-      <el-table-column label="Remark" min-width="150px"align="left">
+      <el-table-column label="Remark" min-width="150px" align="left">
         <template slot-scope="{row}">
           <span >{{ row.note }}</span>
         </template>

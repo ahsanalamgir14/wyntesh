@@ -11,7 +11,9 @@ class WalletTransaction extends Model
     public $timestamps = true;
     use SoftDeletes;
 
-
+    protected $hidden = [
+       'balance'
+    ];
     public function member()
     {
         return $this->belongsTo('App\Models\Admin\Member')->with('user');

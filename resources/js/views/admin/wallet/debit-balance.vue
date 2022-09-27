@@ -71,17 +71,17 @@
           <span>{{ row.amount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Balance" width="110px" align="right">
+      <!-- <el-table-column label="Balance" width="110px" align="right">
         <template slot-scope="{row}">
           <span>{{ row.balance }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="Tran. Type" min-width="150px"align="center">
+      </el-table-column> -->
+      <el-table-column label="Tran. Type" min-width="150px" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.transaction.name | statusFilter">{{ row.transaction?row.transaction.name:''}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Debited from" min-width="120px"align="right">
+      <el-table-column label="Debited from" min-width="120px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.transfered_from_user?row.transfered_from_user.username:'' }}</span>
         </template>
@@ -91,12 +91,12 @@
           <span >{{ row.transfered_to_user?row.transfered_to_user.username:'' }}</span>
         </template>
       </el-table-column> -->
-      <el-table-column label="Debited by" min-width="120px"align="right">
+      <el-table-column label="Debited by" min-width="120px" align="right">
         <template slot-scope="{row}">
           <span >{{ row.transaction_by_user?row.transaction_by_user.username:'' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Remark" min-width="150px"align="left">
+      <el-table-column label="Remark" min-width="150px" align="left">
         <template slot-scope="{row}">
           <span >{{ row.note }}</span>
         </template>

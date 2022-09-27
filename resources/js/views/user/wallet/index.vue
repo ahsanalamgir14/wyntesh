@@ -146,7 +146,7 @@
           <span>{{ row.created_at | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Note" min-width="150px"align="left">
+      <el-table-column label="Note" min-width="150px" align="left">
         <template slot-scope="{row}">
           <span >{{ row.note }}</span>
         </template>
