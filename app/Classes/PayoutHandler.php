@@ -103,7 +103,6 @@ class PayoutHandler
             $q->where('is_blocked',0);
         })->get();
 
-        \Log::info($Members->count());
         // dd($Members);
         $total_mached_bv=0;
         $total_carry_forward_bv=0;
@@ -478,7 +477,10 @@ class PayoutHandler
         $payout_year=$this->payout->sales_start_date->format('Y');
 
 
-        $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})->whereMonth('created_at',$payout_month)
+        $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])
+        ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
+        ->scopeWhereRank('member.rank_logs', $this->payout->sales_start_date,$minimum_rank)
+        ->whereMonth('created_at',$payout_month)
             ->whereYear('created_at',$payout_year)->groupBy('member_id')->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
 
 
