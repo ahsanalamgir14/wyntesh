@@ -20,11 +20,10 @@ class Member extends Model
         return $this->belongsTo('App\Models\Admin\Rank','rank_id');
     }
 
-    public function rank_legs()
+    public function rank_logs()
     {
-        return $this->hasMany('App\Models\Admin\RankLog');
+        return $this->hasMany('App\Models\Admin\RankLog', 'member_id');
     }
-
 
     public function kyc()
     {

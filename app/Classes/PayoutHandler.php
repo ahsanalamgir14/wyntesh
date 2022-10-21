@@ -32,6 +32,7 @@ use App\Notifications\PayoutNotification;
 use Carbon\Carbon;
 use Log;
 use DB;
+use Illuminate\Support\Facades\Log as FacadesLog;
 
 class PayoutHandler 
 {    
@@ -476,13 +477,14 @@ class PayoutHandler
         $payout_month=$this->payout->sales_start_date->format('m');
         $payout_year=$this->payout->sales_start_date->format('Y');
 
-
+        $start_date = $this->payout->sales_start_date->startOfMonth()->format('Y-m-d'); 
+       
         $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])
         ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
-        ->scopeWhereRank('member.rank_logs', $this->payout->sales_start_date,$minimum_rank)
+        ->whereRank('member.rank_logs', $minimum_rank, $start_date)
         ->whereMonth('created_at',$payout_month)
-            ->whereYear('created_at',$payout_year)->groupBy('member_id')->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
-
+        ->whereYear('created_at',$payout_year)->groupBy('member_id')
+        ->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
 
         $total_points=0;
 
@@ -570,9 +572,12 @@ class PayoutHandler
         $payout_month=$this->payout->sales_start_date->format('m');
         $payout_year=$this->payout->sales_start_date->format('Y');
 
+        $start_date =  $this->payout->sales_start_date->startOfMonth()->format('Y-m-d'); 
+
         $total_matched_bv=MemberPayout::where('member_id',$Member->id)
             ->whereMonth('created_at',$payout_month)
             ->whereYear('created_at',$payout_year)
+            ->whereRank('member.rank_logs', $minimum_rank, $start_date)
             ->sum('total_matched_bv');
 
         if($total_matched_bv < $minimum_matched)

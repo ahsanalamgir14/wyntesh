@@ -69,11 +69,11 @@ class MemberPayout extends Model
         return $this->belongsTo('App\Models\Admin\Member');
     }  
 
-    public function scopeWhereRank($query, $relation, $date, $minimum_rank) {
+    public function scopeWhereRank($query, $relation, $rank_id, $date) {
         $query->whereHas(
             $relation,
-            function ($query) use ($date,$minimum_rank) {
-                $query->where('rank_id',$minimum_rank)->whereDate('created_at', '<=', $date);
+            function ($query) use ($rank_id, $date) {
+                $query->where('rank_id',$rank_id)->whereDate('created_at', '<=', $date);
             }
         );
     }
