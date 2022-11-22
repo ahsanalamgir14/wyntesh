@@ -49,12 +49,13 @@ class WelcomeLetterController extends Controller
                 'name' => $user->name,
                 'username'=>$user->username,
                 'contact'=>$user->contact,
+                'email'=>$user->email,
                 'dob'=>$user->dob,
                 'profile_picture'=>$user->profile_picture,
                 'created_at'=>$user->created_at,
                 'sponsor_id'=>$user->member->sponsor?$user->member->sponsor->user->username:'',
                 'sponsor_name'=>$user->member->sponsor?$user->member->sponsor->user->name:'',
-                'address'=>$user->kyc->address.', '.$user->kyc->city.', '.$user->kyc->state.', '.$user->kyc->pincode,
+                'address'=>$user->default_address->address.', '.$user->default_address->city.', '.$user->default_address->state.', '.$user->default_address->pincode,
             ); 
         }
         

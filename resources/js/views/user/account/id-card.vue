@@ -1,6 +1,42 @@
 <template>
   <div class="app-container">
-    <el-row justify="center" style="margin-left: 50px;margin-right: 50px;">
+    <el-row justify="center" style="margin-left: 50px;margin-right: 50px; margin-bottom: 30px;" id="my-idcard" slot="pdf-content">
+      <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
+        <div class="id-card-tag hidden"></div>
+          <div class="id-card-tag-strip hidden"></div>
+          <div class="id-card-hook hidden"></div>
+          <div class="id-card-holder">
+            
+            <div class="id-card border-2 mt-8"  ref="idCard" > 
+              <!-- id="my-idcard" -->
+              <div class="header">
+                <img src="@/assets/images/dark_logo.png" id="compny-logo">
+                <!-- <img :src="company_details.dark_logo" id="compny-logo"> -->
+                <!-- {{productsData(company_details.dark_logo)}} -->
+              </div>
+              <h2 class="company-name">{{company_details.company_name}}</h2>
+              <div class="photo">
+                <img :src="user_details.profile_picture" v-if="user_details.profile_picture">
+                <img src="@/assets/images/avatar.png" v-else>
+              </div>
+
+              <div class="member-info p-2 mt-0">
+                  <h2 style="font-size: 15px; font-weight: bold; "> {{user_details.name}}</h2>
+                  <h2 style="font-size: 15px; font-weight: bold; "> {{user_details.username}}</h2>
+                  <h3> {{user_details.contact}}</h3>
+                  <h3> {{user_details.email}}</h3>
+                  <p style=" font-size: 12px;">{{user_details.address}}<p>              
+                 <hr>
+                <p><strong>{{company_details.company_name}}</strong> {{company_details.address}},{{company_details.city}} <p>
+                <p>{{company_details.state}},{{company_details.country}} <strong>{{company_details.pincode}}</strong></p>
+                <p>Ph: {{company_details.contact_phone}} | Email: {{company_details.contact_email}} | {{company_details.website}}  </p>
+              </div>
+            </div>
+           
+          </div>
+      </el-col>
+    </el-row>
+    <!-- <el-row justify="center" style="margin-left: 50px;margin-right: 50px;">
       <el-col  :xs="24" :sm="24" :md="24" :lg="24" :xl="24" >
         <div class="id-card-tag"></div>
           <div class="id-card-tag-strip"></div>
@@ -31,7 +67,7 @@
             </div>
           </div>
       </el-col>
-    </el-row>
+    </el-row> -->
     <!-- <el-row >
       <hr>
       <div style="float: right;margin-top:10px;">
@@ -94,15 +130,15 @@ export default {
 }
 
 .id-card-holder {
-      width: 225px;
+      width: 300px;
         padding: 4px;
         margin: 0 auto;
-        background-color: #1f1f1f;
+        /* background-color: #1f1f1f; */
         border-radius: 5px;
         position: relative;
     }
     .id-card-holder:after {
-        content: '';
+        /* content: ''; */
         width: 7px;
         display: block;
         background-color: #0a0a0a;
@@ -112,7 +148,7 @@ export default {
         border-radius: 0 5px 5px 0;
     }
     .id-card-holder:before {
-        content: '';
+        /* content: ''; */
         width: 7px;
         display: block;
         background-color: #0a0a0a;
@@ -128,23 +164,34 @@ export default {
       padding: 10px;
       border-radius: 10px;
       text-align: center;
-      box-shadow: 0 0 1.5px 0px #b9b9b9;
+      /* box-shadow: 0 0 1.5px 0px #b9b9b9; */
+      box-shadow: 0 10px 15px 3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%);
+    }
+    .member-info div span{
+      white-space: nowrap;
     }
     .id-card img {
       margin: 0 auto;
     }
     .header img {
-      width: 87px;
-        margin-top: 15px;
+      width: 170px;
+      margin-top: 15px;
     }
     .photo img {
       width: 80px;
-        margin-top: 15px;
-        border-radius: 50px;
+      margin-top: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 100%;
     }
     h2 {
+      font-size: 17px;
+      margin: 2px 0;
+       /* margin: 5px 0 0 0; */
+    }
+    .company-name {
       font-size: 15px;
-      margin: 5px 0;
+      /* margin: 5px 0; */
+       margin: 10px 0 0 0;
     }
     h3 {
       font-size: 12px;
@@ -155,7 +202,7 @@ export default {
       width: 50px;
     }
     p {
-      font-size: 5px;
+      font-size: 7px;
       margin: 2px;
     }
     .id-card-hook {

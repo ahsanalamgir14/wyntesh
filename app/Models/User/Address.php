@@ -19,5 +19,8 @@ class Address extends Model {
         return $this->belongsTo('App\Models\User\User');
     }
 
-
+    public function scopeWithDefaultAddress($query, $userId, $default)
+    {
+        return $query->where('user_id', $userId)->where('is_default', $default);
+    }
 }
