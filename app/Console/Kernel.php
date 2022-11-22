@@ -38,10 +38,20 @@ class Kernel extends ConsoleKernel
             $CronsController->backupDatabase();
         })->dailyAt('23:58');
 
+        // $schedule->call(function () {
+        //     $CronsController=new CronsController;
+        //     $CronsController->generateMonthlyPayout();
+        // })->dailyAt('00:01');
+
+        $schedule->call(function () {
+            $CronsController=new CronsController;
+            $CronsController->generateWeeklyPayout();
+        })->weeklyOn(6, '00:05');
+
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->generateMonthlyPayout();
-        })->dailyAt('00:01');
+        })->monthlyOn(1, '00:01');
 
         $schedule->call(function () {
             $CronsController=new CronsController;
