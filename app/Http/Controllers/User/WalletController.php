@@ -618,10 +618,10 @@ class WalletController extends Controller
             return response()->json($response, 400);
         }
 
-        if(!$kyc_status){
-            $response = array('status' => false,'message'=>'Verify your KYC first to withdraw');
-            return response()->json($response, 400);
-        }
+        // if(!$kyc_status){
+        //     $response = array('status' => false,'message'=>'Verify your KYC first to withdraw');
+        //     return response()->json($response, 400);
+        // }
         // dd("asdas");
 
         $incomewallettransfers=new IncomeWalletTransfers;
