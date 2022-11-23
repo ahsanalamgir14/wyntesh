@@ -2,19 +2,25 @@
 
 namespace App\Jobs;
 
+use DB;
+use App\Models\Admin\Sale;
+use App\Models\User\Order;
+use App\Models\Admin\Income;
+use App\Models\Admin\Member;
+use App\Models\Admin\Reward;
+
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use App\Models\Admin\MemberPayout;
+use App\Models\Admin\MembersLegPv;
+use App\Models\Admin\PayoutIncome;
+use App\Models\Admin\MatchingPoint;
+use App\Models\Admin\AffiliateBonus;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Admin\MemberCarryForwardPv;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-
-use App\Models\Admin\Member;
-use App\Models\Admin\MembersLegPv;
-use App\Models\Admin\MatchingPoint;
-use App\Models\Admin\MemberCarryForwardPv;
-use App\Models\User\Order;
-use DB;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 
 
 class ProcessTestMatching implements ShouldQueue
@@ -28,6 +34,7 @@ class ProcessTestMatching implements ShouldQueue
      */
     public $from_date;
     public $to_date;
+    public $total_matched_bv = 0 ;
     
     public function __construct($from_date,$to_date)
     {
@@ -43,6 +50,7 @@ class ProcessTestMatching implements ShouldQueue
     public function handle()
     {
         $this->generateMatchingPoints($this->from_date,$this->to_date);
+        $this->calculateIncomeds();
     }
 
     public function generateMatchingPoints($from_date,$to_date){
@@ -62,8 +70,9 @@ class ProcessTestMatching implements ShouldQueue
         foreach ($Members as $Member) {
             $this->calculateMemberMatchedBV($Member,$total_sales,$from_date,$to_date);
         }
+        $this->total_matched_bv=MatchingPoint::sum('total_matched_bv');
     }
-
+    
     public function calculateMemberMatchedBV($Member,$total_sales,$from_date,$to_date){
         
         $matched_bv=0;
@@ -87,7 +96,6 @@ class ProcessTestMatching implements ShouldQueue
         $MatchingPoint=new MatchingPoint;
         $MatchingPoint->member_id=$Member->id;    
         $MatchingPoint->total_sales=$total_sales;    
-            
         $MatchingPoint->save();
 
         $last_carry_forward=MemberCarryForwardPv::where('member_id',$Member->id)->orderBy('payout_id','desc')->first();
@@ -155,6 +163,279 @@ class ProcessTestMatching implements ShouldQueue
         $MatchingPoint->matched=floatval($matched_bv/24);
         $MatchingPoint->carry_forward=$carry_forward;
         $MatchingPoint->carry_forward_position=$carry_forward_position;
+        $MatchingPoint->save();
+    }
+
+    public function calculateIncomeds(){
+        $Members=Member::whereHas('user',function($q){
+            $q->where('is_active',1);
+            $q->where('is_blocked',0);
+        })->orderBy('level','desc')->get();
+
+        foreach ($Members as $member) {
+            
+            $incomes=Income::all();
+            $MatchingPoint=MatchingPoint::where('member_id',$member->id)->first();
+            foreach ($incomes as $income) {
+                        
+                if($income->code=='REWARD'){
+                    $this->calculateRewardIncome($MatchingPoint, $member, $income);
+                }
+                if($income->code=='AFFILIATE'){
+                    $this->calculateAffiliateIncome($MatchingPoint, $member, $income);
+                }
+                if($income->code=='SQUAD'){
+                    $this->calculateSquadIncome($MatchingPoint, $member, $income);
+                }
+                if($income->code=='ELEVATION'){
+                    $this->calculateElevationIncome($MatchingPoint, $member, $income);
+                }
+                if($income->code=='LUXURY'){
+                    $this->calculateLuxuryIncome($MatchingPoint, $member, $income);
+                }
+                if($income->code=='PREMIUM'){
+                    $this->calculatePremiumIncome($MatchingPoint, $member, $income);
+                }
+    
+            }       
+        }
+    }
+
+    public function calculateRewardIncome($MatchingPoint, $Member ,$income){
+        
+        $Rewards=Reward::select([
+                DB::raw('sum(amount) as total_payout_amount'),
+                DB::raw('sum(tds_amount) as total_tds'),
+                DB::raw('sum(final_amount) as total_net_payable_amount'),
+                DB::raw("tds_percent")
+            ])->where('member_id',$Member->id)
+            ->whereDate('created_at','<=', $this->from_date)
+            ->whereDate('created_at','>=', $this->to_date)
+            ->first();
+
+        if($Rewards->total_payout_amount > 0){
+            $MatchingPoint->income_1_payout_amount=$Rewards->total_payout_amount;
+            $MatchingPoint->save();
+        }
+    }
+
+    public function calculateAffiliateIncome($MatchingPoint, $Member ,$income){
+        
+        $AffiliateBonus= AffiliateBonus::select([                
+                DB::raw("SUM(amount) as total_payout_amount"),
+                DB::raw("SUM(tds_amount) as total_tds"),
+                DB::raw("SUM(final_amount) as total_net_payable_amount"),
+                DB::raw("tds_percent"),
+            ])->where('member_id',$Member->id)
+            ->whereDate('created_at','<=', $this->from_date)
+            ->whereDate('created_at','>=', $this->to_date)
+            ->first();
+
+        if($AffiliateBonus->total_payout_amount > 0){
+            $MatchingPoint->income_2_payout_amount=$AffiliateBonus->total_payout_amount;
+            $MatchingPoint->save();
+        }
+    }
+
+    public function calculateSquadIncome($MatchingPoint, $Member, $income) {
+      
+        $income_percent=0;
+        $capping_matched_bv=0;
+        
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='income_percent'){
+                $income_percent=$parameter->value_1;
+            }
+            if($parameter->name=='capping_matched_bv'){
+                $capping_matched_bv=$parameter->value_1;
+            }
+        }
+
+        $income_factor=0;
+        if($this->total_matched_bv==0){
+            $income_factor=0;
+        }else{
+            $income_factor=(($MatchingPoint->total_sales*$income_percent)/100)/$this->total_matched_bv;    
+        }
+        $total_matched_bv=$MatchingPoint->matched;
+        
+        if($total_matched_bv > $capping_matched_bv){
+            $total_matched_bv=$capping_matched_bv;
+        }
+
+        $payout_amount = $total_matched_bv*$income_factor;
+
+        if(!$payout_amount)
+            return;
+        
+        $MatchingPoint->income_3_factor_value = round($income_factor,4);
+        $MatchingPoint->income_3_total_points = $MatchingPoint->total_sales;
+        $MatchingPoint->income_3_point_value = $total_matched_bv;
+        $MatchingPoint->income_3_payout_amount = $payout_amount;
+        $MatchingPoint->save();
+    }
+
+    public function calculateElevationIncome($MatchingPoint, $Member, $income){
+
+        $income_percent=0;
+        $minimum_matched=0;
+        $minimum_rank=0;
+        $income_factor=0; 
+
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='income_percent'){
+                $income_percent=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_matched'){
+                $minimum_matched=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_rank'){
+                $minimum_rank=(int)$parameter->value_1;
+            }
+        }
+
+        if($Member->rank_id < $minimum_rank){
+            return;
+        }
+
+        $TotalMatchedBv=MatchingPoint::addSelect([ DB::raw("sum((matched DIV ".$minimum_matched.")) as total_points")])
+                ->where('matched','>=',$minimum_matched)
+                ->whereHas('member',function($q)use($minimum_rank){
+                    $q->where('rank_id','>=',$minimum_rank);
+                })
+                ->first();
+
+        $total_points=$TotalMatchedBv->total_points;
+
+        if(!$total_points){
+            $income_factor=0;
+        }else{            
+            $income_factor=(($MatchingPoint->total_sales*$income_percent)/100)/$total_points;
+        }
+
+        $points=intdiv($MatchingPoint->matched,$minimum_matched);
+        $payout_amount=($points*$income_factor);
+
+        if($payout_amount==0){
+            return;
+        }
+
+        $MatchingPoint->income_4_factor_value = round($income_factor,4);
+        $MatchingPoint->income_4_total_points = $total_points;
+        $MatchingPoint->income_4_point_value = $points;
+        $MatchingPoint->income_4_payout_amount = $payout_amount;
+        $MatchingPoint->save();
+    }
+
+    public function calculateLuxuryIncome($MatchingPoint, $Member, $income){
+
+        $income_percent=0;
+        $minimum_matched=0;
+        $minimum_rank=0;
+        $income_factor=0; 
+
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='income_percent'){
+                $income_percent=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_matched'){
+                $minimum_matched=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_rank'){
+                $minimum_rank=(int)$parameter->value_1;
+            }
+        }
+
+        if($Member->rank_id < $minimum_rank){
+            return;
+        }
+
+        $TotalMatchedBv=MatchingPoint::addSelect([ DB::raw("sum((matched DIV ".$minimum_matched.")) as total_points")])
+                ->where('matched','>=',$minimum_matched)
+                ->whereHas('member',function($q)use($minimum_rank){
+                    $q->where('rank_id','>=',$minimum_rank);
+                })
+                ->first();
+
+        $total_points=$TotalMatchedBv->total_points;
+
+        if(!$total_points){
+            $income_factor=0;
+        }else{            
+            $income_factor=(($MatchingPoint->total_sales*$income_percent)/100)/$total_points;
+        }
+
+        $points=intdiv($MatchingPoint->matched,$minimum_matched);
+        $payout_amount=($points*$income_factor);
+
+        if($payout_amount==0){
+            return;
+        }
+
+        $MatchingPoint->income_5_factor_value = round($income_factor,4);
+        $MatchingPoint->income_5_total_points = $total_points;
+        $MatchingPoint->income_5_point_value = $points;
+        $MatchingPoint->income_5_payout_amount = $payout_amount;
+        $MatchingPoint->save();
+    }
+
+    public function calculatePremiumIncome($MatchingPoint, $Member, $income){
+        $income_percent=0;
+        $minimum_matched=0;
+        $minimum_rank=0;
+        $income_factor=0;
+
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='income_percent'){
+                $income_percent=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_matched'){
+                $minimum_matched=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_rank'){
+                $minimum_rank=$parameter->value_1;
+            }
+        }
+        if($Member->rank_id < $minimum_rank){
+            return;
+        }
+
+        $points_array=MatchingPoint::addSelect([ DB::raw("sum((matched)) as total_points")])
+                ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
+                ->whereRank('member.rank_logs', $minimum_rank, $this->from_date)
+                ->groupBy('member_id')
+                ->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
+
+        $total_points=0;
+
+        foreach ($points_array as $key => $value) {
+            $points=intdiv($value,$minimum_matched);
+            if($points >= 1){
+                $total_points+=$points;
+            }
+        }
+
+        $monthly_total_bv=Sale::whereDate('created_at','<=', $this->from_date)
+                        ->whereDate('created_at','>=', $this->to_date)
+                        ->sum('pv');
+
+        if(!$total_points){
+            $income_factor=0;
+        }else{
+            $income_factor=(($monthly_total_bv*$income_percent)/100)/$total_points;
+        }
+
+        $points=intdiv($MatchingPoint->matched,$minimum_matched);
+        $payout_amount=($points*$income_factor);
+
+        if($payout_amount==0){
+            return;
+        }
+
+        $MatchingPoint->income_6_factor_value = round($income_factor,4);
+        $MatchingPoint->income_6_total_points = $total_points;
+        $MatchingPoint->income_6_point_value = $points;
+        $MatchingPoint->income_6_payout_amount = $payout_amount;
         $MatchingPoint->save();
     }
 }
