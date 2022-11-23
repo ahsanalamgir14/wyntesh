@@ -20,6 +20,7 @@ class User extends  Authenticatable implements JWTSubject
     //protected $guard_name = 'web';
 
     protected $table = 'users';
+    protected $appends = ['default_address'];
     public $timestamps = true;
 
     protected $fillable = [
@@ -103,6 +104,11 @@ class User extends  Authenticatable implements JWTSubject
     public function currency()
     {
         return $this->belongsTo('App\Models\Admin\Currency','currency_code','code');
+    }
+
+    public function getDefaultAddressAttribute()
+    {
+        return Address::withDefaultAddress($this->id,1)->first();
     }
     
     /**

@@ -32,6 +32,7 @@ use App\Notifications\PayoutNotification;
 use Carbon\Carbon;
 use Log;
 use DB;
+use Illuminate\Support\Facades\Log as FacadesLog;
 
 class PayoutHandler 
 {    
@@ -103,7 +104,6 @@ class PayoutHandler
             $q->where('is_blocked',0);
         })->get();
 
-        \Log::info($Members->count());
         // dd($Members);
         $total_mached_bv=0;
         $total_carry_forward_bv=0;
@@ -276,9 +276,18 @@ class PayoutHandler
     public function paySquadIncome($memberPayout,$payoutIncome) {
 
         $totalIncomeValue = 0;
+        //new add 1,50,000 BV Matching capping
+        $total_matched_bv=$memberPayout->total_matched_bv;
+        $capping=$payoutIncome->income->capping_matched_bv;
+
+        if($total_matched_bv > $capping){
+            $total_matched_bv=$capping;
+        }
+        $memberPayout->capping_matched_bv=$total_matched_bv;
+        $memberPayout->save();
 
         $factor = $payoutIncome->income_payout_parameter_1_value;
-        $payout_amount = $memberPayout->total_matched_bv*$factor;
+        $payout_amount = $memberPayout->capping_matched_bv*$factor;
 
         if(!$payout_amount)
             return;
@@ -372,7 +381,7 @@ class PayoutHandler
             }
 
             if($PayoutIncome->income->code=='LUXURY'){
-                $this->calculateIncomeFactor($PayoutIncome);
+                $this->calculateLuxuryIncomeFactor($PayoutIncome);
             }
 
             if($PayoutIncome->income->code=='PREMIUM'){
@@ -453,6 +462,49 @@ class PayoutHandler
         $PayoutIncome->save();
     }
 
+    public function calculateLuxuryIncomeFactor($PayoutIncome) {
+        $income_percent=0;
+        $minimum_matched=0;
+        $minimum_rank=0;
+        $capping_matched_bv=0;
+
+        foreach ($PayoutIncome->income->income_parameters as $parameter) {
+            if($parameter->name=='income_percent'){
+                $income_percent=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_matched'){
+                $minimum_matched=$parameter->value_1;
+            }
+            if($parameter->name=='minimum_rank'){
+                $minimum_rank=$parameter->value_1;
+            }
+        }
+
+        // Counting matching point value based on parameters and plan criteria
+        $PayoutIncome->income_payout_parameter_1_name='factor';
+        $PayoutIncome->income_payout_parameter_2_name='total_points';
+
+        $TotalMatchedBv=MemberPayout::addSelect([ DB::raw("sum((capping_matched_bv DIV ".$minimum_matched.")) as total_points")])
+            ->where('capping_matched_bv','>=',$minimum_matched)
+            ->whereHas('member',function($q)use($minimum_rank){
+                $q->where('rank_id','>=',$minimum_rank);
+            })
+            ->where('payout_id',$this->payout->id)
+            ->first();
+
+        $total_points=$TotalMatchedBv->total_points;
+
+        if(!$total_points){
+            $income_factor=0;
+        }else{            
+            $income_factor=(($this->payout->sales_bv*$income_percent)/100)/$total_points;
+        }
+
+        $PayoutIncome->income_payout_parameter_1_value=round($income_factor,4);
+        $PayoutIncome->income_payout_parameter_2_value=$total_points;
+        $PayoutIncome->save();
+    }
+
     public function calculatePremiumIncomeFactor($PayoutIncome) {
         $income_percent=0;
         $minimum_matched=0;
@@ -477,10 +529,14 @@ class PayoutHandler
         $payout_month=$this->payout->sales_start_date->format('m');
         $payout_year=$this->payout->sales_start_date->format('Y');
 
-
-        $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})->whereMonth('created_at',$payout_month)
-            ->whereYear('created_at',$payout_year)->groupBy('member_id')->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
-
+        $start_date = $this->payout->sales_start_date->startOfMonth()->format('Y-m-d'); 
+       
+        $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])
+        ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
+        ->whereRank('member.rank_logs', $minimum_rank, $start_date)
+        ->whereMonth('created_at',$payout_month)
+        ->whereYear('created_at',$payout_year)->groupBy('member_id')
+        ->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
 
         $total_points=0;
 
@@ -568,9 +624,12 @@ class PayoutHandler
         $payout_month=$this->payout->sales_start_date->format('m');
         $payout_year=$this->payout->sales_start_date->format('Y');
 
+        $start_date =  $this->payout->sales_start_date->startOfMonth()->format('Y-m-d'); 
+
         $total_matched_bv=MemberPayout::where('member_id',$Member->id)
             ->whereMonth('created_at',$payout_month)
             ->whereYear('created_at',$payout_year)
+            ->whereRank('member.rank_logs', $minimum_rank, $start_date)
             ->sum('total_matched_bv');
 
         if($total_matched_bv < $minimum_matched)
@@ -610,7 +669,7 @@ class PayoutHandler
             return;
         }
 
-        $points=intdiv($MemberPayout->total_matched_bv,$minimum_matched);
+        $points=intdiv($MemberPayout->capping_matched_bv,$minimum_matched);
         $payout_amount=($points*$PayoutIncome->income_payout_parameter_1_value);
 
         if($payout_amount==0){

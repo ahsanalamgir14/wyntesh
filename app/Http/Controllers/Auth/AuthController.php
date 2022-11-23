@@ -162,7 +162,7 @@ class AuthController extends Controller
             $userinfo['dob']            = date('d-m-Y',strtotime($user->dob));
             $userinfo['contact']        = $user->contact;
             $userinfo['email']          = $user->email;              
-            $userinfo['package']  = $package;  
+            $userinfo['package']        = $package;  
             
             $response = array('status' => true,'message'=>"Education info.",'data'=>$userinfo);
             return response()->json($response, 400);

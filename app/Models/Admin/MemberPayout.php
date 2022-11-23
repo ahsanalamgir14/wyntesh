@@ -59,14 +59,23 @@ class MemberPayout extends Model
            ->groupBy('position')
            ->get();
            return $legs; 
-       }else{
-        return '';
-    }    
-}
+        }else{
+            return '';
+        }    
+    }
 
-public function member()
-{
-    return $this->belongsTo('App\Models\Admin\Member');
-}  
+    public function member()
+    {
+        return $this->belongsTo('App\Models\Admin\Member');
+    }  
+
+    public function scopeWhereRank($query, $relation, $rank_id, $date) {
+        $query->whereHas(
+            $relation,
+            function ($query) use ($rank_id, $date) {
+                $query->where('rank_id',$rank_id)->whereDate('created_at', '<=', $date);
+            }
+        );
+    }
 
 }

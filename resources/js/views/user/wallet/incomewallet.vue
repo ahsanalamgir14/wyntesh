@@ -38,13 +38,13 @@
 
       <el-button
         v-waves
-        :disabled="!kyc_status"
         :loading="downloadLoading"
         class="filter-item"
         type="success"
         icon="el-icon-upload"
         @click="openDialog"
-      >{{ kyc_status?'Transfer to E-wallet':'Verify your KYC First Transfer to E-wallet'}}</el-button>
+      >Transfer to E-wallet</el-button>
+      <!-- >{{ kyc_status?'Transfer to E-wallet':'Verify your KYC First Transfer to E-wallet'}}</el-button>  -->
         <!-- dialogWithdrawVisible=true -->
     </div>
 

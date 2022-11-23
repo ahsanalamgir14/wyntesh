@@ -57,7 +57,6 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      
       <el-table-column label="Member ID" min-width="120px" align="center">
         <template slot-scope="{row}">
           <span >{{ row.member.user.username }}</span>
@@ -110,6 +109,96 @@
           <span >{{ row.carry_forward }}</span>
         </template>
       </el-table-column> -->
+       <el-table-column label="Reward Amount" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_1_payout_amount }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Affiliate Amount" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_2_payout_amount }}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="Squad Points Value" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_3_factor_value }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Squad Total Points" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_3_total_points }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Squad Member Points" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_3_point_value }}</span>
+          </template>
+        </el-table-column> -->
+        <el-table-column label="Squad Amount" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_3_payout_amount }}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="Elevation Point Value" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_4_factor_value }}</span>
+          </template>
+        </el-table-column> -->
+        <!-- <el-table-column label="Elevation Total Points" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_4_total_points }}</span>
+          </template>
+        </el-table-column> -->
+        <el-table-column label="Elevation Point" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_4_point_value }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Elevation Amount" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_4_payout_amount }}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="Luxury Point Value" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_5_factor_value }}</span>
+          </template>
+        </el-table-column> -->
+        <!-- <el-table-column label="Luxury Total Points" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_5_total_points }}</span>
+          </template>
+        </el-table-column> -->
+        <el-table-column label="Luxury Point" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_5_point_value }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Luxury Amount" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_5_payout_amount }}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="Premium Point Value" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_6_factor_value }}</span>
+          </template>
+        </el-table-column> -->
+        <!-- <el-table-column label="Premium Total Points" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_6_total_points }}</span>
+          </template>
+        </el-table-column> -->
+        <el-table-column label="Premium Point" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_6_point_value }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Premium Amount" width="100px">
+          <template slot-scope="{row}">
+            <span  >{{ row.income_6_payout_amount }}</span>
+          </template>
+        </el-table-column>
     </el-table>
 
     <pagination
@@ -248,7 +337,8 @@ export default {
         incomes: [{ required: true, message: 'Please select income', trigger: 'blur' }],
       },
       downloadLoading: false,
-      buttonLoading: false
+      buttonLoading: false,
+      dialogIncomesVisible: false,
     };
   },
   created() {
