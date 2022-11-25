@@ -44,6 +44,10 @@ class WelcomeLetterController extends Controller
     {
         $user=JWTAuth::user();
         $user_details=[];
+        $default_address='';
+        if($user->default_address){
+            $default_address=$user->default_address->address.', '.$user->default_address->city.', '.$user->default_address->state.', '.$user->default_address->pincode;
+        }
         if($user->roles[0]->name!=='admin'){
             $user_details=array(
                 'name' => $user->name,
@@ -55,7 +59,7 @@ class WelcomeLetterController extends Controller
                 'created_at'=>$user->created_at,
                 'sponsor_id'=>$user->member->sponsor?$user->member->sponsor->user->username:'',
                 'sponsor_name'=>$user->member->sponsor?$user->member->sponsor->user->name:'',
-                'address'=>$user->default_address->address.', '.$user->default_address->city.', '.$user->default_address->state.', '.$user->default_address->pincode,
+                'address'=>$default_address,
             ); 
         }
         
