@@ -23,13 +23,15 @@
               <div class="member-info p-2 mt-0">
                   <h2 style="font-size: 15px; font-weight: bold; "> {{user_details.name}}</h2>
                   <h2 style="font-size: 15px; font-weight: bold; "> {{user_details.username}}</h2>
-                  <h3> {{user_details.contact}}</h3>
+                  <!-- <h3> {{user_details.contact}}</h3> -->
                   <h3> {{user_details.email}}</h3>
                   <p style=" font-size: 12px;">{{user_details.address}}<p>              
                  <hr>
                 <p><strong>{{company_details.company_name}}</strong> {{company_details.address}},{{company_details.city}} <p>
                 <p>{{company_details.state}},{{company_details.country}} <strong>{{company_details.pincode}}</strong></p>
-                <p>Ph: {{company_details.contact_phone}} | Email: {{company_details.contact_email}} | {{company_details.website}}  </p>
+                <p>
+                  <!-- Ph: {{company_details.contact_phone}} | -->
+                   Email: {{company_details.contact_email}} | {{company_details.website}}  </p>
               </div>
             </div>
            

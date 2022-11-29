@@ -9,7 +9,9 @@ export default {
     totalLegs: 4,
     pvLabel: 'BV',
     // baseUrl: 'https://business.wyntash.in/',
-    baseUrl: 'http://wyntash-soft.mlmsoftwaredemo.org/',
+    // baseUrl: 'http://wyntash-soft.mlmsoftwaredemo.org/',
+    baseUrl: 'http://localhost:8000/',
+
     /**
      * @type {boolean} true | false
      * @description Whether show the settings right-panel
