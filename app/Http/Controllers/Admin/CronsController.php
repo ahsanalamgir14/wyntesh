@@ -231,11 +231,6 @@ class CronsController extends Controller
         $from=date("Y-m-d", strtotime('saturday this week', strtotime($date)));   
         $dt = Carbon::now()->subDays(1);
         $to=date("Y-m-d", strtotime('friday this week', strtotime($dt)));
-        Log::info($date);
-        Log::info($dt);
-        Log::info($from);
-        Log::info($to);
-        return;
 
         $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
         $PayoutType=PayoutType::where('name','Weekly')->first();
