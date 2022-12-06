@@ -59,13 +59,14 @@
       >Export</el-button>
       <el-button
         v-waves
-        :disabled="!kyc_status"
         :loading="downloadLoading"
         class="filter-item"
         type="success"
         icon="el-icon-upload"
         @click="shotTransferPopup()"
-      >{{ kyc_status?'Transfer Balance':'Verify your KYC First to Transfer Balance'}}</el-button>
+        >Transfer Balance</el-button>
+        <!-- :disabled="!kyc_status" -->
+      <!-- >{{ kyc_status?'Transfer Balance':'Verify your KYC First to Transfer Balance'}}</el-button> -->
     </div>
 
     <el-table
