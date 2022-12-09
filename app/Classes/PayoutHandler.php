@@ -526,16 +526,19 @@ class PayoutHandler
         $PayoutIncome->income_payout_parameter_1_name='factor';
         $PayoutIncome->income_payout_parameter_2_name='total_points';
 
-        $payout_month=$this->payout->sales_start_date->format('m');
-        $payout_year=$this->payout->sales_start_date->format('Y');
-
-        $start_date = $this->payout->sales_start_date->startOfMonth()->format('Y-m-d'); 
+        // $payout_month=$this->payout->sales_start_date->format('m');
+        // $payout_year=$this->payout->sales_start_date->format('Y');
+        $last_payout=Payout::where('payout_type_id',$this->payout->payout_type_id)->where('id','!=',$this->payout->id)->latest()->first();
+       
+        $start_date = $last_payout->sales_end_date->addDays(1)->format('Y-m-d'); 
+        $end_date = $this->payout->sales_end_date; 
        
         $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])
         ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
         ->whereRank('member.rank_logs', $minimum_rank, $start_date)
-        ->whereMonth('created_at',$payout_month)
-        ->whereYear('created_at',$payout_year)->groupBy('member_id')
+        ->whereDate('created_at', '<=', $start_date)
+        ->whereDate('created_at', '>=', $end_date)
+        ->groupBy('member_id')
         ->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
 
         $total_points=0;
@@ -547,8 +550,8 @@ class PayoutHandler
             }
         }
 
-        $monthly_total_bv=Sale::whereMonth('created_at',$payout_month)
-                        ->whereYear('created_at',$payout_year)
+        $monthly_total_bv=Sale::whereDate('created_at','<=', $start_date)
+                        ->whereDate('created_at','>=', $end_date)
                         ->sum('pv');
 
         if(!$total_points){
@@ -621,14 +624,17 @@ class PayoutHandler
             return;
         }
 
-        $payout_month=$this->payout->sales_start_date->format('m');
-        $payout_year=$this->payout->sales_start_date->format('Y');
+        // $payout_month=$this->payout->sales_start_date->format('m');
+        // $payout_year=$this->payout->sales_start_date->format('Y');
 
-        $start_date =  $this->payout->sales_start_date->startOfMonth()->format('Y-m-d'); 
+        $last_payout=Payout::where('payout_type_id',$this->payout->payout_type_id)->where('id','!=',$this->payout->id)->latest()->first();
+       
+        $start_date = $last_payout->sales_end_date->addDays(1)->format('Y-m-d'); 
+        $end_date = $this->payout->sales_end_date;
 
         $total_matched_bv=MemberPayout::where('member_id',$Member->id)
-            ->whereMonth('created_at',$payout_month)
-            ->whereYear('created_at',$payout_year)
+            ->whereDate('created_at', '<=', $start_date)
+            ->whereDate('created_at', '>=', $end_date)
             ->whereRank('member.rank_logs', $minimum_rank, $start_date)
             ->sum('total_matched_bv');
 

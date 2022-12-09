@@ -226,15 +226,23 @@ class CronsController extends Controller
     }
 
     public function generateWeeklyPayout(){
-        
-        $date = Carbon::now()->subDays(7);
-        $from=date("Y-m-d", strtotime('saturday this week', strtotime($date)));   
-        $dt = Carbon::now()->subDays(1);
-        $to=date("Y-m-d", strtotime('friday this week', strtotime($dt)));
+        $dt = Carbon::now();
+        $date_from = $dt->subDays(7);
+        $from=date("Y-m-d", strtotime('saturday this week', strtotime($date_from)));   
+        $date_to =  $dt->subDays(1);
+        $to=date("Y-m-d", strtotime('friday this week', strtotime($date_to)));
+        $PayoutType='';
 
-        $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
-        $PayoutType=PayoutType::where('name','Weekly')->first();
+        if( $dt->naxt('saturday')->month !==  $dt->month){
+            $incomes=Income::all();
+            $PayoutType=PayoutType::where('name','Monthly')->first();
+        } else {
+            $incomes=Income::whereIn('code',['REWARD','AFFILIATE','SQUAD','ELEVATION','LUXURY'])->get();
+            $PayoutType=PayoutType::where('name','Weekly')->first();
+        }
        
+        if(!$PayoutType)
+        return;
         
         $Payout=new Payout;
         $Payout->payout_type_id=$PayoutType->id;
