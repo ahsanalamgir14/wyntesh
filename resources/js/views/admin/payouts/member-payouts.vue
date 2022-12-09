@@ -281,22 +281,26 @@ export default {
         const tHeader = [
           "Sr.No",
           "Member",
+          "Name",
           "Sales start date",
           "Sales end date",
-          "Sales BV",
-          "Saled Amount",
-          "Total Payout",
-          "Generated At",
+          "Matched BV",
+          "Amount",
+          "TDS",
+          "Admin Fee",
+          "Net Payable",
         ];
         const filterVal = [
           "id",
           "member",
+          "name",
           "sales_start_date",
           "sales_end_date",
-          "sales_pv",
-          "sales_amount",
-          "total_payout",
-          "created_at",
+          "total_matched_bv",
+          "payout_amount",
+          "tds",
+          "admin_fee",
+          "net_payable_amount",
         ];
         const data = this.formatJson(filterVal, this.list);
         excel.export_json_to_excel({
@@ -314,10 +318,12 @@ export default {
             return parseTime(v[j]);
           } else if(j === "member") {
             return v.member?v.member.user.username:''
+          }else if(j === "name") {
+            return v.member?v.member.user.name:''
           }else if(j === "sales_start_date") {
-            return v.payout?v.payout.sales_start_date:''
+            return v.payout? parseTime(v.payout.sales_start_date,'{y}-{m}-{d}'):''
           }else if(j === "sales_end_date") {
-            return v.payout?v.payout.sales_end_date:''
+            return v.payout? parseTime(v.payout.sales_end_date,'{y}-{m}-{d}'):''
           }else {
             return v[j];
           }

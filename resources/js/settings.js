@@ -8,8 +8,8 @@ export default {
     theme: variables.theme,
     totalLegs: 4,
     pvLabel: 'BV',
-    // baseUrl: 'https://business.wyntash.in/',
-    baseUrl: 'http://wyntash-soft.mlmsoftwaredemo.org/',
+    baseUrl: 'https://business.wyntash.in/',
+    // baseUrl: 'http://wyntash-soft.mlmsoftwaredemo.org/',
     // baseUrl: 'http://localhost:8000/',
 
     /**

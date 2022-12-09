@@ -141,7 +141,36 @@
         </el-form>
       </div>
     </el-col>
-    
+    <el-dialog width="60%" top="5px" title="Terms and Conditions" height="700px" :visible.sync="showePupupDialog" >
+     <el-row justify="center" style="margin-left: 10px;margin-right: 10px;">
+        <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+              <div><p>1 . TERMS<br>By accessing the website at https://www.wyntash.in/, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. The materials contained in this website are protected by applicable copyright and trademark law.</p>
+              <p>2 . USER LICENSE&nbsp;<br>Permission is granted to temporarily download one copy of the materials (information or software) on Wyntash's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
+                  modify or copy the materials;
+                  use the materials for any commercial purpose, or for any public display (commercial or non-commercial);
+                  attempt to decompile or reverse engineer any software contained on Wyntash's website;
+                  remove any copyright or other proprietary notations from the materials; or
+                  transfer the materials to another person or "mirror" the materials on any other server.
+                  This license shall automatically terminate if you violate any of these restrictions and may be terminated by Wyntash at any time. Upon terminating your viewing of these materials or upon the termination of this license, you must destroy any downloaded materials in your possession whether in electronic or printed format.</p>
+              <p>3 . DISCLAIMER&nbsp;<br>The materials on Wyntash's website are provided on an 'as is' basis. Wyntash makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.Further, Wyntash does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its website or otherwise relating to such materials or on any sites linked to this site.</p>
+              <p>4 . LIMITATIONS&nbsp;&nbsp;<br>In no event shall Wyntash or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Wyntash's website, even if Wyntash or a Wyntash authorized representative has been notified orally or in writing of the possibility of such damage. Because some jurisdictions do not allow limitations on implied warranties, or limitations of liability for consequential or incidental damages, these limitations may not apply to you.</p>
+              <p>5 . ACCURACY OF MATERIALS&nbsp;&nbsp;<br>The materials appearing on Wyntash's website could include technical, typographical, or photographic errors. Wyntash does not warrant that any of the materials on its website are accurate, complete or current. Wyntash may make changes to the materials contained on its website at any time without notice. However Wyntash does not make any commitment to update the materials.</p>
+              <p>6 . LINKS&nbsp;<br>Wyntash has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Wyntash of the site. Use of any such linked website is at the user's own risk.</p>
+              <p>7 . MODIFICATIONS&nbsp;<br>Wyntash may revise these terms of service for its website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.</p>
+              <p>8 . GOVERNING LAW&nbsp;&nbsp;<br>These terms and conditions are governed by and construed in accordance with the laws of India and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p>
+              <p>CONTACT US&nbsp;&nbsp;<br>If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us.</p></div>
+        </el-col>
+          <!-- <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+            <img :src="softwarePupup.image" max-height="500px;" />
+          </el-col> -->
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showePupupDialog = false">Cancel</el-button>
+         <el-button :loading="loading" class="font-semibold bg-purple-1 border-purple-1 hover:bg-purple-600 focus:bg-purple-600 hover:border-purple-600 focus:border-purple-600 focus:outline-none" icon="el-icon-position" type="primary" @click="showePupupDialog = false">
+           Yes, I Agree
+          </el-button>
+      </span>
+    </el-dialog>
   </el-row>
 </template>
 
@@ -205,6 +234,7 @@ export default {
       loading: false,
       pwdType: 'password',
       redirect: undefined,
+       showePupupDialog:true,
     };
   },
 
