@@ -59,7 +59,7 @@
               </div>
             </router-link>
           </el-col> -->
-          <el-col :xs="24" :sm="24" :lg="24" class="card-panel-col">
+          <el-col :xs="12" :sm="12" :lg="24" class="card-panel-col">
             <router-link to="/member/payouts/all">
               <div class="card-panel gr2">
                 <div class="card-panel-icon-wrapper icon-money payout" style="width:100px;">
@@ -259,7 +259,7 @@
             </router-link>
           </el-col>
           <el-col :xs="24" :sm="24" :md="24" :lg="24">
-            <el-row>
+            <el-row :gutter="10">
               <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
                 <router-link to="/reports/group-and-matching">
                   <div class="card-panel gr2">
