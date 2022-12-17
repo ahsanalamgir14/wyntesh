@@ -226,14 +226,13 @@ class CronsController extends Controller
     }
 
     public function generateWeeklyPayout(){
-        $dt = Carbon::now();
-        $date_from = $dt->subDays(7);
+        $date_from = Carbon::now()->subDays(7);
         $from=date("Y-m-d", strtotime('saturday this week', strtotime($date_from)));   
-        $date_to =  $dt->subDays(1);
+        $date_to =  Carbon::now()->subDays(1);
         $to=date("Y-m-d", strtotime('friday this week', strtotime($date_to)));
         $PayoutType='';
 
-        if( $dt->naxt('saturday')->month !==  $dt->month){
+        if( Carbon::now()->next('saturday')->format('m') !==  Carbon::now()->format('m')){
             $incomes=Income::all();
             $PayoutType=PayoutType::where('name','Monthly')->first();
         } else {
@@ -242,7 +241,7 @@ class CronsController extends Controller
         }
        
         if(!$PayoutType)
-        return;
+           return;
         
         $Payout=new Payout;
         $Payout->payout_type_id=$PayoutType->id;
