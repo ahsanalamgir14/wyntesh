@@ -230,6 +230,7 @@ class PayoutHandler
         $Member->save();
         
         $memberPayout->total_matched_bv=$matched_bv;
+        $memberPayout->capping_matched_bv=$matched_bv;
         $memberPayout->total_carry_forward_bv=$carry_forward;
         $memberPayout->save();
     }
@@ -248,7 +249,7 @@ class PayoutHandler
 
         foreach ($Members as $Member) {
             $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
-            $this->paySquadIncome($memberPayout,$payoutIncome);        
+            $this->paySquadIncome($memberPayout,$income,$payoutIncome);        
         }
     }
 
@@ -273,18 +274,21 @@ class PayoutHandler
         $payoutIncome->save();
     }
 
-    public function paySquadIncome($memberPayout,$payoutIncome) {
+    public function paySquadIncome($memberPayout,$income,$payoutIncome) {
 
-        $totalIncomeValue = 0;
+        $capping_bv=0;
         //new add 1,50,000 BV Matching capping
-        $total_matched_bv=$memberPayout->total_matched_bv;
-        $capping=$payoutIncome->income->capping_matched_bv;
-
-        if($total_matched_bv > $capping){
-            $total_matched_bv=$capping;
+        
+        foreach ($income->income_parameters as $parameter) {
+            if($parameter->name=='capping_matched_bv'){
+                $capping_bv=$parameter->value_1;
+            }
         }
-        $memberPayout->capping_matched_bv=$total_matched_bv;
-        $memberPayout->save();
+
+        if($memberPayout->total_matched_bv > $capping_bv){
+            $memberPayout->capping_matched_bv=$capping_bv;
+            $memberPayout->save();
+        }
 
         $factor = $payoutIncome->income_payout_parameter_1_value;
         $payout_amount = $memberPayout->capping_matched_bv*$factor;
