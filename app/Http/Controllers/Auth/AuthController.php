@@ -138,7 +138,7 @@ class AuthController extends Controller
 
         $credentials = request(['username', 'password']);
         $username=isset($request->username)?$request->username:'';
-        $password=$request->password;
+        $password=urldecode($request->password);
       
         if(!empty($username)  && !empty($password)){
             $credentials=['username' => $credentials['username'], 'password' => $credentials['password']];
