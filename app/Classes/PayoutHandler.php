@@ -40,12 +40,17 @@ class PayoutHandler
     public $payout;
     public $tds_percentage=0;
     public $admin_fee_percent=0;
+    public $squad_capping_matched_bv=0;
+    public $luxury_capping_matched_bv=0;
 
 	public function __construct(Payout $payout)
     {
         $this->payout=$payout;
         $this->tds_percentage=CompanySetting::getValue('tds_percentage');
         $this->admin_fee_percent=CompanySetting::getValue('admin_fee_percent');
+
+        $this->squad_capping_matched_bv=CompanySetting::getValue('squad_capping_matched_bv');
+        $this->luxury_capping_matched_bv=CompanySetting::getValue('luxury_capping_matched_bv');
     }
 
     public function calculatePayout()
@@ -228,11 +233,19 @@ class PayoutHandler
         // Save Matched bv and total carry_forward to member payout.
         $Member->total_matched_bv+=$matched_bv;
         $Member->save();
-        
         $memberPayout->total_matched_bv=$matched_bv;
         $memberPayout->capping_matched_bv=$matched_bv;
+        $memberPayout->luxury_capping_matched_bv=$matched_bv;
         $memberPayout->total_carry_forward_bv=$carry_forward;
         $memberPayout->save();
+        if($memberPayout->capping_matched_bv > $this->squad_capping_matched_bv){
+            $memberPayout->capping_matched_bv = $this->squad_capping_matched_bv;
+            $memberPayout->save();
+        }
+        if($memberPayout->luxury_capping_matched_bv > $this->luxury_capping_matched_bv){
+            $memberPayout->luxury_capping_matched_bv = $this->luxury_capping_matched_bv;
+            $memberPayout->save();
+        }
     }
 
     public function distributeSquadIncome(){
@@ -249,7 +262,7 @@ class PayoutHandler
 
         foreach ($Members as $Member) {
             $memberPayout = MemberPayout::where('member_id',$Member->id)->where('payout_id',$this->payout->id)->first();
-            $this->paySquadIncome($memberPayout,$income,$payoutIncome);        
+            $this->paySquadIncome($memberPayout,$payoutIncome);        
         }
     }
 
@@ -274,21 +287,7 @@ class PayoutHandler
         $payoutIncome->save();
     }
 
-    public function paySquadIncome($memberPayout,$income,$payoutIncome) {
-
-        $capping_bv=0;
-        //new add 1,50,000 BV Matching capping
-        
-        foreach ($income->income_parameters as $parameter) {
-            if($parameter->name=='capping_matched_bv'){
-                $capping_bv=$parameter->value_1;
-            }
-        }
-
-        if($memberPayout->total_matched_bv > $capping_bv){
-            $memberPayout->capping_matched_bv=$capping_bv;
-            $memberPayout->save();
-        }
+    public function paySquadIncome($memberPayout,$payoutIncome) {
 
         $factor = $payoutIncome->income_payout_parameter_1_value;
         $payout_amount = $memberPayout->capping_matched_bv*$factor;
@@ -470,7 +469,6 @@ class PayoutHandler
         $income_percent=0;
         $minimum_matched=0;
         $minimum_rank=0;
-        $capping_matched_bv=0;
 
         foreach ($PayoutIncome->income->income_parameters as $parameter) {
             if($parameter->name=='income_percent'){
@@ -488,8 +486,8 @@ class PayoutHandler
         $PayoutIncome->income_payout_parameter_1_name='factor';
         $PayoutIncome->income_payout_parameter_2_name='total_points';
 
-        $TotalMatchedBv=MemberPayout::addSelect([ DB::raw("sum((capping_matched_bv DIV ".$minimum_matched.")) as total_points")])
-            ->where('capping_matched_bv','>=',$minimum_matched)
+        $TotalMatchedBv=MemberPayout::addSelect([ DB::raw("sum((luxury_capping_matched_bv DIV ".$minimum_matched.")) as total_points")])
+            ->where('luxury_capping_matched_bv','>=',$minimum_matched)
             ->whereHas('member',function($q)use($minimum_rank){
                 $q->where('rank_id','>=',$minimum_rank);
             })
@@ -662,7 +660,6 @@ class PayoutHandler
         $income_percent=0;
         $minimum_matched=0;
         $minimum_rank=0;
-
         foreach ($PayoutIncome->income->income_parameters as $parameter) {
             if($parameter->name=='income_percent'){
                 $income_percent=$parameter->value_1;
@@ -679,7 +676,7 @@ class PayoutHandler
             return;
         }
 
-        $points=intdiv($MemberPayout->capping_matched_bv,$minimum_matched);
+        $points=intdiv($MemberPayout->luxury_capping_matched_bv,$minimum_matched);
         $payout_amount=($points*$PayoutIncome->income_payout_parameter_1_value);
 
         if($payout_amount==0){

@@ -15,6 +15,7 @@ use App\Models\Admin\MembersLegPv;
 use App\Models\Admin\PayoutIncome;
 use App\Models\Admin\MatchingPoint;
 use App\Models\Admin\AffiliateBonus;
+use App\Models\Admin\CompanySetting;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Admin\MemberCarryForwardPv;
@@ -35,11 +36,15 @@ class ProcessTestMatching implements ShouldQueue
     public $from_date;
     public $to_date;
     public $total_matched_bv = 0 ;
+    public $squad_capping_matched_bv=0;
+    public $luxury_capping_matched_bv=0;
     
     public function __construct($from_date,$to_date)
     {
         $this->from_date = $from_date;
         $this->to_date = $to_date;
+        $this->squad_capping_matched_bv=CompanySetting::getValue('squad_capping_matched_bv');
+        $this->luxury_capping_matched_bv=CompanySetting::getValue('luxury_capping_matched_bv');
     }
 
     /**
@@ -62,18 +67,16 @@ class ProcessTestMatching implements ShouldQueue
 
         //DB::statement('TRUNCATE matching_points');
 
-
-        $total_sales=Order::whereNotIn('delivery_status',['Order Cancelled','Order Returned'])->whereDate('created_at','<=',$to_date)
-                        ->whereDate('created_at','>=',$from_date)
-                        ->sum('pv');
+                $total_bv=Sale::whereDate('created_at','<=',$to_date)
+                    ->whereDate('created_at','>=',$from_date)
+                    ->sum('pv');
 
         foreach ($Members as $Member) {
-            $this->calculateMemberMatchedBV($Member,$total_sales,$from_date,$to_date);
+            $this->calculateMemberMatchedBV($Member,$total_bv,$from_date,$to_date);
         }
-        $this->total_matched_bv=MatchingPoint::sum('total_matched_bv');
     }
     
-    public function calculateMemberMatchedBV($Member,$total_sales,$from_date,$to_date){
+    public function calculateMemberMatchedBV($Member,$total_bv,$from_date,$to_date){
         
         $matched_bv=0;
         $carry_forward=0;
@@ -95,7 +98,7 @@ class ProcessTestMatching implements ShouldQueue
         
         $MatchingPoint=new MatchingPoint;
         $MatchingPoint->member_id=$Member->id;    
-        $MatchingPoint->total_sales=$total_sales;    
+        $MatchingPoint->total_sales=$total_bv;    
         $MatchingPoint->save();
 
         $last_carry_forward=MemberCarryForwardPv::where('member_id',$Member->id)->orderBy('payout_id','desc')->first();
@@ -159,11 +162,23 @@ class ProcessTestMatching implements ShouldQueue
         if($matched_bv<=0){
             $matched_bv=0;
         }
-
-        $MatchingPoint->matched=floatval($matched_bv/24);
+        $matched_bv = floatval($matched_bv)/24;
+       
+        $MatchingPoint->matched=$matched_bv;
+        $MatchingPoint->capping_matched=$matched_bv;
+        $MatchingPoint->luxury_capping_matched=$matched_bv;
         $MatchingPoint->carry_forward=$carry_forward;
         $MatchingPoint->carry_forward_position=$carry_forward_position;
         $MatchingPoint->save();
+        $this->total_matched_bv+=$matched_bv;
+        if($MatchingPoint->capping_matched > $this->squad_capping_matched_bv){
+            $MatchingPoint->capping_matched = $this->squad_capping_matched_bv;
+            $MatchingPoint->save();
+        }
+        if($MatchingPoint->luxury_capping_matched > $this->luxury_capping_matched_bv){
+            $MatchingPoint->luxury_capping_matched = $this->luxury_capping_matched_bv;
+            $MatchingPoint->save();
+        }
     }
 
     public function calculateIncomeds(){
@@ -240,14 +255,10 @@ class ProcessTestMatching implements ShouldQueue
     public function calculateSquadIncome($MatchingPoint, $Member, $income) {
       
         $income_percent=0;
-        $capping_matched_bv=0;
-        
+       
         foreach ($income->income_parameters as $parameter) {
             if($parameter->name=='income_percent'){
                 $income_percent=$parameter->value_1;
-            }
-            if($parameter->name=='capping_matched_bv'){
-                $capping_matched_bv=$parameter->value_1;
             }
         }
 
@@ -257,20 +268,15 @@ class ProcessTestMatching implements ShouldQueue
         }else{
             $income_factor=(($MatchingPoint->total_sales*$income_percent)/100)/$this->total_matched_bv;    
         }
-        $total_matched_bv=$MatchingPoint->matched;
-        
-        if($total_matched_bv > $capping_matched_bv){
-            $total_matched_bv=$capping_matched_bv;
-        }
 
-        $payout_amount = $total_matched_bv*$income_factor;
+        $payout_amount = $MatchingPoint->capping_matched*$income_factor;
 
         if(!$payout_amount)
             return;
         
         $MatchingPoint->income_3_factor_value = round($income_factor,4);
         $MatchingPoint->income_3_total_points = $MatchingPoint->total_sales;
-        $MatchingPoint->income_3_point_value = $total_matched_bv;
+        $MatchingPoint->income_3_point_value =  $MatchingPoint->capping_matched;
         $MatchingPoint->income_3_payout_amount = $payout_amount;
         $MatchingPoint->save();
     }
@@ -350,8 +356,8 @@ class ProcessTestMatching implements ShouldQueue
             return;
         }
 
-        $TotalMatchedBv=MatchingPoint::addSelect([ DB::raw("sum((matched DIV ".$minimum_matched.")) as total_points")])
-                ->where('matched','>=',$minimum_matched)
+        $TotalMatchedBv=MatchingPoint::addSelect([ DB::raw("sum((luxury_capping_matched DIV ".$minimum_matched.")) as total_points")])
+                ->where('luxury_capping_matched','>=',$minimum_matched)
                 ->whereHas('member',function($q)use($minimum_rank){
                     $q->where('rank_id','>=',$minimum_rank);
                 })
@@ -365,7 +371,7 @@ class ProcessTestMatching implements ShouldQueue
             $income_factor=(($MatchingPoint->total_sales*$income_percent)/100)/$total_points;
         }
 
-        $points=intdiv($MatchingPoint->matched,$minimum_matched);
+        $points=intdiv($MatchingPoint->luxury_capping_matched,$minimum_matched);
         $payout_amount=($points*$income_factor);
 
         if($payout_amount==0){
@@ -401,10 +407,10 @@ class ProcessTestMatching implements ShouldQueue
         }
 
         $points_array=MatchingPoint::addSelect([ DB::raw("sum((matched)) as total_points")])
-                ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
-                ->whereRank('member.rank_logs', $minimum_rank, $this->from_date)
-                ->groupBy('member_id')
-                ->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
+                    ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
+                    ->whereRank('member.rank_logs', $minimum_rank, $this->from_date)
+                    ->groupBy('member_id')
+                    ->having('total_points','>=',$minimum_matched)->get()->pluck('total_points')->toArray();
 
         $total_points=0;
 
@@ -416,12 +422,12 @@ class ProcessTestMatching implements ShouldQueue
         }
 
         $monthly_total_bv=Sale::whereDate('created_at','<=', $this->from_date)
-                        ->whereDate('created_at','>=', $this->to_date)
-                        ->sum('pv');
+                    ->whereDate('created_at','>=', $this->to_date)
+                    ->sum('pv');
 
         if(!$total_points){
             $income_factor=0;
-        }else{
+        }else{            
             $income_factor=(($monthly_total_bv*$income_percent)/100)/$total_points;
         }
 

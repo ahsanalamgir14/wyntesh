@@ -36,7 +36,15 @@ class companySettings extends Seeder
            [
                'key' => 'cashback_percent',
                'value' => '5'
-           ]
+           ],
+           [
+                'key' => 'squad_capping_matched_bv',
+                'value' => '150000'
+            ],
+            [
+                'key' => 'luxury_capping_matched_bv',
+                'value' => '150000'
+            ]
        ];
 
 
