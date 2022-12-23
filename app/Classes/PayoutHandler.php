@@ -530,11 +530,13 @@ class PayoutHandler
 
         // $payout_month=$this->payout->sales_start_date->format('m');
         // $payout_year=$this->payout->sales_start_date->format('Y');
-        $last_payout=Payout::where('payout_type_id',$this->payout->payout_type_id)->where('id','!=',$this->payout->id)->latest()->first();
-       
+        $last_payout=Payout::whereHas('payout_type',function($q){
+            $q->where('name','Weekly');
+        })->where('id','!=',$this->payout->id)->latest()->first();
+        
         $start_date = $last_payout->sales_end_date->addDays(1)->format('Y-m-d'); 
         $end_date = $this->payout->sales_end_date; 
-       
+        
         $points_array=MemberPayout::addSelect([ DB::raw("sum((total_matched_bv)) as total_points")])
         ->whereHas('member',function($q)use($minimum_rank){ $q->where('rank_id','>=',$minimum_rank);})
         ->whereRank('member.rank_logs', $minimum_rank, $start_date)
@@ -629,7 +631,9 @@ class PayoutHandler
         // $payout_month=$this->payout->sales_start_date->format('m');
         // $payout_year=$this->payout->sales_start_date->format('Y');
 
-        $last_payout=Payout::where('payout_type_id',$this->payout->payout_type_id)->where('id','!=',$this->payout->id)->latest()->first();
+        $last_payout=Payout::whereHas('payout_type',function($q){
+            $q->where('name','Weekly');
+        })->where('id','!=',$this->payout->id)->latest()->first();
        
         $start_date = $last_payout->sales_end_date->addDays(1)->format('Y-m-d'); 
         $end_date = $this->payout->sales_end_date;
