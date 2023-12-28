@@ -49,7 +49,10 @@
           </a>
           <router-link v-if="roles.includes('user')" to="/wallet/wallet">
             <el-dropdown-item>Wallet</el-dropdown-item>
-          </router-link>
+          </router-link>          
+          <a href="https://edu.wyntash.in/learn/#/login" target="_blank" v-if="roles.includes('user') || roles.includes('admin')">
+            <el-dropdown-item>Courses</el-dropdown-item>
+          </a>           
           <a href="#" @click="showChangePassword()">
             <el-dropdown-item>Change Password</el-dropdown-item>
           </a>           

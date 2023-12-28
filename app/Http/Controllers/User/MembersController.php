@@ -114,6 +114,7 @@ class MembersController extends Controller
 
     public function adminGeneology(){
         $zero=Member::with('children.children')->with('kyc')->with('user')->with('rank')
+        ->with('member_payout:id,member_id,total_carry_forward_bv')
         ->withCount(['leg as group_pv' => function($query){
            $query->select(DB::raw('sum(pv)'));
         }])

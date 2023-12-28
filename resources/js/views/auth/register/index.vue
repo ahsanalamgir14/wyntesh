@@ -129,6 +129,16 @@
                   </el-date-picker>
               </el-form-item>
             </el-col>
+            <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+              <el-form-item prop="acceptTerms" class="checkbox-accept-terms">
+                <el-checkbox v-model="registerForm.acceptTerms" class="ml-2">
+                  By signing up, you agree to the
+                  <a href="https://wyntash.in/terms-of-services.php" target="_blank">Terms of Service</a>
+                  and
+                  <a href="https://wyntash.in/privacy-policy.php" target="_blank">Privacy Policy</a>.
+                </el-checkbox>
+              </el-form-item>
+            </el-col>
           </el-row>
           <el-form-item class="item-btn">
             <el-button :loading="loading"  icon="el-icon-position" type="primary"  @click.native.prevent="register">
@@ -209,6 +219,14 @@ export default {
         callback(new Error('Password is required.'));  
       }
     };
+    const validateTerms = (rule, value, callback) => {
+      console.log('valid', value)
+      if (value === false) {
+        callback(new Error('Accept terms and conditions'));  
+      } else {
+        callback();
+      }
+    };
     return {
       registerForm: {
         sponsor_code:undefined,
@@ -221,7 +239,8 @@ export default {
         contact:undefined,
         dob:undefined,
         position:'1',
-        gender:'m'
+        gender:'m',
+        acceptTerms:false
       },
       logo: logo,
       settings:{},
@@ -230,6 +249,7 @@ export default {
         email: [{ required: true, trigger: 'blur', validator: validateEmail  }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }],
         contact: [{ required: true, trigger: 'blur', validator: validateContact  }],
+        acceptTerms: [{ required: true, trigger: 'change', validator: validateTerms }],
       },
       loading: false,
       pwdType: 'password',

@@ -1467,6 +1467,24 @@ export const asyncRoutes = [
             meta: { title: 'Tickets', icon: 'fas fa-envelope-open-text', color: 'color:#C39BD3', affix: true, roles: ['user'] }
         }]
     },
+    {
+        path: '/courses',
+        component: Layout,
+        hidden: false,
+        name: 'Courses',
+        redirect: 'https://edu.wyntash.in/learn/#/login',
+        meta: {
+            title: 'Courses',
+            icon: 'fas fa-comments-dollar',
+            roles: ['user', 'admin'],
+            color: 'color:#db03fc'
+        },
+        children: [{
+            path: 'https://edu.wyntash.in/learn/#/login',
+            name: 'Courses',
+            meta: { title: 'Courses', icon: 'fas fa-chalkboard-teacher', color: 'color:#0398fc', affix: true, roles: ['user', 'admin'] }
+        }]
+    },
 
     /** when your routing map is too long, you can split it into small modules **/
     //tableRouter,

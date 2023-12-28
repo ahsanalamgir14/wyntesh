@@ -215,8 +215,8 @@ class PayoutHandler
             $matched_bv=0;
         }
 
-        if($carry_forward > 100000)
-            $carry_forward=100000;
+        if($carry_forward > 1000000000)
+            $carry_forward=1000000000;
 
         if(count($legs)!== 0){
             $MemberCarryForwardPv=new MemberCarryForwardPv;

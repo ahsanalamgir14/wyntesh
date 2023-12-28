@@ -29,7 +29,7 @@
         <el-popover
             placement="top-start"
             
-            width="250"
+            width="315"
             trigger="click"
               >
             <div slot="reference">
@@ -43,7 +43,9 @@
               <p class="mt-2"><b>Wallet Balance</b> : {{node.wallet_balance}}</p>
               <p class="mt-2"><b>Rank</b> : {{node.rank.name}}</p>
               <p class="mt-2"><b>Team</b> : {{node.team_size}}</p>
+              <p class="mt-2"><b>Total Self PV</b> : {{node.total_personal_pv?node.total_personal_pv:0}}</p>
               <p class="mt-2"><b>Total Group PV</b> : {{node.group_pv?node.group_pv:0}}</p>
+              <p class="mt-2"><b>Total Carry Forward Available</b> : {{node.member_payout?node.member_payout.total_carry_forward_bv:0}}</p>
               <p class="mt-2"><b>KYC Status</b> : {{node.kyc.verification_status}}</p>
 
             </div>

@@ -29,7 +29,11 @@ class Member extends Model
     {
         return $this->hasOne('App\Models\User\Kyc');
     }
-   
+
+    public function member_payout()
+    {
+        return $this->hasOne('App\Models\Admin\MemberPayout');
+    }
 
     public function leg()
     {
@@ -65,6 +69,7 @@ class Member extends Model
     public function children()
     {
         return $this->hasMany(self::class, 'parent_id')->with('user:id,username,name,is_active')->with('kyc:id,member_id,verification_status,is_verified')->with('leg')->with('rank')
+            ->with('member_payout:id,member_id,total_carry_forward_bv')
             ->withCount(['leg as group_pv' => function($query){
                $query->select(DB::raw('sum(pv)'));
             }]);

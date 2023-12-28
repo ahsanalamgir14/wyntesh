@@ -15,13 +15,14 @@
         icon="el-icon-search"
         @click="handleFilter"
       >Search</el-button>
-     <!--  <el-button
+      <el-button
+        v-if="settings && settings.is_automatic_payout === '0'"
         class="filter-item"
         style="margin-left: 10px;"
         type="success"
         icon="el-icon-refresh-left"
         @click="handleCreate"
-      > Generate</el-button> -->
+      > Generate</el-button>
       <el-button
         v-waves
         :loading="downloadLoading"
@@ -222,6 +223,7 @@ import { parseTime } from "@/utils";
 import Pagination from "@/components/Pagination"; 
 import role from '@/directive/role'; 
 import checkRole from '@/utils/role';
+import { getCompanySettings } from "@/api/admin/company-settings";
 
 export default {
   name: "GeneratePayout",
@@ -298,13 +300,17 @@ export default {
         incomes: [{ required: true, message: 'Please select income', trigger: 'blur' }],
       },
       downloadLoading: false,
-      buttonLoading: false
+      buttonLoading: false,
+      settings: null
     };
   },
   created() {
     this.getList();
     getAllIncomes().then(response => {
       this.income_list = response.data;
+    });
+    getCompanySettings().then(response => {
+      this.settings = response.data;
     });
   },
   methods: {
