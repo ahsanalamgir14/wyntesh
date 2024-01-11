@@ -10,7 +10,6 @@ use App\Classes\PayoutHandler;
 
 class GeneratePayoutListener
 {
-    public $is_automatic_payout=0;
 
     /**
      * Create the event listener.
