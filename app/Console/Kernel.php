@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\Admin\CronsController;
 use App\Http\Controllers\User\PayoutsController;
 use App\Http\Controllers\User\MembersController;
-
+use App\Models\Admin\CompanySetting;
 use App\Http\Controllers\Admin\MigrationController;
 
 class Kernel extends ConsoleKernel
@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
     ];
+    public $is_automatic_payout=0;
 
     /**
      * Define the application's command schedule.
@@ -43,10 +44,16 @@ class Kernel extends ConsoleKernel
         //     $CronsController->generateMonthlyPayout();
         // })->dailyAt('00:01');
 
+        $this->is_automatic_payout=CompanySetting::getValue('is_automatic_payout');
+
         $schedule->call(function () {
             $CronsController=new CronsController;
             $CronsController->generateWeeklyPayout();
-        })->weeklyOn(6, '00:05');
+        })->weeklyOn(6, '00:05')->when(function () {
+            if($this->is_automatic_payout == 1) {
+                return true;
+            } else false;
+        });
 
         $schedule->call(function () {
             $CronsController=new CronsController;

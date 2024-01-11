@@ -32,10 +32,7 @@ class GeneratePayoutListener
     {
         $payout=$event->payout;
         $PayoutHandler=new PayoutHandler($payout);
-        $this->is_automatic_payout=CompanySetting::getValue('is_automatic_payout');
-        if($this->is_automatic_payout == 1) {
-            $PayoutHandler->calculatePayout();
-        }
+        $PayoutHandler->calculatePayout();
     }
 
 }
