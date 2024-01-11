@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
         })->weeklyOn(6, '00:05')->when(function () {
             if($this->is_automatic_payout == 1) {
                 return true;
-            } else false;
+            } else return false;
         });
 
         $schedule->call(function () {
