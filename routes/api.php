@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +31,27 @@ Route::get('software-popups','\App\Http\Controllers\Admin\SoftwarePopupControlle
 Route::get('country', '\App\Http\Controllers\User\ConfigController@getCountry');
 Route::get('cities/{state}', '\App\Http\Controllers\User\ConfigController@getStateCities');
 Route::get('states/{country}', '\App\Http\Controllers\User\ConfigController@getCountryStates');
+Route::get('/clear-cache', function () {
+    try {
+        // Clear configuration cache
+        Artisan::call('config:clear');
 
+        // Clear route cache
+        Artisan::call('route:clear');
+
+        // // Clear application cache
+        Artisan::call('cache:clear');
+
+        // // Clear compiled views
+        // Artisan::call('view:clear');
+        // Artisan::call('event:generate');
+        // Artisan::call('queue:work');
+
+        return response()->json(['success' => true, 'message' => 'Cache cleared successfully']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Failed to clear cache']);
+    }
+});
 // Authentication Routes
 Route::group(['prefix' => 'auth'], function ($router) {
     Route::post('login', 'Auth\AuthController@login');
@@ -555,7 +576,7 @@ Route::group(['middleware' => ['jwt.verify','role:superadmin'],'prefix' => 'supe
     Route::post('settings','SettingsController@update');
 
 
-    
+
 });
 
 

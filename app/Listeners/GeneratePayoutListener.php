@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\GeneratePayoutEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Admin\CompanySetting;
 use App\Classes\PayoutHandler;

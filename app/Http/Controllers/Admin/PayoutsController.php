@@ -465,6 +465,7 @@ class PayoutsController extends Controller
         }
 
         event(new GeneratePayoutEvent($Payout));
+        // GeneratePayoutEvent::dispatch($Payout);
 
         $response = array('status' => true,'message'=>'Payout Generation added to queue.');
         return response()->json($response, 200);
