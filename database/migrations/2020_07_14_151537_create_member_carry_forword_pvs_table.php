@@ -18,7 +18,7 @@ class CreateMemberCarryForwordPvsTable extends Migration
             $table->bigInteger('member_id');
             $table->bigInteger('payout_id')->nullable();
             $table->integer('position');
-            $table->decimal('pv', 10, 2)->default(0);
+            $table->decimal('pv', 12, 2)->default(0);
             $table->timestamps();
         });
     }
